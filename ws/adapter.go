@@ -43,6 +43,8 @@ var (
 )
 
 // Service specifies web socket service API.
+//
+//go:generate mockery --name Service --output=./mocks --filename service.go --quiet --note "Copyright (c) Abstract Machines"
 type Service interface {
 	// Subscribe subscribes message from the broker using the thingKey for authorization,
 	// and the channelID for subscription. Subtopic is optional.
