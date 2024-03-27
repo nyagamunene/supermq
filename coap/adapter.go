@@ -23,6 +23,8 @@ const chansPrefix = "channels"
 var ErrUnsubscribe = errors.New("unable to unsubscribe")
 
 // Service specifies CoAP service API.
+//
+//go:generate mockery --name Service --output=./mocks --filename service.go --quiet --note "Copyright (c) Abstract Machines"
 type Service interface {
 	// Publish publishes message to specified channel.
 	// Key is used to authorize publisher.
