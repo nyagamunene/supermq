@@ -18,8 +18,6 @@ import (
 )
 
 // Client wraps CoAP client.
-//
-//go:generate mockery --name Client --output=./mocks --filename client.go --quiet --note "Copyright (c) Abstract Machines"
 type Client interface {
 	// In CoAP terminology, Token similar to the Session ID.
 	Token() string
