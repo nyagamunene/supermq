@@ -1302,7 +1302,7 @@ func TestListObjects(t *testing.T) {
 		desc          string
 		pr            auth.PolicyReq
 		nextPageToken string
-		limit         int32
+		limit         uint64
 		err           error
 	}{
 		{
@@ -1333,20 +1333,7 @@ func TestListObjects(t *testing.T) {
 			limit:         10,
 			err:           svcerr.ErrInvalidPolicy,
 		},
-		{
-			desc: "list objects with limit less than zero",
-			pr: auth.PolicyReq{
-				Subject:     id,
-				SubjectType: auth.UserType,
-				Relation:    auth.ViewerRelation,
-				ObjectType:  auth.ThingType,
-				ObjectKind:  auth.ThingsKind,
-				Object:      "",
-			},
-			nextPageToken: accessToken,
-			limit:         -1,
-			err:           nil,
-		},
+
 	}
 	for _, tc := range cases {
 		repocall2 := prepo.On("RetrieveObjects", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(expectedPolicies, mock.Anything, tc.err)
@@ -1434,7 +1421,7 @@ func TestListSubjects(t *testing.T) {
 		desc          string
 		pr            auth.PolicyReq
 		nextPageToken string
-		limit         int32
+		limit         uint64
 		err           error
 	}{
 		{
@@ -1464,20 +1451,6 @@ func TestListSubjects(t *testing.T) {
 			nextPageToken: accessToken,
 			limit:         10,
 			err:           svcerr.ErrInvalidPolicy,
-		},
-		{
-			desc: "list subjects with limit less than zero",
-			pr: auth.PolicyReq{
-				Subject:     id,
-				SubjectType: auth.UserType,
-				Relation:    auth.ViewerRelation,
-				ObjectType:  auth.ThingType,
-				ObjectKind:  auth.ThingsKind,
-				Object:      "",
-			},
-			nextPageToken: accessToken,
-			limit:         -1,
-			err:           nil,
 		},
 	}
 	for _, tc := range cases {
