@@ -1017,7 +1017,7 @@ type ListObjectsReq struct {
 	Object          string `protobuf:"bytes,7,opt,name=object,proto3" json:"object,omitempty"`
 	ObjectType      string `protobuf:"bytes,8,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`
 	NextPageToken   string `protobuf:"bytes,9,opt,name=nextPageToken,proto3" json:"nextPageToken,omitempty"`
-	Limit           uint64  `protobuf:"varint,10,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit           int32  `protobuf:"varint,10,opt,name=limit,proto3" json:"limit,omitempty"`
 }
 
 func (x *ListObjectsReq) Reset() {
@@ -1115,7 +1115,7 @@ func (x *ListObjectsReq) GetNextPageToken() string {
 	return ""
 }
 
-func (x *ListObjectsReq) GetLimit() uint64 {
+func (x *ListObjectsReq) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
