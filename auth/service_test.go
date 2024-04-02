@@ -1333,7 +1333,6 @@ func TestListObjects(t *testing.T) {
 			limit:         10,
 			err:           svcerr.ErrInvalidPolicy,
 		},
-
 	}
 	for _, tc := range cases {
 		repocall2 := prepo.On("RetrieveObjects", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(expectedPolicies, mock.Anything, tc.err)
