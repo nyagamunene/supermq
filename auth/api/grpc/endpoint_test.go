@@ -125,7 +125,7 @@ func TestIssue(t *testing.T) {
 
 	for _, tc := range cases {
 		repoCall := svc.On("Issue", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.issueResponse, tc.err)
-		_, err := client.Issue(context.Background(), &magistrala.IssueReq{UserId: tc.userId, DomainId: &tc.domainID, Type: uint32(tc.kind)})
+		_, err := client.Issue(context.Background(), &magistrala.IssueReq{UserId: tc.userId, DomainId: &tc.domainID, Type: uint64(tc.kind)})
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
 	}

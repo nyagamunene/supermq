@@ -423,7 +423,7 @@ func decodeListObjectsRequest(_ context.Context, grpcReq interface{}) (interface
 		ObjectType:    req.GetObjectType(),
 		Object:        req.GetObject(),
 		NextPageToken: req.GetNextPageToken(),
-		Limit:         uint64(req.GetLimit()),
+		Limit:         req.GetLimit(),
 	}, nil
 }
 
@@ -459,7 +459,7 @@ func decodeListSubjectsRequest(_ context.Context, grpcReq interface{}) (interfac
 		Relation:    req.GetRelation(),
 		Permission:  req.GetPermission(),
 		ObjectType:  req.GetObjectType(),
-		Object:      req.GetObject(), NextPageToken: req.GetNextPageToken(), Limit: uint64(req.GetLimit()),
+		Object:      req.GetObject(), NextPageToken: req.GetNextPageToken(), Limit: req.GetLimit(),
 	}, nil
 }
 
