@@ -190,7 +190,7 @@ func encodeIssueRequest(_ context.Context, grpcReq interface{}) (interface{}, er
 	return &magistrala.IssueReq{
 		UserId:   req.userID,
 		DomainId: &req.domainID,
-		Type:     uint64(req.keyType),
+		Type:     uint32(req.keyType),
 	}, nil
 }
 

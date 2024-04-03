@@ -103,7 +103,7 @@ func (svc service) IssueToken(ctx context.Context, identity, secret, domainID st
 	if domainID != "" {
 		d = domainID
 	}
-	return svc.auth.Issue(ctx, &magistrala.IssueReq{UserId: dbUser.ID, DomainId: &d, Type: uint64(auth.AccessKey)})
+	return svc.auth.Issue(ctx, &magistrala.IssueReq{UserId: dbUser.ID, DomainId: &d, Type: uint32(auth.AccessKey)})
 }
 
 func (svc service) RefreshToken(ctx context.Context, refreshToken, domainID string) (*magistrala.Token, error) {
@@ -264,7 +264,7 @@ func (svc service) GenerateResetToken(ctx context.Context, email, host string) e
 	}
 	issueReq := &magistrala.IssueReq{
 		UserId: client.ID,
-		Type:   uint64(auth.RecoveryKey),
+		Type:   uint32(auth.RecoveryKey),
 	}
 	token, err := svc.auth.Issue(ctx, issueReq)
 	if err != nil {
@@ -567,7 +567,7 @@ func (svc service) OAuthCallback(ctx context.Context, state mgoauth2.State, clie
 		}
 		claims := &magistrala.IssueReq{
 			UserId: rclient.ID,
-			Type:   uint64(auth.AccessKey),
+			Type:   uint32(auth.AccessKey),
 		}
 		return svc.auth.Issue(ctx, claims)
 	case mgoauth2.SignUp:
@@ -580,7 +580,7 @@ func (svc service) OAuthCallback(ctx context.Context, state mgoauth2.State, clie
 		}
 		claims := &magistrala.IssueReq{
 			UserId: rclient.ID,
-			Type:   uint64(auth.AccessKey),
+			Type:   uint32(auth.AccessKey),
 		}
 		return svc.auth.Issue(ctx, claims)
 	default:
