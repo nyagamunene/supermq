@@ -1401,7 +1401,7 @@ func TestListAllObjects(t *testing.T) {
 func TestCountObjects(t *testing.T) {
 	svc, _ := newService()
 
-	pageLen := 15
+	pageLen := uint64(15)
 
 	repocall2 := prepo.On("RetrieveAllObjectsCount", mock.Anything, mock.Anything, mock.Anything).Return(pageLen, nil)
 	count, err := svc.CountObjects(context.Background(), auth.PolicyReq{Subject: id, SubjectType: auth.UserType, ObjectType: auth.ThingType, Permission: auth.ViewPermission})
