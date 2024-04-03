@@ -244,15 +244,15 @@ func (pa *policyAgent) RetrieveAllObjects(ctx context.Context, pr auth.PolicyReq
 	}
 }
 
-func (pa *policyAgent) RetrieveAllObjectsCount(ctx context.Context, pr auth.PolicyReq) (int, error) {
-	var count int
+func (pa *policyAgent) RetrieveAllObjectsCount(ctx context.Context, pr auth.PolicyReq) (uint64, error) {
+	var count uint64
 	nextPageToken := ""
 	for {
 		relationTuples, npt, err := pa.RetrieveObjects(ctx, pr, nextPageToken, defRetrieveAllLimit)
 		if err != nil {
 			return count, err
 		}
-		count = count + len(relationTuples)
+		count = count + uint64(len(relationTuples))
 		if npt == "" {
 			break
 		}
@@ -321,15 +321,15 @@ func (pa *policyAgent) RetrieveAllSubjects(ctx context.Context, pr auth.PolicyRe
 	return tuples, nil
 }
 
-func (pa *policyAgent) RetrieveAllSubjectsCount(ctx context.Context, pr auth.PolicyReq) (int, error) {
-	var count int
+func (pa *policyAgent) RetrieveAllSubjectsCount(ctx context.Context, pr auth.PolicyReq) (uint64, error) {
+	var count uint64
 	nextPageToken := ""
 	for {
 		relationTuples, npt, err := pa.RetrieveSubjects(ctx, pr, nextPageToken, defRetrieveAllLimit)
 		if err != nil {
 			return count, err
 		}
-		count = count + len(relationTuples)
+		count = count + uint64(len(relationTuples))
 		if npt == "" {
 			break
 		}

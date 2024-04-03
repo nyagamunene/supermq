@@ -150,7 +150,7 @@ func (tm *tracingMiddleware) ListAllObjects(ctx context.Context, pr auth.PolicyR
 	return tm.svc.ListAllObjects(ctx, pr)
 }
 
-func (tm *tracingMiddleware) CountObjects(ctx context.Context, pr auth.PolicyReq) (int, error) {
+func (tm *tracingMiddleware) CountObjects(ctx context.Context, pr auth.PolicyReq) (uint64, error) {
 	ctx, span := tm.tracer.Start(ctx, "count_objects", trace.WithAttributes(
 		attribute.String("subject", pr.Subject),
 		attribute.String("subject_type", pr.SubjectType),
@@ -198,7 +198,7 @@ func (tm *tracingMiddleware) ListAllSubjects(ctx context.Context, pr auth.Policy
 	return tm.svc.ListAllSubjects(ctx, pr)
 }
 
-func (tm *tracingMiddleware) CountSubjects(ctx context.Context, pr auth.PolicyReq) (int, error) {
+func (tm *tracingMiddleware) CountSubjects(ctx context.Context, pr auth.PolicyReq) (uint64, error) {
 	ctx, span := tm.tracer.Start(ctx, "count_subjects", trace.WithAttributes(
 		attribute.String("subject", pr.Subject),
 		attribute.String("subject_type", pr.SubjectType),

@@ -48,7 +48,7 @@ func (ms *metricsMiddleware) ListAllObjects(ctx context.Context, pr auth.PolicyR
 	return ms.svc.ListAllObjects(ctx, pr)
 }
 
-func (ms *metricsMiddleware) CountObjects(ctx context.Context, pr auth.PolicyReq) (count int, err error) {
+func (ms *metricsMiddleware) CountObjects(ctx context.Context, pr auth.PolicyReq) (count uint64, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "count_objects").Add(1)
 		ms.latency.With("method", "count_objects").Observe(time.Since(begin).Seconds())
@@ -74,7 +74,7 @@ func (ms *metricsMiddleware) ListAllSubjects(ctx context.Context, pr auth.Policy
 	return ms.svc.ListAllSubjects(ctx, pr)
 }
 
-func (ms *metricsMiddleware) CountSubjects(ctx context.Context, pr auth.PolicyReq) (count int, err error) {
+func (ms *metricsMiddleware) CountSubjects(ctx context.Context, pr auth.PolicyReq) (count uint64, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "count_subjects").Add(1)
 		ms.latency.With("method", "count_subjects").Observe(time.Since(begin).Seconds())

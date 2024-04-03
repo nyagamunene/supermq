@@ -302,7 +302,7 @@ func (svc service) ListAllObjects(ctx context.Context, pr PolicyReq) (PolicyPage
 	return page, nil
 }
 
-func (svc service) CountObjects(ctx context.Context, pr PolicyReq) (int, error) {
+func (svc service) CountObjects(ctx context.Context, pr PolicyReq) (uint64, error) {
 	return svc.agent.RetrieveAllObjectsCount(ctx, pr)
 }
 
@@ -334,7 +334,7 @@ func (svc service) ListAllSubjects(ctx context.Context, pr PolicyReq) (PolicyPag
 	return page, nil
 }
 
-func (svc service) CountSubjects(ctx context.Context, pr PolicyReq) (int, error) {
+func (svc service) CountSubjects(ctx context.Context, pr PolicyReq) (uint64, error) {
 	return svc.agent.RetrieveAllSubjectsCount(ctx, pr)
 }
 

@@ -65,7 +65,7 @@ func (lm *loggingMiddleware) ListAllObjects(ctx context.Context, pr auth.PolicyR
 	return lm.svc.ListAllObjects(ctx, pr)
 }
 
-func (lm *loggingMiddleware) CountObjects(ctx context.Context, pr auth.PolicyReq) (count int, err error) {
+func (lm *loggingMiddleware) CountObjects(ctx context.Context, pr auth.PolicyReq) (count uint64, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -118,7 +118,7 @@ func (lm *loggingMiddleware) ListAllSubjects(ctx context.Context, pr auth.Policy
 	return lm.svc.ListAllSubjects(ctx, pr)
 }
 
-func (lm *loggingMiddleware) CountSubjects(ctx context.Context, pr auth.PolicyReq) (count int, err error) {
+func (lm *loggingMiddleware) CountSubjects(ctx context.Context, pr auth.PolicyReq) (count uint64, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),

@@ -72,22 +72,22 @@ func (_m *Authz) Authorize(ctx context.Context, pr auth.PolicyReq) error {
 }
 
 // CountObjects provides a mock function with given fields: ctx, pr
-func (_m *Authz) CountObjects(ctx context.Context, pr auth.PolicyReq) (int, error) {
+func (_m *Authz) CountObjects(ctx context.Context, pr auth.PolicyReq) (uint64, error) {
 	ret := _m.Called(ctx, pr)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CountObjects")
 	}
 
-	var r0 int
+	var r0 uint64
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) (int, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) (uint64, error)); ok {
 		return rf(ctx, pr)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) int); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) uint64); ok {
 		r0 = rf(ctx, pr)
 	} else {
-		r0 = ret.Get(0).(int)
+		r0 = ret.Get(0).(uint64)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, auth.PolicyReq) error); ok {
@@ -100,22 +100,22 @@ func (_m *Authz) CountObjects(ctx context.Context, pr auth.PolicyReq) (int, erro
 }
 
 // CountSubjects provides a mock function with given fields: ctx, pr
-func (_m *Authz) CountSubjects(ctx context.Context, pr auth.PolicyReq) (int, error) {
+func (_m *Authz) CountSubjects(ctx context.Context, pr auth.PolicyReq) (uint64, error) {
 	ret := _m.Called(ctx, pr)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CountSubjects")
 	}
 
-	var r0 int
+	var r0 uint64
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) (int, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) (uint64, error)); ok {
 		return rf(ctx, pr)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) int); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, auth.PolicyReq) uint64); ok {
 		r0 = rf(ctx, pr)
 	} else {
-		r0 = ret.Get(0).(int)
+		r0 = ret.Get(0).(uint64)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, auth.PolicyReq) error); ok {
