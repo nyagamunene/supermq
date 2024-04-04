@@ -61,6 +61,7 @@ const (
 
 var (
 	encKey = []byte("1234567891011121")
+	boot   *mocks.ConfigRepository
 
 	channel = bootstrap.Channel{
 		ID:       testsutil.GenerateUUID(&testing.T{}),
@@ -79,11 +80,11 @@ var (
 )
 
 func newService(t *testing.T, url string) (bootstrap.Service, *authmocks.AuthClient, *sdkmocks.SDK) {
-	things := mocks.NewConfigsRepository()
+	boot := new(mocks.ConfigRepository)
 	auth := new(authmocks.AuthClient)
 	sdk := new(sdkmocks.SDK)
 	idp := uuid.NewMock()
-	svc := bootstrap.New(auth, things, sdk, encKey, idp)
+	svc := bootstrap.New(auth, boot, sdk, encKey, idp)
 	publisher, err := store.NewPublisher(context.Background(), url, streamID)
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 	svc = producer.NewEventStoreMiddleware(svc, publisher)
@@ -143,6 +144,8 @@ func TestAdd(t *testing.T) {
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 		repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: tc.config.ThingID, Credentials: mgsdk.Credentials{Secret: tc.config.ThingKey}}, errors.NewSDKError(tc.err))
 		repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(toChannel(tc.config.Channels[0]), errors.NewSDKError(tc.err))
+		repoCall3 := boot.On("ListExisting", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(tc.config.Channels, tc.err)
+		repoCall4 := boot.On("Save", context.Background(), mock.Anything, mock.Anything).Return(mock.Anything, tc.err)
 		_, err := svc.Add(context.Background(), tc.token, tc.config)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 
@@ -163,6 +166,8 @@ func TestAdd(t *testing.T) {
 		repoCall.Unset()
 		repoCall1.Unset()
 		repoCall2.Unset()
+		repoCall3.Unset()
+		repoCall4.Unset()
 	}
 }
 

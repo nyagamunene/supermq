@@ -31,6 +31,8 @@ import (
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
 	sdkmocks "github.com/absmach/magistrala/pkg/sdk/mocks"
 	"github.com/absmach/magistrala/pkg/uuid"
+
+	// "github.com/absmach/magistrala/things"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -178,12 +180,18 @@ func dec(in []byte) ([]byte, error) {
 	return in, nil
 }
 
+var (
+	boot *mocks.ConfigRepository
+	auth *authmocks.AuthClient
+	sdk  *sdkmocks.SDK
+)
+
 func newService() (bootstrap.Service, *authmocks.AuthClient, *sdkmocks.SDK) {
-	things := mocks.NewConfigsRepository()
-	auth := new(authmocks.AuthClient)
-	sdk := new(sdkmocks.SDK)
+	boot = new(mocks.ConfigRepository)
+	auth = new(authmocks.AuthClient)
+	sdk = new(sdkmocks.SDK)
 	idp := uuid.NewMock()
-	return bootstrap.New(auth, things, sdk, encKey, idp), auth, sdk
+	return bootstrap.New(auth, boot, sdk, encKey, idp), auth, sdk
 }
 
 func newBootstrapServer(svc bootstrap.Service) *httptest.Server {
@@ -203,6 +211,7 @@ func toJSON(data interface{}) string {
 func TestAdd(t *testing.T) {
 	svc, auth, sdk := newService()
 	bs := newBootstrapServer(svc)
+	c := newConfig()
 
 	data := toJSON(addReq)
 
@@ -307,6 +316,8 @@ func TestAdd(t *testing.T) {
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 		repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: addThingID, Credentials: mgsdk.Credentials{Secret: addThingKey}}, nil)
 		repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
+		repoCall3 := boot.On("ListExisting", mock.Anything, mock.Anything, mock.Anything).Return(c.Channels, nil)
+		repoCall4 := boot.On("Save", mock.Anything, mock.Anything, mock.Anything).Return(mock.Anything, nil)
 		req := testRequest{
 			client:      bs.Client(),
 			method:      http.MethodPost,
@@ -325,6 +336,8 @@ func TestAdd(t *testing.T) {
 		repoCall.Unset()
 		repoCall1.Unset()
 		repoCall2.Unset()
+		repoCall3.Unset()
+		repoCall4.Unset()
 	}
 }
 
@@ -336,11 +349,15 @@ func TestView(t *testing.T) {
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: c.ThingID, Credentials: mgsdk.Credentials{Secret: c.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(toGroup(c.Channels[0]), nil)
+	repoCall3 := boot.On("ListExisting", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(c.Channels, nil)
+	repoCall4 := boot.On("Save", context.Background(), mock.Anything, mock.Anything).Return(mock.Anything, nil)
 	saved, err := svc.Add(context.Background(), validToken, c)
 	assert.Nil(t, err, fmt.Sprintf("Saving config expected to succeed: %s.\n", err))
 	repoCall.Unset()
 	repoCall1.Unset()
 	repoCall2.Unset()
+	repoCall3.Unset()
+	repoCall4.Unset()
 
 	var channels []channel
 	for _, ch := range saved.Channels {
