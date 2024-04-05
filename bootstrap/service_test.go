@@ -40,9 +40,9 @@ const (
 
 var (
 	encKey = []byte("1234567891011121")
-	boot *mocks.ConfigRepository
-	auth *authmocks.AuthClient
-	sdk  *sdkmocks.SDK
+	boot   *mocks.ConfigRepository
+	auth   *authmocks.AuthClient
+	sdk    *sdkmocks.SDK
 
 	channel = bootstrap.Channel{
 		ID:       testsutil.GenerateUUID(&testing.T{}),
