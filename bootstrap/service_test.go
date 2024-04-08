@@ -39,11 +39,7 @@ const (
 )
 
 var (
-	encKey = []byte("1234567891011121")
-	boot   *mocks.ConfigRepository
-	auth   *authmocks.AuthClient
-	sdk    *sdkmocks.SDK
-
+	encKey  = []byte("1234567891011121")
 	channel = bootstrap.Channel{
 		ID:       testsutil.GenerateUUID(&testing.T{}),
 		Name:     "name",
@@ -60,13 +56,13 @@ var (
 	}
 )
 
-func newService() (bootstrap.Service, *authmocks.AuthClient, *sdkmocks.SDK) {
-	boot = new(mocks.ConfigRepository)
-	auth = new(authmocks.AuthClient)
-	sdk = new(sdkmocks.SDK)
+func newService() (bootstrap.Service, *mocks.ConfigRepository, *authmocks.AuthClient, *sdkmocks.SDK) {
+	boot := new(mocks.ConfigRepository)
+	auth := new(authmocks.AuthClient)
+	sdk := new(sdkmocks.SDK)
 	idp := uuid.NewMock()
 
-	return bootstrap.New(auth, boot, sdk, encKey, idp), auth, sdk
+	return bootstrap.New(auth, boot, sdk, encKey, idp), boot, auth, sdk
 }
 
 func enc(in []byte) ([]byte, error) {
@@ -85,7 +81,7 @@ func enc(in []byte) ([]byte, error) {
 }
 
 func TestAdd(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	neID := config
 	neID.ThingID = "non-existent"
 
@@ -148,7 +144,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestView(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
@@ -199,7 +195,7 @@ func TestView(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	c := config
 
 	ch := channel
@@ -263,7 +259,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateCert(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	c := config
 
 	ch := channel
@@ -355,7 +351,7 @@ func TestUpdateCert(t *testing.T) {
 }
 
 func TestUpdateConnections(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	c := config
 
 	ch := channel
@@ -463,7 +459,7 @@ func TestUpdateConnections(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	numThings := 101
 	var saved []bootstrap.Config
 	for i := 0; i < numThings; i++ {
@@ -588,7 +584,7 @@ func TestList(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
@@ -645,7 +641,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestBootstrap(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
@@ -714,7 +710,7 @@ func TestBootstrap(t *testing.T) {
 }
 
 func TestChangeState(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(toGroup(config.Channels[0]), nil)
@@ -789,7 +785,7 @@ func TestChangeState(t *testing.T) {
 }
 
 func TestUpdateChannelHandler(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
@@ -834,7 +830,7 @@ func TestUpdateChannelHandler(t *testing.T) {
 }
 
 func TestRemoveChannelHandler(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
@@ -874,7 +870,7 @@ func TestRemoveChannelHandler(t *testing.T) {
 }
 
 func TestRemoveCoinfigHandler(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
@@ -914,7 +910,7 @@ func TestRemoveCoinfigHandler(t *testing.T) {
 }
 
 func TestDisconnectThingsHandler(t *testing.T) {
-	svc, auth, sdk := newService()
+	svc, boot, auth, sdk := newService()
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: validToken}).Return(&magistrala.IdentityRes{Id: validID}, nil)
 	repoCall1 := sdk.On("Thing", mock.Anything, mock.Anything).Return(mgsdk.Thing{ID: config.ThingID, Credentials: mgsdk.Credentials{Secret: config.ThingKey}}, nil)
 	repoCall2 := sdk.On("Channel", mock.Anything, mock.Anything).Return(mgsdk.Channel{}, nil)
