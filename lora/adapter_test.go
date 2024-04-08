@@ -12,6 +12,7 @@ import (
 	"github.com/absmach/magistrala/lora"
 	"github.com/absmach/magistrala/lora/mocks"
 	"github.com/absmach/magistrala/pkg/errors"
+	pubmocks "github.com/absmach/magistrala/pkg/messaging/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -29,17 +30,17 @@ const (
 	msg      = `[{"bn":"msg-base-name","n":"temperature","v": 17},{"n":"humidity","v": 56}]`
 )
 
-func newService() (lora.Service, *mocks.RouteMapRepository, *mocks.RouteMapRepository, *mocks.RouteMapRepository) {
-	pub := mocks.NewPublisher()
+func newService() (lora.Service, *pubmocks.PubSub, *mocks.RouteMapRepository, *mocks.RouteMapRepository, *mocks.RouteMapRepository) {
+	pub := new(pubmocks.PubSub)
 	thingsRM := new(mocks.RouteMapRepository)
 	channelsRM := new(mocks.RouteMapRepository)
 	connsRM := new(mocks.RouteMapRepository)
 
-	return lora.New(pub, thingsRM, channelsRM, connsRM), thingsRM, channelsRM, connsRM
+	return lora.New(pub, thingsRM, channelsRM, connsRM), pub, thingsRM, channelsRM, connsRM
 }
 
 func TestPublish(t *testing.T) {
-	svc, thingsRM, channelsRM, connsRM := newService()
+	svc, pub, thingsRM, channelsRM, connsRM := newService()
 
 	repoCall := channelsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
 	repoCall1 := thingsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
@@ -132,13 +133,15 @@ func TestPublish(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Get", context.Background(), tc.msg.DevEUI).Return("", tc.getThingErr)
-		repoCall1 := channelsRM.On("Get", context.Background(), tc.msg.ApplicationID).Return("", tc.getChannelErr)
+		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return("", tc.getThingErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return("", tc.getChannelErr)
 		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return("", tc.connectionsErr)
+		repoCall3 := pub.On("Publish", context.Background(), mock.Anything, mock.Anything).Return(nil)
 		err := svc.Publish(context.Background(), &tc.msg)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
 		repoCall1.Unset()
 		repoCall2.Unset()
+		repoCall3.Unset()
 	}
 }
