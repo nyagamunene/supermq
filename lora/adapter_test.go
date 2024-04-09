@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/absmach/magistrala/internal/testsutil"
 	"github.com/absmach/magistrala/lora"
 	"github.com/absmach/magistrala/lora/mocks"
 	"github.com/absmach/magistrala/pkg/errors"
@@ -45,8 +46,8 @@ func TestPublish(t *testing.T) {
 	repoCall := channelsRM.On("Save", context.Background(), chanID, appID).Return(nil)
 	repoCall1 := thingsRM.On("Save", context.Background(), thingID, devEUI).Return(nil)
 	repoCall2 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
-	repoCall3 := channelsRM.On("Get", context.Background(), chanID).Return("", nil)
-	repoCall4 := thingsRM.On("Get", context.Background(), thingID).Return("", nil)
+	repoCall3 := channelsRM.On("Get", context.Background(), chanID).Return(testsutil.GenerateUUID(t), nil)
+	repoCall4 := thingsRM.On("Get", context.Background(), thingID).Return(testsutil.GenerateUUID(t), nil)
 
 	err := svc.CreateChannel(context.Background(), chanID, appID)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
@@ -139,9 +140,9 @@ func TestPublish(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return("", tc.getThingErr)
-		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return("", tc.getChannelErr)
-		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return("", tc.connectionsErr)
+		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.DevEUI, tc.getThingErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.ApplicationID, tc.getChannelErr)
+		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return(mock.Anything, tc.connectionsErr)
 		repoCall3 := pub.On("Publish", context.Background(), mock.Anything, mock.Anything).Return(tc.publishErr)
 		err := svc.Publish(context.Background(), &tc.msg)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
