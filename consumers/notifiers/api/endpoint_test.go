@@ -67,13 +67,13 @@ func (tr testRequest) make() (*http.Response, error) {
 	return tr.client.Do(req)
 }
 
-func newService() (notifiers.Service, *authmocks.AuthClient) {
+func newService() (notifiers.Service, *authmocks.AuthClient, *mocks.SubscriptionsRepository) {
 	auth := new(authmocks.AuthClient)
-	repo := mocks.NewRepo(make(map[string]notifiers.Subscription))
+	repo := new(mocks.SubscriptionsRepository)
 	idp := uuid.NewMock()
-	notif := mocks.NewNotifier()
+	notif := new(mocks.Notifier)
 	from := "exampleFrom"
-	return notifiers.New(auth, repo, idp, notif, from), auth
+	return notifiers.New(auth, repo, idp, notif, from), auth, repo
 }
 
 func newServer(svc notifiers.Service) *httptest.Server {
@@ -91,7 +91,7 @@ func toJSON(data interface{}) string {
 }
 
 func TestCreate(t *testing.T) {
-	svc, auth := newService()
+	svc, auth, repo := newService()
 	ss := newServer(svc)
 	defer ss.Close()
 
@@ -181,6 +181,7 @@ func TestCreate(t *testing.T) {
 
 	for _, tc := range cases {
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return("", nil)
 
 		req := testRequest{
 			client:      ss.Client(),
@@ -198,11 +199,12 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, tc.location, location, fmt.Sprintf("%s: expected location %s got %s", tc.desc, tc.location, location))
 
 		repoCall.Unset()
+		repoCall1.Unset()
 	}
 }
 
 func TestView(t *testing.T) {
-	svc, auth := newService()
+	svc, auth, _ := newService()
 	ss := newServer(svc)
 	defer ss.Close()
 
@@ -282,7 +284,7 @@ func TestView(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	svc, auth := newService()
+	svc, auth, _ := newService()
 	ss := newServer(svc)
 	defer ss.Close()
 
@@ -408,7 +410,7 @@ func TestList(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	svc, auth := newService()
+	svc, auth, _ := newService()
 	ss := newServer(svc)
 	defer ss.Close()
 
