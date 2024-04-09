@@ -42,11 +42,11 @@ func newService() (lora.Service, *pubmocks.PubSub, *mocks.RouteMapRepository, *m
 func TestPublish(t *testing.T) {
 	svc, pub, thingsRM, channelsRM, connsRM := newService()
 
-	repoCall := channelsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
-	repoCall1 := thingsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
-	repoCall3 := channelsRM.On("Get", context.Background(), mock.Anything).Return("", nil)
-	repoCall4 := thingsRM.On("Get", context.Background(), mock.Anything).Return("", nil)
-	repoCall5 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
+	repoCall := channelsRM.On("Save", context.Background(), chanID, appID).Return(nil)
+	repoCall1 := thingsRM.On("Save", context.Background(), thingID, devEUI).Return(nil)
+	repoCall2 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
+	repoCall3 := channelsRM.On("Get", context.Background(), chanID).Return("", nil)
+	repoCall4 := thingsRM.On("Get", context.Background(), thingID).Return("", nil)
 
 	err := svc.CreateChannel(context.Background(), chanID, appID)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
@@ -56,18 +56,21 @@ func TestPublish(t *testing.T) {
 
 	err = svc.ConnectThing(context.Background(), chanID, thingID)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
+	repoCall.Unset()
+	repoCall1.Unset()
+	repoCall2.Unset()
+	repoCall3.Unset()
+	repoCall4.Unset()
 
+	repoCall = channelsRM.On("Save", context.Background(), chanID2, appID2).Return(nil)
+	repoCall1 = thingsRM.On("Save", context.Background(), thingID2, devEUI2).Return(nil)
 	err = svc.CreateChannel(context.Background(), chanID2, appID2)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
 
 	err = svc.CreateThing(context.Background(), thingID2, devEUI2)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-
 	repoCall.Unset()
 	repoCall1.Unset()
-	repoCall3.Unset()
-	repoCall4.Unset()
-	repoCall5.Unset()
 
 	msgBase64 := base64.StdEncoding.EncodeToString([]byte(msg))
 
@@ -78,6 +81,7 @@ func TestPublish(t *testing.T) {
 		getThingErr    error
 		getChannelErr  error
 		connectionsErr error
+		publishErr     error
 	}{
 		{
 			desc: "publish message with existing route-map and valid Data",
@@ -90,6 +94,7 @@ func TestPublish(t *testing.T) {
 			getThingErr:    nil,
 			getChannelErr:  nil,
 			connectionsErr: nil,
+			publishErr:     nil,
 		},
 		{
 			desc: "publish message with existing route-map and invalid Data",
@@ -102,6 +107,7 @@ func TestPublish(t *testing.T) {
 			getThingErr:    nil,
 			getChannelErr:  nil,
 			connectionsErr: nil,
+			publishErr:     errors.New("Failed publishing"),
 		},
 		{
 			desc: "publish message with non existing appID route-map",
@@ -136,7 +142,7 @@ func TestPublish(t *testing.T) {
 		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return("", tc.getThingErr)
 		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return("", tc.getChannelErr)
 		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return("", tc.connectionsErr)
-		repoCall3 := pub.On("Publish", context.Background(), mock.Anything, mock.Anything).Return(nil)
+		repoCall3 := pub.On("Publish", context.Background(), mock.Anything, mock.Anything).Return(tc.publishErr)
 		err := svc.Publish(context.Background(), &tc.msg)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
