@@ -127,7 +127,7 @@ jobs:
           mv ./bootstrap/mocks/service.go ./bootstrap/mocks/service.go.tmp
           mv ./bootstrap/mocks/configs.go ./bootstrap/mocks/configs.go.tmp
           mv ./invitations/mocks/service.go ./invitations/mocks/service.go.tmp
-          mv ./invitations/mocks/invitations.go ./invitations/mocks/invitations.go.tmp
+          mv ./invitations/mocks/repository.go ./invitations/mocks/repository.go.tmp
 
           make mocks
 
@@ -163,4 +163,4 @@ jobs:
           check_mock_changes ./bootstrap/mocks/service.go "Bootstrap Service ./bootstrap/mocks/service.go"
           check_mock_changes ./bootstrap/mocks/configs.go "Bootstrap Repository ./bootstrap/mocks/configs.go"
           check_mock_changes ./invitations/mocks/service.go "Invitations Service ./invitations/mocks/service.go"
-          check_mock_changes ./invitations/mocks/invitations.go "Invitations Repository ./invitations/mocks/invitations.go"
+          check_mock_changes ./invitations/mocks/repository.go "Invitations Repository ./invitations/mocks/repository.go"

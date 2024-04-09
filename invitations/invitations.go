@@ -95,7 +95,7 @@ type Service interface {
 	DeleteInvitation(ctx context.Context, token, userID, domainID string) (err error)
 }
 
-//go:generate mockery --name Repository --output=./mocks --filename invitations.go --quiet --note "Copyright (c) Abstract Machines"
+//go:generate mockery --name Repository --output=./mocks --filename repository.go --quiet --note "Copyright (c) Abstract Machines"
 type Repository interface {
 	// Create creates an invitation.
 	Create(ctx context.Context, invitation Invitation) (err error)
