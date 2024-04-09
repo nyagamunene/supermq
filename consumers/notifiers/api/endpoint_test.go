@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"path"
 	"strings"
 	"testing"
 
@@ -112,6 +113,7 @@ func TestCreate(t *testing.T) {
 		auth        string
 		status      int
 		location    string
+		err         error
 	}{
 		{
 			desc:        "add successfully",
@@ -120,6 +122,7 @@ func TestCreate(t *testing.T) {
 			auth:        token,
 			status:      http.StatusCreated,
 			location:    fmt.Sprintf("/subscriptions/%s%012d", uuid.Prefix, 1),
+			err:         nil,
 		},
 		{
 			desc:        "add an existing subscription",
@@ -128,6 +131,7 @@ func TestCreate(t *testing.T) {
 			auth:        token,
 			status:      http.StatusConflict,
 			location:    "",
+			err:         svcerr.ErrConflict,
 		},
 		{
 			desc:        "add with empty topic",
@@ -136,6 +140,7 @@ func TestCreate(t *testing.T) {
 			auth:        token,
 			status:      http.StatusBadRequest,
 			location:    "",
+			err:         svcerr.ErrMalformedEntity,
 		},
 		{
 			desc:        "add with empty contact",
@@ -144,6 +149,7 @@ func TestCreate(t *testing.T) {
 			auth:        token,
 			status:      http.StatusBadRequest,
 			location:    "",
+			err:         svcerr.ErrMalformedEntity,
 		},
 		{
 			desc:        "add with invalid auth token",
@@ -152,6 +158,7 @@ func TestCreate(t *testing.T) {
 			auth:        authmocks.InvalidValue,
 			status:      http.StatusUnauthorized,
 			location:    "",
+			err:         svcerr.ErrAuthentication,
 		},
 		{
 			desc:        "add with empty auth token",
@@ -160,6 +167,7 @@ func TestCreate(t *testing.T) {
 			auth:        "",
 			status:      http.StatusUnauthorized,
 			location:    "",
+			err:         svcerr.ErrAuthentication,
 		},
 		{
 			desc:        "add with invalid request format",
@@ -168,6 +176,7 @@ func TestCreate(t *testing.T) {
 			auth:        token,
 			status:      http.StatusBadRequest,
 			location:    "",
+			err:         svcerr.ErrMalformedEntity,
 		},
 		{
 			desc:        "add without content type",
@@ -176,12 +185,15 @@ func TestCreate(t *testing.T) {
 			auth:        token,
 			status:      http.StatusUnsupportedMediaType,
 			location:    "",
+			err:         apiutil.ErrUnsupportedContentType,
 		},
 	}
 
 	for _, tc := range cases {
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return("", nil)
+		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(path.Base(tc.location), tc.err)
+		// svc.CreateSubscription()
+		// id, err := svc.CreateSubscription(ctx, req.token, sub)
 
 		req := testRequest{
 			client:      ss.Client(),
