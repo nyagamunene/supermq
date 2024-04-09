@@ -206,16 +206,15 @@ func TestCreate(t *testing.T) {
 func TestView(t *testing.T) {
 	ss, svc := newServer()
 	defer ss.Close()
-	d := testsutil.GenerateUUID(t)
 
 	sub := notifiers.Subscription{
 		Topic:   topic,
 		Contact: contact1,
-		ID:      d,
+		ID:      testsutil.GenerateUUID(t),
 		OwnerID: validID,
 	}
 
-	svcCall := svc.On("CreateSubscription", context.Background(), token, sub).Return(d, nil)
+	svcCall := svc.On("CreateSubscription", context.Background(), token, sub).Return(sub.ID, nil)
 	id, err := svc.CreateSubscription(context.Background(), token, sub)
 	assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
 	svcCall.Unset()
@@ -293,203 +292,222 @@ func TestView(t *testing.T) {
 	}
 }
 
-// func TestList(t *testing.T) {
-// 	svc, auth, _, _ := newService()
-// 	ss := newServer(svc)
-// 	defer ss.Close()
+func TestList(t *testing.T) {
+	ss, svc := newServer()
+	defer ss.Close()
 
-// 	const numSubs = 100
-// 	var subs []subRes
+	const numSubs = 100
+	var subs []subRes
+	sub := notifiers.Subscription{}
 
-// 	for i := 0; i < numSubs; i++ {
-// 		sub := notifiers.Subscription{
-// 			Topic:   fmt.Sprintf("topic.subtopic.%d", i),
-// 			Contact: contact1,
-// 		}
-// 		if i%2 == 0 {
-// 			sub.Contact = contact2
-// 		}
-// 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-// 		id, err := svc.CreateSubscription(context.Background(), token, sub)
-// 		sr := subRes{
-// 			ID:      id,
-// 			OwnerID: validID,
-// 			Contact: sub.Contact,
-// 			Topic:   sub.Topic,
-// 		}
-// 		assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
-// 		repoCall.Unset()
-// 		subs = append(subs, sr)
-// 	}
-// 	noLimit := toJSON(page{Offset: 5, Limit: 20, Total: numSubs, Subscriptions: subs[5:25]})
-// 	one := toJSON(page{Offset: 0, Limit: 20, Total: 1, Subscriptions: subs[10:11]})
+	for i := 0; i < numSubs; i++ {
+		sub = notifiers.Subscription{
+			Topic:   fmt.Sprintf("topic.subtopic.%d", i),
+			Contact: contact1,
+			ID:      testsutil.GenerateUUID(t),
+		}
+		if i%2 == 0 {
+			sub.Contact = contact2
+		}
+		svcCall := svc.On("CreateSubscription", context.Background(), token, sub).Return(sub.ID, nil)
+		id, err := svc.CreateSubscription(context.Background(), token, sub)
+		sr := subRes{
+			ID:      id,
+			OwnerID: validID,
+			Contact: sub.Contact,
+			Topic:   sub.Topic,
+		}
+		assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
+		svcCall.Unset()
+		subs = append(subs, sr)
+	}
+	noLimit := toJSON(page{Offset: 5, Limit: 20, Total: numSubs, Subscriptions: subs[5:25]})
+	// one := toJSON(page{Offset: 0, Limit: 20, Total: 1, Subscriptions: subs[10:11]})
 
-// 	var contact2Subs []subRes
-// 	for i := 20; i < 40; i += 2 {
-// 		contact2Subs = append(contact2Subs, subs[i])
-// 	}
-// 	contactList := toJSON(page{Offset: 10, Limit: 10, Total: 50, Subscriptions: contact2Subs})
+	var contact2Subs []subRes
+	for i := 20; i < 40; i += 2 {
+		contact2Subs = append(contact2Subs, subs[i])
+	}
+	// contactList := toJSON(page{Offset: 10, Limit: 10, Total: 50, Subscriptions: contact2Subs})
 
-// 	cases := []struct {
-// 		desc   string
-// 		query  map[string]string
-// 		auth   string
-// 		status int
-// 		res    string
-// 	}{
-// 		{
-// 			desc: "list default limit",
-// 			query: map[string]string{
-// 				"offset": "5",
-// 			},
-// 			auth:   token,
-// 			status: http.StatusOK,
-// 			res:    noLimit,
-// 		},
-// 		{
-// 			desc: "list not existing",
-// 			query: map[string]string{
-// 				"topic": "not-found-topic",
-// 			},
-// 			auth:   token,
-// 			status: http.StatusNotFound,
-// 			res:    notFoundRes,
-// 		},
-// 		{
-// 			desc: "list one with topic",
-// 			query: map[string]string{
-// 				"topic": "topic.subtopic.10",
-// 			},
-// 			auth:   token,
-// 			status: http.StatusOK,
-// 			res:    one,
-// 		},
-// 		{
-// 			desc: "list with contact",
-// 			query: map[string]string{
-// 				"contact": contact2,
-// 				"offset":  "10",
-// 				"limit":   "10",
-// 			},
-// 			auth:   token,
-// 			status: http.StatusOK,
-// 			res:    contactList,
-// 		},
-// 		{
-// 			desc: "list with invalid query",
-// 			query: map[string]string{
-// 				"offset": "two",
-// 			},
-// 			auth:   token,
-// 			status: http.StatusBadRequest,
-// 			res:    invalidRes,
-// 		},
-// 		{
-// 			desc:   "list with invalid auth token",
-// 			auth:   authmocks.InvalidValue,
-// 			status: http.StatusUnauthorized,
-// 			res:    unauthRes,
-// 		},
-// 		{
-// 			desc:   "list with empty auth token",
-// 			auth:   "",
-// 			status: http.StatusUnauthorized,
-// 			res:    missingTokRes,
-// 		},
-// 	}
+	cases := []struct {
+		desc   string
+		query  map[string]string
+		auth   string
+		status int
+		res    string
+		err    error
+		page   notifiers.Page
+	}{
+		{
+			desc: "list default limit",
+			query: map[string]string{
+				"offset": "5",
+			},
+			auth:   token,
+			status: http.StatusOK,
+			res:    noLimit,
+			err:    nil,
+			page: notifiers.Page{
+				Total:         numSubs,
+				Subscriptions: []notifiers.Subscription{sub},
+			},
+		},
+		// {
+		// 	desc: "list not existing",
+		// 	query: map[string]string{
+		// 		"topic": "not-found-topic",
+		// 	},
+		// 	auth:   token,
+		// 	status: http.StatusNotFound,
+		// 	res:    notFoundRes,
+		// 	err:    nil,
+		// },
+		// {
+		// 	desc: "list one with topic",
+		// 	query: map[string]string{
+		// 		"topic": "topic.subtopic.10",
+		// 	},
+		// 	auth:   token,
+		// 	status: http.StatusOK,
+		// 	res:    one,
+		// 	err:    nil,
+		// },
+		// {
+		// 	desc: "list with contact",
+		// 	query: map[string]string{
+		// 		"contact": contact2,
+		// 		"offset":  "10",
+		// 		"limit":   "10",
+		// 	},
+		// 	auth:   token,
+		// 	status: http.StatusOK,
+		// 	res:    contactList,
+		// 	err:    nil,
+		// },
+		// {
+		// 	desc: "list with invalid query",
+		// 	query: map[string]string{
+		// 		"offset": "two",
+		// 	},
+		// 	auth:   token,
+		// 	status: http.StatusBadRequest,
+		// 	res:    invalidRes,
+		// 	err:    svcerr.ErrMalformedEntity,
+		// },
+		// {
+		// 	desc:   "list with invalid auth token",
+		// 	auth:   authmocks.InvalidValue,
+		// 	status: http.StatusUnauthorized,
+		// 	res:    unauthRes,
+		// 	err:    svcerr.ErrAuthentication,
+		// },
+		// {
+		// 	desc:   "list with empty auth token",
+		// 	auth:   "",
+		// 	status: http.StatusUnauthorized,
+		// 	res:    missingTokRes,
+		// 	err:    svcerr.ErrAuthentication,
+		// },
+	}
 
-// 	for _, tc := range cases {
-// 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+	for _, tc := range cases {
+		svcCall := svc.On("ListSubscriptions", mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.err)
+		req := testRequest{
+			client: ss.Client(),
+			method: http.MethodGet,
+			url:    fmt.Sprintf("%s/subscriptions%s", ss.URL, makeQuery(tc.query)),
+			token:  tc.auth,
+		}
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		body, err := io.ReadAll(res.Body)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		data := strings.Trim(string(body), "\n")
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: got unexpected body\n", tc.desc))
 
-// 		req := testRequest{
-// 			client: ss.Client(),
-// 			method: http.MethodGet,
-// 			url:    fmt.Sprintf("%s/subscriptions%s", ss.URL, makeQuery(tc.query)),
-// 			token:  tc.auth,
-// 		}
-// 		res, err := req.make()
-// 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-// 		body, err := io.ReadAll(res.Body)
-// 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-// 		data := strings.Trim(string(body), "\n")
-// 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
-// 		assert.Equal(t, tc.res, data, fmt.Sprintf("%s: got unexpected body\n", tc.desc))
+		svcCall.Unset()
+	}
+}
 
-// 		repoCall.Unset()
-// 	}
-// }
+func TestRemove(t *testing.T) {
+	ss, svc := newServer()
+	defer ss.Close()
 
-// func TestRemove(t *testing.T) {
-// 	svc, auth, _, _ := newService()
-// 	ss := newServer(svc)
-// 	defer ss.Close()
+	sub := notifiers.Subscription{
+		Topic:   "topic",
+		Contact: contact1,
+		ID:      testsutil.GenerateUUID(t),
+	}
+	svcCall := svc.On("CreateSubscription", context.Background(), token, sub).Return(sub.ID, nil)
+	id, err := svc.CreateSubscription(context.Background(), token, sub)
+	assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
+	svcCall.Unset()
 
-// 	sub := notifiers.Subscription{
-// 		Topic:   "topic",
-// 		Contact: contact1,
-// 	}
-// 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-// 	id, err := svc.CreateSubscription(context.Background(), token, sub)
-// 	assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
-// 	repoCall.Unset()
+	cases := []struct {
+		desc   string
+		id     string
+		auth   string
+		status int
+		res    string
+		err    error
+	}{
+		{
+			desc:   "remove successfully",
+			id:     id,
+			auth:   token,
+			status: http.StatusNoContent,
+			err:    nil,
+		},
+		{
+			desc:   "remove not existing",
+			id:     "not existing",
+			auth:   token,
+			status: http.StatusNotFound,
+			err:    svcerr.ErrNotFound,
+		},
+		{
+			desc:   "remove empty id",
+			id:     "",
+			auth:   token,
+			status: http.StatusBadRequest,
+			err:    svcerr.ErrMalformedEntity,
+		},
+		{
+			desc:   "view with invalid auth token",
+			id:     id,
+			auth:   authmocks.InvalidValue,
+			status: http.StatusUnauthorized,
+			res:    unauthRes,
+			err:    svcerr.ErrAuthentication,
+		},
+		{
+			desc:   "view with empty auth token",
+			id:     id,
+			auth:   "",
+			status: http.StatusUnauthorized,
+			res:    missingTokRes,
+			err:    svcerr.ErrAuthentication,
+		},
+	}
 
-// 	cases := []struct {
-// 		desc   string
-// 		id     string
-// 		auth   string
-// 		status int
-// 		res    string
-// 	}{
-// 		{
-// 			desc:   "remove successfully",
-// 			id:     id,
-// 			auth:   token,
-// 			status: http.StatusNoContent,
-// 		},
-// 		{
-// 			desc:   "remove not existing",
-// 			id:     "not existing",
-// 			auth:   token,
-// 			status: http.StatusNotFound,
-// 		},
-// 		{
-// 			desc:   "remove empty id",
-// 			id:     "",
-// 			auth:   token,
-// 			status: http.StatusBadRequest,
-// 		},
-// 		{
-// 			desc:   "view with invalid auth token",
-// 			id:     id,
-// 			auth:   authmocks.InvalidValue,
-// 			status: http.StatusUnauthorized,
-// 			res:    unauthRes,
-// 		},
-// 		{
-// 			desc:   "view with empty auth token",
-// 			id:     id,
-// 			auth:   "",
-// 			status: http.StatusUnauthorized,
-// 			res:    missingTokRes,
-// 		},
-// 	}
+	for _, tc := range cases {
+		svcCall := svc.On("RemoveSubscription", mock.Anything, mock.Anything, tc.id).Return(tc.err)
 
-// 	for _, tc := range cases {
-// 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		req := testRequest{
+			client: ss.Client(),
+			method: http.MethodDelete,
+			url:    fmt.Sprintf("%s/subscriptions/%s", ss.URL, tc.id),
+			token:  tc.auth,
+		}
+		res, err := req.make()
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 
-// 		req := testRequest{
-// 			client: ss.Client(),
-// 			method: http.MethodDelete,
-// 			url:    fmt.Sprintf("%s/subscriptions/%s", ss.URL, tc.id),
-// 			token:  tc.auth,
-// 		}
-// 		res, err := req.make()
-// 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-// 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
-
-// 		repoCall.Unset()
-// 	}
-// }
+		svcCall.Unset()
+	}
+}
 
 func makeQuery(m map[string]string) string {
 	var ret string
