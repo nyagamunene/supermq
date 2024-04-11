@@ -14,7 +14,6 @@ import (
 	"strings"
 	"testing"
 
-	// "github.com/absmach/magistrala"
 	authmocks "github.com/absmach/magistrala/auth/mocks"
 	"github.com/absmach/magistrala/consumers/notifiers"
 	httpapi "github.com/absmach/magistrala/consumers/notifiers/api"
@@ -298,7 +297,7 @@ func TestList(t *testing.T) {
 
 	const numSubs = 100
 	var subs []subRes
-	sub := notifiers.Subscription{}
+	var sub notifiers.Subscription
 
 	for i := 0; i < numSubs; i++ {
 		sub = notifiers.Subscription{
@@ -322,13 +321,13 @@ func TestList(t *testing.T) {
 		subs = append(subs, sr)
 	}
 	noLimit := toJSON(page{Offset: 5, Limit: 20, Total: numSubs, Subscriptions: subs[5:25]})
-	// one := toJSON(page{Offset: 0, Limit: 20, Total: 1, Subscriptions: subs[10:11]})
+	one := toJSON(page{Offset: 0, Limit: 20, Total: 1, Subscriptions: subs[10:11]})
 
 	var contact2Subs []subRes
 	for i := 20; i < 40; i += 2 {
 		contact2Subs = append(contact2Subs, subs[i])
 	}
-	// contactList := toJSON(page{Offset: 10, Limit: 10, Total: 50, Subscriptions: contact2Subs})
+	contactList := toJSON(page{Offset: 10, Limit: 10, Total: 50, Subscriptions: contact2Subs})
 
 	cases := []struct {
 		desc   string
@@ -349,66 +348,86 @@ func TestList(t *testing.T) {
 			res:    noLimit,
 			err:    nil,
 			page: notifiers.Page{
+				PageMetadata: notifiers.PageMetadata{
+					Offset: 5,
+					Limit:  20,
+				},
 				Total:         numSubs,
-				Subscriptions: []notifiers.Subscription{sub},
+				Subscriptions: GetSubscriptionsSlice(subs, 5, 25),
 			},
 		},
-		// {
-		// 	desc: "list not existing",
-		// 	query: map[string]string{
-		// 		"topic": "not-found-topic",
-		// 	},
-		// 	auth:   token,
-		// 	status: http.StatusNotFound,
-		// 	res:    notFoundRes,
-		// 	err:    nil,
-		// },
-		// {
-		// 	desc: "list one with topic",
-		// 	query: map[string]string{
-		// 		"topic": "topic.subtopic.10",
-		// 	},
-		// 	auth:   token,
-		// 	status: http.StatusOK,
-		// 	res:    one,
-		// 	err:    nil,
-		// },
-		// {
-		// 	desc: "list with contact",
-		// 	query: map[string]string{
-		// 		"contact": contact2,
-		// 		"offset":  "10",
-		// 		"limit":   "10",
-		// 	},
-		// 	auth:   token,
-		// 	status: http.StatusOK,
-		// 	res:    contactList,
-		// 	err:    nil,
-		// },
-		// {
-		// 	desc: "list with invalid query",
-		// 	query: map[string]string{
-		// 		"offset": "two",
-		// 	},
-		// 	auth:   token,
-		// 	status: http.StatusBadRequest,
-		// 	res:    invalidRes,
-		// 	err:    svcerr.ErrMalformedEntity,
-		// },
-		// {
-		// 	desc:   "list with invalid auth token",
-		// 	auth:   authmocks.InvalidValue,
-		// 	status: http.StatusUnauthorized,
-		// 	res:    unauthRes,
-		// 	err:    svcerr.ErrAuthentication,
-		// },
-		// {
-		// 	desc:   "list with empty auth token",
-		// 	auth:   "",
-		// 	status: http.StatusUnauthorized,
-		// 	res:    missingTokRes,
-		// 	err:    svcerr.ErrAuthentication,
-		// },
+		{
+			desc: "list not existing",
+			query: map[string]string{
+				"topic": "not-found-topic",
+			},
+			auth:   token,
+			status: http.StatusNotFound,
+			res:    notFoundRes,
+			err:    svcerr.ErrNotFound,
+		},
+		{
+			desc: "list one with topic",
+			query: map[string]string{
+				"topic": "topic.subtopic.10",
+			},
+			auth:   token,
+			status: http.StatusOK,
+			res:    one,
+			err:    nil,
+			page: notifiers.Page{
+				PageMetadata: notifiers.PageMetadata{
+					Offset: 0,
+					Limit:  20,
+				},
+				Total:         1,
+				Subscriptions: GetSubscriptionsSlice(subs, 10, 11),
+			},
+		},
+		{
+			desc: "list with contact",
+			query: map[string]string{
+				"contact": contact2,
+				"offset":  "10",
+				"limit":   "10",
+			},
+			auth:   token,
+			status: http.StatusOK,
+			res:    contactList,
+			err:    nil,
+			page: notifiers.Page{
+				PageMetadata: notifiers.PageMetadata{
+					Offset: 10,
+					Limit:  10,
+				},
+				Total:         50,
+				Subscriptions: GetSubscriptionsSlice(contact2Subs, 0, 10),
+			},
+		},
+		{
+			desc: "list with invalid query",
+			query: map[string]string{
+				"offset": "two",
+			},
+			auth:   token,
+			status: http.StatusBadRequest,
+			res:    invalidRes,
+			err:    svcerr.ErrMalformedEntity,
+		},
+		{
+			desc:   "list with invalid auth token",
+			auth:   authmocks.InvalidValue,
+			status: http.StatusUnauthorized,
+			res:    unauthRes,
+			err:    svcerr.ErrAuthentication,
+		},
+		{
+			desc:   "list with empty auth token",
+			auth:   "",
+			status: http.StatusUnauthorized,
+			res:    missingTokRes,
+			err:    svcerr.ErrAuthentication,
+		},
 	}
 
 	for _, tc := range cases {
@@ -531,4 +550,17 @@ type page struct {
 	Limit         int      `json:"limit"`
 	Total         uint     `json:"total,omitempty"`
 	Subscriptions []subRes `json:"subscriptions,omitempty"`
+}
+
+func GetSubscriptionsSlice(subs []subRes, start, end int) []notifiers.Subscription {
+	var result []notifiers.Subscription
+	for _, sub := range subs {
+		result = append(result, notifiers.Subscription{
+			ID:      sub.ID,
+			OwnerID: sub.OwnerID,
+			Contact: sub.Contact,
+			Topic:   sub.Topic,
+		})
+	}
+	return result[start:end]
 }

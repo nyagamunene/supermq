@@ -87,7 +87,7 @@ func TestViewSubscription(t *testing.T) {
 	svc, auth, repo := newService()
 	sub := notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"}
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return("", nil)
+	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
 	id, err := svc.CreateSubscription(context.Background(), exampleUser1, sub)
 	require.Nil(t, err, "Saving a Subscription must succeed")
 	repoCall.Unset()
@@ -151,7 +151,7 @@ func TestListSubscriptions(t *testing.T) {
 		}
 		tmp.Topic = fmt.Sprintf("%s.%d", topic, i)
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return("", nil)
+		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
 		id, err := svc.CreateSubscription(context.Background(), token, tmp)
 		require.Nil(t, err, "Saving a Subscription must succeed")
 		repoCall.Unset()
@@ -264,7 +264,7 @@ func TestRemoveSubscription(t *testing.T) {
 	svc, auth, repo := newService()
 	sub := notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"}
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return("", nil)
+	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
 	id, err := svc.CreateSubscription(context.Background(), exampleUser1, sub)
 	require.Nil(t, err, "Saving a Subscription must succeed")
 	repoCall.Unset()
@@ -322,7 +322,7 @@ func TestConsume(t *testing.T) {
 			tmp.Topic = fmt.Sprintf("%s-2", sub.Topic)
 		}
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return("", nil)
+		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
 		_, err := svc.CreateSubscription(context.Background(), exampleUser1, tmp)
 		require.Nil(t, err, "Saving a Subscription must succeed")
 		repoCall.Unset()
