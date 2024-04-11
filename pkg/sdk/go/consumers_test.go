@@ -222,7 +222,7 @@ func TestListSubscription(t *testing.T) {
 					Offset: 0,
 					Limit:  nSubs,
 				},
-				Subscriptions: GetSubscriptionsSlice(subs, 0, 10),
+				Subscriptions: subscriptionsSlice(subs, 0, 10),
 			},
 		},
 		{
@@ -237,7 +237,7 @@ func TestListSubscription(t *testing.T) {
 					Limit:  nSubs,
 					Topic:  "topic_1",
 				},
-				Subscriptions: GetSubscriptionsSlice(subs, 0, 1),
+				Subscriptions: subscriptionsSlice(subs, 0, 1),
 			},
 		},
 		{
@@ -252,7 +252,7 @@ func TestListSubscription(t *testing.T) {
 					Limit:   nSubs,
 					Contact: "contact_1",
 				},
-				Subscriptions: GetSubscriptionsSlice(subs, 0, 1),
+				Subscriptions: subscriptionsSlice(subs, 0, 1),
 			},
 		},
 	}
@@ -325,15 +325,16 @@ func TestDeleteSubscription(t *testing.T) {
 	}
 }
 
-func GetSubscriptionsSlice(subs []sdk.Subscription, start, end int) []notifiers.Subscription {
-	var result []notifiers.Subscription
-	for _, sub := range subs {
-		result = append(result, notifiers.Subscription{
+func subscriptionsSlice(subs []sdk.Subscription, start, end int) []notifiers.Subscription {
+	var res []notifiers.Subscription
+	for i := start; i < end; i++ {
+		sub := subs[i]
+		res = append(res, notifiers.Subscription{
 			ID:      sub.ID,
 			OwnerID: sub.OwnerID,
 			Contact: sub.Contact,
 			Topic:   sub.Topic,
 		})
 	}
-	return result[start:end]
+	return res
 }
