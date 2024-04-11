@@ -175,29 +175,117 @@ func TestConnectThing(t *testing.T) {
 		thingID       string
 		getThingErr   error
 		getChannelErr error
-		msg           lora.Message
 	}{
 		{
-			desc:      "connect thing with valid data",
-			err:       nil,
-			channelID: chanID,
-			thingID:   thingID,
-			msg: lora.Message{
-				ApplicationID: appID,
-				DevEUI:        devEUI,
-			},
+			desc:          "connect thing with valid data",
+			err:           nil,
+			channelID:     chanID,
+			thingID:       thingID,
+			getThingErr:   nil,
+			getChannelErr: nil,
+		},
+		{
+			desc:        "connect thing with non existing thing",
+			err:         lora.ErrNotFoundDev,
+			channelID:   chanID,
+			thingID:     "wrong",
+			getThingErr: lora.ErrNotFoundDev,
+		},
+		{
+			desc:          "connect thing with non existing channel",
+			err:           lora.ErrNotFoundApp,
+			channelID:     "wrong",
+			thingID:       thingID,
+			getChannelErr: lora.ErrNotFoundApp,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.DevEUI, tc.getThingErr)
-		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.ApplicationID, tc.getChannelErr)
+		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return(devEUI, tc.getThingErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(appID, tc.getChannelErr)
 		repoCall2 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
 		err := svc.ConnectThing(context.Background(), tc.channelID, tc.thingID)
-		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		switch err {
+		case nil:
+			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		default:
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		}
 		repoCall.Unset()
 		repoCall1.Unset()
 		repoCall2.Unset()
+	}
+}
 
+func TestDisconnectThing(t *testing.T) {
+	svc, _, thingsRM, channelsRM, connsRM := newService()
+
+	repoCall := channelsRM.On("Save", context.Background(), chanID, appID).Return(nil)
+	repoCall1 := thingsRM.On("Save", context.Background(), thingID, devEUI).Return(nil)
+	repoCall2 := channelsRM.On("Get", context.Background(), chanID).Return(testsutil.GenerateUUID(t), nil)
+	repoCall3 := thingsRM.On("Get", context.Background(), thingID).Return(testsutil.GenerateUUID(t), nil)
+	repoCall4 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
+
+	err := svc.CreateChannel(context.Background(), chanID, appID)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
+
+	err = svc.CreateThing(context.Background(), thingID, devEUI)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
+
+	err = svc.ConnectThing(context.Background(), chanID, thingID)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
+	repoCall.Unset()
+	repoCall1.Unset()
+	repoCall2.Unset()
+	repoCall3.Unset()
+	repoCall4.Unset()
+
+	cases := []struct {
+		desc          string
+		err           error
+		channelID     string
+		thingID       string
+		getThingErr   error
+		getChannelErr error
+	}{
+		{
+			desc:          "disconnect thing with valid data",
+			err:           nil,
+			channelID:     chanID,
+			thingID:       thingID,
+			getThingErr:   nil,
+			getChannelErr: nil,
+		},
+		{
+			desc:        "disconnect thing with non existing thing ID",
+			err:         lora.ErrNotFoundDev,
+			channelID:   chanID,
+			thingID:     "wrong",
+			getThingErr: lora.ErrNotFoundDev,
+		},
+		{
+			desc:          "disconnect thing with non existing channel",
+			err:           lora.ErrNotFoundApp,
+			channelID:     "wrong",
+			thingID:       thingID,
+			getChannelErr: lora.ErrNotFoundApp,
+		},
+	}
+
+	for _, tc := range cases {
+		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return(devEUI, tc.getThingErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(appID, tc.getChannelErr)
+		repoCall2 := connsRM.On("Remove", context.Background(), mock.Anything).Return(tc.err)
+
+		err = svc.DisconnectThing(context.Background(), tc.channelID, tc.thingID)
+		switch err {
+		case nil:
+			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		default:
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		}
+		repoCall.Unset()
+		repoCall1.Unset()
+		repoCall2.Unset()
 	}
 }
