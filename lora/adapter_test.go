@@ -152,3 +152,52 @@ func TestPublish(t *testing.T) {
 		repoCall3.Unset()
 	}
 }
+
+func TestConnectThing(t *testing.T) {
+	svc, _, thingsRM, channelsRM, connsRM := newService()
+
+	repoCall := channelsRM.On("Save", context.Background(), chanID, appID).Return(nil)
+	repoCall1 := thingsRM.On("Save", context.Background(), thingID, devEUI).Return(nil)
+
+	err := svc.CreateChannel(context.Background(), chanID, appID)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
+
+	err = svc.CreateThing(context.Background(), thingID, devEUI)
+	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
+
+	repoCall.Unset()
+	repoCall1.Unset()
+
+	cases := []struct {
+		desc          string
+		err           error
+		channelID     string
+		thingID       string
+		getThingErr   error
+		getChannelErr error
+		msg           lora.Message
+	}{
+		{
+			desc:      "connect thing with valid data",
+			err:       nil,
+			channelID: chanID,
+			thingID:   thingID,
+			msg: lora.Message{
+				ApplicationID: appID,
+				DevEUI:        devEUI,
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.DevEUI, tc.getThingErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.ApplicationID, tc.getChannelErr)
+		repoCall2 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
+		err := svc.ConnectThing(context.Background(), tc.channelID, tc.thingID)
+		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+		repoCall.Unset()
+		repoCall1.Unset()
+		repoCall2.Unset()
+
+	}
+}
