@@ -181,7 +181,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		svcCall := svc.On("CreateSubscription", mock.Anything, mock.Anything, mock.Anything).Return(path.Base(tc.location), tc.err)
+		svcCall := svc.On("CreateSubscription", mock.Anything, tc.auth, sub).Return(path.Base(tc.location), tc.err)
 
 		req := testRequest{
 			client:      ss.Client(),
@@ -271,7 +271,7 @@ func TestView(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		svcCall := svc.On("ViewSubscription", mock.Anything, mock.Anything, tc.id).Return(tc.Sub, tc.err)
+		svcCall := svc.On("ViewSubscription", mock.Anything, tc.auth, tc.id).Return(tc.Sub, tc.err)
 
 		req := testRequest{
 			client: ss.Client(),
@@ -431,7 +431,7 @@ func TestList(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		svcCall := svc.On("ListSubscriptions", mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.err)
+		svcCall := svc.On("ListSubscriptions", mock.Anything, tc.auth, mock.Anything).Return(tc.page, tc.err)
 		req := testRequest{
 			client: ss.Client(),
 			method: http.MethodGet,
@@ -512,7 +512,7 @@ func TestRemove(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		svcCall := svc.On("RemoveSubscription", mock.Anything, mock.Anything, tc.id).Return(tc.err)
+		svcCall := svc.On("RemoveSubscription", mock.Anything, tc.auth, tc.id).Return(tc.err)
 
 		req := testRequest{
 			client: ss.Client(),

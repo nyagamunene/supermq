@@ -73,8 +73,8 @@ func TestCreateSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(tc.id, tc.err)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
+		repoCall1 := repo.On("Save", context.Background(), mock.Anything).Return(tc.id, tc.err)
 		id, err := svc.CreateSubscription(context.Background(), tc.token, tc.sub)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.id, id, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.id, id))
@@ -85,15 +85,12 @@ func TestCreateSubscription(t *testing.T) {
 
 func TestViewSubscription(t *testing.T) {
 	svc, auth, repo := newService()
-	sub := notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"}
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
-	id, err := svc.CreateSubscription(context.Background(), exampleUser1, sub)
-	require.Nil(t, err, "Saving a Subscription must succeed")
-	repoCall.Unset()
-	repoCall1.Unset()
-	sub.ID = id
-	sub.OwnerID = validID
+	sub := notifiers.Subscription{
+		Contact: exampleUser1,
+		Topic:   "valid.topic",
+		ID:      testsutil.GenerateUUID(t),
+		OwnerID: validID,
+	}
 
 	cases := []struct {
 		desc  string
@@ -105,7 +102,7 @@ func TestViewSubscription(t *testing.T) {
 		{
 			desc:  "test success",
 			token: exampleUser1,
-			id:    id,
+			id:    validID,
 			sub:   sub,
 			err:   nil,
 		},
@@ -119,15 +116,15 @@ func TestViewSubscription(t *testing.T) {
 		{
 			desc:  "test with empty token",
 			token: "",
-			id:    id,
+			id:    validID,
 			sub:   notifiers.Subscription{},
 			err:   svcerr.ErrAuthentication,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Retrieve", mock.Anything, mock.Anything).Return(tc.sub, tc.err)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall1 := repo.On("Retrieve", context.Background(), tc.id).Return(tc.sub, tc.err)
 		sub, err := svc.ViewSubscription(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.sub, sub, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.sub, sub))
@@ -150,8 +147,8 @@ func TestListSubscriptions(t *testing.T) {
 			token = exampleUser2
 		}
 		tmp.Topic = fmt.Sprintf("%s.%d", topic, i)
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall1 := repo.On("Save", context.Background(), mock.Anything).Return(validID, nil)
 		id, err := svc.CreateSubscription(context.Background(), token, tmp)
 		require.Nil(t, err, "Saving a Subscription must succeed")
 		repoCall.Unset()
@@ -250,8 +247,8 @@ func TestListSubscriptions(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("RetrieveAll", mock.Anything, mock.Anything).Return(tc.page, tc.err)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall1 := repo.On("RetrieveAll", context.Background(), tc.pageMeta).Return(tc.page, tc.err)
 		page, err := svc.ListSubscriptions(context.Background(), tc.token, tc.pageMeta)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.page, page, fmt.Sprintf("%s: got unexpected page\n", tc.desc))
@@ -263,8 +260,8 @@ func TestListSubscriptions(t *testing.T) {
 func TestRemoveSubscription(t *testing.T) {
 	svc, auth, repo := newService()
 	sub := notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"}
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
+	repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+	repoCall1 := repo.On("Save", context.Background(), mock.Anything).Return(validID, nil)
 	id, err := svc.CreateSubscription(context.Background(), exampleUser1, sub)
 	require.Nil(t, err, "Saving a Subscription must succeed")
 	repoCall.Unset()
@@ -299,8 +296,8 @@ func TestRemoveSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Remove", mock.Anything, mock.Anything).Return(tc.err)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall1 := repo.On("Remove", context.Background(), tc.id).Return(tc.err)
 		err := svc.RemoveSubscription(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
@@ -321,8 +318,8 @@ func TestConsume(t *testing.T) {
 		if i%2 == 0 {
 			tmp.Topic = fmt.Sprintf("%s-2", sub.Topic)
 		}
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(validID, nil)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall1 := repo.On("Save", context.Background(), mock.Anything).Return(validID, nil)
 		_, err := svc.CreateSubscription(context.Background(), exampleUser1, tmp)
 		require.Nil(t, err, "Saving a Subscription must succeed")
 		repoCall.Unset()
@@ -331,8 +328,8 @@ func TestConsume(t *testing.T) {
 
 	sub.Contact = "invalid@example.com"
 	sub.Topic = fmt.Sprintf("%s-2", sub.Topic)
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return("", nil)
+	repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+	repoCall1 := repo.On("Save", context.Background(), mock.Anything).Return("", nil)
 	_, err := svc.CreateSubscription(context.Background(), exampleUser1, sub)
 	require.Nil(t, err, "Saving a Subscription must succeed")
 	repoCall.Unset()
@@ -365,7 +362,7 @@ func TestConsume(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := repo.On("RetrieveAll", mock.Anything, mock.Anything).Return(notifiers.Page{}, tc.err)
+		repoCall := repo.On("RetrieveAll", context.TODO(), mock.Anything).Return(notifiers.Page{}, tc.err)
 		err := svc.ConsumeBlocking(context.TODO(), tc.msg)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
