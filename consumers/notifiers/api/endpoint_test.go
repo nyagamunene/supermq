@@ -353,7 +353,7 @@ func TestList(t *testing.T) {
 					Limit:  20,
 				},
 				Total:         numSubs,
-				Subscriptions: GetSubscriptionsSlice(subs, 5, 25),
+				Subscriptions: subscriptionsSlice(subs, 5, 25),
 			},
 		},
 		{
@@ -381,7 +381,7 @@ func TestList(t *testing.T) {
 					Limit:  20,
 				},
 				Total:         1,
-				Subscriptions: GetSubscriptionsSlice(subs, 10, 11),
+				Subscriptions: subscriptionsSlice(subs, 10, 11),
 			},
 		},
 		{
@@ -401,7 +401,7 @@ func TestList(t *testing.T) {
 					Limit:  10,
 				},
 				Total:         50,
-				Subscriptions: GetSubscriptionsSlice(contact2Subs, 0, 10),
+				Subscriptions: subscriptionsSlice(contact2Subs, 0, 10),
 			},
 		},
 		{
@@ -552,15 +552,16 @@ type page struct {
 	Subscriptions []subRes `json:"subscriptions,omitempty"`
 }
 
-func GetSubscriptionsSlice(subs []subRes, start, end int) []notifiers.Subscription {
-	var result []notifiers.Subscription
-	for _, sub := range subs {
-		result = append(result, notifiers.Subscription{
+func subscriptionsSlice(subs []subRes, start, end int) []notifiers.Subscription {
+	var res []notifiers.Subscription
+	for i := start; i < end; i++ {
+		sub := subs[i]
+		res = append(res, notifiers.Subscription{
 			ID:      sub.ID,
 			OwnerID: sub.OwnerID,
 			Contact: sub.Contact,
 			Topic:   sub.Topic,
 		})
 	}
-	return result[start:end]
+	return res
 }
