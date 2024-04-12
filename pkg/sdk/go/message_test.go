@@ -104,7 +104,7 @@ func TestSendMessage(t *testing.T) {
 		},
 	}
 	for desc, tc := range cases {
-		svcCall := pub.On("Publish", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		svcCall := pub.On("Publish", mock.Anything, tc.chanID, mock.Anything).Return(tc.err)
 		err := mgsdk.SendMessage(tc.chanID, tc.msg, tc.auth)
 		switch tc.err {
 		case nil:
