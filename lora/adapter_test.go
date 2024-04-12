@@ -5,7 +5,6 @@ package lora_test
 
 import (
 	"context"
-	// "crypto/des"
 	"encoding/base64"
 	"fmt"
 	"testing"
