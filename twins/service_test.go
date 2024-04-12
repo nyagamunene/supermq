@@ -329,7 +329,7 @@ func TestRemoveTwin(t *testing.T) {
 }
 
 func TestSaveStates(t *testing.T) {
-	svc, auth, twinRepo, twinCache, _ := NewService()
+	svc, auth, twinRepo, twinCache, stateRepo := NewService()
 
 	twin := twins.Twin{Owner: email}
 	def := CreateDefinition(channels[0:2], subtopics[0:2])
@@ -338,7 +338,7 @@ func TestSaveStates(t *testing.T) {
 	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
 	repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
 	repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	_, err := svc.AddTwin(context.Background(), token, twin, def)
+	tw, err := svc.AddTwin(context.Background(), token, twin, def)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 	repoCall.Unset()
 	repoCall1.Unset()
@@ -409,12 +409,10 @@ func TestSaveStates(t *testing.T) {
 		assert.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		ttlAdded += tc.size
-		// repoCall4 := twinRepo.On("RetrieveByAttribute", context.TODO(), mock.Anything, mock.Anything).Return(tc.String, nil)
-		// repoCall5 := twinRepo.On("SaveIDs", context.TODO(), mock.Anything, mock.Anything, mock.Anything).Return(tc.err)
-		// repoCall4 := twinRepo.On("RetrieveAll", context.TODO(), mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(twins.Page{}, tc.err)
-		// page, err := svc.ListStates(context.TODO(), token, 0, 10, tw.ID)
-		// assert.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-		// assert.Equal(t, ttlAdded, page.Total, fmt.Sprintf("%s: expected %d total got %d total\n", tc.desc, ttlAdded, page.Total))
+		repoCall4 := stateRepo.On("RetrieveAll", context.TODO(), mock.Anything, mock.Anything, tw.ID).Return(twins.StatesPage{}, nil)
+		page, err := svc.ListStates(context.TODO(), token, 0, 10, tw.ID)
+		assert.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
+		assert.Equal(t, ttlAdded, page.Total, fmt.Sprintf("%s: expected %d total got %d total\n", tc.desc, ttlAdded, page.Total))
 
 		// page, err = svc.ListStates(context.TODO(), token, 0, 10, twWildcard.ID)
 		// assert.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
@@ -423,7 +421,7 @@ func TestSaveStates(t *testing.T) {
 		repoCall1.Unset()
 		repoCall2.Unset()
 		repoCall3.Unset()
-		// repoCall4.Unset()
+		repoCall4.Unset()
 		// repoCall5.Unset()
 	}
 }
