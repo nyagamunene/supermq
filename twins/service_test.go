@@ -632,9 +632,9 @@ func CreateMessage(attr twins.Attribute, recs []senml.Record) (*messaging.Messag
 }
 
 func genStates(length int) []twins.State {
-    states := make([]twins.State, length)
-    for i := range states {
-        states[i] = twins.State{} // Replace with the actual state you want to add
-    }
-    return states
+	states := make([]twins.State, length)
+	for i := range states {
+		states[i] = twins.State{}
+	}
+	return states
 }
