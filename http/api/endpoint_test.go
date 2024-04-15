@@ -4,7 +4,6 @@
 package api_test
 
 import (
-	// "context"
 	"fmt"
 	"io"
 	"net/http"
