@@ -186,6 +186,5 @@ func TestPublish(t *testing.T) {
 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", desc, tc.status, res.StatusCode))
 			svcCall.Unset()
 		})
-
 	}
 }
