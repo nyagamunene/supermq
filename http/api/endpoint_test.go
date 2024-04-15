@@ -4,6 +4,7 @@
 package api_test
 
 import (
+	// "context"
 	"fmt"
 	"io"
 	"net/http"
@@ -170,7 +171,7 @@ func TestPublish(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		svcCall := pub.On("Publish", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		svcCall := pub.On("Publish", mock.Anything, tc.chanID, mock.Anything).Return(nil)
 		t.Run(desc, func(t *testing.T) {
 			req := testRequest{
 				client:      ts.Client(),
