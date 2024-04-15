@@ -4,7 +4,6 @@
 package http_test
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -61,47 +60,30 @@ func NewService() (twins.Service, *authmocks.AuthClient, *mocks.TwinRepository, 
 }
 
 func TestListStates(t *testing.T) {
-	svc, auth, twinRepo, twinCache, stateRepo := NewService()
+	svc, auth, _, _, stateRepo := NewService()
 	ts := newServer(svc)
 	defer ts.Close()
 
-	twin := twins.Twin{
-		Owner: email,
-	}
 	def := CreateDefinition(channels[0:2], subtopics[0:2])
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	tw, err := svc.AddTwin(context.Background(), token, twin, def)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
+	twin := twins.Twin{
+		Owner:       email,
+		Definitions: []twins.Definition{def},
+		ID:          testsutil.GenerateUUID(t),
+		Created:     time.Now(),
+	}
 	attr := def.Attributes[0]
-
 	recs := make([]senml.Record, numRecs)
 	CreateSenML(recs)
-	message, err := CreateMessage(attr, recs)
+	_, err := CreateMessage(attr, recs)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	var testString []string
-	repoCall = auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 = twinCache.On("IDs", context.Background(), mock.Anything, mock.Anything).Return(testString, nil)
-	repoCall2 = twinRepo.On("RetrieveByAttribute", context.Background(), mock.Anything, mock.Anything).Return(testString, nil)
-	repoCall3 := twinRepo.On("SaveIDs", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	err = svc.SaveStates(context.Background(), message)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
-	repoCall3.Unset()
 
 	var data []stateRes
 	for i := 0; i < len(recs); i++ {
-		res := createStateResponse(i, tw, recs[i])
+		res := createStateResponse(i, twin, recs[i])
 		data = append(data, res)
 	}
 
-	baseURL := fmt.Sprintf("%s/states/%s", ts.URL, tw.ID)
+	baseURL := fmt.Sprintf("%s/states/%s", ts.URL, twin.ID)
 	queryFmt := "%s?offset=%d&limit=%d"
 	cases := []struct {
 		desc   string
