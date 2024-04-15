@@ -170,8 +170,8 @@ func TestPublish(t *testing.T) {
 	}
 
 	for desc, tc := range cases {
-		svcCall := pub.On("Publish", mock.Anything, tc.chanID, mock.Anything).Return(nil)
 		t.Run(desc, func(t *testing.T) {
+			svcCall := pub.On("Publish", mock.Anything, tc.chanID, mock.Anything).Return(nil)
 			req := testRequest{
 				client:      ts.Client(),
 				method:      http.MethodPost,
@@ -184,7 +184,8 @@ func TestPublish(t *testing.T) {
 			res, err := req.make()
 			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", desc, err))
 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", desc, tc.status, res.StatusCode))
+			svcCall.Unset()
 		})
-		svcCall.Unset()
+
 	}
 }
