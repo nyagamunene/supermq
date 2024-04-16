@@ -320,7 +320,7 @@ func TestDeleteSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.err)
 		repoCall1 := repo.On("Remove", mock.Anything, mock.Anything).Return(tc.err)
 		err := mgsdk.DeleteSubscription(tc.subID, tc.token)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error %s, got %s", tc.desc, tc.err, err))
