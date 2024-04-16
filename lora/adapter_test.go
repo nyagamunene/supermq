@@ -111,6 +111,16 @@ func TestPublish(t *testing.T) {
 			},
 			connectionsErr: lora.ErrNotConnected,
 		},
+		{
+			desc: "publish message with wrong Object",
+			err:  lora.ErrMalformedMessage,
+			msg: lora.Message{
+				ApplicationID: appID2,
+				DevEUI:        devEUI2,
+				Object:        "wrong",
+			},
+			publishErr: lora.ErrMalformedMessage,
+		},
 	}
 
 	for _, tc := range cases {
