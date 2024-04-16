@@ -9,14 +9,12 @@ import (
 	"fmt"
 	"testing"
 
-	// "github.com/absmach/magistrala/internal/testsutil"
 	"github.com/absmach/magistrala/lora"
 	"github.com/absmach/magistrala/lora/mocks"
 	"github.com/absmach/magistrala/pkg/errors"
 	pubmocks "github.com/absmach/magistrala/pkg/messaging/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	// "github.com/stretchr/testify/require"
 )
 
 const (
