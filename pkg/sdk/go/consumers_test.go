@@ -23,7 +23,6 @@ import (
 	"github.com/absmach/magistrala/pkg/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -125,12 +124,6 @@ func TestViewSubscription(t *testing.T) {
 	}
 
 	mgsdk := sdk.NewSDK(sdkConf)
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(ID, nil)
-	id, err := mgsdk.CreateSubscription("topic", "contact", exampleUser1)
-	require.Nil(t, err, fmt.Sprintf("unexpected error during creating subscription: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
 
 	cases := []struct {
 		desc     string
@@ -141,7 +134,7 @@ func TestViewSubscription(t *testing.T) {
 	}{
 		{
 			desc:     "get existing subscription",
-			subID:    id,
+			subID:    ID,
 			token:    exampleUser1,
 			err:      nil,
 			response: sub1,
@@ -155,7 +148,7 @@ func TestViewSubscription(t *testing.T) {
 		},
 		{
 			desc:     "get subscription with invalid token",
-			subID:    id,
+			subID:    ID,
 			token:    "",
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 			response: sdk.Subscription{},
@@ -187,21 +180,6 @@ func TestListSubscription(t *testing.T) {
 	mgsdk := sdk.NewSDK(sdkConf)
 	nSubs := 10
 	subs := make([]sdk.Subscription, nSubs)
-	for i := 0; i < nSubs; i++ {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(ID, nil)
-		id, err := mgsdk.CreateSubscription(fmt.Sprintf("topic_%d", i), fmt.Sprintf("contact_%d", i), exampleUser1)
-		require.Nil(t, err, fmt.Sprintf("unexpected error during creating subscription: %s", err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall = auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-		repoCall1 = repo.On("Retrieve", mock.Anything, mock.Anything).Return(notifiers.Subscription{Contact: sub1.Contact, Topic: sub1.Topic, ID: id}, nil)
-		sub, err := mgsdk.ViewSubscription(id, exampleUser1)
-		require.Nil(t, err, fmt.Sprintf("unexpected error during getting subscription: %s", err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		subs[i] = sub
-	}
 
 	cases := []struct {
 		desc     string
@@ -278,12 +256,6 @@ func TestDeleteSubscription(t *testing.T) {
 	}
 
 	mgsdk := sdk.NewSDK(sdkConf)
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: exampleUser1}).Return(&magistrala.IdentityRes{Id: validID}, nil)
-	repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(ID, nil)
-	id, err := mgsdk.CreateSubscription("topic", "contact", exampleUser1)
-	require.Nil(t, err, fmt.Sprintf("unexpected error during creating subscription: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
 
 	cases := []struct {
 		desc     string
@@ -294,7 +266,7 @@ func TestDeleteSubscription(t *testing.T) {
 	}{
 		{
 			desc:     "delete existing subscription",
-			subID:    id,
+			subID:    ID,
 			token:    exampleUser1,
 			err:      nil,
 			response: sub1,
@@ -308,7 +280,7 @@ func TestDeleteSubscription(t *testing.T) {
 		},
 		{
 			desc:     "delete subscription with invalid token",
-			subID:    id,
+			subID:    ID,
 			token:    "",
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 			response: sdk.Subscription{},
