@@ -9,14 +9,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/absmach/magistrala/internal/testsutil"
+	// "github.com/absmach/magistrala/internal/testsutil"
 	"github.com/absmach/magistrala/lora"
 	"github.com/absmach/magistrala/lora/mocks"
 	"github.com/absmach/magistrala/pkg/errors"
 	pubmocks "github.com/absmach/magistrala/pkg/messaging/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
+	// "github.com/stretchr/testify/require"
 )
 
 const (
@@ -48,36 +48,6 @@ func newService() lora.Service {
 
 func TestPublish(t *testing.T) {
 	svc := newService()
-
-	repoCall := channelsRM.On("Save", context.Background(), chanID, appID).Return(nil)
-	repoCall1 := thingsRM.On("Save", context.Background(), thingID, devEUI).Return(nil)
-	repoCall2 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(nil)
-	repoCall3 := channelsRM.On("Get", context.Background(), chanID).Return(testsutil.GenerateUUID(t), nil)
-	repoCall4 := thingsRM.On("Get", context.Background(), thingID).Return(testsutil.GenerateUUID(t), nil)
-
-	err := svc.CreateChannel(context.Background(), chanID, appID)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-
-	err = svc.CreateThing(context.Background(), thingID, devEUI)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-
-	err = svc.ConnectThing(context.Background(), chanID, thingID)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
-	repoCall3.Unset()
-	repoCall4.Unset()
-
-	repoCall = channelsRM.On("Save", context.Background(), chanID2, appID2).Return(nil)
-	repoCall1 = thingsRM.On("Save", context.Background(), thingID2, devEUI2).Return(nil)
-	err = svc.CreateChannel(context.Background(), chanID2, appID2)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-
-	err = svc.CreateThing(context.Background(), thingID2, devEUI2)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-	repoCall.Unset()
-	repoCall1.Unset()
 
 	msgBase64 := base64.StdEncoding.EncodeToString([]byte(msg))
 
@@ -146,10 +116,10 @@ func TestPublish(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.DevEUI, tc.getThingErr)
-		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(tc.msg.ApplicationID, tc.getChannelErr)
+		repoCall := thingsRM.On("Get", context.Background(), tc.msg.DevEUI).Return(tc.msg.DevEUI, tc.getThingErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), tc.msg.ApplicationID).Return(tc.msg.ApplicationID, tc.getChannelErr)
 		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return(mock.Anything, tc.connectionsErr)
-		repoCall3 := pub.On("Publish", context.Background(), mock.Anything, mock.Anything).Return(tc.publishErr)
+		repoCall3 := pub.On("Publish", context.Background(), tc.msg.ApplicationID, mock.Anything).Return(tc.publishErr)
 		err := svc.Publish(context.Background(), &tc.msg)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
@@ -189,7 +159,7 @@ func TestCreateChannel(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := channelsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
+		repoCall := channelsRM.On("Save", context.Background(), tc.ChanID, tc.AppID).Return(tc.err)
 		err := svc.CreateChannel(context.Background(), tc.ChanID, tc.AppID)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
@@ -226,8 +196,8 @@ func TestCreateThing(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
-		err := svc.CreateThing(context.Background(), thingID, devEUI)
+		repoCall := thingsRM.On("Save", context.Background(), tc.ThingID, tc.DevEUI).Return(tc.err)
+		err := svc.CreateThing(context.Background(), tc.ThingID, tc.DevEUI)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
 	}
@@ -270,7 +240,7 @@ func TestConnectThing(t *testing.T) {
 
 	for _, tc := range cases {
 		repoCall := thingsRM.On("Get", context.Background(), tc.thingID).Return(devEUI, tc.getThingErr)
-		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(appID, tc.getChannelErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), tc.channelID).Return(appID, tc.getChannelErr)
 		repoCall2 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
 		err := svc.ConnectThing(context.Background(), tc.channelID, tc.thingID)
 		switch err {
@@ -321,8 +291,8 @@ func TestDisconnectThing(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Get", context.Background(), mock.Anything).Return(devEUI, tc.getThingErr)
-		repoCall1 := channelsRM.On("Get", context.Background(), mock.Anything).Return(appID, tc.getChannelErr)
+		repoCall := thingsRM.On("Get", context.Background(), tc.thingID).Return(devEUI, tc.getThingErr)
+		repoCall1 := channelsRM.On("Get", context.Background(), tc.channelID).Return(appID, tc.getChannelErr)
 		repoCall2 := connsRM.On("Remove", context.Background(), mock.Anything).Return(tc.err)
 
 		err := svc.DisconnectThing(context.Background(), tc.channelID, tc.thingID)
@@ -364,7 +334,7 @@ func TestRemoveChannel(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := channelsRM.On("Remove", context.Background(), mock.Anything).Return(tc.err)
+		repoCall := channelsRM.On("Remove", context.Background(), tc.ChanID).Return(tc.err)
 		err := svc.RemoveChannel(context.Background(), tc.ChanID)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
@@ -397,7 +367,7 @@ func TestRemoveThing(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Remove", context.Background(), mock.Anything).Return(tc.err)
+		repoCall := thingsRM.On("Remove", context.Background(), tc.ThingID).Return(tc.err)
 		err := svc.RemoveThing(context.Background(), tc.ThingID)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
@@ -446,7 +416,7 @@ func TestUpdateChannel(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := channelsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
+		repoCall := channelsRM.On("Save", context.Background(), tc.ChanID, tc.AppID).Return(tc.err)
 		err := svc.UpdateChannel(context.Background(), tc.ChanID, tc.AppID)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
@@ -495,7 +465,7 @@ func TestUpdateThing(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := thingsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
+		repoCall := thingsRM.On("Save", context.Background(), tc.ThingID, tc.DevEUI).Return(tc.err)
 		err := svc.UpdateThing(context.Background(), tc.ThingID, tc.DevEUI)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
