@@ -113,13 +113,21 @@ func TestPublish(t *testing.T) {
 		},
 		{
 			desc: "publish message with wrong Object",
-			err:  lora.ErrMalformedMessage,
+			err:  errors.New("json: unsupported type: chan int"),
 			msg: lora.Message{
 				ApplicationID: appID2,
 				DevEUI:        devEUI2,
-				Object:        "wrong",
+				Object:        make(chan int),
 			},
-			publishErr: lora.ErrMalformedMessage,
+		},
+		{
+			desc: "publish message with valid Object",
+			err:  nil,
+			msg: lora.Message{
+				ApplicationID: appID2,
+				DevEUI:        devEUI2,
+				Object:        map[string]interface{}{"key": "value"},
+			},
 		},
 	}
 
@@ -129,6 +137,8 @@ func TestPublish(t *testing.T) {
 		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return(mock.Anything, tc.connectionsErr)
 		repoCall3 := pub.On("Publish", context.Background(), tc.msg.ApplicationID, mock.Anything).Return(tc.publishErr)
 		err := svc.Publish(context.Background(), &tc.msg)
+		fmt.Println(err)
+		fmt.Println(tc.err)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
 		repoCall1.Unset()
