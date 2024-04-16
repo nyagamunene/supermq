@@ -4,7 +4,6 @@
 package api_test
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -213,13 +212,8 @@ func TestView(t *testing.T) {
 		OwnerID: validID,
 	}
 
-	svcCall := svc.On("CreateSubscription", context.Background(), token, sub).Return(sub.ID, nil)
-	id, err := svc.CreateSubscription(context.Background(), token, sub)
-	assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
-	svcCall.Unset()
-
 	sr := subRes{
-		ID:      id,
+		ID:      sub.ID,
 		OwnerID: validID,
 		Contact: sub.Contact,
 		Topic:   sub.Topic,
@@ -237,7 +231,7 @@ func TestView(t *testing.T) {
 	}{
 		{
 			desc:   "view successfully",
-			id:     id,
+			id:     sub.ID,
 			auth:   token,
 			status: http.StatusOK,
 			res:    data,
@@ -254,7 +248,7 @@ func TestView(t *testing.T) {
 		},
 		{
 			desc:   "view with invalid auth token",
-			id:     id,
+			id:     sub.ID,
 			auth:   authmocks.InvalidValue,
 			status: http.StatusUnauthorized,
 			res:    unauthRes,
@@ -262,7 +256,7 @@ func TestView(t *testing.T) {
 		},
 		{
 			desc:   "view with empty auth token",
-			id:     id,
+			id:     sub.ID,
 			auth:   "",
 			status: http.StatusUnauthorized,
 			res:    missingTokRes,
@@ -308,16 +302,12 @@ func TestList(t *testing.T) {
 		if i%2 == 0 {
 			sub.Contact = contact2
 		}
-		svcCall := svc.On("CreateSubscription", context.Background(), token, sub).Return(sub.ID, nil)
-		id, err := svc.CreateSubscription(context.Background(), token, sub)
 		sr := subRes{
-			ID:      id,
+			ID:      sub.ID,
 			OwnerID: validID,
 			Contact: sub.Contact,
 			Topic:   sub.Topic,
 		}
-		assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
-		svcCall.Unset()
 		subs = append(subs, sr)
 	}
 	noLimit := toJSON(page{Offset: 5, Limit: 20, Total: numSubs, Subscriptions: subs[5:25]})
