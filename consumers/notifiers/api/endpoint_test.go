@@ -453,16 +453,7 @@ func TestList(t *testing.T) {
 func TestRemove(t *testing.T) {
 	ss, svc := newServer()
 	defer ss.Close()
-
-	sub := notifiers.Subscription{
-		Topic:   "topic",
-		Contact: contact1,
-		ID:      testsutil.GenerateUUID(t),
-	}
-	svcCall := svc.On("CreateSubscription", context.Background(), token, sub).Return(sub.ID, nil)
-	id, err := svc.CreateSubscription(context.Background(), token, sub)
-	assert.Nil(t, err, fmt.Sprintf("got an error creating id: %s", err))
-	svcCall.Unset()
+	id := testsutil.GenerateUUID(t)
 
 	cases := []struct {
 		desc   string
