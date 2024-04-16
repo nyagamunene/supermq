@@ -94,21 +94,16 @@ func TestAddTwin(t *testing.T) {
 
 func TestUpdateTwin(t *testing.T) {
 	svc, auth, twinRepo, twinCache, _ := NewService()
-	twin := twins.Twin{}
+
 	other := twins.Twin{}
 	def := twins.Definition{}
+	twin := twins.Twin{
+		Owner: email,
+		ID:    testsutil.GenerateUUID(t),
+		Name:  twinName,
+	}
 
 	other.ID = wrongID
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	saved, err := svc.AddTwin(context.Background(), token, twin, def)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
-
-	saved.Name = twinName
 
 	cases := []struct {
 		desc  string
@@ -118,13 +113,13 @@ func TestUpdateTwin(t *testing.T) {
 	}{
 		{
 			desc:  "update existing twin",
-			twin:  saved,
+			twin:  twin,
 			token: token,
 			err:   nil,
 		},
 		{
 			desc:  "update twin with wrong credentials",
-			twin:  saved,
+			twin:  twin,
 			token: authmocks.InvalidValue,
 			err:   svcerr.ErrAuthentication,
 		},
@@ -151,17 +146,13 @@ func TestUpdateTwin(t *testing.T) {
 }
 
 func TestViewTwin(t *testing.T) {
-	svc, auth, twinRepo, twinCache, _ := NewService()
-	twin := twins.Twin{}
-	def := twins.Definition{}
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	saved, err := svc.AddTwin(context.Background(), token, twin, def)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
+	svc, auth, twinRepo, _, _ := NewService()
+
+	twin := twins.Twin{
+		Owner: email,
+		ID:    testsutil.GenerateUUID(t),
+		Name:  twinName,
+	}
 
 	cases := []struct {
 		desc  string
@@ -171,13 +162,13 @@ func TestViewTwin(t *testing.T) {
 	}{
 		{
 			desc:  "view existing twin",
-			id:    saved.ID,
+			id:    twin.ID,
 			token: token,
 			err:   nil,
 		},
 		{
 			desc:  "view twin with wrong credentials",
-			id:    saved.ID,
+			id:    twin.ID,
 			token: authmocks.InvalidValue,
 			err:   svcerr.ErrAuthentication,
 		},
@@ -200,24 +191,13 @@ func TestViewTwin(t *testing.T) {
 }
 
 func TestListTwins(t *testing.T) {
-	svc, auth, twinRepo, twinCache, _ := NewService()
+	svc, auth, twinRepo, _, _ := NewService()
 	twin := twins.Twin{Name: twinName, Owner: email}
-	def := twins.Definition{}
 	m := make(map[string]interface{})
 	m["serial"] = "123456"
 	twin.Metadata = m
 
 	n := uint64(10)
-	for i := uint64(0); i < n; i++ {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-		repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-		repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-		_, err := svc.AddTwin(context.Background(), token, twin, def)
-		require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
-	}
 
 	cases := []struct {
 		desc     string
@@ -273,16 +253,11 @@ func TestListTwins(t *testing.T) {
 
 func TestRemoveTwin(t *testing.T) {
 	svc, auth, twinRepo, twinCache, _ := NewService()
-	twin := twins.Twin{}
-	def := twins.Definition{}
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	saved, err := svc.AddTwin(context.Background(), token, twin, def)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
+	twin := twins.Twin{
+		Owner: email,
+		ID:    testsutil.GenerateUUID(t),
+		Name:  twinName,
+	}
 
 	cases := []struct {
 		desc  string
@@ -292,19 +267,19 @@ func TestRemoveTwin(t *testing.T) {
 	}{
 		{
 			desc:  "remove twin with wrong credentials",
-			id:    saved.ID,
+			id:    twin.ID,
 			token: authmocks.InvalidValue,
 			err:   svcerr.ErrAuthentication,
 		},
 		{
 			desc:  "remove existing twin",
-			id:    saved.ID,
+			id:    twin.ID,
 			token: token,
 			err:   nil,
 		},
 		{
 			desc:  "remove removed twin",
-			id:    saved.ID,
+			id:    twin.ID,
 			token: token,
 			err:   nil,
 		},
@@ -331,28 +306,21 @@ func TestRemoveTwin(t *testing.T) {
 func TestSaveStates(t *testing.T) {
 	svc, auth, twinRepo, twinCache, stateRepo := NewService()
 
-	twin := twins.Twin{Owner: email}
 	def := CreateDefinition(channels[0:2], subtopics[0:2])
+	twin := twins.Twin{
+		Owner:       email,
+		ID:          testsutil.GenerateUUID(t),
+		Name:        twinName,
+		Definitions: []twins.Definition{def},
+	}
+
 	attr := def.Attributes[0]
 	attrSansTwin := CreateDefinition(channels[2:3], subtopics[2:3]).Attributes[0]
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	tw, err := svc.AddTwin(context.Background(), token, twin, def)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
 
 	defWildcard := CreateDefinition(channels[0:2], []string{twins.SubtopicWildcard, twins.SubtopicWildcard})
-	repoCall = auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 = twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 = twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	twWildcard, err := svc.AddTwin(context.Background(), token, twin, defWildcard)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
+	twWildcard := twins.Twin{
+		Definitions: []twins.Definition{defWildcard},
+	}
 
 	recs := make([]senml.Record, numRecs)
 	CreateSenML(recs)
@@ -430,8 +398,8 @@ func TestSaveStates(t *testing.T) {
 		assert.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		ttlAdded += tc.size
-		repoCall4 := stateRepo.On("RetrieveAll", context.TODO(), mock.Anything, mock.Anything, tw.ID).Return(tc.page, nil)
-		page, err := svc.ListStates(context.TODO(), token, 0, 10, tw.ID)
+		repoCall4 := stateRepo.On("RetrieveAll", context.TODO(), mock.Anything, mock.Anything, twin.ID).Return(tc.page, nil)
+		page, err := svc.ListStates(context.TODO(), token, 0, 10, twin.ID)
 		assert.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 		assert.Equal(t, ttlAdded, page.Total, fmt.Sprintf("%s: expected %d total got %d total\n", tc.desc, ttlAdded, page.Total))
 
@@ -449,46 +417,25 @@ func TestSaveStates(t *testing.T) {
 }
 
 func TestListStates(t *testing.T) {
-	svc, auth, twinRepo, twinCache, stateRepo := NewService()
+	svc, auth, _, _, stateRepo := NewService()
 
-	twin := twins.Twin{Owner: email}
 	def := CreateDefinition(channels[0:2], subtopics[0:2])
+	twin := twins.Twin{
+		Owner:       email,
+		ID:          testsutil.GenerateUUID(t),
+		Name:        twinName,
+		Definitions: []twins.Definition{def},
+	}
 	attr := def.Attributes[0]
-	repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	tw, err := svc.AddTwin(context.Background(), token, twin, def)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
 
-	repoCall = auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 = twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, nil)
-	repoCall2 = twinCache.On("Save", context.Background(), mock.Anything).Return(nil)
-	tw2, err := svc.AddTwin(context.Background(), token,
-		twins.Twin{Owner: email},
-		CreateDefinition(channels[2:3], subtopics[2:3]))
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
-
+	tw2 := twins.Twin{
+		Owner:       email,
+		Definitions: []twins.Definition{CreateDefinition(channels[2:3], subtopics[2:3])},
+	}
 	recs := make([]senml.Record, numRecs)
 	CreateSenML(recs)
-	message, err := CreateMessage(attr, recs)
+	_, err := CreateMessage(attr, recs)
 	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	var testString []string
-	repoCall = auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-	repoCall1 = twinCache.On("IDs", context.Background(), mock.Anything, mock.Anything).Return(testString, nil)
-	repoCall2 = twinRepo.On("RetrieveByAttribute", context.Background(), mock.Anything, mock.Anything).Return(testString, nil)
-	repoCall3 := twinRepo.On("SaveIDs", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	err = svc.SaveStates(context.Background(), message)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
-	repoCall.Unset()
-	repoCall1.Unset()
-	repoCall2.Unset()
-	repoCall3.Unset()
 
 	cases := []struct {
 		desc   string
@@ -502,7 +449,7 @@ func TestListStates(t *testing.T) {
 	}{
 		{
 			desc:   "get a list of first 10 states",
-			id:     tw.ID,
+			id:     twin.ID,
 			token:  token,
 			offset: 0,
 			limit:  10,
@@ -514,7 +461,7 @@ func TestListStates(t *testing.T) {
 		},
 		{
 			desc:   "get a list of last 10 states",
-			id:     tw.ID,
+			id:     twin.ID,
 			token:  token,
 			offset: numRecs - 10,
 			limit:  numRecs,
@@ -526,7 +473,7 @@ func TestListStates(t *testing.T) {
 		},
 		{
 			desc:   "get a list of last 10 states with limit > numRecs",
-			id:     tw.ID,
+			id:     twin.ID,
 			token:  token,
 			offset: numRecs - 10,
 			limit:  numRecs + 10,
@@ -538,7 +485,7 @@ func TestListStates(t *testing.T) {
 		},
 		{
 			desc:   "get a list of first 10 states with offset == numRecs",
-			id:     tw.ID,
+			id:     twin.ID,
 			token:  token,
 			offset: numRecs,
 			limit:  numRecs + 10,
@@ -547,7 +494,7 @@ func TestListStates(t *testing.T) {
 		},
 		{
 			desc:   "get a list with wrong user token",
-			id:     tw.ID,
+			id:     twin.ID,
 			token:  authmocks.InvalidValue,
 			offset: 0,
 			limit:  10,
