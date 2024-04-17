@@ -102,7 +102,7 @@ func TestListStates(t *testing.T) {
 			res:    data[0:10],
 			err:    nil,
 			page: twins.StatesPage{
-				States: convStates(data[0:10]),
+				States: convStat(data[0:10]),
 			},
 		},
 		{
@@ -112,7 +112,7 @@ func TestListStates(t *testing.T) {
 			url:    fmt.Sprintf(queryFmt, baseURL, 20, 15),
 			res:    data[20:35],
 			page: twins.StatesPage{
-				States: convStates(data[20:35]),
+				States: convStat(data[20:35]),
 			},
 			err: nil,
 		},
@@ -139,7 +139,7 @@ func TestListStates(t *testing.T) {
 			url:    fmt.Sprintf(queryFmt, baseURL, 91, 20),
 			res:    data[91:],
 			page: twins.StatesPage{
-				States: convStates(data[91:]),
+				States: convStat(data[91:]),
 			},
 			err: nil,
 		},
@@ -198,7 +198,7 @@ func TestListStates(t *testing.T) {
 			url:    fmt.Sprintf("%s?limit=%d", baseURL, 15),
 			res:    data[0:15],
 			page: twins.StatesPage{
-				States: convStates(data[0:15]),
+				States: convStat(data[0:15]),
 			},
 			err: nil,
 		},
@@ -209,7 +209,7 @@ func TestListStates(t *testing.T) {
 			url:    fmt.Sprintf("%s?offset=%d", baseURL, 14),
 			res:    data[14:24],
 			page: twins.StatesPage{
-				States: convStates(data[14:24]),
+				States: convStat(data[14:24]),
 			},
 			err: nil,
 		},
@@ -228,7 +228,7 @@ func TestListStates(t *testing.T) {
 			url:    fmt.Sprintf("%s?offset=%d&limit=%d&value=something", baseURL, 0, 5),
 			res:    data[0:5],
 			page: twins.StatesPage{
-				States: convStates(data[0:5]),
+				States: convStat(data[0:5]),
 			},
 			err: nil,
 		},
@@ -305,7 +305,7 @@ func CreateMessage(attr twins.Attribute, recs []senml.Record) (*messaging.Messag
 	}, nil
 }
 
-func convStates(data []stateRes) []twins.State {
+func convStat(data []stateRes) []twins.State {
 	states := make([]twins.State, len(data))
 	for i, d := range data {
 		states[i] = twins.State{
