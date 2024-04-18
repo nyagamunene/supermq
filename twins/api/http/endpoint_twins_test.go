@@ -34,6 +34,7 @@ const (
 	maxNameSize = 1024
 	instanceID  = "5de9b29a-feb9-11ed-be56-0242ac120002"
 	retained    = "saved"
+	validID     = "123e4567-e89b-12d3-a456-426614174000"
 )
 
 var invalidName = strings.Repeat("m", maxNameSize+1)
@@ -120,6 +121,8 @@ func TestAddTwin(t *testing.T) {
 		status      int
 		location    string
 		err         error
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
 			desc:        "add valid twin",
@@ -129,6 +132,8 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusCreated,
 			location:    "/twins/123e4567-e89b-12d3-a456-000000000001",
 			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "add twin with empty JSON request",
@@ -138,6 +143,8 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusCreated,
 			location:    "/twins/123e4567-e89b-12d3-a456-000000000002",
 			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "add twin with invalid auth token",
@@ -147,6 +154,7 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusUnauthorized,
 			location:    "",
 			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
 			desc:        "add twin with empty auth token",
@@ -156,6 +164,7 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusUnauthorized,
 			location:    "",
 			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
 			desc:        "add twin with invalid request format",
@@ -165,6 +174,8 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusBadRequest,
 			location:    "",
 			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "add twin with empty request",
@@ -174,6 +185,8 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusBadRequest,
 			location:    "",
 			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "add twin without content type",
@@ -183,6 +196,8 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusUnsupportedMediaType,
 			location:    "",
 			err:         apiutil.ErrUnsupportedContentType,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "add twin with invalid name",
@@ -192,11 +207,13 @@ func TestAddTwin(t *testing.T) {
 			status:      http.StatusBadRequest,
 			location:    "",
 			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := twinRepo.On("Save", mock.Anything, mock.Anything).Return(retained, tc.err)
 		repoCall2 := twinCache.On("Save", mock.Anything, mock.Anything).Return(tc.err)
 		req := testRequest{
@@ -245,6 +262,8 @@ func TestUpdateTwin(t *testing.T) {
 		auth        string
 		status      int
 		err         error
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
 			desc:        "update existing twin",
@@ -254,6 +273,8 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        token,
 			status:      http.StatusOK,
 			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "update twin with empty JSON request",
@@ -263,6 +284,8 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        token,
 			status:      http.StatusBadRequest,
 			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "update non-existent twin",
@@ -272,6 +295,8 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        token,
 			status:      http.StatusNotFound,
 			err:         svcerr.ErrNotFound,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "update twin with invalid token",
@@ -281,6 +306,7 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        authmocks.InvalidValue,
 			status:      http.StatusUnauthorized,
 			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
 			desc:        "update twin with empty token",
@@ -290,6 +316,7 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        "",
 			status:      http.StatusUnauthorized,
 			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
 			desc:        "update twin with invalid data format",
@@ -299,6 +326,8 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        token,
 			status:      http.StatusBadRequest,
 			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "update twin with empty request",
@@ -308,6 +337,8 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        token,
 			status:      http.StatusBadRequest,
 			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "update twin without content type",
@@ -317,6 +348,8 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        token,
 			status:      http.StatusUnsupportedMediaType,
 			err:         apiutil.ErrUnsupportedContentType,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "update twin with invalid name",
@@ -325,11 +358,13 @@ func TestUpdateTwin(t *testing.T) {
 			auth:        token,
 			status:      http.StatusMethodNotAllowed,
 			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := twinRepo.On("RetrieveByID", mock.Anything, tc.id).Return(twins.Twin{}, tc.err)
 		repoCall2 := twinRepo.On("Update", mock.Anything, mock.Anything).Return(nil)
 		repoCall3 := twinCache.On("Update", mock.Anything, mock.Anything).Return(nil)
@@ -372,51 +407,59 @@ func TestViewTwin(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc   string
-		id     string
-		auth   string
-		status int
-		res    twinRes
-		err    error
-		twin   twins.Twin
+		desc        string
+		id          string
+		auth        string
+		status      int
+		res         twinRes
+		err         error
+		twin        twins.Twin
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
-			desc:   "view existing twin",
-			id:     twin.ID,
-			auth:   token,
-			status: http.StatusOK,
-			res:    twres,
-			err:    nil,
-			twin:   twin,
+			desc:        "view existing twin",
+			id:          twin.ID,
+			auth:        token,
+			status:      http.StatusOK,
+			res:         twres,
+			err:         nil,
+			twin:        twin,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "view non-existent twin",
-			id:     strconv.FormatUint(wrongID, 10),
-			auth:   token,
-			status: http.StatusNotFound,
-			res:    twinRes{},
-			err:    svcerr.ErrNotFound,
+			desc:        "view non-existent twin",
+			id:          strconv.FormatUint(wrongID, 10),
+			auth:        token,
+			status:      http.StatusNotFound,
+			res:         twinRes{},
+			err:         svcerr.ErrNotFound,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "view twin by passing invalid token",
-			id:     twin.ID,
-			auth:   authmocks.InvalidValue,
-			status: http.StatusUnauthorized,
-			res:    twinRes{},
-			err:    svcerr.ErrAuthentication,
+			desc:        "view twin by passing invalid token",
+			id:          twin.ID,
+			auth:        authmocks.InvalidValue,
+			status:      http.StatusUnauthorized,
+			res:         twinRes{},
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
-			desc:   "view twin by passing empty token",
-			id:     twin.ID,
-			auth:   "",
-			status: http.StatusUnauthorized,
-			res:    twinRes{},
-			err:    svcerr.ErrAuthentication,
+			desc:        "view twin by passing empty token",
+			id:          twin.ID,
+			auth:        "",
+			status:      http.StatusUnauthorized,
+			res:         twinRes{},
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := twinRepo.On("RetrieveByID", mock.Anything, tc.id).Return(tc.twin, tc.err)
 		req := testRequest{
 			client: ts.Client(),
@@ -466,13 +509,15 @@ func TestListTwins(t *testing.T) {
 	baseURL := fmt.Sprintf("%s/twins", ts.URL)
 	queryFmt := "%s?offset=%d&limit=%d"
 	cases := []struct {
-		desc   string
-		auth   string
-		status int
-		url    string
-		res    []twinRes
-		err    error
-		page   twins.Page
+		desc        string
+		auth        string
+		status      int
+		url         string
+		res         []twinRes
+		err         error
+		page        twins.Page
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
 			desc:   "get a list of twins",
@@ -484,22 +529,26 @@ func TestListTwins(t *testing.T) {
 			page: twins.Page{
 				Twins: convTwin(data[0:10]),
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with invalid token",
-			auth:   authmocks.InvalidValue,
-			status: http.StatusUnauthorized,
-			url:    fmt.Sprintf(queryFmt, baseURL, 0, 1),
-			res:    nil,
-			err:    svcerr.ErrAuthentication,
+			desc:        "get a list of twins with invalid token",
+			auth:        authmocks.InvalidValue,
+			status:      http.StatusUnauthorized,
+			url:         fmt.Sprintf(queryFmt, baseURL, 0, 1),
+			res:         nil,
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
-			desc:   "get a list of twins with empty token",
-			auth:   "",
-			status: http.StatusUnauthorized,
-			url:    fmt.Sprintf(queryFmt, baseURL, 0, 1),
-			res:    nil,
-			err:    svcerr.ErrAuthentication,
+			desc:        "get a list of twins with empty token",
+			auth:        "",
+			status:      http.StatusUnauthorized,
+			url:         fmt.Sprintf(queryFmt, baseURL, 0, 1),
+			res:         nil,
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
 			desc:   "get a list of twins with valid offset and limit",
@@ -511,6 +560,8 @@ func TestListTwins(t *testing.T) {
 			page: twins.Page{
 				Twins: convTwin(data[25:65]),
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:   "get a list of twins with offset + limit > total",
@@ -522,54 +573,68 @@ func TestListTwins(t *testing.T) {
 			page: twins.Page{
 				Twins: convTwin(data[91:]),
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with negative offset",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf(queryFmt, baseURL, -1, 5),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins with negative offset",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf(queryFmt, baseURL, -1, 5),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with negative limit",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf(queryFmt, baseURL, 1, -5),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins with negative limit",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf(queryFmt, baseURL, 1, -5),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with zero limit",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf(queryFmt, baseURL, 1, 0),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins with zero limit",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf(queryFmt, baseURL, 1, 0),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with limit greater than max",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, 0, 110),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins with limit greater than max",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, 0, 110),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with invalid offset",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s%s", baseURL, "?offset=e&limit=5"),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins with invalid offset",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf("%s%s", baseURL, "?offset=e&limit=5"),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with invalid limit",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s%s", baseURL, "?offset=5&limit=e"),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins with invalid limit",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf("%s%s", baseURL, "?offset=5&limit=e"),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:   "get a list of twins without offset",
@@ -581,6 +646,8 @@ func TestListTwins(t *testing.T) {
 			page: twins.Page{
 				Twins: convTwin(data[0:5]),
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:   "get a list of twins without limit",
@@ -592,14 +659,18 @@ func TestListTwins(t *testing.T) {
 			page: twins.Page{
 				Twins: convTwin(data[1:11]),
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins with invalid number of parameters",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s%s", baseURL, "?offset=4&limit=4&limit=5&offset=5"),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins with invalid number of parameters",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf("%s%s", baseURL, "?offset=4&limit=4&limit=5&offset=5"),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:   "get a list of twins with redundant query parameters",
@@ -611,14 +682,18 @@ func TestListTwins(t *testing.T) {
 			page: twins.Page{
 				Twins: convTwin(data[0:5]),
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "get a list of twins filtering with invalid name",
-			auth:   token,
-			status: http.StatusBadRequest,
-			url:    fmt.Sprintf("%s?offset=%d&limit=%d&name=%s", baseURL, 0, 5, invalidName),
-			res:    nil,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "get a list of twins filtering with invalid name",
+			auth:        token,
+			status:      http.StatusBadRequest,
+			url:         fmt.Sprintf("%s?offset=%d&limit=%d&name=%s", baseURL, 0, 5, invalidName),
+			res:         nil,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:   "get a list of twins filtering with valid name",
@@ -630,6 +705,8 @@ func TestListTwins(t *testing.T) {
 			page: twins.Page{
 				Twins: convTwin(data[2:3]),
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
 
@@ -671,51 +748,61 @@ func TestRemoveTwin(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc   string
-		id     string
-		auth   string
-		status int
-		err    error
+		desc        string
+		id          string
+		auth        string
+		status      int
+		err         error
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
-			desc:   "delete existing twin",
-			id:     twin.ID,
-			auth:   token,
-			status: http.StatusNoContent,
-			err:    nil,
+			desc:        "delete existing twin",
+			id:          twin.ID,
+			auth:        token,
+			status:      http.StatusNoContent,
+			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "delete non-existent twin",
-			id:     strconv.FormatUint(wrongID, 10),
-			auth:   token,
-			status: http.StatusNoContent,
-			err:    nil,
+			desc:        "delete non-existent twin",
+			id:          strconv.FormatUint(wrongID, 10),
+			auth:        token,
+			status:      http.StatusNoContent,
+			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "delete twin by passing empty id",
-			id:     "",
-			auth:   token,
-			status: http.StatusMethodNotAllowed,
-			err:    svcerr.ErrMalformedEntity,
+			desc:        "delete twin by passing empty id",
+			id:          "",
+			auth:        token,
+			status:      http.StatusMethodNotAllowed,
+			err:         svcerr.ErrMalformedEntity,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:   "delete twin with invalid token",
-			id:     twin.ID,
-			auth:   authmocks.InvalidValue,
-			status: http.StatusUnauthorized,
-			err:    svcerr.ErrAuthentication,
+			desc:        "delete twin with invalid token",
+			id:          twin.ID,
+			auth:        authmocks.InvalidValue,
+			status:      http.StatusUnauthorized,
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
-			desc:   "delete twin with empty token",
-			id:     twin.ID,
-			auth:   "",
-			status: http.StatusUnauthorized,
-			err:    svcerr.ErrAuthentication,
+			desc:        "delete twin with empty token",
+			id:          twin.ID,
+			auth:        "",
+			status:      http.StatusUnauthorized,
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := twinRepo.On("Remove", mock.Anything, tc.id).Return(tc.err)
 		repoCall2 := twinCache.On("Remove", mock.Anything, tc.id).Return(tc.err)
 		req := testRequest{
