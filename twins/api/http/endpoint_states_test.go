@@ -260,8 +260,8 @@ func TestListStates(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
-		repoCall1 := stateRepo.On("RetrieveAll", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.err)
+		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := stateRepo.On("RetrieveAll", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.err)
 		req := testRequest{
 			client: ts.Client(),
 			method: http.MethodGet,
@@ -279,8 +279,8 @@ func TestListStates(t *testing.T) {
 
 		assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
 		assert.ElementsMatch(t, tc.res, resData.States, fmt.Sprintf("%s: got incorrect body from response", tc.desc))
+		authCall.Unset()
 		repoCall.Unset()
-		repoCall1.Unset()
 	}
 }
 

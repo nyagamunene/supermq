@@ -66,6 +66,7 @@ func TestAddTwin(t *testing.T) {
 		twin        twins.Twin
 		token       string
 		err         error
+		saveErr     error
 		identifyErr error
 		identityRes *magistrala.IdentityRes
 	}{
@@ -74,6 +75,7 @@ func TestAddTwin(t *testing.T) {
 			twin:        twin,
 			token:       token,
 			err:         nil,
+			saveErr:     nil,
 			identifyErr: nil,
 			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
@@ -82,19 +84,20 @@ func TestAddTwin(t *testing.T) {
 			twin:        twin,
 			token:       authmocks.InvalidValue,
 			err:         svcerr.ErrAuthentication,
+			saveErr:     svcerr.ErrCreateEntity,
 			identifyErr: svcerr.ErrAuthentication,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
-		repoCall1 := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, tc.err)
-		repoCall2 := twinCache.On("Save", context.Background(), mock.Anything).Return(tc.err)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, tc.saveErr)
+		cacheCall := twinCache.On("Save", context.Background(), mock.Anything).Return(tc.err)
 		_, err := svc.AddTwin(context.Background(), tc.token, tc.twin, def)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		authCall.Unset()
 		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
+		cacheCall.Unset()
 	}
 }
 
@@ -116,6 +119,8 @@ func TestUpdateTwin(t *testing.T) {
 		twin        twins.Twin
 		token       string
 		err         error
+		retrieveErr error
+		updateErr   error
 		identifyErr error
 		identityRes *magistrala.IdentityRes
 	}{
@@ -132,6 +137,8 @@ func TestUpdateTwin(t *testing.T) {
 			twin:        twin,
 			token:       authmocks.InvalidValue,
 			err:         svcerr.ErrAuthentication,
+			retrieveErr: svcerr.ErrNotFound,
+			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
@@ -139,22 +146,24 @@ func TestUpdateTwin(t *testing.T) {
 			twin:        other,
 			token:       token,
 			err:         svcerr.ErrNotFound,
+			retrieveErr: svcerr.ErrNotFound,
+			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: nil,
 			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
-		repoCall1 := twinRepo.On("RetrieveByID", context.Background(), tc.twin.ID).Return(tc.twin, tc.err)
-		repoCall2 := twinRepo.On("Update", context.Background(), mock.Anything).Return(nil)
-		repoCall3 := twinCache.On("Update", context.Background(), mock.Anything).Return(nil)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := twinRepo.On("RetrieveByID", context.Background(), tc.twin.ID).Return(tc.twin, tc.retrieveErr)
+		repoCall1 := twinRepo.On("Update", context.Background(), mock.Anything).Return(tc.updateErr)
+		cacheCall := twinCache.On("Update", context.Background(), mock.Anything).Return(tc.err)
 		err := svc.UpdateTwin(context.Background(), tc.token, tc.twin, def)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		authCall.Unset()
 		repoCall.Unset()
 		repoCall1.Unset()
-		repoCall2.Unset()
-		repoCall3.Unset()
+		cacheCall.Unset()
 	}
 }
 
@@ -201,12 +210,12 @@ func TestViewTwin(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
-		repoCall1 := twinRepo.On("RetrieveByID", context.Background(), tc.id).Return(twins.Twin{}, tc.err)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := twinRepo.On("RetrieveByID", context.Background(), tc.id).Return(twins.Twin{}, tc.err)
 		_, err := svc.ViewTwin(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		authCall.Unset()
 		repoCall.Unset()
-		repoCall1.Unset()
 	}
 }
 
@@ -227,6 +236,7 @@ func TestListTwins(t *testing.T) {
 		size        uint64
 		metadata    map[string]interface{}
 		err         error
+		repoerr     error
 		identifyErr error
 		identityRes *magistrala.IdentityRes
 	}{
@@ -271,12 +281,12 @@ func TestListTwins(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
-		repoCall1 := twinRepo.On("RetrieveAll", context.Background(), mock.Anything, tc.offset, tc.limit, twinName, mock.Anything).Return(twins.Page{}, tc.err)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := twinRepo.On("RetrieveAll", context.Background(), mock.Anything, tc.offset, tc.limit, twinName, mock.Anything).Return(twins.Page{}, tc.err)
 		_, err := svc.ListTwins(context.Background(), tc.token, tc.offset, tc.limit, twinName, tc.metadata)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		authCall.Unset()
 		repoCall.Unset()
-		repoCall1.Unset()
 	}
 }
 
@@ -293,6 +303,7 @@ func TestRemoveTwin(t *testing.T) {
 		id          string
 		token       string
 		err         error
+		removeErr   error
 		identifyErr error
 		identityRes *magistrala.IdentityRes
 	}{
@@ -301,6 +312,7 @@ func TestRemoveTwin(t *testing.T) {
 			id:          twin.ID,
 			token:       authmocks.InvalidValue,
 			err:         svcerr.ErrAuthentication,
+			removeErr:   svcerr.ErrRemoveEntity,
 			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
@@ -308,6 +320,7 @@ func TestRemoveTwin(t *testing.T) {
 			id:          twin.ID,
 			token:       token,
 			err:         nil,
+			removeErr:   nil,
 			identifyErr: nil,
 			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
@@ -316,6 +329,7 @@ func TestRemoveTwin(t *testing.T) {
 			id:          twin.ID,
 			token:       token,
 			err:         nil,
+			removeErr:   nil,
 			identifyErr: nil,
 			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
@@ -324,20 +338,21 @@ func TestRemoveTwin(t *testing.T) {
 			id:          wrongID,
 			token:       token,
 			err:         nil,
+			removeErr:   nil,
 			identifyErr: nil,
 			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
-		repoCall1 := twinRepo.On("Remove", context.Background(), tc.id).Return(tc.err)
-		repoCall2 := twinCache.On("Remove", context.Background(), tc.id).Return(tc.err)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := twinRepo.On("Remove", context.Background(), tc.id).Return(tc.removeErr)
+		cacheCall := twinCache.On("Remove", context.Background(), tc.id).Return(tc.err)
 		err := svc.RemoveTwin(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		authCall.Unset()
 		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
+		cacheCall.Unset()
 	}
 }
 
