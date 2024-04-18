@@ -42,38 +42,38 @@ func TestCreateSubscription(t *testing.T) {
 	svc, auth, repo := newService()
 
 	cases := []struct {
-		desc  string
-		token string
-		sub   notifiers.Subscription
-		id    string
-		err   error
+		desc        string
+		token       string
+		sub         notifiers.Subscription
+		id          string
+		err         error
 		identifyErr error
 		identityRes *magistrala.IdentityRes
 	}{
 		{
-			desc:  "test success",
-			token: exampleUser1,
-			sub:   notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
-			id:    uuid.Prefix + fmt.Sprintf("%012d", 1),
-			err:   nil,
+			desc:        "test success",
+			token:       exampleUser1,
+			sub:         notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
+			id:          uuid.Prefix + fmt.Sprintf("%012d", 1),
+			err:         nil,
 			identifyErr: nil,
 			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:  "test already existing",
-			token: exampleUser1,
-			sub:   notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
-			id:    "",
-			err:   repoerr.ErrConflict,
+			desc:        "test already existing",
+			token:       exampleUser1,
+			sub:         notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
+			id:          "",
+			err:         repoerr.ErrConflict,
 			identifyErr: nil,
 			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:  "test with empty token",
-			token: "",
-			sub:   notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
-			id:    "",
-			err:   svcerr.ErrAuthentication,
+			desc:        "test with empty token",
+			token:       "",
+			sub:         notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
+			id:          "",
+			err:         svcerr.ErrAuthentication,
 			identifyErr: svcerr.ErrAuthentication,
 		},
 	}
