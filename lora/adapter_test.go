@@ -261,12 +261,7 @@ func TestConnectThing(t *testing.T) {
 		repoCall1 := channelsRM.On("Get", context.Background(), tc.channelID).Return(appID, tc.getChannelErr)
 		repoCall2 := connsRM.On("Save", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
 		err := svc.ConnectThing(context.Background(), tc.channelID, tc.thingID)
-		switch err {
-		case nil:
-			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		default:
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-		}
+		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
 		repoCall1.Unset()
 		repoCall2.Unset()
@@ -312,14 +307,8 @@ func TestDisconnectThing(t *testing.T) {
 		repoCall := thingsRM.On("Get", context.Background(), tc.thingID).Return(devEUI, tc.getThingErr)
 		repoCall1 := channelsRM.On("Get", context.Background(), tc.channelID).Return(appID, tc.getChannelErr)
 		repoCall2 := connsRM.On("Remove", context.Background(), mock.Anything).Return(tc.err)
-
 		err := svc.DisconnectThing(context.Background(), tc.channelID, tc.thingID)
-		switch err {
-		case nil:
-			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
-		default:
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-		}
+		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		repoCall.Unset()
 		repoCall1.Unset()
 		repoCall2.Unset()
