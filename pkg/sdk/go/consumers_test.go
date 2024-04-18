@@ -173,7 +173,7 @@ func TestViewSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.err)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := repo.On("Retrieve", mock.Anything, mock.Anything).Return(notifiers.Subscription{Contact: sub1.Contact, Topic: sub1.Topic}, tc.err)
 		respSub, err := mgsdk.ViewSubscription(tc.subID, tc.token)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error %s, got %s", tc.desc, tc.err, err))

@@ -47,6 +47,8 @@ func TestCreateSubscription(t *testing.T) {
 		sub   notifiers.Subscription
 		id    string
 		err   error
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
 			desc:  "test success",
@@ -54,6 +56,8 @@ func TestCreateSubscription(t *testing.T) {
 			sub:   notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
 			id:    uuid.Prefix + fmt.Sprintf("%012d", 1),
 			err:   nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:  "test already existing",
@@ -61,6 +65,8 @@ func TestCreateSubscription(t *testing.T) {
 			sub:   notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
 			id:    "",
 			err:   repoerr.ErrConflict,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:  "test with empty token",
@@ -68,11 +74,12 @@ func TestCreateSubscription(t *testing.T) {
 			sub:   notifiers.Subscription{Contact: exampleUser1, Topic: "valid.topic"},
 			id:    "",
 			err:   svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := repo.On("Save", context.Background(), mock.Anything).Return(tc.id, tc.err)
 		id, err := svc.CreateSubscription(context.Background(), tc.token, tc.sub)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -92,37 +99,44 @@ func TestViewSubscription(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc  string
-		token string
-		id    string
-		sub   notifiers.Subscription
-		err   error
+		desc        string
+		token       string
+		id          string
+		sub         notifiers.Subscription
+		err         error
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
-			desc:  "test success",
-			token: exampleUser1,
-			id:    validID,
-			sub:   sub,
-			err:   nil,
+			desc:        "test success",
+			token:       exampleUser1,
+			id:          validID,
+			sub:         sub,
+			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:  "test not existing",
-			token: exampleUser1,
-			id:    "not_exist",
-			sub:   notifiers.Subscription{},
-			err:   svcerr.ErrNotFound,
+			desc:        "test not existing",
+			token:       exampleUser1,
+			id:          "not_exist",
+			sub:         notifiers.Subscription{},
+			err:         svcerr.ErrNotFound,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:  "test with empty token",
-			token: "",
-			id:    validID,
-			sub:   notifiers.Subscription{},
-			err:   svcerr.ErrAuthentication,
+			desc:        "test with empty token",
+			token:       "",
+			id:          validID,
+			sub:         notifiers.Subscription{},
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := repo.On("Retrieve", context.Background(), tc.id).Return(tc.sub, tc.err)
 		sub, err := svc.ViewSubscription(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -155,11 +169,13 @@ func TestListSubscriptions(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc     string
-		token    string
-		pageMeta notifiers.PageMetadata
-		page     notifiers.Page
-		err      error
+		desc        string
+		token       string
+		pageMeta    notifiers.PageMetadata
+		page        notifiers.Page
+		err         error
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
 			desc:  "test success",
@@ -177,6 +193,8 @@ func TestListSubscriptions(t *testing.T) {
 				Subscriptions: subs[:3],
 				Total:         total,
 			},
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:  "test not existing",
@@ -185,8 +203,10 @@ func TestListSubscriptions(t *testing.T) {
 				Limit:   10,
 				Contact: "empty@example.com",
 			},
-			page: notifiers.Page{},
-			err:  svcerr.ErrNotFound,
+			page:        notifiers.Page{},
+			err:         svcerr.ErrNotFound,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:  "test with empty token",
@@ -196,8 +216,9 @@ func TestListSubscriptions(t *testing.T) {
 				Limit:  12,
 				Topic:  "topic.subtopic.13",
 			},
-			page: notifiers.Page{},
-			err:  svcerr.ErrAuthentication,
+			page:        notifiers.Page{},
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 		{
 			desc:  "test with topic",
@@ -214,7 +235,9 @@ func TestListSubscriptions(t *testing.T) {
 				Subscriptions: subs[4:5],
 				Total:         1,
 			},
-			err: nil,
+			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:  "test with contact and offset",
@@ -233,12 +256,14 @@ func TestListSubscriptions(t *testing.T) {
 				Subscriptions: offsetSubs,
 				Total:         uint(total / 2),
 			},
-			err: nil,
+			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := repo.On("RetrieveAll", context.Background(), tc.pageMeta).Return(tc.page, tc.err)
 		page, err := svc.ListSubscriptions(context.Background(), tc.token, tc.pageMeta)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -258,33 +283,40 @@ func TestRemoveSubscription(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc  string
-		token string
-		id    string
-		err   error
+		desc        string
+		token       string
+		id          string
+		err         error
+		identifyErr error
+		identityRes *magistrala.IdentityRes
 	}{
 		{
-			desc:  "test success",
-			token: exampleUser1,
-			id:    sub.ID,
-			err:   nil,
+			desc:        "test success",
+			token:       exampleUser1,
+			id:          sub.ID,
+			err:         nil,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:  "test not existing",
-			token: exampleUser1,
-			id:    "not_exist",
-			err:   svcerr.ErrNotFound,
+			desc:        "test not existing",
+			token:       exampleUser1,
+			id:          "not_exist",
+			err:         svcerr.ErrNotFound,
+			identifyErr: nil,
+			identityRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
-			desc:  "test with empty token",
-			token: "",
-			id:    sub.ID,
-			err:   svcerr.ErrAuthentication,
+			desc:        "test with empty token",
+			token:       "",
+			id:          sub.ID,
+			err:         svcerr.ErrAuthentication,
+			identifyErr: svcerr.ErrAuthentication,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: validID}, nil)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := repo.On("Remove", context.Background(), tc.id).Return(tc.err)
 		err := svc.RemoveSubscription(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
