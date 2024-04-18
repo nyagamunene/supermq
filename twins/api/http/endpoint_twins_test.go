@@ -366,8 +366,8 @@ func TestUpdateTwin(t *testing.T) {
 	for _, tc := range cases {
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
 		repoCall1 := twinRepo.On("RetrieveByID", mock.Anything, tc.id).Return(twins.Twin{}, tc.err)
-		repoCall2 := twinRepo.On("Update", mock.Anything, mock.Anything).Return(nil)
-		repoCall3 := twinCache.On("Update", mock.Anything, mock.Anything).Return(nil)
+		repoCall2 := twinRepo.On("Update", mock.Anything, mock.Anything).Return(tc.err)
+		repoCall3 := twinCache.On("Update", mock.Anything, mock.Anything).Return(tc.err)
 		req := testRequest{
 			client:      ts.Client(),
 			method:      http.MethodPut,
