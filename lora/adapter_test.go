@@ -134,7 +134,7 @@ func TestPublish(t *testing.T) {
 	for _, tc := range cases {
 		repoCall := thingsRM.On("Get", context.Background(), tc.msg.DevEUI).Return(tc.msg.DevEUI, tc.getThingErr)
 		repoCall1 := channelsRM.On("Get", context.Background(), tc.msg.ApplicationID).Return(tc.msg.ApplicationID, tc.getChannelErr)
-		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return(mock.Anything, tc.connectionsErr)
+		repoCall2 := connsRM.On("Get", context.Background(), mock.Anything).Return("", tc.connectionsErr)
 		repoCall3 := pub.On("Publish", context.Background(), tc.msg.ApplicationID, mock.Anything).Return(tc.publishErr)
 		err := svc.Publish(context.Background(), &tc.msg)
 		fmt.Println(err)
