@@ -6,26 +6,25 @@ package events_test
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/absmach/magistrala/twins"
 	"github.com/absmach/magistrala/twins/events"
+	"github.com/absmach/magistrala/twins/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
 	subtopics = []string{"engine", "chassis", "wheel_2"}
 	channels  = []string{"01ec3c3e-0e66-4e69-9751-a0545b44e08f", "48061e4f-7c23-4f5c-9012-0f9b7cd9d18d", "5b2180e4-e96b-4469-9dc1-b6745078d0b6"}
-	id        = 0
 )
 
 func TestTwinSave(t *testing.T) {
 	redisClient.FlushAll(context.Background())
 	twinCache := events.NewTwinCache(redisClient)
 
-	twin1 := CreateTwin(channels[0:2], subtopics[0:2])
-	twin2 := CreateTwin(channels[1:3], subtopics[1:3])
+	twin1 := mocks.CreateTwin(channels[0:2], subtopics[0:2])
+	twin2 := mocks.CreateTwin(channels[1:3], subtopics[1:3])
 
 	cases := []struct {
 		desc string
@@ -129,7 +128,7 @@ func TestTwinUpdate(t *testing.T) {
 
 	var tws []twins.Twin
 	for i := range channels {
-		tw := CreateTwin(channels[i:i+1], subtopics[i:i+1])
+		tw := mocks.CreateTwin(channels[i:i+1], subtopics[i:i+1])
 		tws = append(tws, tw)
 	}
 	err := twinCache.Save(ctx, tws[0])
@@ -180,21 +179,21 @@ func TestTwinIDs(t *testing.T) {
 
 	var tws []twins.Twin
 	for i := 0; i < len(channels); i++ {
-		tw := CreateTwin(channels[0:1], subtopics[0:1])
+		tw := mocks.CreateTwin(channels[0:1], subtopics[0:1])
 		err := twinCache.Save(ctx, tw)
 		assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 		tws = append(tws, tw)
 	}
 	for i := 0; i < len(channels); i++ {
-		tw := CreateTwin(channels[1:2], subtopics[1:2])
+		tw := mocks.CreateTwin(channels[1:2], subtopics[1:2])
 		err := twinCache.Save(ctx, tw)
 		assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 		tws = append(tws, tw)
 	}
-	twEmptySubt := CreateTwin(channels[0:1], []string{""})
+	twEmptySubt := mocks.CreateTwin(channels[0:1], []string{""})
 	err := twinCache.Save(ctx, twEmptySubt)
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	twSubtWild := CreateTwin(channels[0:1], []string{twins.SubtopicWildcard})
+	twSubtWild := mocks.CreateTwin(channels[0:1], []string{twins.SubtopicWildcard})
 	err = twinCache.Save(ctx, twSubtWild)
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
@@ -250,7 +249,7 @@ func TestTwinRemove(t *testing.T) {
 
 	var tws []twins.Twin
 	for i := range channels {
-		tw := CreateTwin(channels[i:i+1], subtopics[i:i+1])
+		tw := mocks.CreateTwin(channels[i:i+1], subtopics[i:i+1])
 		err := twinCache.Save(ctx, tw)
 		assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 		tws = append(tws, tw)
@@ -288,28 +287,5 @@ func TestTwinRemove(t *testing.T) {
 			assert.Nil(t, err, fmt.Sprintf("unexpected error: %s\n", err))
 			assert.NotContains(t, ids, tc.twin.ID, fmt.Sprintf("%s: found unexpected ID in the list", tc.desc))
 		}
-	}
-}
-
-// CreateDefinition creates twin definition.
-func CreateDefinition(channels, subtopics []string) twins.Definition {
-	var def twins.Definition
-	for i := range channels {
-		attr := twins.Attribute{
-			Channel:      channels[i],
-			Subtopic:     subtopics[i],
-			PersistState: true,
-		}
-		def.Attributes = append(def.Attributes, attr)
-	}
-	return def
-}
-
-// CreateTwin creates twin.
-func CreateTwin(channels, subtopics []string) twins.Twin {
-	id++
-	return twins.Twin{
-		ID:          strconv.Itoa(id),
-		Definitions: []twins.Definition{CreateDefinition(channels, subtopics)},
 	}
 }
