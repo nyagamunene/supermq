@@ -6,7 +6,6 @@ package twins_test
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/absmach/magistrala"
@@ -36,7 +35,6 @@ const (
 var (
 	subtopics = []string{"engine", "chassis", "wheel_2"}
 	channels  = []string{"01ec3c3e-0e66-4e69-9751-a0545b44e08f", "48061e4f-7c23-4f5c-9012-0f9b7cd9d18d", "5b2180e4-e96b-4469-9dc1-b6745078d0b6"}
-	id        = 0
 )
 
 func NewService() (twins.Service, *authmocks.AuthClient, *mocks.TwinRepository, *mocks.TwinCache, *mocks.StateRepository) {
@@ -586,15 +584,6 @@ func TestListStates(t *testing.T) {
 		assert.Equal(t, tc.size, len(page.States), fmt.Sprintf("%s: expected %d total got %d total\n", tc.desc, tc.size, len(page.States)))
 		repoCall.Unset()
 		repoCall1.Unset()
-	}
-}
-
-// CreateTwin creates twin.
-func CreateTwin(channels, subtopics []string) twins.Twin {
-	id++
-	return twins.Twin{
-		ID:          strconv.Itoa(id),
-		Definitions: []twins.Definition{mocks.CreateDefinition(channels, subtopics)},
 	}
 }
 

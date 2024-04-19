@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -15,6 +14,7 @@ import (
 	repoerr "github.com/absmach/magistrala/pkg/errors/repository"
 	"github.com/absmach/magistrala/pkg/uuid"
 	"github.com/absmach/magistrala/twins"
+	"github.com/absmach/magistrala/twins/mocks"
 	"github.com/absmach/magistrala/twins/mongodb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,7 +38,6 @@ var (
 	testLog, _  = mglog.New(os.Stdout, "info")
 	idProvider  = uuid.New()
 	invalidName = strings.Repeat("m", maxNameSize+1)
-	id          = 0
 )
 
 func TestTwinsSave(t *testing.T) {
@@ -197,13 +196,13 @@ func TestTwinsRetrieveByAttribute(t *testing.T) {
 	chID, err := idProvider.ID()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	empty := CreateTwin([]string{chID}, []string{""})
+	empty := mocks.CreateTwin([]string{chID}, []string{""})
 	_, err = repo.Save(context.Background(), empty)
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	wildcard := CreateTwin([]string{chID}, []string{twins.SubtopicWildcard})
+	wildcard := mocks.CreateTwin([]string{chID}, []string{twins.SubtopicWildcard})
 	_, err = repo.Save(context.Background(), wildcard)
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
-	nonEmpty := CreateTwin([]string{chID}, []string{subtopic})
+	nonEmpty := mocks.CreateTwin([]string{chID}, []string{subtopic})
 	_, err = repo.Save(context.Background(), nonEmpty)
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
@@ -385,28 +384,5 @@ func TestTwinsRemove(t *testing.T) {
 	for _, tc := range cases {
 		err := repo.Remove(context.Background(), tc.id)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-	}
-}
-
-// CreateDefinition creates twin definition.
-func CreateDefinition(channels, subtopics []string) twins.Definition {
-	var def twins.Definition
-	for i := range channels {
-		attr := twins.Attribute{
-			Channel:      channels[i],
-			Subtopic:     subtopics[i],
-			PersistState: true,
-		}
-		def.Attributes = append(def.Attributes, attr)
-	}
-	return def
-}
-
-// CreateTwin creates twin.
-func CreateTwin(channels, subtopics []string) twins.Twin {
-	id++
-	return twins.Twin{
-		ID:          strconv.Itoa(id),
-		Definitions: []twins.Definition{CreateDefinition(channels, subtopics)},
 	}
 }

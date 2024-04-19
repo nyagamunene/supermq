@@ -5,13 +5,17 @@ package mocks
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/absmach/magistrala/pkg/messaging"
 	twins "github.com/absmach/magistrala/twins"
 	"github.com/absmach/senml"
 )
 
-var publisher = "twins"
+var (
+	publisher = "twins"
+	id        = 0
+)
 
 // CreateMessage creates Magistrala message using SenML record array.
 func CreateMessage(attr twins.Attribute, recs []senml.Record) (*messaging.Message, error) {
@@ -39,4 +43,13 @@ func CreateDefinition(channels, subtopics []string) twins.Definition {
 		def.Attributes = append(def.Attributes, attr)
 	}
 	return def
+}
+
+// CreateTwin creates twin.
+func CreateTwin(channels, subtopics []string) twins.Twin {
+	id++
+	return twins.Twin{
+		ID:          strconv.Itoa(id),
+		Definitions: []twins.Definition{CreateDefinition(channels, subtopics)},
+	}
 }
