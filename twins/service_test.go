@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
-	"time"
 
 	"github.com/absmach/magistrala"
 	authmocks "github.com/absmach/magistrala/auth/mocks"
@@ -24,7 +23,6 @@ import (
 	"github.com/absmach/senml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -376,7 +374,6 @@ func TestSaveStates(t *testing.T) {
 	}
 
 	recs := make([]senml.Record, numRecs)
-	CreateSenML(recs)
 
 	var ttlAdded uint64
 
@@ -479,16 +476,11 @@ func TestListStates(t *testing.T) {
 		Name:        twinName,
 		Definitions: []twins.Definition{def},
 	}
-	attr := def.Attributes[0]
 
 	tw2 := twins.Twin{
 		Owner:       email,
 		Definitions: []twins.Definition{CreateDefinition(channels[2:3], subtopics[2:3])},
 	}
-	recs := make([]senml.Record, numRecs)
-	CreateSenML(recs)
-	_, err := CreateMessage(attr, recs)
-	require.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 	cases := []struct {
 		desc        string
@@ -620,15 +612,6 @@ func CreateTwin(channels, subtopics []string) twins.Twin {
 	return twins.Twin{
 		ID:          strconv.Itoa(id),
 		Definitions: []twins.Definition{CreateDefinition(channels, subtopics)},
-	}
-}
-
-// CreateSenML creates SenML record array.
-func CreateSenML(recs []senml.Record) {
-	for i, rec := range recs {
-		rec.BaseTime = float64(time.Now().Unix())
-		rec.Time = float64(i)
-		rec.Value = nil
 	}
 }
 

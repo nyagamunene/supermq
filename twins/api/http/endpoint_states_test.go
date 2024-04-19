@@ -70,7 +70,6 @@ func TestListStates(t *testing.T) {
 		Created:     time.Now(),
 	}
 	recs := make([]senml.Record, numRecs)
-	CreateSenML(recs)
 
 	var data []stateRes
 	for i := 0; i < len(recs); i++ {
@@ -305,15 +304,6 @@ func CreateDefinition(channels, subtopics []string) twins.Definition {
 		def.Attributes = append(def.Attributes, attr)
 	}
 	return def
-}
-
-// CreateSenML creates SenML record array.
-func CreateSenML(recs []senml.Record) {
-	for i, rec := range recs {
-		rec.BaseTime = float64(time.Now().Unix())
-		rec.Time = float64(i)
-		rec.Value = nil
-	}
 }
 
 func convStat(data []stateRes) []twins.State {
