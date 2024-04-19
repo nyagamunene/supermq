@@ -24,13 +24,13 @@ import (
 )
 
 const (
-	twinName  = "name"
-	wrongID   = ""
-	token     = "token"
-	email     = "user@example.com"
-	numRecs   = 100
-	retained  = "saved"
-	validID   = "123e4567-e89b-12d3-a456-426614174000"
+	twinName = "name"
+	wrongID  = ""
+	token    = "token"
+	email    = "user@example.com"
+	numRecs  = 100
+	retained = "saved"
+	validID  = "123e4567-e89b-12d3-a456-426614174000"
 )
 
 var (

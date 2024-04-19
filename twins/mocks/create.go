@@ -11,9 +11,7 @@ import (
 	"github.com/absmach/senml"
 )
 
-var (
-	publisher = "twins"
-)
+var publisher = "twins"
 
 // CreateMessage creates Magistrala message using SenML record array.
 func CreateMessage(attr twins.Attribute, recs []senml.Record) (*messaging.Message, error) {
