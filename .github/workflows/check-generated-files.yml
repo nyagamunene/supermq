@@ -65,7 +65,7 @@ jobs:
               - "users/hasher.go"
               - "mqtt/events/streams.go"
               - "readers/messages.go"
-              - "lora/routesmap.go"
+              - "lora/routemap.go"
 
       - name: Set up protoc
         if: steps.changes.outputs.proto == 'true'
