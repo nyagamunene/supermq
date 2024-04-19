@@ -62,7 +62,7 @@ func TestListStates(t *testing.T) {
 	ts := newServer(svc)
 	defer ts.Close()
 
-	def := CreateDefinition(channels[0:2], subtopics[0:2])
+	def := mocks.CreateDefinition(channels[0:2], subtopics[0:2])
 	twin := twins.Twin{
 		Owner:       email,
 		Definitions: []twins.Definition{def},
@@ -290,20 +290,6 @@ func createStateResponse(id int, tw twins.Twin, rec senml.Record) stateRes {
 		Definition: tw.Definitions[len(tw.Definitions)-1].ID,
 		Payload:    map[string]interface{}{rec.BaseName: nil},
 	}
-}
-
-// CreateDefinition creates twin definition.
-func CreateDefinition(channels, subtopics []string) twins.Definition {
-	var def twins.Definition
-	for i := range channels {
-		attr := twins.Attribute{
-			Channel:      channels[i],
-			Subtopic:     subtopics[i],
-			PersistState: true,
-		}
-		def.Attributes = append(def.Attributes, attr)
-	}
-	return def
 }
 
 func convStat(data []stateRes) []twins.State {

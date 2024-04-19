@@ -5,7 +5,6 @@ package twins_test
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"testing"
@@ -16,7 +15,6 @@ import (
 	mglog "github.com/absmach/magistrala/logger"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
-	"github.com/absmach/magistrala/pkg/messaging"
 	"github.com/absmach/magistrala/pkg/uuid"
 	"github.com/absmach/magistrala/twins"
 	"github.com/absmach/magistrala/twins/mocks"
@@ -32,7 +30,6 @@ const (
 	email     = "user@example.com"
 	numRecs   = 100
 	retained  = "saved"
-	publisher = "twins"
 	validID   = "123e4567-e89b-12d3-a456-426614174000"
 )
 
@@ -357,7 +354,7 @@ func TestRemoveTwin(t *testing.T) {
 func TestSaveStates(t *testing.T) {
 	svc, auth, twinRepo, twinCache, stateRepo := NewService()
 
-	def := CreateDefinition(channels[0:2], subtopics[0:2])
+	def := mocks.CreateDefinition(channels[0:2], subtopics[0:2])
 	twin := twins.Twin{
 		Owner:       email,
 		ID:          testsutil.GenerateUUID(t),
@@ -366,9 +363,9 @@ func TestSaveStates(t *testing.T) {
 	}
 
 	attr := def.Attributes[0]
-	attrSansTwin := CreateDefinition(channels[2:3], subtopics[2:3]).Attributes[0]
+	attrSansTwin := mocks.CreateDefinition(channels[2:3], subtopics[2:3]).Attributes[0]
 
-	defWildcard := CreateDefinition(channels[0:2], []string{twins.SubtopicWildcard, twins.SubtopicWildcard})
+	defWildcard := mocks.CreateDefinition(channels[0:2], []string{twins.SubtopicWildcard, twins.SubtopicWildcard})
 	twWildcard := twins.Twin{
 		Definitions: []twins.Definition{defWildcard},
 	}
@@ -438,7 +435,7 @@ func TestSaveStates(t *testing.T) {
 
 	for _, tc := range cases {
 		repoCall := auth.On("Identify", context.TODO(), &magistrala.IdentityReq{Token: token}).Return(&magistrala.IdentityRes{Id: testsutil.GenerateUUID(t)}, nil)
-		message, err := CreateMessage(tc.attr, tc.recs)
+		message, err := mocks.CreateMessage(tc.attr, tc.recs)
 		assert.Nil(t, err, fmt.Sprintf("unexpected error: %s", err))
 
 		repoCall1 := twinRepo.On("RetrieveByAttribute", context.Background(), mock.Anything, mock.Anything).Return(tc.String, nil)
@@ -469,7 +466,7 @@ func TestSaveStates(t *testing.T) {
 func TestListStates(t *testing.T) {
 	svc, auth, _, _, stateRepo := NewService()
 
-	def := CreateDefinition(channels[0:2], subtopics[0:2])
+	def := mocks.CreateDefinition(channels[0:2], subtopics[0:2])
 	twin := twins.Twin{
 		Owner:       email,
 		ID:          testsutil.GenerateUUID(t),
@@ -479,7 +476,7 @@ func TestListStates(t *testing.T) {
 
 	tw2 := twins.Twin{
 		Owner:       email,
-		Definitions: []twins.Definition{CreateDefinition(channels[2:3], subtopics[2:3])},
+		Definitions: []twins.Definition{mocks.CreateDefinition(channels[2:3], subtopics[2:3])},
 	}
 
 	cases := []struct {
@@ -592,41 +589,13 @@ func TestListStates(t *testing.T) {
 	}
 }
 
-// CreateDefinition creates twin definition.
-func CreateDefinition(channels, subtopics []string) twins.Definition {
-	var def twins.Definition
-	for i := range channels {
-		attr := twins.Attribute{
-			Channel:      channels[i],
-			Subtopic:     subtopics[i],
-			PersistState: true,
-		}
-		def.Attributes = append(def.Attributes, attr)
-	}
-	return def
-}
-
 // CreateTwin creates twin.
 func CreateTwin(channels, subtopics []string) twins.Twin {
 	id++
 	return twins.Twin{
 		ID:          strconv.Itoa(id),
-		Definitions: []twins.Definition{CreateDefinition(channels, subtopics)},
+		Definitions: []twins.Definition{mocks.CreateDefinition(channels, subtopics)},
 	}
-}
-
-// CreateMessage creates Magistrala message using SenML record array.
-func CreateMessage(attr twins.Attribute, recs []senml.Record) (*messaging.Message, error) {
-	mRecs, err := json.Marshal(recs)
-	if err != nil {
-		return nil, err
-	}
-	return &messaging.Message{
-		Channel:   attr.Channel,
-		Subtopic:  attr.Subtopic,
-		Payload:   mRecs,
-		Publisher: publisher,
-	}, nil
 }
 
 func genStates(length int) []twins.State {
