@@ -48,7 +48,7 @@ func TestCreateSubscription(t *testing.T) {
 		id          string
 		err         error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "test success",
@@ -57,7 +57,7 @@ func TestCreateSubscription(t *testing.T) {
 			id:          uuid.Prefix + fmt.Sprintf("%012d", 1),
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "test already existing",
@@ -66,7 +66,7 @@ func TestCreateSubscription(t *testing.T) {
 			id:          "",
 			err:         repoerr.ErrConflict,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "test with empty token",
@@ -79,7 +79,7 @@ func TestCreateSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := repo.On("Save", context.Background(), mock.Anything).Return(tc.id, tc.err)
 		id, err := svc.CreateSubscription(context.Background(), tc.token, tc.sub)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -105,7 +105,7 @@ func TestViewSubscription(t *testing.T) {
 		sub         notifiers.Subscription
 		err         error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "test success",
@@ -114,7 +114,7 @@ func TestViewSubscription(t *testing.T) {
 			sub:         sub,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "test not existing",
@@ -123,7 +123,7 @@ func TestViewSubscription(t *testing.T) {
 			sub:         notifiers.Subscription{},
 			err:         svcerr.ErrNotFound,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "test with empty token",
@@ -136,7 +136,7 @@ func TestViewSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := repo.On("Retrieve", context.Background(), tc.id).Return(tc.sub, tc.err)
 		sub, err := svc.ViewSubscription(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -175,7 +175,7 @@ func TestListSubscriptions(t *testing.T) {
 		page        notifiers.Page
 		err         error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:  "test success",
@@ -194,7 +194,7 @@ func TestListSubscriptions(t *testing.T) {
 				Total:         total,
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:  "test not existing",
@@ -206,7 +206,7 @@ func TestListSubscriptions(t *testing.T) {
 			page:        notifiers.Page{},
 			err:         svcerr.ErrNotFound,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:  "test with empty token",
@@ -237,7 +237,7 @@ func TestListSubscriptions(t *testing.T) {
 			},
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:  "test with contact and offset",
@@ -258,12 +258,12 @@ func TestListSubscriptions(t *testing.T) {
 			},
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := repo.On("RetrieveAll", context.Background(), tc.pageMeta).Return(tc.page, tc.err)
 		page, err := svc.ListSubscriptions(context.Background(), tc.token, tc.pageMeta)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -288,7 +288,7 @@ func TestRemoveSubscription(t *testing.T) {
 		id          string
 		err         error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "test success",
@@ -296,7 +296,7 @@ func TestRemoveSubscription(t *testing.T) {
 			id:          sub.ID,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "test not existing",
@@ -304,7 +304,7 @@ func TestRemoveSubscription(t *testing.T) {
 			id:          "not_exist",
 			err:         svcerr.ErrNotFound,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "test with empty token",
@@ -316,7 +316,7 @@ func TestRemoveSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := repo.On("Remove", context.Background(), tc.id).Return(tc.err)
 		err := svc.RemoveSubscription(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))

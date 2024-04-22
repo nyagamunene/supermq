@@ -69,7 +69,7 @@ func TestCreateSubscription(t *testing.T) {
 		empty        bool
 		id           string
 		identifyErr  error
-		identityRes  *magistrala.IdentityRes
+		userID       string
 	}{
 		{
 			desc:         "create new subscription",
@@ -79,7 +79,7 @@ func TestCreateSubscription(t *testing.T) {
 			empty:        false,
 			id:           ID,
 			identifyErr:  nil,
-			identityRes:  &magistrala.IdentityRes{Id: validID},
+			userID:       validID,
 		},
 		{
 			desc:         "create new subscription with empty token",
@@ -89,7 +89,6 @@ func TestCreateSubscription(t *testing.T) {
 			empty:        true,
 			id:           "",
 			identifyErr:  svcerr.ErrAuthorization,
-			identityRes:  nil,
 		},
 		{
 			desc:         "create new subscription with invalid token",
@@ -99,7 +98,6 @@ func TestCreateSubscription(t *testing.T) {
 			empty:        true,
 			id:           "",
 			identifyErr:  svcerr.ErrAuthorization,
-			identityRes:  nil,
 		},
 		{
 			desc:         "create new empty subscription",
@@ -109,12 +107,12 @@ func TestCreateSubscription(t *testing.T) {
 			empty:        true,
 			id:           "",
 			identifyErr:  nil,
-			identityRes:  &magistrala.IdentityRes{Id: validID},
+			userID:       validID,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := repo.On("Save", mock.Anything, mock.Anything).Return(tc.id, tc.err)
 		loc, err := mgsdk.CreateSubscription(tc.subscription.Topic, tc.subscription.Contact, tc.token)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error %s, got %s", tc.desc, tc.err, err))
@@ -142,7 +140,7 @@ func TestViewSubscription(t *testing.T) {
 		err         errors.SDKError
 		response    sdk.Subscription
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "get existing subscription",
@@ -151,7 +149,7 @@ func TestViewSubscription(t *testing.T) {
 			err:         nil,
 			response:    sub1,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get non-existent subscription",
@@ -160,7 +158,7 @@ func TestViewSubscription(t *testing.T) {
 			err:         errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
 			response:    sdk.Subscription{},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get subscription with invalid token",
@@ -173,7 +171,7 @@ func TestViewSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := repo.On("Retrieve", mock.Anything, mock.Anything).Return(notifiers.Subscription{Contact: sub1.Contact, Topic: sub1.Topic}, tc.err)
 		respSub, err := mgsdk.ViewSubscription(tc.subID, tc.token)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error %s, got %s", tc.desc, tc.err, err))
@@ -206,7 +204,7 @@ func TestListSubscription(t *testing.T) {
 		response    []sdk.Subscription
 		Page        notifiers.Page
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:     "list all subscription",
@@ -222,7 +220,7 @@ func TestListSubscription(t *testing.T) {
 				Subscriptions: subSlice(subs, 0, 10),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:     "list subscription with specific topic",
@@ -239,7 +237,7 @@ func TestListSubscription(t *testing.T) {
 				Subscriptions: subSlice(subs, 0, 1),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:     "list subscription with specific contact",
@@ -256,12 +254,12 @@ func TestListSubscription(t *testing.T) {
 				Subscriptions: subSlice(subs, 0, 1),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := repo.On("RetrieveAll", mock.Anything, mock.Anything).Return(tc.Page, tc.err)
 		subs, err := mgsdk.ListSubscriptions(tc.page, tc.token)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error %s, got %s", tc.desc, tc.err, err))
@@ -289,7 +287,7 @@ func TestDeleteSubscription(t *testing.T) {
 		err         errors.SDKError
 		response    sdk.Subscription
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "delete existing subscription",
@@ -298,7 +296,7 @@ func TestDeleteSubscription(t *testing.T) {
 			err:         nil,
 			response:    sub1,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "delete non-existent subscription",
@@ -307,7 +305,7 @@ func TestDeleteSubscription(t *testing.T) {
 			err:         errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
 			response:    sdk.Subscription{},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "delete subscription with invalid token",
@@ -320,7 +318,7 @@ func TestDeleteSubscription(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.err)
+		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.err)
 		repoCall1 := repo.On("Remove", mock.Anything, mock.Anything).Return(tc.err)
 		err := mgsdk.DeleteSubscription(tc.subID, tc.token)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error %s, got %s", tc.desc, tc.err, err))
