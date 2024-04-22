@@ -123,7 +123,7 @@ func TestAddTwin(t *testing.T) {
 		err         error
 		saveErr     error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "add valid twin",
@@ -135,7 +135,7 @@ func TestAddTwin(t *testing.T) {
 			err:         nil,
 			saveErr:     nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "add twin with empty JSON request",
@@ -147,7 +147,7 @@ func TestAddTwin(t *testing.T) {
 			err:         nil,
 			saveErr:     nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "add twin with invalid auth token",
@@ -181,7 +181,7 @@ func TestAddTwin(t *testing.T) {
 			err:         svcerr.ErrMalformedEntity,
 			saveErr:     svcerr.ErrCreateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "add twin with empty request",
@@ -193,7 +193,7 @@ func TestAddTwin(t *testing.T) {
 			err:         svcerr.ErrMalformedEntity,
 			saveErr:     svcerr.ErrCreateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "add twin without content type",
@@ -205,7 +205,7 @@ func TestAddTwin(t *testing.T) {
 			err:         apiutil.ErrUnsupportedContentType,
 			saveErr:     svcerr.ErrCreateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "add twin with invalid name",
@@ -217,12 +217,12 @@ func TestAddTwin(t *testing.T) {
 			err:         svcerr.ErrMalformedEntity,
 			saveErr:     svcerr.ErrCreateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("Save", mock.Anything, mock.Anything).Return(retained, tc.saveErr)
 		cacheCall := twinCache.On("Save", mock.Anything, mock.Anything).Return(tc.err)
 		req := testRequest{
@@ -274,7 +274,7 @@ func TestUpdateTwin(t *testing.T) {
 		retrieveErr error
 		updateErr   error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "update existing twin",
@@ -285,7 +285,7 @@ func TestUpdateTwin(t *testing.T) {
 			status:      http.StatusOK,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "update twin with empty JSON request",
@@ -298,7 +298,7 @@ func TestUpdateTwin(t *testing.T) {
 			retrieveErr: nil,
 			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "update non-existent twin",
@@ -311,7 +311,7 @@ func TestUpdateTwin(t *testing.T) {
 			retrieveErr: svcerr.ErrNotFound,
 			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "update twin with invalid token",
@@ -348,7 +348,7 @@ func TestUpdateTwin(t *testing.T) {
 			identifyErr: nil,
 			retrieveErr: nil,
 			updateErr:   svcerr.ErrUpdateEntity,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "update twin with empty request",
@@ -361,7 +361,7 @@ func TestUpdateTwin(t *testing.T) {
 			retrieveErr: nil,
 			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "update twin without content type",
@@ -374,7 +374,7 @@ func TestUpdateTwin(t *testing.T) {
 			retrieveErr: nil,
 			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "update twin with invalid name",
@@ -386,12 +386,12 @@ func TestUpdateTwin(t *testing.T) {
 			retrieveErr: svcerr.ErrNotFound,
 			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("RetrieveByID", mock.Anything, tc.id).Return(twins.Twin{}, tc.retrieveErr)
 		repoCall1 := twinRepo.On("Update", mock.Anything, mock.Anything).Return(tc.updateErr)
 		cacheCall := twinCache.On("Update", mock.Anything, mock.Anything).Return(tc.err)
@@ -442,7 +442,7 @@ func TestViewTwin(t *testing.T) {
 		err         error
 		twin        twins.Twin
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "view existing twin",
@@ -453,7 +453,7 @@ func TestViewTwin(t *testing.T) {
 			err:         nil,
 			twin:        twin,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "view non-existent twin",
@@ -463,7 +463,7 @@ func TestViewTwin(t *testing.T) {
 			res:         twinRes{},
 			err:         svcerr.ErrNotFound,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "view twin by passing invalid token",
@@ -486,7 +486,7 @@ func TestViewTwin(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("RetrieveByID", mock.Anything, tc.id).Return(tc.twin, tc.err)
 		req := testRequest{
 			client: ts.Client(),
@@ -513,7 +513,6 @@ func TestListTwins(t *testing.T) {
 	defer ts.Close()
 
 	var data []twinRes
-	userID := testsutil.GenerateUUID(t)
 	for i := 0; i < 100; i++ {
 		name := fmt.Sprintf("%s-%d", twinName, i)
 		twin := twins.Twin{
@@ -544,7 +543,7 @@ func TestListTwins(t *testing.T) {
 		err         error
 		page        twins.Page
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:   "get a list of twins",
@@ -557,7 +556,7 @@ func TestListTwins(t *testing.T) {
 				Twins: convTwin(data[0:10]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with invalid token",
@@ -588,7 +587,7 @@ func TestListTwins(t *testing.T) {
 				Twins: convTwin(data[25:65]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of twins with offset + limit > total",
@@ -601,7 +600,7 @@ func TestListTwins(t *testing.T) {
 				Twins: convTwin(data[91:]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with negative offset",
@@ -611,7 +610,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with negative limit",
@@ -621,7 +620,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with zero limit",
@@ -631,7 +630,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with limit greater than max",
@@ -641,7 +640,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with invalid offset",
@@ -651,7 +650,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with invalid limit",
@@ -661,7 +660,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of twins without offset",
@@ -674,7 +673,7 @@ func TestListTwins(t *testing.T) {
 				Twins: convTwin(data[0:5]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of twins without limit",
@@ -687,7 +686,7 @@ func TestListTwins(t *testing.T) {
 				Twins: convTwin(data[1:11]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins with invalid number of parameters",
@@ -697,7 +696,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of twins with redundant query parameters",
@@ -710,7 +709,7 @@ func TestListTwins(t *testing.T) {
 				Twins: convTwin(data[0:5]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of twins filtering with invalid name",
@@ -720,7 +719,7 @@ func TestListTwins(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of twins filtering with valid name",
@@ -733,12 +732,12 @@ func TestListTwins(t *testing.T) {
 				Twins: convTwin(data[2:3]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: userID}, nil)
+		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: tc.userID}, nil)
 		repoCall := twinRepo.On("RetrieveAll", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.err)
 		req := testRequest{
 			client: ts.Client(),
@@ -782,7 +781,7 @@ func TestRemoveTwin(t *testing.T) {
 		err         error
 		removeErr   error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "delete existing twin",
@@ -792,7 +791,7 @@ func TestRemoveTwin(t *testing.T) {
 			err:         nil,
 			removeErr:   nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "delete non-existent twin",
@@ -802,7 +801,7 @@ func TestRemoveTwin(t *testing.T) {
 			err:         nil,
 			removeErr:   nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "delete twin by passing empty id",
@@ -812,7 +811,7 @@ func TestRemoveTwin(t *testing.T) {
 			err:         svcerr.ErrMalformedEntity,
 			removeErr:   svcerr.ErrRemoveEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "delete twin with invalid token",
@@ -835,7 +834,7 @@ func TestRemoveTwin(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("Remove", mock.Anything, tc.id).Return(tc.removeErr)
 		cacheCall2 := twinCache.On("Remove", mock.Anything, tc.id).Return(tc.err)
 		req := testRequest{

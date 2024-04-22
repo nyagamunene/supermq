@@ -61,7 +61,7 @@ func TestAddTwin(t *testing.T) {
 		err         error
 		saveErr     error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "add new twin",
@@ -70,7 +70,7 @@ func TestAddTwin(t *testing.T) {
 			err:         nil,
 			saveErr:     nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "add twin with wrong credentials",
@@ -83,7 +83,7 @@ func TestAddTwin(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("Save", context.Background(), mock.Anything).Return(retained, tc.saveErr)
 		cacheCall := twinCache.On("Save", context.Background(), mock.Anything).Return(tc.err)
 		_, err := svc.AddTwin(context.Background(), tc.token, tc.twin, def)
@@ -115,7 +115,7 @@ func TestUpdateTwin(t *testing.T) {
 		retrieveErr error
 		updateErr   error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "update existing twin",
@@ -123,7 +123,7 @@ func TestUpdateTwin(t *testing.T) {
 			token:       token,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "update twin with wrong credentials",
@@ -142,12 +142,12 @@ func TestUpdateTwin(t *testing.T) {
 			retrieveErr: svcerr.ErrNotFound,
 			updateErr:   svcerr.ErrUpdateEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("RetrieveByID", context.Background(), tc.twin.ID).Return(tc.twin, tc.retrieveErr)
 		repoCall1 := twinRepo.On("Update", context.Background(), mock.Anything).Return(tc.updateErr)
 		cacheCall := twinCache.On("Update", context.Background(), mock.Anything).Return(tc.err)
@@ -175,7 +175,7 @@ func TestViewTwin(t *testing.T) {
 		token       string
 		err         error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "view existing twin",
@@ -183,7 +183,7 @@ func TestViewTwin(t *testing.T) {
 			token:       token,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "view twin with wrong credentials",
@@ -198,12 +198,12 @@ func TestViewTwin(t *testing.T) {
 			token:       token,
 			err:         svcerr.ErrNotFound,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("RetrieveByID", context.Background(), tc.id).Return(twins.Twin{}, tc.err)
 		_, err := svc.ViewTwin(context.Background(), tc.token, tc.id)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -231,7 +231,7 @@ func TestListTwins(t *testing.T) {
 		err         error
 		repoerr     error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "list all twins",
@@ -241,7 +241,7 @@ func TestListTwins(t *testing.T) {
 			size:        n,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "list with zero limit",
@@ -251,7 +251,7 @@ func TestListTwins(t *testing.T) {
 			size:        0,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "list with offset and limit",
@@ -261,7 +261,7 @@ func TestListTwins(t *testing.T) {
 			size:        2,
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "list with wrong credentials",
@@ -274,7 +274,7 @@ func TestListTwins(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("RetrieveAll", context.Background(), mock.Anything, tc.offset, tc.limit, twinName, mock.Anything).Return(twins.Page{}, tc.err)
 		_, err := svc.ListTwins(context.Background(), tc.token, tc.offset, tc.limit, twinName, tc.metadata)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -298,7 +298,7 @@ func TestRemoveTwin(t *testing.T) {
 		err         error
 		removeErr   error
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:        "remove twin with wrong credentials",
@@ -315,7 +315,7 @@ func TestRemoveTwin(t *testing.T) {
 			err:         nil,
 			removeErr:   nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "remove removed twin",
@@ -324,7 +324,7 @@ func TestRemoveTwin(t *testing.T) {
 			err:         nil,
 			removeErr:   nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "remove non-existing twin",
@@ -333,12 +333,12 @@ func TestRemoveTwin(t *testing.T) {
 			err:         nil,
 			removeErr:   nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := twinRepo.On("Remove", context.Background(), tc.id).Return(tc.removeErr)
 		cacheCall := twinCache.On("Remove", context.Background(), tc.id).Return(tc.err)
 		err := svc.RemoveTwin(context.Background(), tc.token, tc.id)
@@ -487,7 +487,7 @@ func TestListStates(t *testing.T) {
 		err         error
 		page        twins.StatesPage
 		identifyErr error
-		identifyRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:   "get a list of first 10 states",
@@ -501,7 +501,7 @@ func TestListStates(t *testing.T) {
 				States: genStates(10),
 			},
 			identifyErr: nil,
-			identifyRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of last 10 states",
@@ -515,7 +515,7 @@ func TestListStates(t *testing.T) {
 				States: genStates(10),
 			},
 			identifyErr: nil,
-			identifyRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of last 10 states with limit > numRecs",
@@ -529,7 +529,7 @@ func TestListStates(t *testing.T) {
 				States: genStates(10),
 			},
 			identifyErr: nil,
-			identifyRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of first 10 states with offset == numRecs",
@@ -540,7 +540,7 @@ func TestListStates(t *testing.T) {
 			size:        0,
 			err:         nil,
 			identifyErr: nil,
-			identifyRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list with wrong user token",
@@ -561,7 +561,7 @@ func TestListStates(t *testing.T) {
 			size:        0,
 			err:         nil,
 			identifyErr: nil,
-			identifyRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list with id of existing twin without states ",
@@ -572,12 +572,12 @@ func TestListStates(t *testing.T) {
 			size:        0,
 			err:         nil,
 			identifyErr: nil,
-			identifyRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		repoCall := auth.On("Identify", context.TODO(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
+		repoCall := auth.On("Identify", context.TODO(), &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall1 := stateRepo.On("RetrieveAll", context.TODO(), mock.Anything, mock.Anything, tc.id).Return(tc.page, nil)
 		page, err := svc.ListStates(context.TODO(), tc.token, tc.offset, tc.limit, tc.id)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))

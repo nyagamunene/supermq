@@ -88,7 +88,7 @@ func TestListStates(t *testing.T) {
 		err         error
 		page        twins.StatesPage
 		identifyErr error
-		identityRes *magistrala.IdentityRes
+		userID      string
 	}{
 		{
 			desc:   "get a list of states",
@@ -101,7 +101,7 @@ func TestListStates(t *testing.T) {
 				States: convStat(data[0:10]),
 			},
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of states with valid offset and limit",
@@ -114,7 +114,7 @@ func TestListStates(t *testing.T) {
 			},
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with invalid token",
@@ -145,7 +145,7 @@ func TestListStates(t *testing.T) {
 			},
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with negative offset",
@@ -155,7 +155,7 @@ func TestListStates(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with negative limit",
@@ -165,7 +165,7 @@ func TestListStates(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with zero limit",
@@ -175,7 +175,7 @@ func TestListStates(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with limit greater than max",
@@ -185,7 +185,7 @@ func TestListStates(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with invalid offset",
@@ -195,7 +195,7 @@ func TestListStates(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with invalid limit",
@@ -205,7 +205,7 @@ func TestListStates(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of states without offset",
@@ -218,7 +218,7 @@ func TestListStates(t *testing.T) {
 			},
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of states without limit",
@@ -231,7 +231,7 @@ func TestListStates(t *testing.T) {
 			},
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:        "get a list of states with invalid number of parameters",
@@ -241,7 +241,7 @@ func TestListStates(t *testing.T) {
 			res:         nil,
 			err:         svcerr.ErrMalformedEntity,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 		{
 			desc:   "get a list of states with redundant query parameters",
@@ -254,12 +254,12 @@ func TestListStates(t *testing.T) {
 			},
 			err:         nil,
 			identifyErr: nil,
-			identityRes: &magistrala.IdentityRes{Id: validID},
+			userID:      validID,
 		},
 	}
 
 	for _, tc := range cases {
-		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(tc.identityRes, tc.identifyErr)
+		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.auth}).Return(&magistrala.IdentityRes{Id: tc.userID}, tc.identifyErr)
 		repoCall := stateRepo.On("RetrieveAll", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.err)
 		req := testRequest{
 			client: ts.Client(),
