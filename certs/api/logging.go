@@ -36,7 +36,7 @@ func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl 
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Issue certificate failed to complete successfully", args...)
+			lm.logger.Error("Issue certificate failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Issue certificate completed successfully", args...)
@@ -121,7 +121,7 @@ func (lm *loggingMiddleware) RevokeCert(ctx context.Context, token, thingID stri
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Revoke certificate failed to complete successfully", args...)
+			lm.logger.Error("Revoke certificate failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Revoke certificate completed successfully", args...)
