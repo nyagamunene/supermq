@@ -36,7 +36,7 @@ var (
 func Start(ctx context.Context, id string, sub messaging.Subscriber, consumer interface{}, configPath string, logger *slog.Logger) error {
 	cfg, err := loadConfig(configPath)
 	if err != nil {
-		logger.Warn(fmt.Sprintf("Failed to load consumer config: %s", err))
+		logger.Error(fmt.Sprintf("Failed to load consumer config: %s", err))
 	}
 
 	transformer := makeTransformer(cfg.TransformerCfg, logger)

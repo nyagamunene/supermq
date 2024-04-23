@@ -38,7 +38,7 @@ func (lm *loggingMiddleware) CreateSubscription(ctx context.Context, token strin
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Create subscription failed to complete successfully", args...)
+			lm.logger.Error("Create subscription failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Create subscription completed successfully", args...)
@@ -103,7 +103,7 @@ func (lm *loggingMiddleware) RemoveSubscription(ctx context.Context, token, id s
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Remove subscription failed to complete successfully", args...)
+			lm.logger.Error("Remove subscription failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Remove subscription completed successfully", args...)
