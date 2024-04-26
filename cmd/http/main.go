@@ -10,7 +10,8 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"net/http"
+
+	// "net/http"
 	"net/url"
 	"os"
 
@@ -41,6 +42,8 @@ const (
 	svcName        = "http_adapter"
 	envPrefix      = "MG_HTTP_ADAPTER_"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
+	envPrefixHTTPNoTLS  = "MG_MPROXY_HTTP_WITHOUT_TLS_"
+	envPrefixHTTPTLS  = "MG_MPROXY_HTTP_WITH_TLS_"
 	defSvcHTTPPort = "80"
 	targetHTTPPort = "81"
 	targetHTTPHost = "http://localhost"
@@ -140,9 +143,51 @@ func main() {
 		return hs.Start()
 	})
 
+	// mProxy server Configuration for HTTP without TLS
+	httpConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixHTTPNoTLS})
+	if err != nil {
+		panic(err)
+	}
+
+	// mProxy server for HTTP without TLS
+	httpProxy, err := mproxyHTTP.NewProxy(httpConfig, svc, logger)
+	if err != nil {
+		panic(err)
+	}
 	g.Go(func() error {
-		return proxyHTTP(ctx, httpServerConfig, logger, svc)
+		return httpProxy.Listen(ctx)
 	})
+
+	// mProxy server Configuration for HTTP with TLS
+	httpTLSConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixHTTPTLS})
+	if err != nil {
+		panic(err)
+	}
+	logger.Info(fmt.Sprintf("HTTP TLS config: %+v", httpTLSConfig))
+
+	// mProxy server for HTTP with TLS
+	httpTLSProxy, err := mproxyHTTP.NewProxy(httpTLSConfig, svc, logger)
+	if err != nil {
+		panic(err)
+	}
+	g.Go(func() error {
+		return httpTLSProxy.Listen(ctx)
+	})
+
+	// // mProxy server Configuration for HTTP with mTLS
+	// httpMTLSConfig, err := mproxy.NewConfig(env.Options{Prefix: httpWithmTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// // mProxy server for HTTP with mTLS
+	// httpMTLSProxy, err := mproxyHTTP.NewProxy(httpMTLSConfig, svc, logger)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// g.Go(func() error {
+	// 	return httpMTLSProxy.Listen(ctx)
+	// })
 
 	g.Go(func() error {
 		return server.StopSignalHandler(ctx, cancel, logger, svcName, hs)
