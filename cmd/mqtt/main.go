@@ -45,10 +45,8 @@ import (
 const (
 	svcName        = "mqtt"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
-	envPrefixMQTTNoTLS = "MG_MQTT_ADAPTER_MQTT_WITHOUT_TLS_"
-	envPrefixMQTTTLS = "MG_MQTT_ADAPTER_MQTT_WITH_TLS_"
-	envPrefixWSNoTLS = "MG_MQTT_ADAPTER_MQTT_WS_WITHOUT_TLS_"
-	envPrefixWSTLS = "MG_MQTT_ADAPTER_MQTT_WS_WITH_TLS_"
+	envPrefixMQTT = "MG_MQTT_ADAPTER_"
+	envPrefixWS = "MG_MQTT_WS_ADAPTER_"
 )
 
 type config struct {
@@ -195,82 +193,44 @@ func main() {
 	}
 	var interceptor session.Interceptor
 
-	// mProxy server Configuration for MQTT without TLS
-	mqttConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixMQTTNoTLS})
-	if err != nil {
-		panic(err)
-	}
-	// mProxy server for MQTT without TLS
-	mqttProxy := mp.New(mqttConfig, h, interceptor, logger)
-	// logger.Info(fmt.Sprintf("Starting MQTT without TLS on port %s", mqttConfig.Address))
+
+
+
+	// // mProxy server Configuration for MQTT without TLS
+	// mqttConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixMQTT})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// // mProxy server for MQTT without TLS
+	// mqttProxy := mp.New(mqttConfig, h, interceptor, logger)
+	// g.Go(func() error {
+	// 	return mqttProxy.Listen(ctx)
+	// })
+
+	// // mProxy server Configuration for MQTT over Websocket without TLS
+	// wsConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixWS})
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// // mProxy server for MQTT over Websocket without TLS
+	// wsProxy := websocket.New(wsConfig, h, interceptor, logger)
+	// http.Handle("/mqtt", wsProxy)
+	// g.Go(func() error {
+	// 	return wsProxy.Listen(ctx)
+	// })
+
+	logger.Info(fmt.Sprintf("Starting MQTT proxy on port %s", cfg.MQTTPort))
 	g.Go(func() error {
-		return mqttProxy.Listen(ctx)
+		return proxyMQTT(ctx, cfg, logger, h, interceptor)
+	})
+
+	logger.Info(fmt.Sprintf("Starting MQTT over WS  proxy on port %s", cfg.HTTPPort))
+	g.Go(func() error {
+		return proxyWS(ctx, cfg, logger, h, interceptor)
 	})
 
 
-	// // mProxy server Configuration for MQTT with TLS
-	// mqttTLSConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixMQTTTLS})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // mProxy server for MQTT with TLS
-	// mqttTLSProxy := mp.New(mqttTLSConfig, h, interceptor, logger)
-	// logger.Info(fmt.Sprintf("Starting MQTT with TLS on port %s", mqttTLSConfig.Address))
-	// g.Go(func() error {
-	// 	return mqttTLSProxy.Listen(ctx)
-	// })
-
-	// mProxy server Configuration for MQTT over Websocket without TLS
-	wsConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixWSNoTLS})
-	if err != nil {
-		panic(err)
-	}
-
-	// mProxy server for MQTT over Websocket without TLS
-	wsProxy := websocket.New(wsConfig, h, interceptor, logger)
-	http.Handle("/mqtt", wsProxy)
-	// logger.Info(fmt.Sprintf("Starting MQTT over WS without TLS on port %s", wsConfig.Address))
-	g.Go(func() error {
-		return wsProxy.Listen(ctx)
-	})
-
-	// //  mProxy server Configuration for MQTT with mTLS
-	// mqttMTLSConfig, err := mproxy.NewConfig(env.Options{Prefix: mqttWithmTLS})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // mProxy server for MQTT with mTLS
-	// mqttMTlsProxy := mp.New(mqttMTLSConfig, h, interceptor, logger)
-	// g.Go(func() error {
-	// 	return mqttMTlsProxy.Listen(ctx)
-	// })
-
-	// // mProxy server Configuration for MQTT over Websocket with TLS
-	// wsTLSConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixWSTLS})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // mProxy server for MQTT over Websocket with TLS
-	// wsTLSProxy := websocket.New(wsTLSConfig, h, interceptor, logger)
-	// logger.Info(fmt.Sprintf("Starting MQTT over WS with TLS on port %s", wsTLSConfig.Address))
-	// g.Go(func() error {
-	// 	return wsTLSProxy.Listen(ctx)
-	// })
-
-	// // mProxy server Configuration for MQTT over Websocket with mTLS
-	// wsMTLSConfig, err := mproxy.NewConfig(env.Options{Prefix: mqttWSWithmTLS})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // mProxy server for MQTT over Websocket with mTLS
-	// wsMTLSProxy := websocket.New(wsMTLSConfig, h, interceptor, logger)
-	// g.Go(func() error {
-	// 	return wsMTLSProxy.Listen(ctx)
-	// })
 
 	g.Go(func() error {
 		return stopSignalHandler(ctx, cancel, logger)
@@ -288,10 +248,10 @@ func proxyMQTT(ctx context.Context, cfg config, logger *slog.Logger, sessionHand
 	}
 	mproxy := mproxymqtt.New(config, sessionHandler, interceptor, logger)
 
-	// errCh := make(chan error)
-	// go func() {
-	// 	errCh <- mproxy.Listen(ctx)
-	// }()
+	errCh := make(chan error)
+	go func() {
+		errCh <- mqttProxy.Listen(ctx)
+	}()
 
 	select {
 	case <-ctx.Done():
@@ -312,7 +272,7 @@ func proxyWS(ctx context.Context, cfg config, logger *slog.Logger, sessionHandle
 	wp := websocket.New(config, sessionHandler, interceptor, logger)
 	http.HandleFunc("/mqtt", wp.ServeHTTP)
 
-// 	errCh := make(chan error)
+	errCh := make(chan error)
 
 	go func() {
 		errCh <- wp.Listen(ctx)
