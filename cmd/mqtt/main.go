@@ -229,7 +229,7 @@ func main() {
 
 	// mProxy server for MQTT over Websocket without TLS
 	wsProxy := websocket.New(wsConfig, h, interceptor, logger)
-	// http.Handle("/mqtt", wsProxy)
+	http.Handle("/mqtt", wsProxy)
 	// logger.Info(fmt.Sprintf("Starting MQTT over WS without TLS on port %s", wsConfig.Address))
 	g.Go(func() error {
 		return wsProxy.Listen(ctx)
