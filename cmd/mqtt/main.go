@@ -193,33 +193,6 @@ func main() {
 	}
 	var interceptor session.Interceptor
 
-
-
-
-	// // mProxy server Configuration for MQTT without TLS
-	// mqttConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixMQTT})
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// // mProxy server for MQTT without TLS
-	// mqttProxy := mp.New(mqttConfig, h, interceptor, logger)
-	// g.Go(func() error {
-	// 	return mqttProxy.Listen(ctx)
-	// })
-
-	// // mProxy server Configuration for MQTT over Websocket without TLS
-	// wsConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixWS})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // mProxy server for MQTT over Websocket without TLS
-	// wsProxy := websocket.New(wsConfig, h, interceptor, logger)
-	// http.Handle("/mqtt", wsProxy)
-	// g.Go(func() error {
-	// 	return wsProxy.Listen(ctx)
-	// })
-
 	logger.Info(fmt.Sprintf("Starting MQTT proxy on port %s", cfg.MQTTPort))
 	g.Go(func() error {
 		return proxyMQTT(ctx, cfg, logger, h, interceptor)
@@ -229,8 +202,6 @@ func main() {
 	g.Go(func() error {
 		return proxyWS(ctx, cfg, logger, h, interceptor)
 	})
-
-
 
 	g.Go(func() error {
 		return stopSignalHandler(ctx, cancel, logger)
@@ -242,11 +213,11 @@ func main() {
 }
 
 func proxyMQTT(ctx context.Context, cfg config, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
-	config := mproxy.Config{
-		Address: fmt.Sprintf(":%s", cfg.MQTTPort),
-		Target:  fmt.Sprintf("%s:%s", cfg.MQTTTargetHost, cfg.MQTTTargetPort),
+	mqttConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixMQTT})
+	if err != nil {
+		panic(err)
 	}
-	mproxy := mproxymqtt.New(config, sessionHandler, interceptor, logger)
+	mqttProxy := mp.New(mqttConfig, sessionHandler, interceptor, logger)
 
 	errCh := make(chan error)
 	go func() {
@@ -255,7 +226,7 @@ func proxyMQTT(ctx context.Context, cfg config, logger *slog.Logger, sessionHand
 
 	select {
 	case <-ctx.Done():
-		logger.Info(fmt.Sprintf("proxy MQTT shutdown at %s", config.Target))
+		logger.Info(fmt.Sprintf("proxy MQTT shutdown at %s", mqttConfig.Target))
 		return nil
 	case err := <-errCh:
 		return err
@@ -263,14 +234,12 @@ func proxyMQTT(ctx context.Context, cfg config, logger *slog.Logger, sessionHand
 }
 
 func proxyWS(ctx context.Context, cfg config, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
-	config := mproxy.Config{
-		Address:    fmt.Sprintf("%s:%s", "", cfg.HTTPPort),
-		Target:     fmt.Sprintf("%s:%s", cfg.HTTPTargetHost, cfg.HTTPTargetPort),
-		PathPrefix: "/mqtt",
+	wsConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixWS})
+	if err != nil {
+		panic(err)
 	}
-
-	wp := websocket.New(config, sessionHandler, interceptor, logger)
-	http.HandleFunc("/mqtt", wp.ServeHTTP)
+	wp := websocket.New(wsConfig, sessionHandler, interceptor, logger)
+	http.Handle("/mqtt", wp)
 
 	errCh := make(chan error)
 
@@ -280,7 +249,7 @@ func proxyWS(ctx context.Context, cfg config, logger *slog.Logger, sessionHandle
 
 	select {
 	case <-ctx.Done():
-		logger.Info(fmt.Sprintf("proxy MQTT WS shutdown at %s", config.Target))
+		logger.Info(fmt.Sprintf("proxy MQTT WS shutdown at %s", wsConfig.Target))
 		return nil
 	case err := <-errCh:
 		return err
