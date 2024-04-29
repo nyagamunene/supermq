@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-
 	"net/http"
 	"net/url"
 	"os"
@@ -42,8 +41,7 @@ const (
 	svcName        = "http_adapter"
 	envPrefix      = "MG_HTTP_ADAPTER_"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
-	envPrefixHTTPNoTLS  = "MG_MPROXY_HTTP_WITHOUT_TLS_"
-	envPrefixHTTPTLS  = "MG_MPROXY_HTTP_WITH_TLS_"
+	envPrefixHTTP  = "MG_HTTP_ADAPTER_"
 	defSvcHTTPPort = "80"
 	targetHTTPPort = "81"
 	targetHTTPHost = "http://localhost"
@@ -143,41 +141,9 @@ func main() {
 		return hs.Start()
 	})
 
-	// // mProxy server Configuration for HTTP without TLS
-	// httpConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixHTTPNoTLS})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// // mProxy server for HTTP without TLS
-	// httpProxy, err := mproxyHTTP.NewProxy(httpConfig, svc, logger)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// g.Go(func() error {
-	// 	return httpProxy.Listen(ctx)
-	// })
-
-	// // mProxy server Configuration for HTTP with TLS
-	// httpTLSConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixHTTPTLS})
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// logger.Info(fmt.Sprintf("HTTP TLS config: %+v", httpTLSConfig))
-
-	// // mProxy server for HTTP with TLS
-	// httpTLSProxy, err := mproxyHTTP.NewProxy(httpTLSConfig, svc, logger)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// g.Go(func() error {
-	// 	return httpTLSProxy.Listen(ctx)
-	// })
 	g.Go(func() error {
 		return proxyHTTP(ctx, httpServerConfig, logger, svc)
 	})
-
-
 
 	g.Go(func() error {
 		return server.StopSignalHandler(ctx, cancel, logger, svcName, hs)
@@ -198,21 +164,11 @@ func newService(pub messaging.Publisher, tc magistrala.AuthzServiceClient, logge
 }
 
 func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sessionHandler session.Handler) error {
-	config := mproxy.Config{
-		Address:    fmt.Sprintf("%s:%s", "", cfg.Port),
-		Target:     fmt.Sprintf("%s:%s", targetHTTPHost, targetHTTPPort),
-		PathPrefix: "/",
+	httpConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixHTTP})
+	if err != nil {
+		panic(err)
 	}
-	if cfg.CertFile != "" || cfg.KeyFile != "" {
-		tlsCert, err := tls.LoadX509KeyPair(cfg.CertFile, cfg.KeyFile)
-		if err != nil {
-			return err
-		}
-		config.TLSConfig = &tls.Config{
-			Certificates: []tls.Certificate{tlsCert},
-		}
-	}
-	mp, err := mproxyhttp.NewProxy(config, sessionHandler, logger)
+	mp, err := mproxyHTTP.NewProxy(httpConfig, sessionHandler, logger)
 	if err != nil {
 		return err
 	}
@@ -234,7 +190,7 @@ func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sess
 
 	select {
 	case <-ctx.Done():
-		logger.Info(fmt.Sprintf("proxy HTTP shutdown at %s", config.Target))
+		logger.Info(fmt.Sprintf("proxy HTTP shutdown at %s", httpConfig.Target))
 		return nil
 	case err := <-errCh:
 		return err
