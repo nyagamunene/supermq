@@ -12,7 +12,7 @@ import (
 	"github.com/absmach/magistrala"
 	authmocks "github.com/absmach/magistrala/auth/mocks"
 	adapter "github.com/absmach/magistrala/http"
-	// "github.com/absmach/magistrala/http/api"
+	"github.com/absmach/magistrala/http/api"
 	"github.com/absmach/magistrala/internal/apiutil"
 	mglog "github.com/absmach/magistrala/logger"
 	"github.com/absmach/magistrala/pkg/errors"

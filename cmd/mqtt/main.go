@@ -33,7 +33,7 @@ import (
 	mqttpub "github.com/absmach/magistrala/pkg/messaging/mqtt"
 	"github.com/absmach/magistrala/pkg/uuid"
 	"github.com/absmach/mproxy"
-	mproxymqtt "github.com/absmach/mproxy/pkg/mqtt"
+	mp "github.com/absmach/mproxy/pkg/mqtt"
 	"github.com/absmach/mproxy/pkg/mqtt/websocket"
 	"github.com/absmach/mproxy/pkg/session"
 	"github.com/caarlos0/env/v10"
@@ -194,12 +194,12 @@ func main() {
 
 	logger.Info(fmt.Sprintf("Starting MQTT proxy on port %s", cfg.MQTTPort))
 	g.Go(func() error {
-		return proxyMQTT(ctx, cfg, logger, h, interceptor)
+		return proxyMQTT(ctx, logger, h, interceptor)
 	})
 
 	logger.Info(fmt.Sprintf("Starting MQTT over WS  proxy on port %s", cfg.HTTPPort))
 	g.Go(func() error {
-		return proxyWS(ctx, cfg, logger, h, interceptor)
+		return proxyWS(ctx, logger, h, interceptor)
 	})
 
 	g.Go(func() error {
@@ -211,7 +211,7 @@ func main() {
 	}
 }
 
-func proxyMQTT(ctx context.Context, cfg config, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
+func proxyMQTT(ctx context.Context, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
 	mqttConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixMQTT})
 	if err != nil {
 		panic(err)
@@ -232,13 +232,13 @@ func proxyMQTT(ctx context.Context, cfg config, logger *slog.Logger, sessionHand
 	}
 }
 
-func proxyWS(ctx context.Context, cfg config, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
+func proxyWS(ctx context.Context, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
 	wsConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixWS})
 	if err != nil {
 		panic(err)
 	}
 	wp := websocket.New(wsConfig, sessionHandler, interceptor, logger)
-	http.Handle("/mqtt", wp)
+	// http.Handle("/mqtt", wp)
 
 	errCh := make(chan error)
 
