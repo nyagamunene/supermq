@@ -239,7 +239,6 @@ func proxyWS(ctx context.Context, logger *slog.Logger, sessionHandler session.Ha
 		panic(err)
 	}
 
-	logger.Info(fmt.Sprintf("Targert --> %s", wsConfig.Target))
 	wp := websocket.New(wsConfig, sessionHandler, interceptor, logger)
 	http.Handle("/mqtt", wp)
 
