@@ -44,8 +44,8 @@ import (
 const (
 	svcName        = "mqtt"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
-	envPrefixMQTT = "MG_MQTT_ADAPTER_"
-	envPrefixWS = "MG_MQTT_WS_ADAPTER_"
+	envPrefixMQTT  = "MG_MQTT_ADAPTER_"
+	envPrefixWS    = "MG_MQTT_WS_ADAPTER_"
 )
 
 type config struct {
