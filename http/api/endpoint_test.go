@@ -81,13 +81,13 @@ func TestPublish(t *testing.T) {
 	auth := new(authmocks.AuthClient)
 	chanID := "1"
 	ctSenmlJSON := "application/senml+json"
-	// ctSenmlCBOR := "application/senml+cbor"
-	// ctJSON := "application/json"
+	ctSenmlCBOR := "application/senml+cbor"
+	ctJSON := "application/json"
 	thingKey := "thing_key"
-	// invalidKey := authmocks.InvalidValue
+	invalidKey := authmocks.InvalidValue
 	msg := `[{"n":"current","t":-1,"v":1.6}]`
-	// msgJSON := `{"field1":"val1","field2":"val2"}`
-	// msgCBOR := `81A3616E6763757272656E746174206176FB3FF999999999999A`
+	msgJSON := `{"field1":"val1","field2":"val2"}`
+	msgCBOR := `81A3616E6763757272656E746174206176FB3FF999999999999A`
 	svc, pub := newService(auth)
 	target := newTargetHTTPServer()
 	defer target.Close()
@@ -107,27 +107,27 @@ func TestPublish(t *testing.T) {
 		status      int
 		basicAuth   bool
 	}{
-		// "publish message": {
-		// 	chanID:      chanID,
-		// 	msg:         msg,
-		// 	contentType: ctSenmlJSON,
-		// 	key:         thingKey,
-		// 	status:      http.StatusAccepted,
-		// },
-		// "publish message with application/senml+cbor content-type": {
-		// 	chanID:      chanID,
-		// 	msg:         msgCBOR,
-		// 	contentType: ctSenmlCBOR,
-		// 	key:         thingKey,
-		// 	status:      http.StatusAccepted,
-		// },
-		// "publish message with application/json content-type": {
-		// 	chanID:      chanID,
-		// 	msg:         msgJSON,
-		// 	contentType: ctJSON,
-		// 	key:         thingKey,
-		// 	status:      http.StatusAccepted,
-		// },
+		"publish message": {
+			chanID:      chanID,
+			msg:         msg,
+			contentType: ctSenmlJSON,
+			key:         thingKey,
+			status:      http.StatusAccepted,
+		},
+		"publish message with application/senml+cbor content-type": {
+			chanID:      chanID,
+			msg:         msgCBOR,
+			contentType: ctSenmlCBOR,
+			key:         thingKey,
+			status:      http.StatusAccepted,
+		},
+		"publish message with application/json content-type": {
+			chanID:      chanID,
+			msg:         msgJSON,
+			contentType: ctJSON,
+			key:         thingKey,
+			status:      http.StatusAccepted,
+		},
 		"publish message with empty key": {
 			chanID:      chanID,
 			msg:         msg,
@@ -135,43 +135,43 @@ func TestPublish(t *testing.T) {
 			key:         "",
 			status:      http.StatusBadGateway,
 		},
-		// "publish message with basic auth": {
-		// 	chanID:      chanID,
-		// 	msg:         msg,
-		// 	contentType: ctSenmlJSON,
-		// 	key:         thingKey,
-		// 	basicAuth:   true,
-		// 	status:      http.StatusAccepted,
-		// },
-		// "publish message with invalid key": {
-		// 	chanID:      chanID,
-		// 	msg:         msg,
-		// 	contentType: ctSenmlJSON,
-		// 	key:         invalidKey,
-		// 	status:      http.StatusBadRequest,
-		// },
-		// "publish message with invalid basic auth": {
-		// 	chanID:      chanID,
-		// 	msg:         msg,
-		// 	contentType: ctSenmlJSON,
-		// 	key:         invalidKey,
-		// 	basicAuth:   true,
-		// 	status:      http.StatusBadRequest,
-		// },
-		// "publish message without content type": {
-		// 	chanID:      chanID,
-		// 	msg:         msg,
-		// 	contentType: "",
-		// 	key:         thingKey,
-		// 	status:      http.StatusUnsupportedMediaType,
-		// },
-		// "publish message to invalid channel": {
-		// 	chanID:      "",
-		// 	msg:         msg,
-		// 	contentType: ctSenmlJSON,
-		// 	key:         thingKey,
-		// 	status:      http.StatusBadRequest,
-		// },
+		"publish message with basic auth": {
+			chanID:      chanID,
+			msg:         msg,
+			contentType: ctSenmlJSON,
+			key:         thingKey,
+			basicAuth:   true,
+			status:      http.StatusAccepted,
+		},
+		"publish message with invalid key": {
+			chanID:      chanID,
+			msg:         msg,
+			contentType: ctSenmlJSON,
+			key:         invalidKey,
+			status:      http.StatusBadRequest,
+		},
+		"publish message with invalid basic auth": {
+			chanID:      chanID,
+			msg:         msg,
+			contentType: ctSenmlJSON,
+			key:         invalidKey,
+			basicAuth:   true,
+			status:      http.StatusBadRequest,
+		},
+		"publish message without content type": {
+			chanID:      chanID,
+			msg:         msg,
+			contentType: "",
+			key:         thingKey,
+			status:      http.StatusUnsupportedMediaType,
+		},
+		"publish message to invalid channel": {
+			chanID:      "",
+			msg:         msg,
+			contentType: ctSenmlJSON,
+			key:         thingKey,
+			status:      http.StatusNotFound,
+		},
 	}
 
 	for desc, tc := range cases {

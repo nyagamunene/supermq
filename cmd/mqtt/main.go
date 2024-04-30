@@ -216,6 +216,7 @@ func proxyMQTT(ctx context.Context, logger *slog.Logger, sessionHandler session.
 	if err != nil {
 		panic(err)
 	}
+
 	mqttProxy := mp.New(mqttConfig, sessionHandler, interceptor, logger)
 
 	errCh := make(chan error)
@@ -237,8 +238,10 @@ func proxyWS(ctx context.Context, logger *slog.Logger, sessionHandler session.Ha
 	if err != nil {
 		panic(err)
 	}
+
+	logger.Info(fmt.Sprintf("Targert --> %s", wsConfig.Target))
 	wp := websocket.New(wsConfig, sessionHandler, interceptor, logger)
-	// http.Handle("/mqtt", wp)
+	http.Handle("/mqtt", wp)
 
 	errCh := make(chan error)
 

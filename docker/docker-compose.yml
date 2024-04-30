@@ -552,21 +552,21 @@ services:
         target: /things-grpc-server-ca${MG_THINGS_AUTH_GRPC_SERVER_CA_CERTS:+.crt}
         bind:
           create_host_path: true
-      - type: bind
-        source: ${MG_MQTT_ADAPTER_CERT_FILE:-ssl/certs/}
-        target: /mqtt-adapter${MG_MQTT_ADAPTER_CERT_FILE:+.crt}
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ${MG_MQTT_ADAPTER_KEY_FILE:-ssl/certs/}
-        target: /mqtt-adapter${MG_MQTT_ADAPTER_KEY_FILE:+.key}
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ${MG_MQTT_ADAPTER_SERVER_CA_FILE:-ssl/certs/}
-        target: /mqtt-adapter${MG_MQTT_ADAPTER_SERVER_CA_FILE:+.crt}
-        bind:
-          create_host_path: true
+      # - type: bind
+      #   source: ${MG_MQTT_ADAPTER_CERT_FILE:-ssl/certs/}
+      #   target: /mqtt-adapter${MG_MQTT_ADAPTER_CERT_FILE:+.crt}
+      #   bind:
+      #     create_host_path: true
+      # - type: bind
+      #   source: ${MG_MQTT_ADAPTER_KEY_FILE:-ssl/certs/}
+      #   target: /mqtt-adapter${MG_MQTT_ADAPTER_KEY_FILE:+.key}
+      #   bind:
+      #     create_host_path: true
+      # - type: bind
+      #   source: ${MG_MQTT_ADAPTER_SERVER_CA_FILE:-ssl/certs/}
+      #   target: /mqtt-adapter${MG_MQTT_ADAPTER_SERVER_CA_FILE:+.crt}
+      #   bind:
+      #     create_host_path: true
 
   http-adapter:
     image: magistrala/http:${MG_RELEASE_TAG}
