@@ -536,6 +536,10 @@ services:
     networks:
       - magistrala-base-net
     volumes:
+      - ../../ssl/certs/ca.key:/etc/ssl/certs/ca.key
+      - ../../ssl/certs/ca.crt:/etc/ssl/certs/ca.crt
+      - ../../ssl/certs/magistrala-server.crt:/etc/ssl/certs/magistrala-server.crt
+      - ../../ssl/certs/magistrala-server.key:/etc/ssl/certs/magistrala-server.key
       # Things gRPC mTLS client certificates
       - type: bind
         source: ${MG_THINGS_AUTH_GRPC_CLIENT_CERT:-ssl/certs/dummy/client_cert}
@@ -550,21 +554,6 @@ services:
       - type: bind
         source: ${MG_THINGS_AUTH_GRPC_SERVER_CA_CERTS:-ssl/certs/dummy/server_ca}
         target: /things-grpc-server-ca${MG_THINGS_AUTH_GRPC_SERVER_CA_CERTS:+.crt}
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ${MG_MQTT_ADAPTER_CERT_FILE:-ssl/certs/magistrala-server.crt}
-        target: /etc/ssl/certs/
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ${MG_MQTT_ADAPTER_KEY_FILE:-ssl/certs/magistrala-server.key}
-        target: /etc/ssl/certs/
-        bind:
-          create_host_path: true
-      - type: bind
-        source: ${MG_MQTT_ADAPTER_SERVER_CA_FILE:-ssl/certs/ca.crt}
-        target: /etc/ssl/certs/
         bind:
           create_host_path: true
 
