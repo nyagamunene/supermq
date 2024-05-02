@@ -216,6 +216,7 @@ func proxyMQTT(ctx context.Context, logger *slog.Logger, sessionHandler session.
 	if err != nil {
 		panic(err)
 	}
+	logger.Info(fmt.Sprintf("Starting MQTT proxy on port %+v", mqttConfig))
 
 	mqttProxy := mp.New(mqttConfig, sessionHandler, interceptor, logger)
 
