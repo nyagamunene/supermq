@@ -39,6 +39,18 @@ The service is configured using the environment variables presented in the follo
 | MG_MQTT_ADAPTER_CLIENT_CA_FILE            | Client's CA file                                                                   | etc/ssl/certs/ca.crt                 |
 | MG_MQTT_ADAPTER_CERT_VERIFICATION_METHODS | mTLS verification                                                                  | ocsp                                 |
 | MG_MQTT_ADAPTER_OCSP_RESPONDER_URL        | OCSP address                                                                       | http://localhost:8080/ocsp           |
+|MG_MQTT_ADAPTER_WS_ADDRESS | Mproxy listening Address| :8080 |
+ MG_MQTT_ADAPTER_WS_TARGET | Broker MQTT over WS target address| ws://vernemq:8080/mqtt|
+| MG_MQTT_ADAPTER_WS_PREFIX_PATH | Prefix path for the requests| /mqtt |
+| MG_MQTT_ADAPTER_WS_CERT_FILE | Server certificate file|  /etc/ssl/certs/magistrala-server.crt |
+| MG_MQTT_ADAPTER_WS_KEY_FILE | Server key file |   /etc/ssl/certs/magistrala-server.key |
+| MG_MQTT_ADAPTER_WS_SERVER_CA_FILE | Server CA file | /etc/ssl/certs/ca.crt|
+| MG_MQTT_ADAPTER_WS_PREFIX_PATH | Appended to requests |  /mqtt |
+| MG_MQTT_ADAPTER_WS_CLIENT_CA_FILE | Client's CA file | /etc/ssl/certs/ca.crt |
+| MG_MQTT_ADAPTER_WS_CERT_VERIFICATION_METHODS | mTLS verification  | ocsp |
+| MG_MQTT_ADAPTER_WS_OCSP_RESPONDER_URL |  OCSP address | http://localhost:8080/ocsp|
+
+
 
 ## Deployment
 
@@ -83,6 +95,11 @@ MG_JAEGER_URL=http://localhost:14268/api/traces \
 MG_JAEGER_TRACE_RATIO=1.0 \
 MG_SEND_TELEMETRY=true \
 MG_MQTT_ADAPTER_INSTANCE_ID="" \
+MG_MQTT_ADAPTER_ADDRESS=1883 \
+MG_MQTT_ADAPTER_TARGET=localhost:1883 \
+MG_MQTT_ADAPTER_WS_ADDRESS=:8080 \
+MG_MQTT_ADAPTER_WS_TARGET=ws://localhost:8080/mqtt \
+MG_MQTT_ADAPTER_WS_PREFIX_PATH=/mqtt \
 $GOBIN/magistrala-mqtt
 ```
 

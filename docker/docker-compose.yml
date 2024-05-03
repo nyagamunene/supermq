@@ -499,10 +499,10 @@ services:
       MG_MQTT_ADAPTER_MQTT_TARGET_PORT: ${MG_MQTT_ADAPTER_MQTT_TARGET_PORT}
       MG_MQTT_ADAPTER_ADDRESS: ${MG_MQTT_ADAPTER_ADDRESS}
       MG_MQTT_ADAPTER_TARGET: ${MG_MQTT_ADAPTER_TARGET}
-      MG_MQTT_ADAPTER_CERT_FILE: ${MG_MQTT_ADAPTER_CERT_FILE:-}
-      MG_MQTT_ADAPTER_KEY_FILE: ${MG_MQTT_ADAPTER_KEY_FILE:-}
-      MG_MQTT_ADAPTER_SERVER_CA_FILE: ${MG_MQTT_ADAPTER_SERVER_CA_FILE:-}
-      MG_MQTT_ADAPTER_CLIENT_CA_FILE: ${MG_MQTT_ADAPTER_CLIENT_CA_FILE:-}
+      MG_MQTT_ADAPTER_CERT_FILE: ${MG_MQTT_ADAPTER_CERT_FILE:+/magistrala-mqtt-adapter.crt}
+      MG_MQTT_ADAPTER_KEY_FILE: ${MG_MQTT_ADAPTER_KEY_FILE:+/magistrala-mqtt-adapter.key}
+      MG_MQTT_ADAPTER_SERVER_CA_FILE: ${MG_MQTT_ADAPTER_SERVER_CA_FILE:+/magistrala-ca.crt}
+      MG_MQTT_ADAPTER_CLIENT_CA_FILE: ${MG_MQTT_ADAPTER_CLIENT_CA_FILE:+/magistrala-client-ca.key}
       MG_MQTT_ADAPTER_CERT_VERIFICATION_METHODS: ${MG_MQTT_ADAPTER_CERT_VERIFICATION_METHODS:-}
       MG_MQTT_ADAPTER_OCSP_RESPONDER_URL: ${MG_MQTT_ADAPTER_OCSP_RESPONDER_URL:-}
       MG_MQTT_ADAPTER_FORWARDER_TIMEOUT: ${MG_MQTT_ADAPTER_FORWARDER_TIMEOUT}
@@ -513,15 +513,15 @@ services:
       MG_MQTT_ADAPTER_WS_TARGET_HOST: ${MG_MQTT_ADAPTER_WS_TARGET_HOST}
       MG_MQTT_ADAPTER_WS_TARGET_PORT: ${MG_MQTT_ADAPTER_WS_TARGET_PORT}
       MG_MQTT_ADAPTER_WS_TARGET_PATH: ${MG_MQTT_ADAPTER_WS_TARGET_PATH}
-      MG_MQTT_WS_ADAPTER_ADDRESS: ${MG_MQTT_WS_ADAPTER_ADDRESS}
-      MG_MQTT_WS_ADAPTER_TARGET: ${MG_MQTT_WS_ADAPTER_TARGET}
-      MG_MQTT_WS_ADAPTER_PREFIX_PATH: ${MG_MQTT_WS_ADAPTER_PREFIX_PATH}
-      MG_MQTT_WS_ADAPTER_CERT_FILE: ${MG_MQTT_WS_ADAPTER_CERT_FILE:-}
-      MG_MQTT_WS_ADAPTER_KEY_FILE: ${MG_MQTT_WS_ADAPTER_KEY_FILE:-}
-      MG_MQTT_WS_ADAPTER_SERVER_CA_FILE: ${MG_MQTT_WS_ADAPTER_SERVER_CA_FILE:-}
-      MG_MQTT_WS_ADAPTER_CLIENT_CA_FILE: ${MG_MQTT_WS_ADAPTER_CLIENT_CA_FILE:-}
-      MG_MQTT_WS_ADAPTER_CERT_VERIFICATION_METHOD: ${MG_MQTT_WS_ADAPTER_CERT_VERIFICATION_METHOD:-}
-      MG_MQTT_WS_ADAPTER_OCSP_RESPONDER_URL: ${MG_MQTT_WS_ADAPTER_OCSP_RESPONDER_URL:-}
+      MG_MQTT_ADAPTER_WS_ADDRESS: ${MG_MQTT_ADAPTER_WS_ADDRESS}
+      MG_MQTT_ADAPTER_WS_TARGET: ${MG_MQTT_ADAPTER_WS_TARGET}
+      MG_MQTT_ADAPTER_WS_PREFIX_PATH: ${MG_MQTT_ADAPTER_WS_PREFIX_PATH}
+      MG_MQTT_ADAPTER_WS_CERT_FILE: ${MG_MQTT_ADAPTER_WS_CERT_FILE:+/magistrala-mqtt-adapter.crt}
+      MG_MQTT_ADAPTER_WS_KEY_FILE: ${MG_MQTT_ADAPTER_WS_KEY_FILE:+/magistrala-mqtt-adapter.key}
+      MG_MQTT_ADAPTER_WS_SERVER_CA_FILE: ${MG_MQTT_ADAPTER_WS_SERVER_CA_FILE:+/magistrala-ca.crt}
+      MG_MQTT_ADAPTER_WS_CLIENT_CA_FILE: ${MG_MQTT_ADAPTER_WS_CLIENT_CA_FILE:+/magistrala-client-ca.key}
+      MG_MQTT_ADAPTER_WS_CERT_VERIFICATION_METHODS: ${MG_MQTT_ADAPTER_WS_CERT_VERIFICATION_METHODS:-}
+      MG_MQTT_ADAPTER_WS_OCSP_RESPONDER_URL: ${MG_MQTT_ADAPTER_WS_OCSP_RESPONDER_URL:-}
       MG_MQTT_ADAPTER_INSTANCE: ${MG_MQTT_ADAPTER_INSTANCE}
       MG_ES_URL: ${MG_ES_URL}
       MG_THINGS_AUTH_GRPC_URL: ${MG_THINGS_AUTH_GRPC_URL}
@@ -536,12 +536,6 @@ services:
     networks:
       - magistrala-base-net
     volumes:
-      - ./ssl/certs/ca.key:/etc/ssl/certs/ca.key
-      - ./ssl/certs/ca.crt:/etc/ssl/certs/ca.crt
-      - ./ssl/certs/magistrala-server.crt:/etc/ssl/certs/magistrala-server.crt
-      - ./ssl/certs/magistrala-server.key:/etc/ssl/certs/magistrala-server.key
-      - ./ssl/certs/thing.crt:/etc/ssl/certs/thing.crt
-      - ./ssl/certs/thing.key:/etc/ssl/certs/thing.key
       # Things gRPC mTLS client certificates
       - type: bind
         source: ${MG_THINGS_AUTH_GRPC_CLIENT_CERT:-ssl/certs/dummy/client_cert}
@@ -556,6 +550,56 @@ services:
       - type: bind
         source: ${MG_THINGS_AUTH_GRPC_SERVER_CA_CERTS:-ssl/certs/dummy/server_ca}
         target: /things-grpc-server-ca${MG_THINGS_AUTH_GRPC_SERVER_CA_CERTS:+.crt}
+        bind:
+          create_host_path: true
+      # MQTT Adapter certificates
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_CERT_FILE:-./ssl/certs/dummy/server_cert}
+        target: /magistrala-mqtt-adapter${MG_MQTT_ADAPTER_CERT_FILE:+.crt}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_KEY_FILE:-./ssl/certs/dummy/server_key}
+        target: /magistrala-mqtt-adapter${MG_MQTT_ADAPTER_KEY_FILE:+.key}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_SERVER_CA_FILE:-./ssl/certs/dummy/server_ca}
+        target: /magistrala-ca${MG_MQTT_ADAPTER_SERVER_CA_FILE:+.crt}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_CLIENT_CA_FILE:-./ssl/certs/dummy/client_ca}
+        target: /magistrala-client-ca${MG_MQTT_ADAPTER_CLIENT_CA_FILE:+.key}
+        read_only: true
+        bind:
+          create_host_path: true
+      # MQTT Adapter WS certificates
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_WS_CERT_FILE:-./ssl/certs/dummy/server_cert}
+        target: /magistrala-mqtt-adapter-ws${MG_MQTT_ADAPTER_WS_CERT_FILE:+.crt}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_WS_KEY_FILE:-./ssl/certs/dummy/server_key}
+        target: /magistrala-mqtt-adapter-ws${MG_MQTT_ADAPTER_WS_KEY_FILE:+.key}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_WS_SERVER_CA_FILE:-./ssl/certs/dummy/server_ca}
+        target: /magistrala-ca-ws${MG_MQTT_ADAPTER_WS_SERVER_CA_FILE:+.crt}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_MQTT_ADAPTER_WS_CLIENT_CA_FILE:-./ssl/certs/dummy/client_ca}
+        target: /magistrala-client-ca-ws${MG_MQTT_ADAPTER_WS_CLIENT_CA_FILE:+.key}
+        read_only: true
         bind:
           create_host_path: true
 
@@ -575,10 +619,10 @@ services:
       MG_HTTP_ADAPTER_ADDRESS: ${MG_HTTP_ADAPTER_ADDRESS}
       MG_HTTP_ADAPTER_TARGET: ${MG_HTTP_ADAPTER_TARGET}
       MG_HTTP_ADAPTER_PREFIX_PATH: ${MG_HTTP_ADAPTER_PREFIX_PATH}
-      MG_HTTP_ADAPTER_CERT_FILE: ${MG_HTTP_ADAPTER_CERT_FILE:-}
-      MG_HTTP_ADAPTER_KEY_FILE: ${MG_HTTP_ADAPTER_KEY_FILE:-}
-      MG_HTTP_ADAPTER_SERVER_CA_FILE: ${MG_HTTP_ADAPTER_SERVER_CA_FILE:-}
-      MG_HTTP_ADAPTER_CLIENT_CA_FILE: ${MG_HTTP_ADAPTER_CLIENT_CA_FILE:-}
+      MG_HTTP_ADAPTER_CERT_FILE: ${MG_HTTP_ADAPTER_CERT_FILE:+/magistrala-http-adapter.crt}
+      MG_HTTP_ADAPTER_KEY_FILE: ${MG_HTTP_ADAPTER_KEY_FILE:+/magistrala-http-adapter.key}
+      MG_HTTP_ADAPTER_SERVER_CA_FILE: ${MG_HTTP_ADAPTER_SERVER_CA_FILE:+/magistrala-ca.crt}
+      MG_HTTP_ADAPTER_CLIENT_CA_FILE: ${MG_HTTP_ADAPTER_CLIENT_CA_FILE:+/magistrala-client-ca.key}
       MG_HTTP_ADAPTER_CERT_VERIFICATION_METHODS: ${MG_HTTP_ADAPTER_CERT_VERIFICATION_METHODS:-}
       MG_HTTP_ADAPTER_OCSP_RESPONDER_URL: ${MG_HTTP_ADAPTER_OCSP_RESPONDER_URL:-}
       MG_THINGS_AUTH_GRPC_URL: ${MG_THINGS_AUTH_GRPC_URL}
@@ -596,12 +640,6 @@ services:
     networks:
       - magistrala-base-net
     volumes:
-      - ./ssl/certs/ca.key:/etc/ssl/certs/ca.key
-      - ./ssl/certs/ca.crt:/etc/ssl/certs/ca.crt
-      - ./ssl/certs/magistrala-server.crt:/etc/ssl/certs/magistrala-server.crt
-      - ./ssl/certs/magistrala-server.key:/etc/ssl/certs/magistrala-server.key
-      - ./ssl/certs/thing.crt:/etc/ssl/certs/thing.crt
-      - ./ssl/certs/thing.key:/etc/ssl/certs/thing.key
       # Things gRPC mTLS client certificates
       - type: bind
         source: ${MG_THINGS_AUTH_GRPC_CLIENT_CERT:-ssl/certs/dummy/client_cert}
@@ -616,6 +654,31 @@ services:
       - type: bind
         source: ${MG_THINGS_AUTH_GRPC_SERVER_CA_CERTS:-ssl/certs/dummy/server_ca}
         target: /things-grpc-server-ca${MG_THINGS_AUTH_GRPC_SERVER_CA_CERTS:+.crt}
+        bind:
+          create_host_path: true
+      # HTTP Adapter certificates
+      - type: bind
+        source: ${MG_HTTP_ADAPTER_CERT_FILE:-./ssl/certs/dummy/server_cert}
+        target: /magistrala-http-adapter${MG_HTTP_ADAPTER_CERT_FILE:+.crt}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_HTTP_ADAPTER_KEY_FILE:-./ssl/certs/dummy/server_key}
+        target: /magistrala-http-adapter${MG_HTTP_ADAPTER_KEY_FILE:+.key}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_HTTP_ADAPTER_SERVER_CA_FILE:-./ssl/certs/dummy/server_ca}
+        target: /magistrala-ca${MG_HTTP_ADAPTER_SERVER_CA_FILE:+.crt}
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${MG_HTTP_ADAPTER_CLIENT_CA_FILE:-./ssl/certs/dummy/client_ca}
+        target: /magistrala-client-ca${MG_HTTP_ADAPTER_CLIENT_CA_FILE:+.key}
+        read_only: true
         bind:
           create_host_path: true
 

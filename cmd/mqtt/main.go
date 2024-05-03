@@ -45,7 +45,7 @@ const (
 	svcName        = "mqtt"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
 	envPrefixMQTT  = "MG_MQTT_ADAPTER_"
-	envPrefixWS    = "MG_MQTT_WS_ADAPTER_"
+	envPrefixWS    = "MG_MQTT_ADAPTER_WS_"
 )
 
 type config struct {
@@ -216,7 +216,6 @@ func proxyMQTT(ctx context.Context, logger *slog.Logger, sessionHandler session.
 	if err != nil {
 		panic(err)
 	}
-	logger.Info(fmt.Sprintf("Starting MQTT proxy on port %+v", mqttConfig))
 
 	mqttProxy := mp.New(mqttConfig, sessionHandler, interceptor, logger)
 
