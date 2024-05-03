@@ -214,7 +214,7 @@ func main() {
 func proxyMQTT(ctx context.Context, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
 	mqttConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixMQTT})
 	if err != nil {
-		panic(err)
+		return (err)
 	}
 
 	mqttProxy := mp.New(mqttConfig, sessionHandler, interceptor, logger)
@@ -236,7 +236,7 @@ func proxyMQTT(ctx context.Context, logger *slog.Logger, sessionHandler session.
 func proxyWS(ctx context.Context, logger *slog.Logger, sessionHandler session.Handler, interceptor session.Interceptor) error {
 	wsConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixWS})
 	if err != nil {
-		panic(err)
+		return (err)
 	}
 
 	wp := websocket.New(wsConfig, sessionHandler, interceptor, logger)

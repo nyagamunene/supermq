@@ -165,7 +165,7 @@ func newService(pub messaging.Publisher, tc magistrala.AuthzServiceClient, logge
 func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sessionHandler session.Handler) error {
 	httpConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixHTTP})
 	if err != nil {
-		panic(err)
+		return (err)
 	}
 	mp, err := mproxyhttp.NewProxy(httpConfig, sessionHandler, logger)
 	if err != nil {
