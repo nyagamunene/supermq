@@ -39,7 +39,6 @@ import (
 
 const (
 	svcName        = "http_adapter"
-	envPrefix      = "MG_HTTP_ADAPTER_"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
 	envPrefixHTTP  = "MG_HTTP_ADAPTER_"
 	defSvcHTTPPort = "80"
@@ -82,7 +81,7 @@ func main() {
 	}
 
 	httpServerConfig := server.Config{Port: defSvcHTTPPort}
-	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefix}); err != nil {
+	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefixHTTP}); err != nil {
 		logger.Error(fmt.Sprintf("failed to load %s HTTP server configuration : %s", svcName, err))
 		exitCode = 1
 		return
@@ -168,7 +167,7 @@ func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sess
 	if err != nil {
 		panic(err)
 	}
-	mp, err := mproxyHTTP.NewProxy(httpConfig, sessionHandler, logger)
+	mp, err := mproxyhttp.NewProxy(httpConfig, sessionHandler, logger)
 	if err != nil {
 		return err
 	}
