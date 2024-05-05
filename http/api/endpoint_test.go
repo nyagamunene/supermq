@@ -170,7 +170,7 @@ func TestPublish(t *testing.T) {
 			msg:         msg,
 			contentType: ctSenmlJSON,
 			key:         thingKey,
-			status:      http.StatusNotFound,
+			status:      http.StatusBadRequest,
 		},
 	}
 
