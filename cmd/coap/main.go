@@ -26,7 +26,7 @@ import (
 	"github.com/absmach/magistrala/pkg/messaging/brokers"
 	brokerstracing "github.com/absmach/magistrala/pkg/messaging/brokers/tracing"
 	"github.com/absmach/magistrala/pkg/uuid"
-	"github.com/caarlos0/env/v10"
+	"github.com/caarlos0/env/v11"
 	"golang.org/x/sync/errgroup"
 )
 

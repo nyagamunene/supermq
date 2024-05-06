@@ -9,7 +9,6 @@ require (
 	github.com/absmach/senml v1.0.5
 	github.com/authzed/authzed-go v0.12.0
 	github.com/authzed/grpcutil v0.0.0-20240123194739-2ea1e3d2d98b
-	github.com/caarlos0/env/v10 v10.0.0
 	github.com/caarlos0/env/v11 v11.0.0
 	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/eclipse/paho.mqtt.golang v1.4.3
