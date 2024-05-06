@@ -39,8 +39,8 @@ import (
 
 const (
 	svcName        = "http_adapter"
-	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
 	envPrefixHTTP  = "MG_HTTP_ADAPTER_"
+	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
 	defSvcHTTPPort = "80"
 	targetHTTPPort = "81"
 )
