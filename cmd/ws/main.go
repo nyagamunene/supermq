@@ -36,7 +36,7 @@ import (
 
 const (
 	svcName        = "ws-adapter"
-	envPrefixHTTP  = "MG_WS_ADAPTER_HTTP_"
+	envPrefix      = "MG_WS_ADAPTER_HTTP_"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
 	defSvcHTTPPort = "8190"
 	targetWSPort   = "8191"
@@ -78,7 +78,7 @@ func main() {
 	}
 
 	httpServerConfig := server.Config{Port: defSvcHTTPPort}
-	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefixHTTP}); err != nil {
+	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefix}); err != nil {
 		logger.Error(fmt.Sprintf("failed to load %s HTTP server configuration : %s", svcName, err))
 		exitCode = 1
 		return
