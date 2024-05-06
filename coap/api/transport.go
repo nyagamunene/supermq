@@ -126,7 +126,7 @@ func handleGet(m *mux.Message, w mux.ResponseWriter, msg *messaging.Message, key
 	var obs uint32
 	obs, err := m.Options().Observe()
 	if err != nil {
-		logger.ErrorContext(ctx,fmt.Sprintf("Error reading observe option: %s", err))
+		logger.ErrorContext(ctx, fmt.Sprintf("Error reading observe option: %s", err))
 		return errBadOptions
 	}
 	if obs == startObserve {
