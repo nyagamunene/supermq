@@ -79,7 +79,7 @@ thing_cert:
 	openssl x509 -req -days 730 -in $(CRT_LOCATION)/$(CRT_FILE_NAME).csr -CA $(CRT_LOCATION)/ca.crt -CAkey $(CRT_LOCATION)/ca.key -CAcreateserial -out $(CRT_LOCATION)/$(CRT_FILE_NAME).crt
 
 	# Remove CSR.
-	rm $(CRT_LOCATION)/$(CRT_FILE_NAME).csrth
+	rm $(CRT_LOCATION)/$(CRT_FILE_NAME).csr
 
 things_grpc_certs:
 	# Things server grpc certificates
