@@ -38,7 +38,7 @@ func (lm *loggingMiddleware) RegisterClient(ctx context.Context, token string, c
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Register user failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Register user failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Register user completed successfully", args...)
@@ -59,7 +59,7 @@ func (lm *loggingMiddleware) IssueToken(ctx context.Context, identity, secret, d
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Issue token failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Issue token failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Issue token completed successfully", args...)
@@ -80,7 +80,7 @@ func (lm *loggingMiddleware) RefreshToken(ctx context.Context, refreshToken, dom
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Refresh token failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Refresh token failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Refresh token completed successfully", args...)
@@ -101,7 +101,7 @@ func (lm *loggingMiddleware) ViewClient(ctx context.Context, token, id string) (
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("View user failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "View user failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View user completed successfully", args...)
@@ -122,7 +122,7 @@ func (lm *loggingMiddleware) ViewProfile(ctx context.Context, token string) (c m
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("View profile failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "View profile failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View profile completed successfully", args...)
@@ -144,7 +144,7 @@ func (lm *loggingMiddleware) ListClients(ctx context.Context, token string, pm m
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("List users failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "List users failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List users completed successfully", args...)
@@ -166,7 +166,7 @@ func (lm *loggingMiddleware) UpdateClient(ctx context.Context, token string, cli
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Update user failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Update user failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Update user completed successfully", args...)
@@ -188,7 +188,7 @@ func (lm *loggingMiddleware) UpdateClientTags(ctx context.Context, token string,
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Update user tags failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Update user tags failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Update user tags completed successfully", args...)
@@ -209,7 +209,7 @@ func (lm *loggingMiddleware) UpdateClientIdentity(ctx context.Context, token, id
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Update client identity failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Update client identity failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Update client identity completed successfully", args...)
@@ -230,7 +230,7 @@ func (lm *loggingMiddleware) UpdateClientSecret(ctx context.Context, token, oldS
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Update user secret failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Update user secret failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Update user secret completed successfully", args...)
@@ -248,7 +248,7 @@ func (lm *loggingMiddleware) GenerateResetToken(ctx context.Context, email, host
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Generate reset token failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Generate reset token failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Generate reset token completed successfully", args...)
@@ -265,7 +265,7 @@ func (lm *loggingMiddleware) ResetSecret(ctx context.Context, token, secret stri
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Reset secret failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Reset secret failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Reset secret completed successfully", args...)
@@ -283,7 +283,7 @@ func (lm *loggingMiddleware) SendPasswordReset(ctx context.Context, host, email,
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Send password reset failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Send password reset failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Send password reset completed successfully", args...)
@@ -305,7 +305,7 @@ func (lm *loggingMiddleware) UpdateClientRole(ctx context.Context, token string,
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Update user role failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Update user role failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Update user role completed successfully", args...)
@@ -326,7 +326,7 @@ func (lm *loggingMiddleware) EnableClient(ctx context.Context, token, id string)
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Enable user failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Enable user failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Enable user completed successfully", args...)
@@ -347,7 +347,7 @@ func (lm *loggingMiddleware) DisableClient(ctx context.Context, token, id string
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Disable user failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Disable user failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Disable user completed successfully", args...)
@@ -373,7 +373,7 @@ func (lm *loggingMiddleware) ListMembers(ctx context.Context, token, objectKind,
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("List members failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "List members failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List members completed successfully", args...)
@@ -390,7 +390,7 @@ func (lm *loggingMiddleware) Identify(ctx context.Context, token string) (id str
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("Identify user failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "Identify user failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Identify user completed successfully", args...)
@@ -406,7 +406,7 @@ func (lm *loggingMiddleware) OAuthCallback(ctx context.Context, client mgclients
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Error("OAuth callback failed to complete successfully", args...)
+			lm.logger.ErrorContext(ctx, "OAuth callback failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("OAuth callback completed successfully", args...)
