@@ -60,7 +60,7 @@ func (lm *loggingMiddleware) ViewSubscription(ctx context.Context, token, topic 
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View subscription failed to complete successfully", args...)
+			lm.logger.Error("View subscription failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View subscription completed successfully", args...)
@@ -84,7 +84,7 @@ func (lm *loggingMiddleware) ListSubscriptions(ctx context.Context, token string
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List subscriptions failed to complete successfully", args...)
+			lm.logger.Error("List subscriptions failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List subscriptions completed successfully", args...)
@@ -121,7 +121,7 @@ func (lm *loggingMiddleware) ConsumeBlocking(ctx context.Context, msg interface{
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Blocking consumer failed to consume messages successfully", args...)
+			lm.logger.Error("Blocking consumer failed to consume messages successfully", args...)
 			return
 		}
 		lm.logger.Info("Blocking consumer consumed messages successfully", args...)

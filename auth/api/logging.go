@@ -34,7 +34,7 @@ func (lm *loggingMiddleware) ListObjects(ctx context.Context, pr auth.PolicyReq,
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List objects failed to complete successfully", args...)
+			lm.logger.Error("List objects failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List objects completed successfully", args...)
@@ -56,7 +56,7 @@ func (lm *loggingMiddleware) ListAllObjects(ctx context.Context, pr auth.PolicyR
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List all objects failed to complete successfully", args...)
+			lm.logger.Error("List all objects failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List all objects completed successfully", args...)
@@ -72,7 +72,7 @@ func (lm *loggingMiddleware) CountObjects(ctx context.Context, pr auth.PolicyReq
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Count objects failed to complete successfully", args...)
+			lm.logger.Error("Count objects failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Count objects completed successfully", args...)
@@ -87,7 +87,7 @@ func (lm *loggingMiddleware) ListSubjects(ctx context.Context, pr auth.PolicyReq
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List subjects failed to complete successfully", args...)
+			lm.logger.Error("List subjects failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List subjects completed successfully", args...)
@@ -109,7 +109,7 @@ func (lm *loggingMiddleware) ListAllSubjects(ctx context.Context, pr auth.Policy
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List all subjects failed to complete successfully", args...)
+			lm.logger.Error("List all subjects failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List all subjects completed successfully", args...)
@@ -125,7 +125,7 @@ func (lm *loggingMiddleware) CountSubjects(ctx context.Context, pr auth.PolicyRe
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Count subjects failed to complete successfully", args...)
+			lm.logger.Error("Count subjects failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Count subjects completed successfully", args...)
@@ -357,7 +357,7 @@ func (lm *loggingMiddleware) RetrieveDomain(ctx context.Context, token, id strin
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Retrieve domain failed to complete successfully", args...)
+			lm.logger.Error("Retrieve domain failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Retrieve domain completed successfully", args...)
@@ -373,7 +373,7 @@ func (lm *loggingMiddleware) RetrieveDomainPermissions(ctx context.Context, toke
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Retrieve domain permissions failed to complete successfully", args...)
+			lm.logger.Error("Retrieve domain permissions failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Retrieve domain permissions completed successfully", args...)
@@ -432,7 +432,7 @@ func (lm *loggingMiddleware) ListDomains(ctx context.Context, token string, page
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List domains failed to complete successfully", args...)
+			lm.logger.Error("List domains failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List domains completed successfully", args...)
@@ -484,7 +484,7 @@ func (lm *loggingMiddleware) ListUserDomains(ctx context.Context, token, userID 
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List user domains failed to complete successfully", args...)
+			lm.logger.Error("List user domains failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List user domains completed successfully", args...)

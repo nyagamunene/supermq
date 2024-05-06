@@ -51,7 +51,7 @@ func (lm *loggingMiddleware) ViewClient(ctx context.Context, token, id string) (
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View thing failed to complete successfully", args...)
+			lm.logger.Error("View thing failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View thing completed successfully", args...)
@@ -67,7 +67,7 @@ func (lm *loggingMiddleware) ViewClientPerms(ctx context.Context, token, id stri
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View thing permissions failed to complete successfully", args...)
+			lm.logger.Error("View thing permissions failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View thing permissions completed successfully", args...)
@@ -88,7 +88,7 @@ func (lm *loggingMiddleware) ListClients(ctx context.Context, token, reqUserID s
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List things failed to complete successfully", args...)
+			lm.logger.Error("List things failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List things completed successfully", args...)
@@ -206,7 +206,7 @@ func (lm *loggingMiddleware) ListClientsByGroup(ctx context.Context, token, chan
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List things by group failed to complete successfully", args...)
+			lm.logger.Error("List things by group failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List things by group completed successfully", args...)
@@ -259,7 +259,7 @@ func (lm *loggingMiddleware) Share(ctx context.Context, token, id, relation stri
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Share thing failed to complete successfully", args...)
+			lm.logger.Error("Share thing failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Share thing completed successfully", args...)
@@ -277,7 +277,7 @@ func (lm *loggingMiddleware) Unshare(ctx context.Context, token, id, relation st
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Unshare thing failed to complete successfully", args...)
+			lm.logger.Error("Unshare thing failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Unshare thing completed successfully", args...)

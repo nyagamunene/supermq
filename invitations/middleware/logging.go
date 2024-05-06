@@ -48,7 +48,7 @@ func (lm *logging) ViewInvitation(ctx context.Context, token, userID, domainID s
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View invitation failed to complete successfully", args...)
+			lm.logger.Error("View invitation failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View invitation completed successfully", args...)
@@ -68,7 +68,7 @@ func (lm *logging) ListInvitations(ctx context.Context, token string, page invit
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List invitations failed to complete successfully", args...)
+			lm.logger.Error("List invitations failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List invitations completed successfully", args...)

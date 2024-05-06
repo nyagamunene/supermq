@@ -101,7 +101,7 @@ func (lm *loggingMiddleware) ViewClient(ctx context.Context, token, id string) (
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View user failed to complete successfully", args...)
+			lm.logger.Error("View user failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View user completed successfully", args...)
@@ -122,7 +122,7 @@ func (lm *loggingMiddleware) ViewProfile(ctx context.Context, token string) (c m
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View profile failed to complete successfully", args...)
+			lm.logger.Error("View profile failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View profile completed successfully", args...)
@@ -144,7 +144,7 @@ func (lm *loggingMiddleware) ListClients(ctx context.Context, token string, pm m
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List users failed to complete successfully", args...)
+			lm.logger.Error("List users failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List users completed successfully", args...)
@@ -265,7 +265,7 @@ func (lm *loggingMiddleware) ResetSecret(ctx context.Context, token, secret stri
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Reset secret failed to complete successfully", args...)
+			lm.logger.Error("Reset secret failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Reset secret completed successfully", args...)
@@ -283,7 +283,7 @@ func (lm *loggingMiddleware) SendPasswordReset(ctx context.Context, host, email,
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Send password reset failed to complete successfully", args...)
+			lm.logger.Error("Send password reset failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Send password reset completed successfully", args...)
@@ -373,7 +373,7 @@ func (lm *loggingMiddleware) ListMembers(ctx context.Context, token, objectKind,
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List members failed to complete successfully", args...)
+			lm.logger.Error("List members failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List members completed successfully", args...)

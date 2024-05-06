@@ -76,7 +76,7 @@ func (lm *loggingMiddleware) ViewTwin(ctx context.Context, token, twinID string)
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View twin failed to complete successfully", args...)
+			lm.logger.Error("View twin failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View twin completed successfully", args...)
@@ -98,7 +98,7 @@ func (lm *loggingMiddleware) ListTwins(ctx context.Context, token string, offset
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List twins failed to complete successfully", args...)
+			lm.logger.Error("List twins failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List twins completed successfully", args...)
@@ -141,7 +141,7 @@ func (lm *loggingMiddleware) ListStates(ctx context.Context, token string, offse
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List states failed to complete successfully", args...)
+			lm.logger.Error("List states failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List states completed successfully", args...)

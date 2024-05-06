@@ -54,7 +54,7 @@ func (lm *loggingMiddleware) View(ctx context.Context, token, id string) (saved 
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View thing config failed to complete successfully", args...)
+			lm.logger.Error("View thing config failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View thing config completed successfully", args...)
@@ -139,7 +139,7 @@ func (lm *loggingMiddleware) List(ctx context.Context, token string, filter boot
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List configs failed to complete successfully", args...)
+			lm.logger.Error("List configs failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List configs completed successfully", args...)
@@ -175,7 +175,7 @@ func (lm *loggingMiddleware) Bootstrap(ctx context.Context, externalKey, externa
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View bootstrap config failed to complete successfully", args...)
+			lm.logger.Error("View bootstrap config failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View bootstrap completed successfully", args...)

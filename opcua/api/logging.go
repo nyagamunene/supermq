@@ -181,7 +181,7 @@ func (lm loggingMiddleware) Browse(ctx context.Context, serverURI, namespace, id
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Browse available nodes failed to complete successfully", args...)
+			lm.logger.Error("Browse available nodes failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Browse available nodes completed successfully", args...)

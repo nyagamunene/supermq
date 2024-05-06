@@ -159,7 +159,7 @@ func (lm loggingMiddleware) DisconnectThing(ctx context.Context, chanID, thingID
 		}
 		if err != nil {
 			args := append(args, slog.String("error", err.Error()))
-			lm.logger.Warn("Disconnect thing from channel failed to complete successfully", args...)
+			lm.logger.Error("Disconnect thing from channel failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Disconnect thing from channel completed successfully", args...)
@@ -179,7 +179,7 @@ func (lm loggingMiddleware) Publish(ctx context.Context, msg *lora.Message) (err
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Publish failed to complete successfully", args...)
+			lm.logger.Error("Publish failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("Publish completed successfully", args...)

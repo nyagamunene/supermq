@@ -79,7 +79,7 @@ func (lm *loggingMiddleware) ViewGroup(ctx context.Context, token, id string) (g
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View group failed to complete successfully", args...)
+			lm.logger.Error("View group failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View group completed successfully", args...)
@@ -97,7 +97,7 @@ func (lm *loggingMiddleware) ViewGroupPerms(ctx context.Context, token, id strin
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("View group permissions failed to complete successfully", args...)
+			lm.logger.Error("View group permissions failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("View group permissions completed successfully", args...)
@@ -123,7 +123,7 @@ func (lm *loggingMiddleware) ListGroups(ctx context.Context, token, memberKind, 
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List groups failed to complete successfully", args...)
+			lm.logger.Error("List groups failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List groups completed successfully", args...)
@@ -185,7 +185,7 @@ func (lm *loggingMiddleware) ListMembers(ctx context.Context, token, groupID, pe
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List members failed to complete successfully", args...)
+			lm.logger.Error("List members failed to complete successfully", args...)
 			return
 		}
 		lm.logger.Info("List members completed successfully", args...)
