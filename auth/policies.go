@@ -192,7 +192,7 @@ type PolicyAgent interface {
 	AddPolicies(ctx context.Context, prs []PolicyReq) error
 
 	// DeletePolicy removes a policy.
-	DeletePolicy(ctx context.Context, pr PolicyReq) error
+	DeletePolicyFilter(ctx context.Context, pr PolicyReq) error
 
 	// DeletePolicy removes a policy.
 	DeletePolicies(ctx context.Context, pr []PolicyReq) error
