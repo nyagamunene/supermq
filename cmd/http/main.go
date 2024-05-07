@@ -39,7 +39,7 @@ import (
 
 const (
 	svcName        = "http_adapter"
-	envPrefixHTTP  = "MG_HTTP_ADAPTER_"
+	envPrefix  = "MG_HTTP_ADAPTER_"
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
 	defSvcHTTPPort = "80"
 	targetHTTPPort = "81"
@@ -80,7 +80,7 @@ func main() {
 	}
 
 	httpServerConfig := server.Config{Port: defSvcHTTPPort}
-	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefixHTTP}); err != nil {
+	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefix}); err != nil {
 		logger.Error(fmt.Sprintf("failed to load %s HTTP server configuration : %s", svcName, err))
 		exitCode = 1
 		return
@@ -162,7 +162,7 @@ func newService(pub messaging.Publisher, tc magistrala.AuthzServiceClient, logge
 }
 
 func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sessionHandler session.Handler) error {
-	httpConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefixHTTP})
+	httpConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefix})
 	if err != nil {
 		return (err)
 	}
