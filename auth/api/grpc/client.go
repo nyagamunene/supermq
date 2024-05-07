@@ -24,22 +24,22 @@ const svcName = "magistrala.AuthService"
 var _ magistrala.AuthServiceClient = (*grpcClient)(nil)
 
 type grpcClient struct {
-	issue           endpoint.Endpoint
-	refresh         endpoint.Endpoint
-	identify        endpoint.Endpoint
-	authorize       endpoint.Endpoint
-	addPolicy       endpoint.Endpoint
-	addPolicies     endpoint.Endpoint
-	deletePolicy    endpoint.Endpoint
-	deletePolicies  endpoint.Endpoint
-	listObjects     endpoint.Endpoint
-	listAllObjects  endpoint.Endpoint
-	countObjects    endpoint.Endpoint
-	listSubjects    endpoint.Endpoint
-	listAllSubjects endpoint.Endpoint
-	countSubjects   endpoint.Endpoint
-	listPermissions endpoint.Endpoint
-	timeout         time.Duration
+	issue              endpoint.Endpoint
+	refresh            endpoint.Endpoint
+	identify           endpoint.Endpoint
+	authorize          endpoint.Endpoint
+	addPolicy          endpoint.Endpoint
+	addPolicies        endpoint.Endpoint
+	deletePolicyFilter endpoint.Endpoint
+	deletePolicies     endpoint.Endpoint
+	listObjects        endpoint.Endpoint
+	listAllObjects     endpoint.Endpoint
+	countObjects       endpoint.Endpoint
+	listSubjects       endpoint.Endpoint
+	listAllSubjects    endpoint.Endpoint
+	countSubjects      endpoint.Endpoint
+	listPermissions    endpoint.Endpoint
+	timeout            time.Duration
 }
 
 // NewClient returns new gRPC client instance.
@@ -93,12 +93,12 @@ func NewClient(conn *grpc.ClientConn, timeout time.Duration) magistrala.AuthServ
 			decodeAddPoliciesResponse,
 			magistrala.AddPoliciesRes{},
 		).Endpoint(),
-		deletePolicy: kitgrpc.NewClient(
+		deletePolicyFilter: kitgrpc.NewClient(
 			conn,
 			svcName,
 			"DeletePolicy",
-			encodeDeletePolicyRequest,
-			decodeDeletePolicyResponse,
+			encodeDeletePolicyFilterRequest,
+			decodeDeletePolicyFilterResponse,
 			magistrala.DeletePolicyRes{},
 		).Endpoint(),
 		deletePolicies: kitgrpc.NewClient(
@@ -383,7 +383,7 @@ func (client grpcClient) DeletePolicy(ctx context.Context, in *magistrala.Delete
 	ctx, cancel := context.WithTimeout(ctx, client.timeout)
 	defer cancel()
 
-	res, err := client.deletePolicy(ctx, policyReq{
+	res, err := client.deletePolicyFilter(ctx, policyReq{
 		Domain:      in.GetDomain(),
 		SubjectType: in.GetSubjectType(),
 		SubjectKind: in.GetSubjectKind(),
@@ -402,12 +402,12 @@ func (client grpcClient) DeletePolicy(ctx context.Context, in *magistrala.Delete
 	return &magistrala.DeletePolicyRes{Deleted: dpr.deleted}, nil
 }
 
-func decodeDeletePolicyResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+func decodeDeletePolicyFilterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(*magistrala.DeletePolicyRes)
 	return deletePolicyRes{deleted: res.GetDeleted()}, nil
 }
 
-func encodeDeletePolicyRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+func encodeDeletePolicyFilterRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(policyReq)
 	return &magistrala.DeletePolicyReq{
 		Domain:      req.Domain,
