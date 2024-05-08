@@ -305,7 +305,7 @@ func (svc service) AddPolicies(ctx context.Context, prs []PolicyReq) error {
 	return svc.agent.AddPolicies(ctx, prs)
 }
 
-func (svc service) DeletePolicy(ctx context.Context, pr PolicyReq) error {
+func (svc service) DeletePolicyFilter(ctx context.Context, pr PolicyReq) error {
 	return svc.agent.DeletePolicyFilter(ctx, pr)
 }
 

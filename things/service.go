@@ -411,7 +411,7 @@ func (svc service) Unshare(ctx context.Context, token, id, relation string, user
 
 	policies := magistrala.DeletePoliciesReq{}
 	for _, userid := range userids {
-		policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
+		policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
 			SubjectType: auth.UserType,
 			Subject:     auth.EncodeDomainUserID(user.GetDomainId(), userid),
 			Relation:    relation,
@@ -444,7 +444,7 @@ func (svc service) DeleteClient(ctx context.Context, token, id string) error {
 	}
 
 	// Remove policy of groups
-	if _, err := svc.auth.DeletePolicy(ctx, &magistrala.DeletePolicyReq{
+	if _, err := svc.auth.DeletePolicyFilter(ctx, &magistrala.DeletePolicyFilterReq{
 		SubjectType: auth.GroupType,
 		Object:      id,
 		ObjectType:  auth.ThingType,
@@ -453,7 +453,7 @@ func (svc service) DeleteClient(ctx context.Context, token, id string) error {
 	}
 
 	// Remove policy from domain
-	if _, err := svc.auth.DeletePolicy(ctx, &magistrala.DeletePolicyReq{
+	if _, err := svc.auth.DeletePolicyFilter(ctx, &magistrala.DeletePolicyFilterReq{
 		SubjectType: auth.DomainType,
 		Object:      id,
 		ObjectType:  auth.ThingType,
@@ -467,7 +467,7 @@ func (svc service) DeleteClient(ctx context.Context, token, id string) error {
 	}
 
 	// Remove policy of users
-	if _, err := svc.auth.DeletePolicy(ctx, &magistrala.DeletePolicyReq{
+	if _, err := svc.auth.DeletePolicyFilter(ctx, &magistrala.DeletePolicyFilterReq{
 		SubjectType: auth.UserType,
 		Object:      id,
 		ObjectType:  auth.ThingType,

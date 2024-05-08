@@ -2004,7 +2004,7 @@ func TestAssign(t *testing.T) {
 						ObjectType:  auth.GroupType,
 						Object:      group.ID,
 					})
-					deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
+					deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						Subject:     tc.groupID,
@@ -2391,7 +2391,7 @@ func TestUnassign(t *testing.T) {
 			switch tc.memberKind {
 			case auth.ThingsKind:
 				for _, memberID := range tc.memberIDs {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						SubjectKind: auth.ChannelsKind,
@@ -2405,7 +2405,7 @@ func TestUnassign(t *testing.T) {
 				retrieveByIDsCall = repo.On("RetrieveByIDs", context.Background(), mggroups.Page{PageMeta: mggroups.PageMeta{Limit: 1<<63 - 1}}, mock.Anything).Return(tc.repoResp, tc.repoErr)
 				var addPolicies magistrala.AddPoliciesReq
 				for _, group := range tc.repoResp.Groups {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						Subject:     tc.groupID,
@@ -2426,7 +2426,7 @@ func TestUnassign(t *testing.T) {
 				assignParentCall = repo.On("UnassignParentGroup", context.Background(), tc.groupID, tc.memberIDs).Return(tc.repoParentGroupErr)
 			case auth.ChannelsKind:
 				for _, memberID := range tc.memberIDs {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						Subject:     memberID,
@@ -2437,7 +2437,7 @@ func TestUnassign(t *testing.T) {
 				}
 			case auth.UsersKind:
 				for _, memberID := range tc.memberIDs {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.UserType,
 						Subject:     auth.EncodeDomainUserID(tc.idResp.GetDomainId(), memberID),
@@ -2475,13 +2475,13 @@ func TestDeleteGroup(t *testing.T) {
 		idErr                    error
 		authzResp                *magistrala.AuthorizeRes
 		authzErr                 error
-		deleteChildPoliciesRes   *magistrala.DeletePolicyRes
+		deleteChildPoliciesRes   *magistrala.DeletePolicyFilterRes
 		deleteChildPoliciesErr   error
-		deleteThingsPoliciesRes  *magistrala.DeletePolicyRes
+		deleteThingsPoliciesRes  *magistrala.DeletePolicyFilterRes
 		deleteThingsPoliciesErr  error
-		deleteDomainsPoliciesRes *magistrala.DeletePolicyRes
+		deleteDomainsPoliciesRes *magistrala.DeletePolicyFilterRes
 		deleteDomainsPoliciesErr error
-		deleteUsersPoliciesRes   *magistrala.DeletePolicyRes
+		deleteUsersPoliciesRes   *magistrala.DeletePolicyFilterRes
 		deleteUsersPoliciesErr   error
 		repoErr                  error
 		err                      error
@@ -2497,16 +2497,16 @@ func TestDeleteGroup(t *testing.T) {
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
-			deleteChildPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteChildPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteThingsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteThingsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteDomainsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteDomainsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteUsersPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteUsersPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
 		},
@@ -2543,7 +2543,7 @@ func TestDeleteGroup(t *testing.T) {
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
-			deleteChildPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteChildPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: false,
 			},
 			deleteChildPoliciesErr: svcerr.ErrAuthorization,
@@ -2560,10 +2560,10 @@ func TestDeleteGroup(t *testing.T) {
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
-			deleteChildPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteChildPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteThingsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteThingsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: false,
 			},
 			deleteThingsPoliciesErr: svcerr.ErrAuthorization,
@@ -2580,13 +2580,13 @@ func TestDeleteGroup(t *testing.T) {
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
-			deleteChildPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteChildPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteThingsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteThingsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteDomainsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteDomainsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: false,
 			},
 			deleteDomainsPoliciesErr: svcerr.ErrAuthorization,
@@ -2603,16 +2603,16 @@ func TestDeleteGroup(t *testing.T) {
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
-			deleteChildPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteChildPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteThingsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteThingsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteDomainsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteDomainsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteUsersPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteUsersPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: false,
 			},
 			deleteUsersPoliciesErr: svcerr.ErrAuthorization,
@@ -2629,13 +2629,13 @@ func TestDeleteGroup(t *testing.T) {
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
-			deleteChildPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteChildPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteThingsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteThingsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
-			deleteDomainsPoliciesRes: &magistrala.DeletePolicyRes{
+			deleteDomainsPoliciesRes: &magistrala.DeletePolicyFilterRes{
 				Deleted: true,
 			},
 			repoErr: repoerr.ErrNotFound,
@@ -2655,23 +2655,23 @@ func TestDeleteGroup(t *testing.T) {
 				Object:      tc.groupID,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.authzResp, tc.authzErr)
-			repocall2 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyReq{
+			repocall2 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.GroupType,
 				Subject:     tc.groupID,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.deleteChildPoliciesRes, tc.deleteChildPoliciesErr)
-			repocall3 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyReq{
+			repocall3 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.GroupType,
 				Subject:     tc.groupID,
 				ObjectType:  auth.ThingType,
 			}).Return(tc.deleteThingsPoliciesRes, tc.deleteThingsPoliciesErr)
-			repocall4 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyReq{
+			repocall4 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.DomainType,
 				Object:      tc.groupID,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.deleteDomainsPoliciesRes, tc.deleteDomainsPoliciesErr)
 			repocall5 := repo.On("Delete", context.Background(), tc.groupID).Return(tc.repoErr)
-			repocall6 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyReq{
+			repocall6 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.UserType,
 				Object:      tc.groupID,
 				ObjectType:  auth.GroupType,

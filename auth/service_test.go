@@ -1337,7 +1337,7 @@ func TestDeletePolicy(t *testing.T) {
 
 	for _, tc := range cases {
 		repocall := prepo.On("DeletePolicyFilter", context.Background(), mock.Anything).Return(tc.err)
-		err := svc.DeletePolicy(context.Background(), tc.pr)
+		err := svc.DeletePolicyFilter(context.Background(), tc.pr)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
 		repocall.Unset()
 	}

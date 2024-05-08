@@ -1005,7 +1005,7 @@ func TestUpdateClientRole(t *testing.T) {
 		membershipAuthReq    *magistrala.AuthorizeReq
 		superAdminAuthRes    *magistrala.AuthorizeRes
 		membershipAuthRes    *magistrala.AuthorizeRes
-		deletePolicyResponse *magistrala.DeletePolicyRes
+		deletePolicyResponse *magistrala.DeletePolicyFilterRes
 		addPolicyResponse    *magistrala.AddPolicyRes
 		updateRoleResponse   mgclients.Client
 		token                string
@@ -1095,7 +1095,7 @@ func TestUpdateClientRole(t *testing.T) {
 			superAdminAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
 			membershipAuthReq:    membershipAuthReq,
 			membershipAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
-			deletePolicyResponse: &magistrala.DeletePolicyRes{Deleted: true},
+			deletePolicyResponse: &magistrala.DeletePolicyFilterRes{Deleted: true},
 			updateRoleResponse:   client2,
 			token:                validToken,
 			err:                  nil,
@@ -1108,7 +1108,7 @@ func TestUpdateClientRole(t *testing.T) {
 			superAdminAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
 			membershipAuthReq:    membershipAuthReq,
 			membershipAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
-			deletePolicyResponse: &magistrala.DeletePolicyRes{Deleted: false},
+			deletePolicyResponse: &magistrala.DeletePolicyFilterRes{Deleted: false},
 			updateRoleResponse:   mgclients.Client{},
 			token:                validToken,
 			deletePolicyErr:      svcerr.ErrAuthorization,
@@ -1122,7 +1122,7 @@ func TestUpdateClientRole(t *testing.T) {
 			superAdminAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
 			membershipAuthReq:    membershipAuthReq,
 			membershipAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
-			deletePolicyResponse: &magistrala.DeletePolicyRes{Deleted: false},
+			deletePolicyResponse: &magistrala.DeletePolicyFilterRes{Deleted: false},
 			updateRoleResponse:   mgclients.Client{},
 			token:                validToken,
 			deletePolicyErr:      svcerr.ErrMalformedEntity,
@@ -1137,7 +1137,7 @@ func TestUpdateClientRole(t *testing.T) {
 			membershipAuthReq:    membershipAuthReq,
 			membershipAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
 			addPolicyResponse:    &magistrala.AddPolicyRes{Added: true},
-			deletePolicyResponse: &magistrala.DeletePolicyRes{Deleted: true},
+			deletePolicyResponse: &magistrala.DeletePolicyFilterRes{Deleted: true},
 			updateRoleResponse:   mgclients.Client{},
 			token:                validToken,
 			updateRoleErr:        svcerr.ErrAuthentication,
@@ -1152,7 +1152,7 @@ func TestUpdateClientRole(t *testing.T) {
 			membershipAuthReq:    membershipAuthReq,
 			membershipAuthRes:    &magistrala.AuthorizeRes{Authorized: true},
 			addPolicyResponse:    &magistrala.AddPolicyRes{Added: true},
-			deletePolicyResponse: &magistrala.DeletePolicyRes{Deleted: false},
+			deletePolicyResponse: &magistrala.DeletePolicyFilterRes{Deleted: false},
 			updateRoleResponse:   mgclients.Client{},
 			token:                validToken,
 			updateRoleErr:        svcerr.ErrAuthentication,
@@ -1178,7 +1178,7 @@ func TestUpdateClientRole(t *testing.T) {
 		repoCall := cRepo.On("CheckSuperAdmin", context.Background(), mock.Anything).Return(tc.checkSuperAdminErr)
 		authCall2 := auth.On("Authorize", context.Background(), tc.membershipAuthReq).Return(tc.membershipAuthRes, tc.membershipAuthErr)
 		authCall3 := auth.On("AddPolicy", context.Background(), mock.Anything).Return(tc.addPolicyResponse, tc.addPolicyErr)
-		authCall4 := auth.On("DeletePolicy", context.Background(), mock.Anything).Return(tc.deletePolicyResponse, tc.deletePolicyErr)
+		authCall4 := auth.On("DeletePolicyFilter", context.Background(), mock.Anything).Return(tc.deletePolicyResponse, tc.deletePolicyErr)
 		repoCall1 := cRepo.On("UpdateRole", context.Background(), mock.Anything).Return(tc.updateRoleResponse, tc.updateRoleErr)
 
 		updatedClient, err := svc.UpdateClientRole(context.Background(), tc.token, tc.client)
