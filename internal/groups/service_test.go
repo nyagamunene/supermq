@@ -2655,23 +2655,23 @@ func TestDeleteGroup(t *testing.T) {
 				Object:      tc.groupID,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.authzResp, tc.authzErr)
-			repocall2 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
+			repocall2 := authsvc.On("DeletePolicyFilter", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.GroupType,
 				Subject:     tc.groupID,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.deleteChildPoliciesRes, tc.deleteChildPoliciesErr)
-			repocall3 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
+			repocall3 := authsvc.On("DeletePolicyFilter", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.GroupType,
 				Subject:     tc.groupID,
 				ObjectType:  auth.ThingType,
 			}).Return(tc.deleteThingsPoliciesRes, tc.deleteThingsPoliciesErr)
-			repocall4 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
+			repocall4 := authsvc.On("DeletePolicyFilter", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.DomainType,
 				Object:      tc.groupID,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.deleteDomainsPoliciesRes, tc.deleteDomainsPoliciesErr)
 			repocall5 := repo.On("Delete", context.Background(), tc.groupID).Return(tc.repoErr)
-			repocall6 := authsvc.On("DeletePolicy", context.Background(), &magistrala.DeletePolicyFilterReq{
+			repocall6 := authsvc.On("DeletePolicyFilter", context.Background(), &magistrala.DeletePolicyFilterReq{
 				SubjectType: auth.UserType,
 				Object:      tc.groupID,
 				ObjectType:  auth.GroupType,
