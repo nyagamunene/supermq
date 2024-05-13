@@ -27,6 +27,7 @@ definition group {
 	relation editor: user
 	relation contributor: user
 	relation member: user
+	relation guest: user
 
 	relation parent_group: group
 	relation domain: domain
@@ -37,6 +38,7 @@ definition group {
 	permission share = edit
 	permission view = contributor + edit + parent_group->view + domain->view
 	permission membership = view + member
+	permission guests = guest + view - edit
 
 	// These permissions are made for listing purposes. They enable listing users who have only particular permission excluding higher-level permissions users.
 	permission admin_only = admin
@@ -55,6 +57,7 @@ definition domain {
 	relation editor: user
 	relation contributor: user
 	relation member: user
+	relation guest: user
 
 	relation platform: platform
 
@@ -63,6 +66,7 @@ definition domain {
 	permission share = edit
 	permission view = edit + contributor
 	permission membership = view + member
+	permission guests = guest + view - edit
 }
 
 definition platform {

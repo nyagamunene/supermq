@@ -626,7 +626,7 @@ components:
             ]
         relation:
           type: string
-          enum: ["administrator", "editor", "contributor", "member"]
+          enum: ["administrator", "editor", "contributor", "member", "guest"]
           example: "administrator"
           description: Policy relations.
       required:
