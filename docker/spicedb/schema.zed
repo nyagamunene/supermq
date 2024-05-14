@@ -38,7 +38,7 @@ definition group {
 	permission share = edit
 	permission view = contributor + edit + parent_group->view + domain->view
 	permission membership = view + member
-	permission guests = guest + view - edit
+	permission observe = viewer + guest
 
 	// These permissions are made for listing purposes. They enable listing users who have only particular permission excluding higher-level permissions users.
 	permission admin_only = admin
@@ -66,7 +66,7 @@ definition domain {
 	permission share = edit
 	permission view = edit + contributor
 	permission membership = view + member
-	permission guests = guest + view - edit
+	permission observe = viewer + guest
 }
 
 definition platform {

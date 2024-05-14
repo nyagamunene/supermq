@@ -663,7 +663,7 @@ func (svc service) RetrieveDomainPermissions(ctx context.Context, token, id stri
 		Subject:     res.Subject,
 		Object:      id,
 		ObjectType:  DomainType,
-	}, []string{AdminPermission, EditPermission, ViewPermission, MembershipPermission})
+	}, []string{AdminPermission, EditPermission, ViewPermission, MembershipPermission, GuestPermission})
 	if err != nil {
 		return []string{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}

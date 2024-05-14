@@ -51,7 +51,7 @@ const (
 	SharePermission      = "share"
 	PublishPermission    = "publish"
 	SubscribePermission  = "subscribe"
-	GuestPermission      = "guests"
+	GuestPermission      = "observe"
 )
 
 const MagistralaObject = "magistrala"

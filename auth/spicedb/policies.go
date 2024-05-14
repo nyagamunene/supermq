@@ -67,6 +67,8 @@ func (pa *policyAgent) CheckPolicy(ctx context.Context, pr auth.PolicyReq) error
 		Subject:    &v1.SubjectReference{Object: &v1.ObjectReference{ObjectType: pr.SubjectType, ObjectId: pr.Subject}, OptionalRelation: pr.SubjectRelation},
 	}
 
+	fmt.Printf("CheckPermissionRequest: %v\n", &checkReq)
+
 	resp, err := pa.permissionClient.CheckPermission(ctx, &checkReq)
 	if err != nil {
 		return handleSpicedbError(err)
@@ -74,6 +76,10 @@ func (pa *policyAgent) CheckPolicy(ctx context.Context, pr auth.PolicyReq) error
 	if resp.Permissionship == v1.CheckPermissionResponse_PERMISSIONSHIP_HAS_PERMISSION {
 		return nil
 	}
+
+	fmt.Printf("Permissionship: %v\n", resp.Permissionship)
+	fmt.Printf("CheckPermissionResponse_Permissionship_name: %v\n", v1.CheckPermissionResponse_PERMISSIONSHIP_HAS_PERMISSION)
+
 	if reason, ok := v1.CheckPermissionResponse_Permissionship_name[int32(resp.Permissionship)]; ok {
 		return errors.Wrap(svcerr.ErrAuthorization, errors.New(reason))
 	}
