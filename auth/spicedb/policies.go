@@ -67,8 +67,6 @@ func (pa *policyAgent) CheckPolicy(ctx context.Context, pr auth.PolicyReq) error
 		Subject:    &v1.SubjectReference{Object: &v1.ObjectReference{ObjectType: pr.SubjectType, ObjectId: pr.Subject}, OptionalRelation: pr.SubjectRelation},
 	}
 
-	fmt.Printf("CheckPermissionRequest: %v\n", &checkReq)
-
 	resp, err := pa.permissionClient.CheckPermission(ctx, &checkReq)
 	if err != nil {
 		return handleSpicedbError(err)
