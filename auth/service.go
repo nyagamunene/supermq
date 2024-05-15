@@ -576,7 +576,7 @@ func SwitchToPermission(relation string) string {
 	case MemberRelation:
 		return MembershipPermission
 	case GuestRelation:
-		return GuestPermission
+		return ViewPermission
 	default:
 		return relation
 	}
@@ -663,7 +663,7 @@ func (svc service) RetrieveDomainPermissions(ctx context.Context, token, id stri
 		Subject:     res.Subject,
 		Object:      id,
 		ObjectType:  DomainType,
-	}, []string{AdminPermission, EditPermission, ViewPermission, MembershipPermission, GuestPermission})
+	}, []string{AdminPermission, EditPermission, ViewPermission, MembershipPermission, CreatePermission})
 	if err != nil {
 		return []string{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
