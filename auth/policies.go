@@ -32,7 +32,7 @@ const (
 const (
 	AdministratorRelation = "administrator"
 	EditorRelation        = "editor"
-	ContributorRelation        = "contributor"
+	ContributorRelation   = "contributor"
 	MemberRelation        = "member"
 	DomainRelation        = "domain"
 	ParentGroupRelation   = "parent_group"
@@ -45,7 +45,7 @@ const (
 	AdminPermission      = "admin"
 	DeletePermission     = "delete"
 	EditPermission       = "edit"
-	ContributePermission       = "contribute"
+	ContributePermission = "contribute"
 	MembershipPermission = "membership"
 	SharePermission      = "share"
 	PublishPermission    = "publish"
