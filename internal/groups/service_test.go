@@ -379,7 +379,7 @@ func TestViewGroup(t *testing.T) {
 				SubjectType: auth.UserType,
 				SubjectKind: auth.TokenKind,
 				Subject:     tc.token,
-				Permission:  auth.ViewPermission,
+				Permission:  auth.ContributePermission,
 				Object:      tc.id,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.authzResp, tc.authzErr)
@@ -420,7 +420,7 @@ func TestViewGroupPerms(t *testing.T) {
 			},
 			listResp: &magistrala.ListPermissionsRes{
 				Permissions: []string{
-					auth.ViewPermission,
+					auth.ContributePermission,
 					auth.EditPermission,
 				},
 			},
@@ -796,7 +796,7 @@ func TestListMembers(t *testing.T) {
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
 			memberKind: auth.UsersKind,
-			permission: auth.ViewPermission,
+			permission: auth.ContributePermission,
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
@@ -813,7 +813,7 @@ func TestListMembers(t *testing.T) {
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
 			memberKind: auth.GroupsKind,
-			permission: auth.ViewPermission,
+			permission: auth.ContributePermission,
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
@@ -846,7 +846,7 @@ func TestListMembers(t *testing.T) {
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
 			memberKind: auth.UsersKind,
-			permission: auth.ViewPermission,
+			permission: auth.ContributePermission,
 			authzResp: &magistrala.AuthorizeRes{
 				Authorized: true,
 			},
@@ -864,7 +864,7 @@ func TestListMembers(t *testing.T) {
 				SubjectType: auth.UserType,
 				SubjectKind: auth.TokenKind,
 				Subject:     tc.token,
-				Permission:  auth.ViewPermission,
+				Permission:  auth.ContributePermission,
 				Object:      tc.groupID,
 				ObjectType:  auth.GroupType,
 			}).Return(tc.authzResp, tc.authzErr)
@@ -927,7 +927,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ThingsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -952,7 +952,7 @@ func TestListGroups(t *testing.T) {
 			},
 			listPermResp: &magistrala.ListPermissionsRes{
 				Permissions: []string{
-					auth.ViewPermission,
+					auth.ContributePermission,
 					auth.EditPermission,
 				},
 			},
@@ -963,7 +963,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.GroupsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -988,7 +988,7 @@ func TestListGroups(t *testing.T) {
 			},
 			listPermResp: &magistrala.ListPermissionsRes{
 				Permissions: []string{
-					auth.ViewPermission,
+					auth.ContributePermission,
 					auth.EditPermission,
 				},
 			},
@@ -999,7 +999,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ChannelsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1024,7 +1024,7 @@ func TestListGroups(t *testing.T) {
 			},
 			listPermResp: &magistrala.ListPermissionsRes{
 				Permissions: []string{
-					auth.ViewPermission,
+					auth.ContributePermission,
 					auth.EditPermission,
 				},
 			},
@@ -1035,7 +1035,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1060,7 +1060,7 @@ func TestListGroups(t *testing.T) {
 			},
 			listPermResp: &magistrala.ListPermissionsRes{
 				Permissions: []string{
-					auth.ViewPermission,
+					auth.ContributePermission,
 					auth.EditPermission,
 				},
 			},
@@ -1070,7 +1070,7 @@ func TestListGroups(t *testing.T) {
 			token:      token,
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1096,7 +1096,7 @@ func TestListGroups(t *testing.T) {
 			},
 			listPermResp: &magistrala.ListPermissionsRes{
 				Permissions: []string{
-					auth.ViewPermission,
+					auth.ContributePermission,
 					auth.EditPermission,
 				},
 			},
@@ -1106,7 +1106,7 @@ func TestListGroups(t *testing.T) {
 			token:      token,
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1125,7 +1125,7 @@ func TestListGroups(t *testing.T) {
 			token:      token,
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1144,7 +1144,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ThingsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1163,7 +1163,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ThingsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1183,7 +1183,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ThingsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1206,7 +1206,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.GroupsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1225,7 +1225,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.GroupsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1245,7 +1245,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.GroupsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1268,7 +1268,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ChannelsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1287,7 +1287,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ChannelsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1307,7 +1307,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ChannelsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1330,7 +1330,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1349,7 +1349,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1369,7 +1369,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1391,7 +1391,7 @@ func TestListGroups(t *testing.T) {
 			token:      token,
 			memberKind: auth.UsersKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1417,7 +1417,7 @@ func TestListGroups(t *testing.T) {
 			},
 			listPermResp: &magistrala.ListPermissionsRes{
 				Permissions: []string{
-					auth.ViewPermission,
+					auth.ContributePermission,
 					auth.EditPermission,
 				},
 			},
@@ -1428,7 +1428,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: "invalid",
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1443,7 +1443,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ThingsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1469,7 +1469,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ThingsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{
@@ -1502,7 +1502,7 @@ func TestListGroups(t *testing.T) {
 			memberID:   testsutil.GenerateUUID(t),
 			memberKind: auth.ThingsKind,
 			page: mggroups.Page{
-				Permission: auth.ViewPermission,
+				Permission: auth.ContributePermission,
 				ListPerms:  true,
 			},
 			idResp: &magistrala.IdentityRes{},
@@ -1525,7 +1525,7 @@ func TestListGroups(t *testing.T) {
 					SubjectType: auth.UserType,
 					SubjectKind: auth.UsersKind,
 					Subject:     tc.idResp.GetId(),
-					Permission:  auth.ViewPermission,
+					Permission:  auth.ContributePermission,
 					Object:      tc.memberID,
 					ObjectType:  auth.ThingType,
 				}).Return(tc.authzResp, tc.authzErr)
@@ -1569,7 +1569,7 @@ func TestListGroups(t *testing.T) {
 					SubjectType: auth.UserType,
 					SubjectKind: auth.UsersKind,
 					Subject:     tc.idResp.GetId(),
-					Permission:  auth.ViewPermission,
+					Permission:  auth.ContributePermission,
 					Object:      tc.memberID,
 					ObjectType:  auth.GroupType,
 				}).Return(tc.authzResp, tc.authzErr)
@@ -1675,7 +1675,7 @@ func TestAssign(t *testing.T) {
 			desc:       "successfully with things kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ThingsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1693,7 +1693,7 @@ func TestAssign(t *testing.T) {
 			desc:       "successfully with channels kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ChannelsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1711,7 +1711,7 @@ func TestAssign(t *testing.T) {
 			desc:       "successfully with groups kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1737,7 +1737,7 @@ func TestAssign(t *testing.T) {
 			desc:       "successfully with users kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.UsersKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1755,7 +1755,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to repo err",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1773,7 +1773,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to empty page",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1792,7 +1792,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to non empty parent",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1816,7 +1816,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to failed to add policies",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1843,7 +1843,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to failed to assign parent",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1870,7 +1870,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to failed to assign parent and delete policy",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1901,7 +1901,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with invalid kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: "invalid",
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1917,7 +1917,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with invalid token",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.UsersKind,
 			memberIDs:  allowedIDs,
 			idResp:     &magistrala.IdentityRes{},
@@ -1928,7 +1928,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with failed to authorize",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ThingsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -1945,7 +1945,7 @@ func TestAssign(t *testing.T) {
 			desc:       "unsuccessfully with failed to add policies",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ThingsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2084,7 +2084,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "successfully with things kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ThingsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2102,7 +2102,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "successfully with channels kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ChannelsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2120,7 +2120,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "successfully with groups kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2146,7 +2146,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "successfully with users kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.UsersKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2164,7 +2164,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to repo err",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2182,7 +2182,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to empty page",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2201,7 +2201,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to non empty parent",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2225,7 +2225,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to failed to add policies",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2252,7 +2252,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to failed to unassign parent",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2279,7 +2279,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with groups kind due to failed to unassign parent and add policy",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.GroupsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2310,7 +2310,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with invalid kind",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: "invalid",
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2326,7 +2326,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with invalid token",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.UsersKind,
 			memberIDs:  allowedIDs,
 			idResp:     &magistrala.IdentityRes{},
@@ -2337,7 +2337,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with failed to authorize",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ThingsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{
@@ -2354,7 +2354,7 @@ func TestUnassign(t *testing.T) {
 			desc:       "unsuccessfully with failed to add policies",
 			token:      token,
 			groupID:    testsutil.GenerateUUID(t),
-			relation:   auth.ViewerRelation,
+			relation:   auth.ContributorRelation,
 			memberKind: auth.ThingsKind,
 			memberIDs:  allowedIDs,
 			idResp: &magistrala.IdentityRes{

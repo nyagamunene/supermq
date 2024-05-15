@@ -32,7 +32,7 @@ const (
 const (
 	AdministratorRelation = "administrator"
 	EditorRelation        = "editor"
-	ViewerRelation        = "viewer"
+	ContributorRelation        = "contributor"
 	MemberRelation        = "member"
 	DomainRelation        = "domain"
 	ParentGroupRelation   = "parent_group"
@@ -45,7 +45,7 @@ const (
 	AdminPermission      = "admin"
 	DeletePermission     = "delete"
 	EditPermission       = "edit"
-	ViewPermission       = "view"
+	ContributePermission       = "contribute"
 	MembershipPermission = "membership"
 	SharePermission      = "share"
 	PublishPermission    = "publish"
@@ -86,10 +86,10 @@ type PolicyReq struct {
 	// platform, group, domain, thing, users.
 	ObjectType string `json:"object_type"`
 
-	// Relation contains the relation. Supported relations are administrator, editor, viewer, member,parent_group,group,domain.
+	// Relation contains the relation. Supported relations are administrator, editor, contributor, member,parent_group,group,domain.
 	Relation string `json:"relation,omitempty"`
 
-	// Permission contains the permission. Supported permissions are admin, delete, edit, share, view, membership,
+	// Permission contains the permission. Supported permissions are admin, delete, edit, share, contribute, membership,
 	// admin_only, edit_only, viewer_only, membership_only, ext_admin, ext_edit, ext_view
 	Permission string `json:"permission,omitempty"`
 }

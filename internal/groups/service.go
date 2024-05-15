@@ -86,7 +86,7 @@ func (svc service) CreateGroup(ctx context.Context, token, kind string, g groups
 }
 
 func (svc service) ViewGroup(ctx context.Context, token, id string) (groups.Group, error) {
-	_, err := svc.authorizeToken(ctx, auth.UserType, token, auth.ViewPermission, auth.GroupType, id)
+	_, err := svc.authorizeToken(ctx, auth.UserType, token, auth.ContributePermission, auth.GroupType, id)
 	if err != nil {
 		return groups.Group{}, err
 	}
@@ -116,7 +116,7 @@ func (svc service) ListGroups(ctx context.Context, token, memberKind, memberID s
 	}
 	switch memberKind {
 	case auth.ThingsKind:
-		if _, err := svc.authorizeKind(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.ThingType, memberID); err != nil {
+		if _, err := svc.authorizeKind(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ContributePermission, auth.ThingType, memberID); err != nil {
 			return groups.Page{}, err
 		}
 		cids, err := svc.auth.ListAllSubjects(ctx, &magistrala.ListSubjectsReq{
@@ -151,7 +151,7 @@ func (svc service) ListGroups(ctx context.Context, token, memberKind, memberID s
 			return groups.Page{}, err
 		}
 	case auth.ChannelsKind:
-		if _, err := svc.authorizeKind(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.GroupType, memberID); err != nil {
+		if _, err := svc.authorizeKind(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ContributePermission, auth.GroupType, memberID); err != nil {
 			return groups.Page{}, err
 		}
 		gids, err := svc.auth.ListAllSubjects(ctx, &magistrala.ListSubjectsReq{
@@ -274,7 +274,7 @@ func (svc service) checkSuperAdmin(ctx context.Context, userID string) error {
 
 // IMPROVEMENT NOTE: remove this function and all its related auxiliary function, ListMembers are moved to respective service.
 func (svc service) ListMembers(ctx context.Context, token, groupID, permission, memberKind string) (groups.MembersPage, error) {
-	_, err := svc.authorizeToken(ctx, auth.UserType, token, auth.ViewPermission, auth.GroupType, groupID)
+	_, err := svc.authorizeToken(ctx, auth.UserType, token, auth.ContributePermission, auth.GroupType, groupID)
 	if err != nil {
 		return groups.MembersPage{}, err
 	}

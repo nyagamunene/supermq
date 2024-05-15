@@ -901,14 +901,14 @@ func TestListPermissions(t *testing.T) {
 				Subject:           id,
 				ObjectType:        auth.ThingType,
 				Object:            validID,
-				FilterPermissions: []string{"view"},
+				FilterPermissions: []string{"contribute"},
 			},
 			listPermissionsRes: &magistrala.ListPermissionsRes{
 				SubjectType: auth.UserType,
 				Subject:     id,
 				ObjectType:  auth.ThingType,
 				Object:      validID,
-				Permissions: []string{"view"},
+				Permissions: []string{"contribute"},
 			},
 			err: nil,
 		},
@@ -921,14 +921,14 @@ func TestListPermissions(t *testing.T) {
 				Subject:           id,
 				ObjectType:        auth.GroupType,
 				Object:            validID,
-				FilterPermissions: []string{"view"},
+				FilterPermissions: []string{"contribute"},
 			},
 			listPermissionsRes: &magistrala.ListPermissionsRes{
 				SubjectType: auth.UserType,
 				Subject:     id,
 				ObjectType:  auth.GroupType,
 				Object:      validID,
-				Permissions: []string{"view"},
+				Permissions: []string{"contribute"},
 			},
 			err: nil,
 		},
@@ -941,14 +941,14 @@ func TestListPermissions(t *testing.T) {
 				Subject:           id,
 				ObjectType:        auth.PlatformType,
 				Object:            validID,
-				FilterPermissions: []string{"view"},
+				FilterPermissions: []string{"contribute"},
 			},
 			listPermissionsRes: &magistrala.ListPermissionsRes{
 				SubjectType: auth.UserType,
 				Subject:     id,
 				ObjectType:  auth.PlatformType,
 				Object:      validID,
-				Permissions: []string{"view"},
+				Permissions: []string{"contribute"},
 			},
 			err: nil,
 		},
@@ -961,14 +961,14 @@ func TestListPermissions(t *testing.T) {
 				Subject:           id,
 				ObjectType:        auth.DomainType,
 				Object:            validID,
-				FilterPermissions: []string{"view"},
+				FilterPermissions: []string{"contribute"},
 			},
 			listPermissionsRes: &magistrala.ListPermissionsRes{
 				SubjectType: auth.UserType,
 				Subject:     id,
 				ObjectType:  auth.DomainType,
 				Object:      validID,
-				Permissions: []string{"view"},
+				Permissions: []string{"contribute"},
 			},
 			err: nil,
 		},
@@ -981,7 +981,7 @@ func TestListPermissions(t *testing.T) {
 				Subject:           id,
 				ObjectType:        auth.ThingType,
 				Object:            validID,
-				FilterPermissions: []string{"view"},
+				FilterPermissions: []string{"contribute"},
 			},
 			listPermissionsRes: &magistrala.ListPermissionsRes{},
 			err:                svcerr.ErrAuthentication,
@@ -1001,7 +1001,7 @@ func TestListPermissions(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		repoCall := svc.On("ListPermissions", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(auth.Permissions{"view"}, tc.err)
+		repoCall := svc.On("ListPermissions", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(auth.Permissions{"contribute"}, tc.err)
 		apr, err := client.ListPermissions(context.Background(), tc.listPermissionsReq)
 		if apr != nil {
 			assert.Equal(t, tc.listPermissionsRes, apr, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.listPermissionsRes, apr))

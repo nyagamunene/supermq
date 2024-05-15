@@ -571,8 +571,8 @@ func SwitchToPermission(relation string) string {
 		return AdminPermission
 	case EditorRelation:
 		return EditPermission
-	case ViewerRelation:
-		return ViewPermission
+	case ContributorRelation:
+		return ContributePermission
 	case MemberRelation:
 		return MembershipPermission
 	default:
@@ -632,7 +632,7 @@ func (svc service) RetrieveDomain(ctx context.Context, token, id string) (Domain
 		SubjectKind: UsersKind,
 		Object:      id,
 		ObjectType:  DomainType,
-		Permission:  MembershipPermission,
+		Permission:  ContributePermission,
 	}); err != nil {
 		return Domain{ID: domain.ID, Name: domain.Name, Alias: domain.Alias}, nil
 	}
@@ -661,7 +661,7 @@ func (svc service) RetrieveDomainPermissions(ctx context.Context, token, id stri
 		Subject:     res.Subject,
 		Object:      id,
 		ObjectType:  DomainType,
-	}, []string{AdminPermission, EditPermission, ViewPermission, MembershipPermission})
+	}, []string{AdminPermission, EditPermission, ContributePermission, MembershipPermission})
 	if err != nil {
 		return []string{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
@@ -824,7 +824,7 @@ func (svc service) UnassignUsers(ctx context.Context, token, id string, userIds 
 		userIds = ids
 	}
 
-	for _, rel := range []string{MemberRelation, ViewerRelation, EditorRelation} {
+	for _, rel := range []string{MemberRelation, ContributorRelation, EditorRelation} {
 		// Remove only non-admins.
 		if err := svc.removeDomainPolicies(ctx, id, rel, userIds...); err != nil {
 			return err
