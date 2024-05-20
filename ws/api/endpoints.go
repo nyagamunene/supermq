@@ -27,7 +27,7 @@ func handshake(ctx context.Context, svc ws.Service) http.HandlerFunc {
 		}
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			logger.Error(fmt.Sprintf("Failed to upgrade connection to websocket: %s", err.Error()))
+			logger.ErrorContext(ctx, fmt.Sprintf("Failed to upgrade connection to websocket: %s", err.Error()))
 			return
 		}
 		req.conn = conn
