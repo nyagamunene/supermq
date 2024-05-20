@@ -43,6 +43,7 @@ const (
 	envPrefixAuthz = "MG_THINGS_AUTH_GRPC_"
 	defSvcHTTPPort = "80"
 	targetHTTPPort = "81"
+	targetHTTPHost = "http://localhost"
 )
 
 type config struct {
@@ -162,9 +163,10 @@ func newService(pub messaging.Publisher, tc magistrala.AuthzServiceClient, logge
 }
 
 func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sessionHandler session.Handler) error {
-	httpConfig, err := mproxy.NewConfig(env.Options{Prefix: envPrefix})
-	if err != nil {
-		return (err)
+	httpConfig := mproxy.Config{
+		Address:    fmt.Sprintf("%s:%s", "", cfg.Port),
+		Target:     fmt.Sprintf("%s:%s", targetHTTPHost, targetHTTPPort),
+		PathPrefix: "/",
 	}
 	mp, err := mproxyhttp.NewProxy(httpConfig, sessionHandler, logger)
 	if err != nil {
