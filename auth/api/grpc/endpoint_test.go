@@ -470,14 +470,14 @@ func TestDeletePolicy(t *testing.T) {
 	cases := []struct {
 		desc            string
 		token           string
-		deletePolicyReq *magistrala.DeletePolicyFilterReq
-		deletePolicyRes *magistrala.DeletePolicyFilterRes
+		deletePolicyReq *magistrala.DeletePolicyReq
+		deletePolicyRes *magistrala.DeletePolicyRes
 		err             error
 	}{
 		{
 			desc:  "delete valid policy",
 			token: validToken,
-			deletePolicyReq: &magistrala.DeletePolicyFilterReq{
+			deletePolicyReq: &magistrala.DeletePolicyReq{
 				Subject:     id,
 				SubjectType: usersType,
 				Object:      thingID,
@@ -485,13 +485,13 @@ func TestDeletePolicy(t *testing.T) {
 				Relation:    readRelation,
 				Permission:  readRelation,
 			},
-			deletePolicyRes: &magistrala.DeletePolicyFilterRes{Deleted: true},
+			deletePolicyRes: &magistrala.DeletePolicyRes{Deleted: true},
 			err:             nil,
 		},
 		{
 			desc:  "delete invalid policy with invalid token",
 			token: inValidToken,
-			deletePolicyReq: &magistrala.DeletePolicyFilterReq{
+			deletePolicyReq: &magistrala.DeletePolicyReq{
 				Subject:     id,
 				SubjectType: usersType,
 				Object:      thingID,
@@ -499,7 +499,7 @@ func TestDeletePolicy(t *testing.T) {
 				Relation:    readRelation,
 				Permission:  readRelation,
 			},
-			deletePolicyRes: &magistrala.DeletePolicyFilterRes{Deleted: false},
+			deletePolicyRes: &magistrala.DeletePolicyRes{Deleted: false},
 			err:             svcerr.ErrAuthorization,
 		},
 	}
@@ -531,7 +531,7 @@ func TestDeletePolicies(t *testing.T) {
 			desc:  "delete policies with valid token",
 			token: validToken,
 			deletePoliciesReq: &magistrala.DeletePoliciesReq{
-				DeletePoliciesReq: []*magistrala.DeletePolicyFilterReq{
+				DeletePoliciesReq: []*magistrala.DeletePolicyReq{
 					{
 						Subject:     id,
 						SubjectType: usersType,
@@ -549,7 +549,7 @@ func TestDeletePolicies(t *testing.T) {
 			desc:  "delete policies with invalid token",
 			token: inValidToken,
 			deletePoliciesReq: &magistrala.DeletePoliciesReq{
-				DeletePoliciesReq: []*magistrala.DeletePolicyFilterReq{
+				DeletePoliciesReq: []*magistrala.DeletePolicyReq{
 					{
 						Subject:     id,
 						SubjectType: usersType,

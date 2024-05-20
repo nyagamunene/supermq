@@ -154,8 +154,8 @@ func (ms *metricsMiddleware) AddPolicies(ctx context.Context, prs []auth.PolicyR
 
 func (ms *metricsMiddleware) DeletePolicyFilter(ctx context.Context, pr auth.PolicyReq) error {
 	defer func(begin time.Time) {
-		ms.counter.With("method", "delete_policy").Add(1)
-		ms.latency.With("method", "delete_policy").Observe(time.Since(begin).Seconds())
+		ms.counter.With("method", "delete_policy_filter").Add(1)
+		ms.latency.With("method", "delete_policy_filter").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 	return ms.svc.DeletePolicyFilter(ctx, pr)
 }

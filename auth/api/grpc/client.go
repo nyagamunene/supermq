@@ -99,7 +99,7 @@ func NewClient(conn *grpc.ClientConn, timeout time.Duration) magistrala.AuthServ
 			"DeletePolicyFilter",
 			encodeDeletePolicyFilterRequest,
 			decodeDeletePolicyFilterResponse,
-			magistrala.DeletePolicyFilterRes{},
+			magistrala.DeletePolicyRes{},
 		).Endpoint(),
 		deletePolicies: kitgrpc.NewClient(
 			conn,
@@ -379,7 +379,7 @@ func encodeAddPoliciesRequest(_ context.Context, grpcReq interface{}) (interface
 	return &magistrala.AddPoliciesReq{AddPoliciesReq: addPolicies}, nil
 }
 
-func (client grpcClient) DeletePolicyFilter(ctx context.Context, in *magistrala.DeletePolicyFilterReq, opts ...grpc.CallOption) (*magistrala.DeletePolicyFilterRes, error) {
+func (client grpcClient) DeletePolicyFilter(ctx context.Context, in *magistrala.DeletePolicyReq, opts ...grpc.CallOption) (*magistrala.DeletePolicyRes, error) {
 	ctx, cancel := context.WithTimeout(ctx, client.timeout)
 	defer cancel()
 
@@ -395,21 +395,21 @@ func (client grpcClient) DeletePolicyFilter(ctx context.Context, in *magistrala.
 		Object:      in.GetObject(),
 	})
 	if err != nil {
-		return &magistrala.DeletePolicyFilterRes{}, decodeError(err)
+		return &magistrala.DeletePolicyRes{}, decodeError(err)
 	}
 
 	dpr := res.(deletePolicyFilterRes)
-	return &magistrala.DeletePolicyFilterRes{Deleted: dpr.deleted}, nil
+	return &magistrala.DeletePolicyRes{Deleted: dpr.deleted}, nil
 }
 
 func decodeDeletePolicyFilterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
-	res := grpcRes.(*magistrala.DeletePolicyFilterRes)
+	res := grpcRes.(*magistrala.DeletePolicyRes)
 	return deletePolicyFilterRes{deleted: res.GetDeleted()}, nil
 }
 
 func encodeDeletePolicyFilterRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(policyReq)
-	return &magistrala.DeletePolicyFilterReq{
+	return &magistrala.DeletePolicyReq{
 		Domain:      req.Domain,
 		SubjectType: req.SubjectType,
 		SubjectKind: req.SubjectKind,
@@ -459,10 +459,10 @@ func decodeDeletePoliciesResponse(_ context.Context, grpcRes interface{}) (inter
 func encodeDeletePoliciesRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	reqs := grpcReq.(policiesReq)
 
-	deletePolicies := []*magistrala.DeletePolicyFilterReq{}
+	deletePolicies := []*magistrala.DeletePolicyReq{}
 
 	for _, req := range reqs {
-		deletePolicies = append(deletePolicies, &magistrala.DeletePolicyFilterReq{
+		deletePolicies = append(deletePolicies, &magistrala.DeletePolicyReq{
 			Domain:      req.Domain,
 			SubjectType: req.SubjectType,
 			SubjectKind: req.SubjectKind,

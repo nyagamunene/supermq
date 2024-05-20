@@ -166,12 +166,12 @@ func (s *grpcServer) AddPolicies(ctx context.Context, req *magistrala.AddPolicie
 	return res.(*magistrala.AddPoliciesRes), nil
 }
 
-func (s *grpcServer) DeletePolicyFilter(ctx context.Context, req *magistrala.DeletePolicyFilterReq) (*magistrala.DeletePolicyFilterRes, error) {
+func (s *grpcServer) DeletePolicyFilter(ctx context.Context, req *magistrala.DeletePolicyReq) (*magistrala.DeletePolicyRes, error) {
 	_, res, err := s.deletePolicyFilter.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, encodeError(err)
 	}
-	return res.(*magistrala.DeletePolicyFilterRes), nil
+	return res.(*magistrala.DeletePolicyRes), nil
 }
 
 func (s *grpcServer) DeletePolicies(ctx context.Context, req *magistrala.DeletePoliciesReq) (*magistrala.DeletePoliciesRes, error) {
@@ -336,7 +336,7 @@ func encodeAddPoliciesResponse(_ context.Context, grpcRes interface{}) (interfac
 }
 
 func decodeDeletePolicyFilterRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*magistrala.DeletePolicyFilterReq)
+	req := grpcReq.(*magistrala.DeletePolicyReq)
 	return policyReq{
 		Domain:      req.GetDomain(),
 		SubjectType: req.GetSubjectType(),
@@ -352,7 +352,7 @@ func decodeDeletePolicyFilterRequest(_ context.Context, grpcReq interface{}) (in
 
 func encodeDeletePolicyFilterResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(deletePolicyFilterRes)
-	return &magistrala.DeletePolicyFilterRes{Deleted: res.deleted}, nil
+	return &magistrala.DeletePolicyRes{Deleted: res.deleted}, nil
 }
 
 func decodeDeletePoliciesRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {

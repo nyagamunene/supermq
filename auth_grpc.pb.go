@@ -143,7 +143,7 @@ type AuthServiceClient interface {
 	Authorize(ctx context.Context, in *AuthorizeReq, opts ...grpc.CallOption) (*AuthorizeRes, error)
 	AddPolicy(ctx context.Context, in *AddPolicyReq, opts ...grpc.CallOption) (*AddPolicyRes, error)
 	AddPolicies(ctx context.Context, in *AddPoliciesReq, opts ...grpc.CallOption) (*AddPoliciesRes, error)
-	DeletePolicyFilter(ctx context.Context, in *DeletePolicyFilterReq, opts ...grpc.CallOption) (*DeletePolicyFilterRes, error)
+	DeletePolicyFilter(ctx context.Context, in *DeletePolicyReq, opts ...grpc.CallOption) (*DeletePolicyRes, error)
 	DeletePolicies(ctx context.Context, in *DeletePoliciesReq, opts ...grpc.CallOption) (*DeletePoliciesRes, error)
 	ListObjects(ctx context.Context, in *ListObjectsReq, opts ...grpc.CallOption) (*ListObjectsRes, error)
 	ListAllObjects(ctx context.Context, in *ListObjectsReq, opts ...grpc.CallOption) (*ListObjectsRes, error)
@@ -216,8 +216,8 @@ func (c *authServiceClient) AddPolicies(ctx context.Context, in *AddPoliciesReq,
 	return out, nil
 }
 
-func (c *authServiceClient) DeletePolicyFilter(ctx context.Context, in *DeletePolicyFilterReq, opts ...grpc.CallOption) (*DeletePolicyFilterRes, error) {
-	out := new(DeletePolicyFilterRes)
+func (c *authServiceClient) DeletePolicyFilter(ctx context.Context, in *DeletePolicyReq, opts ...grpc.CallOption) (*DeletePolicyRes, error) {
+	out := new(DeletePolicyRes)
 	err := c.cc.Invoke(ctx, AuthService_DeletePolicyFilter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -307,7 +307,7 @@ type AuthServiceServer interface {
 	Authorize(context.Context, *AuthorizeReq) (*AuthorizeRes, error)
 	AddPolicy(context.Context, *AddPolicyReq) (*AddPolicyRes, error)
 	AddPolicies(context.Context, *AddPoliciesReq) (*AddPoliciesRes, error)
-	DeletePolicyFilter(context.Context, *DeletePolicyFilterReq) (*DeletePolicyFilterRes, error)
+	DeletePolicyFilter(context.Context, *DeletePolicyReq) (*DeletePolicyRes, error)
 	DeletePolicies(context.Context, *DeletePoliciesReq) (*DeletePoliciesRes, error)
 	ListObjects(context.Context, *ListObjectsReq) (*ListObjectsRes, error)
 	ListAllObjects(context.Context, *ListObjectsReq) (*ListObjectsRes, error)
@@ -341,7 +341,7 @@ func (UnimplementedAuthServiceServer) AddPolicy(context.Context, *AddPolicyReq) 
 func (UnimplementedAuthServiceServer) AddPolicies(context.Context, *AddPoliciesReq) (*AddPoliciesRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPolicies not implemented")
 }
-func (UnimplementedAuthServiceServer) DeletePolicyFilter(context.Context, *DeletePolicyFilterReq) (*DeletePolicyFilterRes, error) {
+func (UnimplementedAuthServiceServer) DeletePolicyFilter(context.Context, *DeletePolicyReq) (*DeletePolicyRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePolicyFilter not implemented")
 }
 func (UnimplementedAuthServiceServer) DeletePolicies(context.Context, *DeletePoliciesReq) (*DeletePoliciesRes, error) {
@@ -490,7 +490,7 @@ func _AuthService_AddPolicies_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _AuthService_DeletePolicyFilter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeletePolicyFilterReq)
+	in := new(DeletePolicyReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -502,7 +502,7 @@ func _AuthService_DeletePolicyFilter_Handler(srv interface{}, ctx context.Contex
 		FullMethod: AuthService_DeletePolicyFilter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).DeletePolicyFilter(ctx, req.(*DeletePolicyFilterReq))
+		return srv.(AuthServiceServer).DeletePolicyFilter(ctx, req.(*DeletePolicyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

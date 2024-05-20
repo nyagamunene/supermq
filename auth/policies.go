@@ -143,7 +143,7 @@ type Authz interface {
 	// only allowed to use as an admin.
 	AddPolicies(ctx context.Context, prs []PolicyReq) error
 
-	// DeletePolicy removes a policy.
+	// DeletePolicyFilter removes a policy.
 	DeletePolicyFilter(ctx context.Context, pr PolicyReq) error
 
 	// DeletePolicies deletes policies for given subjects. This method is
@@ -191,7 +191,7 @@ type PolicyAgent interface {
 	// AddPolicies creates a Bulk Policies  for the given request
 	AddPolicies(ctx context.Context, prs []PolicyReq) error
 
-	// DeletePolicy removes a policy.
+	// DeletePolicyFilter removes a policy.
 	DeletePolicyFilter(ctx context.Context, pr PolicyReq) error
 
 	// DeletePolicy removes a policy.

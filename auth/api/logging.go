@@ -307,10 +307,10 @@ func (lm *loggingMiddleware) DeletePolicyFilter(ctx context.Context, pr auth.Pol
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Delete policy failed to complete successfully", args...)
+			lm.logger.Warn("Delete policy filter failed to complete successfully", args...)
 			return
 		}
-		lm.logger.Info("Delete policy completed successfully", args...)
+		lm.logger.Info("Delete policy filter completed successfully", args...)
 	}(time.Now())
 	return lm.svc.DeletePolicyFilter(ctx, pr)
 }
