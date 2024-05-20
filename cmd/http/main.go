@@ -6,7 +6,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"log"
 	"log/slog"
@@ -175,19 +174,10 @@ func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sess
 	http.HandleFunc("/", mp.ServeHTTP)
 
 	errCh := make(chan error)
-	switch {
-	case cfg.CertFile != "" || cfg.KeyFile != "":
-		go func() {
-			errCh <- mp.Listen(ctx)
-		}()
-		logger.Info(fmt.Sprintf("%s service https server listening at %s:%s with TLS cert %s and key %s", svcName, cfg.Host, cfg.Port, cfg.CertFile, cfg.KeyFile))
-	default:
-		go func() {
-			errCh <- mp.Listen(ctx)
-		}()
-		logger.Info(fmt.Sprintf("%s service http server listening at %s:%s without TLS", svcName, cfg.Host, cfg.Port))
-	}
-
+	go func() {
+		errCh <- mp.Listen(ctx)
+	}()
+	logger.Info(fmt.Sprintf("%s service https server listening at %s:%s with TLS cert %s and key %s", svcName, cfg.Host, cfg.Port, cfg.CertFile, cfg.KeyFile))
 	select {
 	case <-ctx.Done():
 		logger.Info(fmt.Sprintf("proxy HTTP shutdown at %s", httpConfig.Target))
