@@ -33,7 +33,7 @@ import (
 	mqttpub "github.com/absmach/magistrala/pkg/messaging/mqtt"
 	"github.com/absmach/magistrala/pkg/uuid"
 	"github.com/absmach/mproxy"
-	mp "github.com/absmach/mproxy/pkg/mqtt"
+	mproxymqtt "github.com/absmach/mproxy/pkg/mqtt"
 	"github.com/absmach/mproxy/pkg/mqtt/websocket"
 	"github.com/absmach/mproxy/pkg/session"
 	"github.com/caarlos0/env/v11"
@@ -215,7 +215,7 @@ func proxyMQTT(ctx context.Context, logger *slog.Logger, sessionHandler session.
 		return (err)
 	}
 
-	mqttProxy := mp.New(mqttConfig, sessionHandler, interceptor, logger)
+	mqttProxy := mproxymqtt.New(mqttConfig, sessionHandler, interceptor, logger)
 
 	errCh := make(chan error)
 	go func() {
