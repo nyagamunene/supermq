@@ -62,7 +62,7 @@ func decodeRequest(r *http.Request) (connReq, error) {
 
 	channelParts := channelPartRegExp.FindStringSubmatch(r.RequestURI)
 	if len(channelParts) < 2 {
-		logger.Error("Empty channel id or malformed url")
+		logger.ErrorContext(r.Context(), "Empty channel id or malformed url")
 		return connReq{}, errors.ErrMalformedEntity
 	}
 
