@@ -111,7 +111,6 @@ func (svc service) IssueToken(ctx context.Context, identity, secret, domainID st
 
 	token, err := svc.auth.Issue(ctx, &magistrala.IssueReq{UserId: dbUser.ID, DomainId: &d, Type: uint32(auth.AccessKey)})
 	if err != nil {
-		fmt.Println(err.Error())
 		return &magistrala.Token{}, errors.Wrap(errIssueToken, err)
 	}
 
