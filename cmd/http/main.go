@@ -167,7 +167,7 @@ func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sess
 		return err
 	}
 	if httpConfig.Address == "" {
-		httpConfig.Address = fmt.Sprintf("%s:%s", "", cfg.Port)
+		httpConfig.Address = fmt.Sprintf(":%s", cfg.Port)
 	}
 	if httpConfig.Target == "" {
 		httpConfig.Target = fmt.Sprintf("%s:%s", targetHTTPHost, targetHTTPPort)
@@ -189,7 +189,7 @@ func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sess
 	if httpConfig.TLSConfig != nil {
 		logger.Info(fmt.Sprintf("%s service https server listening at %s:%s with TLS cert %s and key %s", svcName, cfg.Host, cfg.Port, cfg.CertFile, cfg.KeyFile))
 	} else {
-		logger.Info(fmt.Sprintf("%s service http server listening at %s:%s", svcName, cfg.Host, cfg.Port))
+		logger.Info(fmt.Sprintf("%s service http server listening at %s:%s without TLS", svcName, cfg.Host, cfg.Port))
 	}
 	select {
 	case <-ctx.Done():
