@@ -167,13 +167,10 @@ func proxyHTTP(ctx context.Context, cfg server.Config, logger *slog.Logger, sess
 		return err
 	}
 	if httpConfig.Address == "" {
-		httpConfig.Address = fmt.Sprintf(":%s", cfg.Port)
+		httpConfig.Address = fmt.Sprintf("%s:%s", "", cfg.Port)
 	}
 	if httpConfig.Target == "" {
 		httpConfig.Target = fmt.Sprintf("%s:%s", targetHTTPHost, targetHTTPPort)
-	}
-	if httpConfig.PathPrefix == "" {
-		httpConfig.PathPrefix = "/"
 	}
 
 	mp, err := mproxyhttp.NewProxy(httpConfig, sessionHandler, logger)
