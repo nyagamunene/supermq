@@ -25,7 +25,7 @@ The service is configured using the environment variables presented in the follo
 | MG_HTTP_ADAPTER_INSTANCE_ID      | Service instance ID                                                                | ""                                  |
 | MG_HTTP_ADAPTER_ADDRESS          | Mproxy listening Address                                                           | :80                                 |
 | MG_HTTP_ADAPTER_TARGET           | Target server address                                                              | http://localhost:81                 |
-| MG_HTTP_ADAPTER_PREFIX_PATH      | Prefix added to the requests                                                       | /                                   |
+| MG_HTTP_ADAPTER_PATH_PREFIX      | Prefix added to the requests                                                       | /                                   |
 | MG_HTTP_ADAPTER_CERT_FILE        | Server’s certificate file                                                          | ./ssl/certs/magistrala-server.crt   |
 | MG_HTTP_ADAPTER_KEY_FILE         | Server’s key file                                                                  | ./ssl/certs/magistrala-server.key   |
 | MG_HTTP_ADAPTER_SERVER_CA_FILE   | Server’s ca file                                                                   | ./ssl/certs/ca.crt                  |
@@ -67,7 +67,7 @@ MG_JAEGER_TRACE_RATIO=1.0 \
 MG_SEND_TELEMETRY=true \
 MG_HTTP_ADAPTER_INSTANCE_ID="" \
 MG_HTTP_ADAPTER_ADDRESS=:80 \
-MG_HTTP_ADAPTER_PREFIX_PATH=/ \
+MG_HTTP_ADAPTER_PATH_PREFIX=/ \
 MG_HTTP_ADAPTER_TARGET=http://localhost:81 \
 MG_HTTP_ADAPTER_CERT_FILE="" \
 MG_HTTP_ADAPTER_KEY_FILE="" \

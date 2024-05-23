@@ -41,7 +41,7 @@ The service is configured using the environment variables presented in the follo
 | MG_MQTT_ADAPTER_OCSP_RESPONDER_URL           | OCSP address                                                                       | http://localhost:8080/ocsp          |
 | MG_MQTT_ADAPTER_WS_ADDRESS                   | Mproxy listening Address                                                           | :8080                               |
 | MG_MQTT_ADAPTER_WS_TARGET                    | Broker MQTT Websocket target address                                                 | ws://vernemq:8080/mqtt              |
-| MG_MQTT_ADAPTER_WS_PREFIX_PATH               | Prefix added to the requests                                                       | /mqtt                               |
+| MG_MQTT_ADAPTER_WS_PATH_PREFIX               | Prefix added to the requests                                                       | /mqtt                               |
 | MG_MQTT_ADAPTER_WS_CERT_FILE                 | Server certificate file                                                            | ./ssl/certs/magistrala-server.crt   |
 | MG_MQTT_ADAPTER_WS_KEY_FILE                  | Server key file                                                                    | ./ssl/certs/magistrala-server.key   |
 | MG_MQTT_ADAPTER_WS_SERVER_CA_FILE            | Server CA file                                                                     | ./ssl/certs/ca.crt                  |
@@ -96,7 +96,7 @@ MG_MQTT_ADAPTER_ADDRESS=1883 \
 MG_MQTT_ADAPTER_TARGET=localhost:1883 \
 MG_MQTT_ADAPTER_WS_ADDRESS=:8080 \
 MG_MQTT_ADAPTER_WS_TARGET=ws://localhost:8080/mqtt \
-MG_MQTT_ADAPTER_WS_PREFIX_PATH=/mqtt \
+MG_MQTT_ADAPTER_WS_PATH_PREFIX=/mqtt \
 MG_MQTT_ADAPTER_CERT_FILE="" \
 MG_MQTT_ADAPTER_KEY_FILE="" \
 MG_MQTT_ADAPTER_SERVER_CA_FILE="" \
