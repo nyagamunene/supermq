@@ -43,12 +43,12 @@ const (
 	defOffset      = 0
 	defFormat      = "messages"
 
-	tokenKind           = "token"
-	thingType           = "thing"
-	userType            = "user"
-	subscribePermission = "subscribe"
-	viewPermission      = "view"
-	groupType           = "group"
+	tokenKind            = "token"
+	thingType            = "thing"
+	userType             = "user"
+	subscribePermission  = "subscribe"
+	ContributePermission = "contribute"
+	groupType            = "group"
 )
 
 var errUserAccess = errors.New("user has no permission")
@@ -248,7 +248,7 @@ func authorize(ctx context.Context, req listMessagesReq, uauth magistrala.AuthSe
 			SubjectType: userType,
 			SubjectKind: tokenKind,
 			Subject:     req.token,
-			Permission:  viewPermission,
+			Permission:  ContributePermission,
 			ObjectType:  groupType,
 			Object:      req.chanID,
 		}); err != nil {

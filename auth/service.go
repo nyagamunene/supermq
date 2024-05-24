@@ -39,7 +39,7 @@ var (
 		AdminPermission,
 		DeletePermission,
 		EditPermission,
-		ViewPermission,
+		ContributePermission,
 		SharePermission,
 		PublishPermission,
 		SubscribePermission,
@@ -49,7 +49,7 @@ var (
 		AdminPermission,
 		DeletePermission,
 		EditPermission,
-		ViewPermission,
+		ContributePermission,
 		MembershipPermission,
 		SharePermission,
 	}
@@ -57,7 +57,7 @@ var (
 	defDomainsFilterPermissions = []string{
 		AdminPermission,
 		EditPermission,
-		ViewPermission,
+		ContributePermission,
 		MembershipPermission,
 		SharePermission,
 	}
