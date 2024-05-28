@@ -663,7 +663,7 @@ func (svc service) addClientPolicy(ctx context.Context, userID string, role mgcl
 func (svc service) addClientPolicyRollback(ctx context.Context, userID string, role mgclients.Role) error {
 	var policies magistrala.DeletePoliciesReq
 
-	policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+	policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 		SubjectType: auth.UserType,
 		Subject:     userID,
 		Relation:    auth.MemberRelation,
@@ -672,7 +672,7 @@ func (svc service) addClientPolicyRollback(ctx context.Context, userID string, r
 	})
 
 	if role == mgclients.AdminRole {
-		policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+		policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 			SubjectType: auth.UserType,
 			Subject:     userID,
 			Relation:    auth.AdministratorRelation,

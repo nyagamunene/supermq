@@ -453,7 +453,7 @@ func (svc service) assignParentGroup(ctx context.Context, domain, parentGroupID 
 			ObjectType:  auth.GroupType,
 			Object:      group.ID,
 		})
-		deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+		deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 			Domain:      domain,
 			SubjectType: auth.GroupType,
 			Subject:     parentGroupID,
@@ -499,7 +499,7 @@ func (svc service) unassignParentGroup(ctx context.Context, domain, parentGroupI
 			ObjectType:  auth.GroupType,
 			Object:      group.ID,
 		})
-		deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+		deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 			Domain:      domain,
 			SubjectType: auth.GroupType,
 			Subject:     parentGroupID,
@@ -537,7 +537,7 @@ func (svc service) Unassign(ctx context.Context, token, groupID, relation, membe
 	switch memberKind {
 	case auth.ThingsKind:
 		for _, memberID := range memberIDs {
-			policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+			policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 				Domain:      res.GetDomainId(),
 				SubjectType: auth.GroupType,
 				SubjectKind: auth.ChannelsKind,
@@ -549,7 +549,7 @@ func (svc service) Unassign(ctx context.Context, token, groupID, relation, membe
 		}
 	case auth.ChannelsKind:
 		for _, memberID := range memberIDs {
-			policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+			policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 				Domain:      res.GetDomainId(),
 				SubjectType: auth.GroupType,
 				Subject:     memberID,
@@ -562,7 +562,7 @@ func (svc service) Unassign(ctx context.Context, token, groupID, relation, membe
 		return svc.unassignParentGroup(ctx, res.GetDomainId(), groupID, memberIDs)
 	case auth.UsersKind:
 		for _, memberID := range memberIDs {
-			policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+			policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 				Domain:      res.GetDomainId(),
 				SubjectType: auth.UserType,
 				Subject:     auth.EncodeDomainUserID(res.GetDomainId(), memberID),

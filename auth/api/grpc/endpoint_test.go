@@ -459,7 +459,7 @@ func TestAddPolicies(t *testing.T) {
 	}
 }
 
-func TestDeletePolicy(t *testing.T) {
+func TestDeletePolicyFilter(t *testing.T) {
 	conn, err := grpc.NewClient(authAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	assert.Nil(t, err, fmt.Sprintf("Unexpected error creating client connection %s", err))
 	client := grpcapi.NewClient(conn, time.Second)
@@ -531,7 +531,7 @@ func TestDeletePolicies(t *testing.T) {
 			desc:  "delete policies with valid token",
 			token: validToken,
 			deletePoliciesReq: &magistrala.DeletePoliciesReq{
-				DeletePoliciesReq: []*magistrala.DeletePolicyFilterReq{
+				DeletePoliciesReq: []*magistrala.DeletePolicyReq{
 					{
 						Subject:     id,
 						SubjectType: usersType,
@@ -549,7 +549,7 @@ func TestDeletePolicies(t *testing.T) {
 			desc:  "delete policies with invalid token",
 			token: inValidToken,
 			deletePoliciesReq: &magistrala.DeletePoliciesReq{
-				DeletePoliciesReq: []*magistrala.DeletePolicyFilterReq{
+				DeletePoliciesReq: []*magistrala.DeletePolicyReq{
 					{
 						Subject:     id,
 						SubjectType: usersType,

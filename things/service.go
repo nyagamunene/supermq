@@ -411,7 +411,7 @@ func (svc service) Unshare(ctx context.Context, token, id, relation string, user
 
 	policies := magistrala.DeletePoliciesReq{}
 	for _, userid := range userids {
-		policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+		policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 			SubjectType: auth.UserType,
 			Subject:     auth.EncodeDomainUserID(user.GetDomainId(), userid),
 			Relation:    relation,

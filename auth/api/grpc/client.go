@@ -459,10 +459,10 @@ func decodeDeletePoliciesResponse(_ context.Context, grpcRes interface{}) (inter
 func encodeDeletePoliciesRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	reqs := grpcReq.(policiesReq)
 
-	deletePolicies := []*magistrala.DeletePolicyFilterReq{}
+	deletePolicies := []*magistrala.DeletePolicyReq{}
 
 	for _, req := range reqs {
-		deletePolicies = append(deletePolicies, &magistrala.DeletePolicyFilterReq{
+		deletePolicies = append(deletePolicies, &magistrala.DeletePolicyReq{
 			Domain:      req.Domain,
 			SubjectType: req.SubjectType,
 			SubjectKind: req.SubjectKind,

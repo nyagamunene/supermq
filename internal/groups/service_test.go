@@ -2004,7 +2004,7 @@ func TestAssign(t *testing.T) {
 						ObjectType:  auth.GroupType,
 						Object:      group.ID,
 					})
-					deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+					deletePolicies.DeletePoliciesReq = append(deletePolicies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						Subject:     tc.groupID,
@@ -2391,7 +2391,7 @@ func TestUnassign(t *testing.T) {
 			switch tc.memberKind {
 			case auth.ThingsKind:
 				for _, memberID := range tc.memberIDs {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						SubjectKind: auth.ChannelsKind,
@@ -2405,7 +2405,7 @@ func TestUnassign(t *testing.T) {
 				retrieveByIDsCall = repo.On("RetrieveByIDs", context.Background(), mggroups.Page{PageMeta: mggroups.PageMeta{Limit: 1<<63 - 1}}, mock.Anything).Return(tc.repoResp, tc.repoErr)
 				var addPolicies magistrala.AddPoliciesReq
 				for _, group := range tc.repoResp.Groups {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						Subject:     tc.groupID,
@@ -2426,7 +2426,7 @@ func TestUnassign(t *testing.T) {
 				assignParentCall = repo.On("UnassignParentGroup", context.Background(), tc.groupID, tc.memberIDs).Return(tc.repoParentGroupErr)
 			case auth.ChannelsKind:
 				for _, memberID := range tc.memberIDs {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.GroupType,
 						Subject:     memberID,
@@ -2437,7 +2437,7 @@ func TestUnassign(t *testing.T) {
 				}
 			case auth.UsersKind:
 				for _, memberID := range tc.memberIDs {
-					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyFilterReq{
+					policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{
 						Domain:      tc.idResp.GetDomainId(),
 						SubjectType: auth.UserType,
 						Subject:     auth.EncodeDomainUserID(tc.idResp.GetDomainId(), memberID),
