@@ -1676,7 +1676,7 @@ func TestSwitchToPermission(t *testing.T) {
 			result:   auth.EditPermission,
 		},
 		{
-			desc:     "switch to viewer permission",
+			desc:     "switch to contributor permission",
 			relation: auth.ContributorRelation,
 			result:   auth.ContributePermission,
 		},
