@@ -44,7 +44,7 @@ const (
 	VisibilityKey    = "visibility"
 	SharedByKey      = "shared_by"
 	TokenKey         = "token"
-	DefPermission    = "view"
+	DefPermission    = "contribute"
 	DefTotal         = uint64(100)
 	DefOffset        = 0
 	DefOrder         = "updated_at"
