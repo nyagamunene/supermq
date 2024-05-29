@@ -47,7 +47,7 @@ definition group {
 	// These permission are made for only list purpose. They enable listing users who have only particular permission from parent group excluding higher-level permissions.
 	permission ext_admin = admin - administrator  // For list of external admin , not having direct relation with group, but have indirect relation from parent group
 	permission ext_edit = edit - editor  // For list of external edit , not having direct relation with group, but have indirect relation from parent group
-	permission ext_view = contribute - contributor  // For list of external view , not having direct relation with group, but have indirect relation from parent group
+	permission ext_contribute = contribute - contributor  // For list of external contribute , not having direct relation with group, but have indirect relation from parent group
 }
 
 definition domain {

@@ -16,8 +16,8 @@ const (
 	groupCreate          = groupPrefix + "create"
 	groupUpdate          = groupPrefix + "update"
 	groupChangeStatus    = groupPrefix + "change_status"
-	groupView            = groupPrefix + "view"
-	groupViewPerms       = groupPrefix + "view_perms"
+	groupContribute      = groupPrefix + "contribute"
+	groupContributePerms = groupPrefix + "contribute_perms"
 	groupList            = groupPrefix + "list"
 	groupListMemberships = groupPrefix + "list_by_user"
 	groupRemove          = groupPrefix + "remove"
@@ -174,7 +174,7 @@ type viewGroupEvent struct {
 
 func (vge viewGroupEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation": groupView,
+		"operation": groupContribute,
 		"id":        vge.ID,
 	}
 
@@ -220,7 +220,7 @@ type viewGroupPermsEvent struct {
 
 func (vgpe viewGroupPermsEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation":   groupViewPerms,
+		"operation":   groupContributePerms,
 		"permissions": vgpe.permissions,
 	}
 	return val, nil
