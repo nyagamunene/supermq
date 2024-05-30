@@ -43,12 +43,12 @@ const (
 	defOffset      = 0
 	defFormat      = "messages"
 
-	tokenKind            = "token"
-	thingType            = "thing"
-	userType             = "user"
-	subscribePermission  = "subscribe"
-	viewPermission = "view"
-	groupType            = "group"
+	tokenKind           = "token"
+	thingType           = "thing"
+	userType            = "user"
+	subscribePermission = "subscribe"
+	viewPermission      = "view"
+	groupType           = "group"
 )
 
 var errUserAccess = errors.New("user has no permission")
