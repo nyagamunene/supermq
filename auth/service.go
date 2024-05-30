@@ -39,7 +39,7 @@ var (
 		AdminPermission,
 		DeletePermission,
 		EditPermission,
-		ContributePermission,
+		ViewPermission,
 		SharePermission,
 		PublishPermission,
 		SubscribePermission,
@@ -49,7 +49,7 @@ var (
 		AdminPermission,
 		DeletePermission,
 		EditPermission,
-		ContributePermission,
+		ViewPermission,
 		MembershipPermission,
 		SharePermission,
 	}
@@ -57,7 +57,7 @@ var (
 	defDomainsFilterPermissions = []string{
 		AdminPermission,
 		EditPermission,
-		ContributePermission,
+		ViewPermission,
 		MembershipPermission,
 		SharePermission,
 	}
@@ -572,7 +572,7 @@ func SwitchToPermission(relation string) string {
 	case EditorRelation:
 		return EditPermission
 	case ContributorRelation:
-		return ContributePermission
+		return ViewPermission
 	case MemberRelation:
 		return MembershipPermission
 	default:
@@ -632,7 +632,7 @@ func (svc service) RetrieveDomain(ctx context.Context, token, id string) (Domain
 		SubjectKind: UsersKind,
 		Object:      id,
 		ObjectType:  DomainType,
-		Permission:  ContributePermission,
+		Permission:  ViewPermission,
 	}); err != nil {
 		return Domain{ID: domain.ID, Name: domain.Name, Alias: domain.Alias}, nil
 	}
@@ -661,7 +661,7 @@ func (svc service) RetrieveDomainPermissions(ctx context.Context, token, id stri
 		Subject:     res.Subject,
 		Object:      id,
 		ObjectType:  DomainType,
-	}, []string{AdminPermission, EditPermission, ContributePermission, MembershipPermission})
+	}, []string{AdminPermission, EditPermission, ViewPermission, MembershipPermission})
 	if err != nil {
 		return []string{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}

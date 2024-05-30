@@ -280,7 +280,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "contribute", "share", "owner", "admin", "editor", "contributor"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  channels, _ := sdk.ListUserChannels("user_id_1", pm, "token")
 	//  fmt.Println(channels)
@@ -292,7 +292,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "contribute", "share", "owner", "admin", "editor", "contributor"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  groups, _ := sdk.ListUserGroups("user_id_1", pm, "token")
 	//  fmt.Println(channels)
@@ -304,7 +304,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "contribute", "share", "owner", "admin", "editor", "contributor"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  things, _ := sdk.ListUserThings("user_id_1", pm, "token")
 	//  fmt.Println(things)
@@ -463,7 +463,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "contribute", "share", "owner", "admin", "editor", "contributor"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  users, _ := sdk.ListThingUsers("thing_id", pm, "token")
 	//  fmt.Println(users)
@@ -595,7 +595,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "contribute", "share", "owner", "admin", "editor", "contributor"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  groups, _ := sdk.ListGroupUsers("groupID", pm, "token")
 	//  fmt.Println(groups)
@@ -607,7 +607,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "contribute", "share", "owner", "admin", "editor", "contributor"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  groups, _ := sdk.ListGroupChannels("groupID", pm, "token")
 	//  fmt.Println(groups)
@@ -727,7 +727,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit",  // available Options:  "administrator", "delete", edit", "contribute", "share", "owner", "admin", "editor", "contributor"
+	//		Permission: "edit",  // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  users, _ := sdk.ListChannelUsers("channel_id", pm, "token")
 	//  fmt.Println(users)
@@ -759,7 +759,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "contribute",
+	//		Permission: "view",
 	//	}
 	//  groups, _ := sdk.ListChannelUserGroups("channel_id_1", pm, "token")
 	//  fmt.Println(groups)
@@ -1048,7 +1048,7 @@ type SDK interface {
 	//    Offset: 0,
 	//    Limit:  10,
 	//    Name:   "My Domain",
-	//    Permission : "contribute"
+	//    Permission : "view"
 	//  }
 	//  domains, _ := sdk.Domains(pm, "token")
 	//  fmt.Println(domains)
@@ -1060,7 +1060,7 @@ type SDK interface {
 	//  pm := sdk.PageMetadata{
 	//    Offset: 0,
 	//    Limit:  10,
-	//    Permission : "contribute"
+	//    Permission : "view"
 	//  }
 	//  users, _ := sdk.ListDomainUsers("domainID", pm, "token")
 	//  fmt.Println(users)
@@ -1072,7 +1072,7 @@ type SDK interface {
 	//  pm := sdk.PageMetadata{
 	//    Offset: 0,
 	//    Limit:  10,
-	//    Permission : "contribute"
+	//    Permission : "view"
 	//  }
 	//  domains, _ := sdk.ListUserDomains("userID", pm, "token")
 	//  fmt.Println(domains)

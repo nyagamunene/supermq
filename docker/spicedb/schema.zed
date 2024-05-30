@@ -8,7 +8,7 @@ definition thing {
 	permission admin = administrator + group->admin + domain->admin
 	permission delete = admin
 	permission edit = admin + group->edit + domain->edit
-	permission contribute = edit + group->contribute  + domain->contribute
+	permission view = edit + group->view  + domain->view
 	permission share = edit
 	permission publish = group
 	permission subscribe = group
@@ -16,7 +16,7 @@ definition thing {
 	// These permission are made for only list purpose. It helps to list users have only particular permission excluding other higher and lower permission.
 	permission admin_only = admin
 	permission edit_only = edit - admin
-	permission contributor_only = contribute - edit
+	permission contributor_only = view - edit
 
 	// These permission are made for only list purpose. It helps to list users from external, users who are not in group but have permission on the group through parent group
 	permission ext_admin = admin - administrator // For list of external admin , not having direct relation with group, but have indirect relation from parent group
@@ -35,19 +35,19 @@ definition group {
 	permission delete = admin
 	permission edit = admin + editor + parent_group->edit  + domain->edit
 	permission share = edit
-	permission contribute = contributor + edit + parent_group->contribute + domain->contribute
-	permission membership = contribute + member
+	permission view = contributor + edit + parent_group->view + domain->view
+	permission membership = view + member
 
 	// These permissions are made for listing purposes. They enable listing users who have only particular permission excluding higher-level permissions users.
 	permission admin_only = admin
 	permission edit_only = edit - admin
-	permission contributor_only = contribute - edit
-	permission membership_only = membership - contribute
+	permission contributor_only = view - edit
+	permission membership_only = membership - view
 
 	// These permission are made for only list purpose. They enable listing users who have only particular permission from parent group excluding higher-level permissions.
 	permission ext_admin = admin - administrator  // For list of external admin , not having direct relation with group, but have indirect relation from parent group
 	permission ext_edit = edit - editor  // For list of external edit , not having direct relation with group, but have indirect relation from parent group
-	permission ext_contribute = contribute - contributor  // For list of external contribute , not having direct relation with group, but have indirect relation from parent group
+	permission ext_view = view - contributor  // For list of external view , not having direct relation with group, but have indirect relation from parent group
 }
 
 definition domain {
@@ -61,8 +61,8 @@ definition domain {
 	permission admin = administrator + platform->admin
 	permission edit =  admin + editor
 	permission share = edit
-	permission contribute = edit + contributor
-	permission membership = contribute + member
+	permission view = edit + contributor
+	permission membership = view + member
 }
 
 definition platform {

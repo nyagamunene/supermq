@@ -402,7 +402,7 @@ func TestListDomains(t *testing.T) {
 				Total:   1,
 				Domains: []auth.Domain{domain},
 			},
-			query:  "permission=contribute",
+			query:  "permission=view",
 			status: http.StatusOK,
 			err:    nil,
 		},
@@ -416,7 +416,7 @@ func TestListDomains(t *testing.T) {
 		{
 			desc:   "list domains  with duplicate permissions",
 			token:  validToken,
-			query:  "permission=contribute&permission=contribute",
+			query:  "permission=view&permission=view",
 			status: http.StatusBadRequest,
 			err:    apiutil.ErrInvalidQueryParams,
 		},

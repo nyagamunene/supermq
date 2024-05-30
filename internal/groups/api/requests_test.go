@@ -475,7 +475,7 @@ func TestListMembersReqValidation(t *testing.T) {
 			req: listMembersReq{
 				token:      valid,
 				groupID:    valid,
-				permission: auth.ContributePermission,
+				permission: auth.ViewPermission,
 				memberKind: auth.ThingsKind,
 			},
 			err: nil,
@@ -484,7 +484,7 @@ func TestListMembersReqValidation(t *testing.T) {
 			desc: "empty token",
 			req: listMembersReq{
 				groupID:    valid,
-				permission: auth.ContributePermission,
+				permission: auth.ViewPermission,
 				memberKind: auth.ThingsKind,
 			},
 			err: apiutil.ErrBearerToken,
@@ -494,7 +494,7 @@ func TestListMembersReqValidation(t *testing.T) {
 			req: listMembersReq{
 				token:      valid,
 				groupID:    valid,
-				permission: auth.ContributePermission,
+				permission: auth.ViewPermission,
 			},
 			err: apiutil.ErrMissingMemberKind,
 		},
@@ -502,7 +502,7 @@ func TestListMembersReqValidation(t *testing.T) {
 			desc: "empty groupID",
 			req: listMembersReq{
 				token:      valid,
-				permission: auth.ContributePermission,
+				permission: auth.ViewPermission,
 				memberKind: auth.ThingsKind,
 			},
 			err: apiutil.ErrMissingID,

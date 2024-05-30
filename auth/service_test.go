@@ -1517,7 +1517,7 @@ func TestCountObjects(t *testing.T) {
 	pageLen := uint64(15)
 
 	repocall2 := prepo.On("RetrieveAllObjectsCount", mock.Anything, mock.Anything, mock.Anything).Return(pageLen, nil)
-	count, err := svc.CountObjects(context.Background(), auth.PolicyReq{Subject: id, SubjectType: auth.UserType, ObjectType: auth.ThingType, Permission: auth.ContributePermission})
+	count, err := svc.CountObjects(context.Background(), auth.PolicyReq{Subject: id, SubjectType: auth.UserType, ObjectType: auth.ThingType, Permission: auth.ViewPermission})
 	assert.Nil(t, err, fmt.Sprintf("counting policies expected to succeed: %s", err))
 	assert.Equal(t, pageLen, count, fmt.Sprintf("unexpected listing page size, expected %d, got %d: %v", pageLen, count, err))
 	repocall2.Unset()
@@ -1634,7 +1634,7 @@ func TestCountSubjects(t *testing.T) {
 	pageLen := uint64(15)
 
 	repocall2 := prepo.On("RetrieveAllSubjectsCount", mock.Anything, mock.Anything, mock.Anything).Return(pageLen, nil)
-	count, err := svc.CountSubjects(context.Background(), auth.PolicyReq{Object: id, ObjectType: auth.ThingType, Permission: auth.ContributePermission})
+	count, err := svc.CountSubjects(context.Background(), auth.PolicyReq{Object: id, ObjectType: auth.ThingType, Permission: auth.ViewPermission})
 	assert.Nil(t, err, fmt.Sprintf("counting policies expected to succeed: %s", err))
 	assert.Equal(t, pageLen, count, fmt.Sprintf("unexpected listing page size, expected %d, got %d: %v", pageLen, count, err))
 	repocall2.Unset()
@@ -1651,7 +1651,7 @@ func TestListPermissions(t *testing.T) {
 		ObjectKind:  auth.ThingsKind,
 		Object:      "",
 	}
-	filterPermisions := []string{auth.ContributePermission, auth.AdminPermission}
+	filterPermisions := []string{auth.ViewPermission, auth.AdminPermission}
 
 	repoCall1 := prepo.On("RetrievePermissions", mock.Anything, pr, filterPermisions).Return(auth.Permissions{}, nil)
 	_, err := svc.ListPermissions(context.Background(), pr, filterPermisions)
@@ -1678,7 +1678,7 @@ func TestSwitchToPermission(t *testing.T) {
 		{
 			desc:     "switch to contributor permission",
 			relation: auth.ContributorRelation,
-			result:   auth.ContributePermission,
+			result:   auth.ViewPermission,
 		},
 		{
 			desc:     "switch to member permission",
@@ -2207,7 +2207,7 @@ func TestAssignUsers(t *testing.T) {
 				SubjectKind: auth.TokenKind,
 				Object:      validID,
 				ObjectType:  auth.DomainType,
-				Permission:  auth.ContributePermission,
+				Permission:  auth.ViewPermission,
 			},
 			checkDomainPolicyReq: auth.PolicyReq{
 				Subject:     validID,
@@ -2248,7 +2248,7 @@ func TestAssignUsers(t *testing.T) {
 				SubjectKind: auth.TokenKind,
 				Object:      validID,
 				ObjectType:  auth.DomainType,
-				Permission:  auth.ContributePermission,
+				Permission:  auth.ViewPermission,
 			},
 			checkDomainPolicyReq: auth.PolicyReq{
 				Subject:     validID,
@@ -2280,7 +2280,7 @@ func TestAssignUsers(t *testing.T) {
 				SubjectKind: auth.TokenKind,
 				Object:      inValid,
 				ObjectType:  auth.DomainType,
-				Permission:  auth.ContributePermission,
+				Permission:  auth.ViewPermission,
 			},
 			checkPolicyReq33: auth.PolicyReq{
 				Subject:     id,
@@ -2314,7 +2314,7 @@ func TestAssignUsers(t *testing.T) {
 				SubjectKind: auth.TokenKind,
 				Object:      validID,
 				ObjectType:  auth.DomainType,
-				Permission:  auth.ContributePermission,
+				Permission:  auth.ViewPermission,
 			},
 			checkDomainPolicyReq: auth.PolicyReq{
 				Subject:     inValid,
@@ -2355,7 +2355,7 @@ func TestAssignUsers(t *testing.T) {
 				SubjectKind: auth.TokenKind,
 				Object:      validID,
 				ObjectType:  auth.DomainType,
-				Permission:  auth.ContributePermission,
+				Permission:  auth.ViewPermission,
 			},
 			checkDomainPolicyReq: auth.PolicyReq{
 				Subject:     validID,
@@ -2396,7 +2396,7 @@ func TestAssignUsers(t *testing.T) {
 				SubjectKind: auth.TokenKind,
 				Object:      validID,
 				ObjectType:  auth.DomainType,
-				Permission:  auth.ContributePermission,
+				Permission:  auth.ViewPermission,
 			},
 			checkDomainPolicyReq: auth.PolicyReq{
 				Subject:     validID,
@@ -2437,7 +2437,7 @@ func TestAssignUsers(t *testing.T) {
 				SubjectKind: auth.TokenKind,
 				Object:      validID,
 				ObjectType:  auth.DomainType,
-				Permission:  auth.ContributePermission,
+				Permission:  auth.ViewPermission,
 			},
 			checkDomainPolicyReq: auth.PolicyReq{
 				Subject:     validID,
