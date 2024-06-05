@@ -632,7 +632,7 @@ func (svc service) RetrieveDomain(ctx context.Context, token, id string) (Domain
 		SubjectKind: UsersKind,
 		Object:      id,
 		ObjectType:  DomainType,
-		Permission:  ViewPermission,
+		Permission:  MembershipPermission,
 	}); err != nil {
 		return Domain{ID: domain.ID, Name: domain.Name, Alias: domain.Alias}, nil
 	}

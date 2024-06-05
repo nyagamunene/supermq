@@ -280,7 +280,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "delete", edit", "view", "share", "admin"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  channels, _ := sdk.ListUserChannels("user_id_1", pm, "token")
 	//  fmt.Println(channels)
@@ -292,7 +292,7 @@ type SDK interface {
 	//	pm := sdk.PageMetadata{
 	//		Offset: 0,
 	//		Limit:  10,
-	//		Permission: "edit", // available Options:  "delete", edit", "view", "share", "admin"
+	//		Permission: "edit", // available Options:  "administrator", "delete", edit", "view", "share", "owner", "admin", "editor", "contributor"
 	//	}
 	//  groups, _ := sdk.ListUserGroups("user_id_1", pm, "token")
 	//  fmt.Println(channels)
@@ -1009,7 +1009,7 @@ type SDK interface {
 	//      "key": "value",
 	//    },
 	//  }
-	//  domain, _ := sdk.CreateDomain(group, "token")
+	//  domain, _ := sdk.CreateDomain(domain, "token")
 	//  fmt.Println(domain)
 	CreateDomain(d Domain, token string) (Domain, errors.SDKError)
 
@@ -1048,7 +1048,7 @@ type SDK interface {
 	//    Offset: 0,
 	//    Limit:  10,
 	//    Name:   "My Domain",
-	//    Permission : "view"
+	//    Permission : "view",
 	//  }
 	//  domains, _ := sdk.Domains(pm, "token")
 	//  fmt.Println(domains)
@@ -1096,7 +1096,7 @@ type SDK interface {
 	//
 	// example:
 	// req := sdk.UsersRelationRequest{
-	//		Relation: "contributor", // available options: "owner", "administrator", "editor", "contributor",  "member"
+	//		Relation: "	ontributor", // available options: "owner", "administrator", "editor", "contributor",  "member"
 	//  	UserIDs: ["user_id_1", "user_id_2", "user_id_3"]
 	// }
 	// err := sdk.AddUserToDomain("domainID", req, "token")
