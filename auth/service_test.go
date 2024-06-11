@@ -1566,13 +1566,13 @@ func TestListSubjects(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		repocall2 := prepo.On("RetrieveSubjects", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(expectedPolicies, mock.Anything, tc.err)
+		repocall := prepo.On("RetrieveSubjects", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(expectedPolicies, mock.Anything, tc.err)
 		page, err := svc.ListSubjects(context.Background(), tc.pr, tc.nextPageToken, tc.limit)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("listing policies expected to succeed: %s", err))
 		if err == nil {
 			assert.Equal(t, pageLen, len(page.Policies), fmt.Sprintf("unexpected listing page size, expected %d, got %d: %v", pageLen, len(page.Policies), err))
 		}
-		repocall2.Unset()
+		repocall.Unset()
 	}
 }
 
@@ -1619,13 +1619,13 @@ func TestListAllSubjects(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		repocall2 := prepo.On("RetrieveAllSubjects", context.Background(), mock.Anything).Return(expectedPolicies, tc.err)
+		repocall := prepo.On("RetrieveAllSubjects", context.Background(), mock.Anything).Return(expectedPolicies, tc.err)
 		page, err := svc.ListAllSubjects(context.Background(), tc.pr)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("listing policies expected to succeed: %s", err))
 		if err == nil {
 			assert.Equal(t, pageLen, len(page.Policies), fmt.Sprintf("unexpected listing page size, expected %d, got %d: %v", pageLen, len(page.Policies), err))
 		}
-		repocall2.Unset()
+		repocall.Unset()
 	}
 }
 
@@ -1633,11 +1633,11 @@ func TestCountSubjects(t *testing.T) {
 	svc, _ := newService()
 	pageLen := uint64(15)
 
-	repocall2 := prepo.On("RetrieveAllSubjectsCount", mock.Anything, mock.Anything, mock.Anything).Return(pageLen, nil)
+	repocall := prepo.On("RetrieveAllSubjectsCount", mock.Anything, mock.Anything, mock.Anything).Return(pageLen, nil)
 	count, err := svc.CountSubjects(context.Background(), auth.PolicyReq{Object: id, ObjectType: auth.ThingType, Permission: auth.ViewPermission})
 	assert.Nil(t, err, fmt.Sprintf("counting policies expected to succeed: %s", err))
 	assert.Equal(t, pageLen, count, fmt.Sprintf("unexpected listing page size, expected %d, got %d: %v", pageLen, count, err))
-	repocall2.Unset()
+	repocall.Unset()
 }
 
 func TestListPermissions(t *testing.T) {
@@ -1653,10 +1653,10 @@ func TestListPermissions(t *testing.T) {
 	}
 	filterPermisions := []string{auth.ViewPermission, auth.AdminPermission}
 
-	repoCall1 := prepo.On("RetrievePermissions", context.Background(), pr, filterPermisions).Return(auth.Permissions{}, nil)
+	repoCall := prepo.On("RetrievePermissions", context.Background(), pr, filterPermisions).Return(auth.Permissions{}, nil)
 	_, err := svc.ListPermissions(context.Background(), pr, filterPermisions)
 	assert.Nil(t, err, fmt.Sprintf("listing policies expected to succeed: %s", err))
-	repoCall1.Unset()
+	repoCall.Unset()
 }
 
 func TestSwitchToPermission(t *testing.T) {
