@@ -5,6 +5,7 @@ package errors
 
 import (
 	"encoding/json"
+	"errors"
 )
 
 // Error specifies an API that must be fullfiled by error type.
@@ -80,9 +81,9 @@ func Contains(e1, e2 error) bool {
 		if ce.Msg() == e2.Error() {
 			return true
 		}
-		return Contains(ce.Err(), e2)
+		return errors.Is(ce.Err(), e2)
 	}
-	return e1.Error() == e2.Error()
+	return errors.Is(e1, e2)
 }
 
 // Wrap returns an Error that wrap err with wrapper.
