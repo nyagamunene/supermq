@@ -597,7 +597,7 @@ func (svc *service) authorize(ctx context.Context, domainID, subjType, subjKind,
 	return res.GetId(), nil
 }
 
-func (svc service) addThingPolicies(ctx context.Context, userID, domainID string, things []mgclients.Client) error {
+func (svc service) addThingPolicies(ctx context.Context, userID, domainID string, things []mgclients.Client) errors.Error {
 	policies := magistrala.AddPoliciesReq{}
 	for _, thing := range things {
 		policies.AddPoliciesReq = append(policies.AddPoliciesReq, &magistrala.AddPolicyReq{
@@ -626,7 +626,7 @@ func (svc service) addThingPolicies(ctx context.Context, userID, domainID string
 	return nil
 }
 
-func (svc service) addThingPoliciesRollback(ctx context.Context, userID, domainID string, things []mgclients.Client) error {
+func (svc service) addThingPoliciesRollback(ctx context.Context, userID, domainID string, things []mgclients.Client) errors.Error {
 	policies := magistrala.DeletePoliciesReq{}
 	for _, thing := range things {
 		policies.DeletePoliciesReq = append(policies.DeletePoliciesReq, &magistrala.DeletePolicyReq{

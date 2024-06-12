@@ -67,3 +67,17 @@ func (sae *StatusAlreadyAssignedError) Error() string {
 var ErrStatusAlreadyAssigned = &StatusAlreadyAssignedError{
 	Err: New("status already assigned"),
 }
+
+// ErrRollbackTx indicates failed to rollback transaction.
+
+type RollbackTxError struct {
+	Err Error
+}
+
+func (rte *RollbackTxError) Error() string {
+	return rte.Err.Error()
+}
+
+var ErrRollbackTx = &RollbackTxError{
+	Err: New("failed to rollback transaction"),
+}
