@@ -81,10 +81,11 @@ func Contains(e1, e2 error) bool {
 		if ce.Msg() == e2.Error() {
 			return true
 		}
-		return errors.Is(ce.Err(), e2)
+		return Contains(ce.Err(), e2)
 	}
-	return errors.Is(e1, e2)
+	return e1.Error() == e2.Error()
 }
+
 
 // Wrap returns an Error that wrap err with wrapper.
 func Wrap(wrapper, err error) Error {
