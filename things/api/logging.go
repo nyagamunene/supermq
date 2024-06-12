@@ -11,6 +11,7 @@ import (
 
 	"github.com/absmach/magistrala"
 	mgclients "github.com/absmach/magistrala/pkg/clients"
+	"github.com/absmach/magistrala/pkg/errors"
 	"github.com/absmach/magistrala/things"
 )
 
@@ -25,7 +26,7 @@ func LoggingMiddleware(svc things.Service, logger *slog.Logger) things.Service {
 	return &loggingMiddleware{logger, svc}
 }
 
-func (lm *loggingMiddleware) CreateThings(ctx context.Context, token string, clients ...mgclients.Client) (cs []mgclients.Client, err error) {
+func (lm *loggingMiddleware) CreateThings(ctx context.Context, token string, clients ...mgclients.Client) (cs []mgclients.Client, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -40,7 +41,7 @@ func (lm *loggingMiddleware) CreateThings(ctx context.Context, token string, cli
 	return lm.svc.CreateThings(ctx, token, clients...)
 }
 
-func (lm *loggingMiddleware) ViewClient(ctx context.Context, token, id string) (c mgclients.Client, err error) {
+func (lm *loggingMiddleware) ViewClient(ctx context.Context, token, id string) (c mgclients.Client, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -59,7 +60,7 @@ func (lm *loggingMiddleware) ViewClient(ctx context.Context, token, id string) (
 	return lm.svc.ViewClient(ctx, token, id)
 }
 
-func (lm *loggingMiddleware) ViewClientPerms(ctx context.Context, token, id string) (p []string, err error) {
+func (lm *loggingMiddleware) ViewClientPerms(ctx context.Context, token, id string) (p []string, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -75,7 +76,7 @@ func (lm *loggingMiddleware) ViewClientPerms(ctx context.Context, token, id stri
 	return lm.svc.ViewClientPerms(ctx, token, id)
 }
 
-func (lm *loggingMiddleware) ListClients(ctx context.Context, token, reqUserID string, pm mgclients.Page) (cp mgclients.ClientsPage, err error) {
+func (lm *loggingMiddleware) ListClients(ctx context.Context, token, reqUserID string, pm mgclients.Page) (cp mgclients.ClientsPage, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -96,7 +97,7 @@ func (lm *loggingMiddleware) ListClients(ctx context.Context, token, reqUserID s
 	return lm.svc.ListClients(ctx, token, reqUserID, pm)
 }
 
-func (lm *loggingMiddleware) UpdateClient(ctx context.Context, token string, client mgclients.Client) (c mgclients.Client, err error) {
+func (lm *loggingMiddleware) UpdateClient(ctx context.Context, token string, client mgclients.Client) (c mgclients.Client, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -116,7 +117,7 @@ func (lm *loggingMiddleware) UpdateClient(ctx context.Context, token string, cli
 	return lm.svc.UpdateClient(ctx, token, client)
 }
 
-func (lm *loggingMiddleware) UpdateClientTags(ctx context.Context, token string, client mgclients.Client) (c mgclients.Client, err error) {
+func (lm *loggingMiddleware) UpdateClientTags(ctx context.Context, token string, client mgclients.Client) (c mgclients.Client, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -136,7 +137,7 @@ func (lm *loggingMiddleware) UpdateClientTags(ctx context.Context, token string,
 	return lm.svc.UpdateClientTags(ctx, token, client)
 }
 
-func (lm *loggingMiddleware) UpdateClientSecret(ctx context.Context, token, oldSecret, newSecret string) (c mgclients.Client, err error) {
+func (lm *loggingMiddleware) UpdateClientSecret(ctx context.Context, token, oldSecret, newSecret string) (c mgclients.Client, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -155,7 +156,7 @@ func (lm *loggingMiddleware) UpdateClientSecret(ctx context.Context, token, oldS
 	return lm.svc.UpdateClientSecret(ctx, token, oldSecret, newSecret)
 }
 
-func (lm *loggingMiddleware) EnableClient(ctx context.Context, token, id string) (c mgclients.Client, err error) {
+func (lm *loggingMiddleware) EnableClient(ctx context.Context, token, id string) (c mgclients.Client, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -174,7 +175,7 @@ func (lm *loggingMiddleware) EnableClient(ctx context.Context, token, id string)
 	return lm.svc.EnableClient(ctx, token, id)
 }
 
-func (lm *loggingMiddleware) DisableClient(ctx context.Context, token, id string) (c mgclients.Client, err error) {
+func (lm *loggingMiddleware) DisableClient(ctx context.Context, token, id string) (c mgclients.Client, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -193,7 +194,7 @@ func (lm *loggingMiddleware) DisableClient(ctx context.Context, token, id string
 	return lm.svc.DisableClient(ctx, token, id)
 }
 
-func (lm *loggingMiddleware) ListClientsByGroup(ctx context.Context, token, channelID string, cp mgclients.Page) (mp mgclients.MembersPage, err error) {
+func (lm *loggingMiddleware) ListClientsByGroup(ctx context.Context, token, channelID string, cp mgclients.Page) (mp mgclients.MembersPage, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -214,7 +215,7 @@ func (lm *loggingMiddleware) ListClientsByGroup(ctx context.Context, token, chan
 	return lm.svc.ListClientsByGroup(ctx, token, channelID, cp)
 }
 
-func (lm *loggingMiddleware) Identify(ctx context.Context, key string) (id string, err error) {
+func (lm *loggingMiddleware) Identify(ctx context.Context, key string) (id string, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -230,7 +231,7 @@ func (lm *loggingMiddleware) Identify(ctx context.Context, key string) (id strin
 	return lm.svc.Identify(ctx, key)
 }
 
-func (lm *loggingMiddleware) Authorize(ctx context.Context, req *magistrala.AuthorizeReq) (id string, err error) {
+func (lm *loggingMiddleware) Authorize(ctx context.Context, req *magistrala.AuthorizeReq) (id string, err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -249,7 +250,7 @@ func (lm *loggingMiddleware) Authorize(ctx context.Context, req *magistrala.Auth
 	return lm.svc.Authorize(ctx, req)
 }
 
-func (lm *loggingMiddleware) Share(ctx context.Context, token, id, relation string, userids ...string) (err error) {
+func (lm *loggingMiddleware) Share(ctx context.Context, token, id, relation string, userids ...string) (err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -267,7 +268,7 @@ func (lm *loggingMiddleware) Share(ctx context.Context, token, id, relation stri
 	return lm.svc.Share(ctx, token, id, relation, userids...)
 }
 
-func (lm *loggingMiddleware) Unshare(ctx context.Context, token, id, relation string, userids ...string) (err error) {
+func (lm *loggingMiddleware) Unshare(ctx context.Context, token, id, relation string, userids ...string) (err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -285,7 +286,7 @@ func (lm *loggingMiddleware) Unshare(ctx context.Context, token, id, relation st
 	return lm.svc.Unshare(ctx, token, id, relation, userids...)
 }
 
-func (lm *loggingMiddleware) DeleteClient(ctx context.Context, token, id string) (err error) {
+func (lm *loggingMiddleware) DeleteClient(ctx context.Context, token, id string) (err errors.Error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
