@@ -306,6 +306,7 @@ func TestCreateGroup(t *testing.T) {
 			}).Return(tc.authzTknResp, tc.authzTknErr)
 			repocall := repo.On("Save", context.Background(), mock.Anything).Return(tc.repoResp, tc.repoErr)
 			authcall3 := authsvc.On("AddPolicies", context.Background(), mock.Anything).Return(tc.addPolResp, tc.addPolErr)
+			authCall4 := authsvc.On("DeletePolicies", mock.Anything, mock.Anything).Return(tc.deletePolResp, tc.deletePolErr)
 			got, err := svc.CreateGroup(context.Background(), tc.token, tc.kind, tc.group)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("expected error %v to contain %v", err, tc.err))
 			if err == nil {
@@ -321,6 +322,7 @@ func TestCreateGroup(t *testing.T) {
 			authcall2.Unset()
 			repocall.Unset()
 			authcall3.Unset()
+			authCall4.Unset()
 		})
 	}
 }
