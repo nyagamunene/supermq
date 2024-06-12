@@ -53,7 +53,7 @@ func (svc service) Authorize(ctx context.Context, req *magistrala.AuthorizeReq) 
 		return "", errors.Wrap(svcerr.ErrAuthorization, Err)
 	}
 	if !resp.GetAuthorized() {
-		return "", svcerr.ErrAuthorization
+		return "", svcerr.ErrAuthorization.Err
 	}
 
 	return thingID, nil
@@ -86,7 +86,7 @@ func (svc service) CreateThings(ctx context.Context, token string, cls ...mgclie
 			c.Credentials.Secret = key
 		}
 		if c.Status != mgclients.DisabledStatus && c.Status != mgclients.EnabledStatus {
-			return []mgclients.Client{}, svcerr.ErrInvalidStatus
+			return []mgclients.Client{}, svcerr.ErrInvalidStatus.Err
 		}
 		c.Domain = user.GetDomainId()
 		c.CreatedAt = time.Now()
@@ -135,7 +135,7 @@ func (svc service) ViewClientPerms(ctx context.Context, token, id string) ([]str
 		return nil, err
 	}
 	if len(permissions) == 0 {
-		return nil, svcerr.ErrAuthorization
+		return nil, svcerr.ErrAuthorization.Err
 	}
 	return permissions, nil
 }
@@ -273,7 +273,7 @@ func (svc service) checkSuperAdmin(ctx context.Context, userID string) errors.Er
 		return errors.Cast(err)
 	}
 	if !res.Authorized {
-		return svcerr.ErrAuthorization
+		return svcerr.ErrAuthorization.Err
 	}
 	return nil
 }
@@ -488,7 +488,7 @@ func (svc service) changeClientStatus(ctx context.Context, token string, client 
 		return mgclients.Client{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 	if dbClient.Status == client.Status {
-		return mgclients.Client{}, errors.ErrStatusAlreadyAssigned
+		return mgclients.Client{}, errors.ErrStatusAlreadyAssigned.Err
 	}
 
 	client.UpdatedBy = userID
@@ -571,7 +571,7 @@ func (svc service) identify(ctx context.Context, token string) (*magistrala.Iden
 		return nil, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
 	if res.GetId() == "" || res.GetDomainId() == "" {
-		return nil, svcerr.ErrDomainAuthorization
+		return nil, svcerr.ErrDomainAuthorization.Err
 	}
 	return res, nil
 }

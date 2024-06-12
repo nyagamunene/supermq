@@ -444,7 +444,7 @@ func (svc service) changeClientStatus(ctx context.Context, token string, client 
 		return mgclients.Client{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 	if dbClient.Status == client.Status {
-		return mgclients.Client{}, errors.ErrStatusAlreadyAssigned
+		return mgclients.Client{}, errors.ErrStatusAlreadyAssigned.Err
 	}
 	client.UpdatedBy = tokenUserID
 
@@ -590,7 +590,7 @@ func (svc *service) authorize(ctx context.Context, subjType, subjKind, subj, per
 	}
 
 	if !res.GetAuthorized() {
-		return "", svcerr.ErrAuthorization
+		return "", svcerr.ErrAuthorization.Err
 	}
 	return res.GetId(), nil
 }
@@ -657,7 +657,7 @@ func (svc service) addClientPolicy(ctx context.Context, userID string, role mgcl
 		return errors.Wrap(svcerr.ErrAddPolicies, err)
 	}
 	if !resp.Added {
-		return svcerr.ErrAuthorization
+		return svcerr.ErrAuthorization.Err
 	}
 	return nil
 }
@@ -687,7 +687,7 @@ func (svc service) addClientPolicyRollback(ctx context.Context, userID string, r
 		return errors.Wrap(svcerr.ErrDeletePolicies, err)
 	}
 	if !resp.Deleted {
-		return svcerr.ErrAuthorization
+		return svcerr.ErrAuthorization.Err
 	}
 	return nil
 }
@@ -706,7 +706,7 @@ func (svc service) updateClientPolicy(ctx context.Context, userID string, role m
 			return errors.Wrap(svcerr.ErrAddPolicies, err)
 		}
 		if !resp.Added {
-			return svcerr.ErrAuthorization
+			return svcerr.ErrAuthorization.Err
 		}
 		return nil
 	case mgclients.UserRole:
@@ -723,7 +723,7 @@ func (svc service) updateClientPolicy(ctx context.Context, userID string, role m
 			return errors.Wrap(svcerr.ErrDeletePolicies, err)
 		}
 		if !resp.Deleted {
-			return svcerr.ErrAuthorization
+			return svcerr.ErrAuthorization.Err
 		}
 		return nil
 	}
