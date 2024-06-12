@@ -1112,7 +1112,7 @@ func TestUpdateClientRole(t *testing.T) {
 			updateRoleResponse:         mgclients.Client{},
 			token:                      validToken,
 			deletePolicyErr:            svcerr.ErrAuthorization,
-			err:                        svcerr.ErrFailedPolicyUpdate,
+			err:                        svcerr.ErrAuthorization,
 		},
 		{
 			desc:                       "update client role to user role with failed to delete policy with error",
