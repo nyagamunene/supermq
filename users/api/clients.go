@@ -180,6 +180,13 @@ func clientsHandler(svc users.Service, r *chi.Mux, logger *slog.Logger, pr *rege
 		opts...,
 	), "list_users_by_thing_id").ServeHTTP)
 
+	r.Get("/users/search", otelhttp.NewHandler(kithttp.NewServer(
+		searchClientsEndpoint(svc),
+		decodeSearchClients,
+		api.EncodeResponse,
+		opts...,
+	), "search_clients").ServeHTTP)
+
 	r.Get("/domains/{domainID}/users", otelhttp.NewHandler(kithttp.NewServer(
 		listMembersByDomainEndpoint(svc),
 		decodeListMembersByDomain,
@@ -462,6 +469,20 @@ func decodeListMembersByThing(_ context.Context, r *http.Request) (interface{}, 
 		token:    apiutil.ExtractBearerToken(r),
 		Page:     page,
 		objectID: chi.URLParam(r, "thingID"),
+	}
+
+	return req, nil
+}
+
+func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error) {
+	page, err := queryPageParams(r, api.DefPermission)
+	if err != nil {
+		return nil, err
+	}
+
+	req := searchClientsReq{
+		token: apiutil.ExtractBearerToken(r),
+		Page:  page,
 	}
 
 	return req, nil

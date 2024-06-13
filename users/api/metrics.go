@@ -182,6 +182,14 @@ func (ms *metricsMiddleware) ListMembers(ctx context.Context, token, objectKind,
 	}(time.Now())
 	return ms.svc.ListMembers(ctx, token, objectKind, objectID, pm)
 }
+// SearchClients instruments SearchClients method with metrics.
+func (ms *metricsMiddleware) SearchClients(ctx context.Context, token string, pm mgclients.Page) (mp mgclients.ClientsPage, err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "search_clients").Add(1)
+		ms.latency.With("method", "search_clients").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+	return ms.svc.SearchClients(ctx, token, pm)
+}
 
 // Identify instruments Identify method with metrics.
 func (ms *metricsMiddleware) Identify(ctx context.Context, token string) (string, error) {
