@@ -182,6 +182,7 @@ func (ms *metricsMiddleware) ListMembers(ctx context.Context, token, objectKind,
 	}(time.Now())
 	return ms.svc.ListMembers(ctx, token, objectKind, objectID, pm)
 }
+
 // SearchClients instruments SearchClients method with metrics.
 func (ms *metricsMiddleware) SearchClients(ctx context.Context, token string, pm mgclients.Page) (mp mgclients.ClientsPage, err error) {
 	defer func(begin time.Time) {

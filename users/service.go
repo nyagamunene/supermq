@@ -756,4 +756,3 @@ func (svc service) updateClientPolicy(ctx context.Context, userID string, role m
 		return nil
 	}
 }
-
