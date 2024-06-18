@@ -559,7 +559,13 @@ func (svc service) SearchClients(ctx context.Context, token string, pm mgclients
 	if err != nil {
 		return mgclients.ClientsPage{}, err
 	}
-	return svc.clients.SearchBasicInfo(ctx, pm)
+
+	cp, err := svc.clients.SearchBasicInfo(ctx, pm)
+	if err != nil {
+		return mgclients.ClientsPage{}, err
+	}
+
+	return cp, nil
 }
 
 func (svc service) retrieveObjectUsersPermissions(ctx context.Context, domainID, objectType, objectID string, client *mgclients.Client) error {

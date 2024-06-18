@@ -2167,6 +2167,58 @@ func TestListMembers(t *testing.T) {
 	}
 }
 
+func TestSearchClients(t *testing.T) {
+	svc, cRepo, auth, _ := newService(true)
+	cases := []struct {
+		desc         string
+		token        string
+		page         mgclients.Page
+		identifyResp *magistrala.IdentityRes
+		response     mgclients.ClientsPage
+		responseErr  error
+		identifyErr  error
+		err          error
+	}{
+		{
+			desc:  "search clients with valid token",
+			token: validToken,
+			page: mgclients.Page{
+				Offset: 0,
+				Name:   "clientname",
+				Limit:  100,
+			},
+			response: mgclients.ClientsPage{
+				Page: mgclients.Page{
+					Total:  1,
+					Offset: 0,
+					Limit:  100,
+				},
+				Clients: []mgclients.Client{client},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
+		},
+		{
+			desc:        "search clients with invalid token",
+			token:       inValidToken,
+			page:        mgclients.Page{Offset: 0, Name: "clientname", Limit: 100},
+			response:    mgclients.ClientsPage{},
+			responseErr: svcerr.ErrAuthentication,
+			err:         svcerr.ErrAuthentication,
+		},
+	}
+
+	for _, tc := range cases {
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyResp, tc.identifyErr)
+		repoCall := cRepo.On("SearchBasicInfo", context.Background(), mock.Anything).Return(tc.response, tc.responseErr)
+
+		_, err := svc.SearchClients(context.Background(), tc.token, tc.page)
+		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+
+		authCall.Unset()
+		repoCall.Unset()
+	}
+}
+
 func TestIssueToken(t *testing.T) {
 	svc, cRepo, auth, _ := newService(true)
 

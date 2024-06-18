@@ -18,6 +18,7 @@ const (
 	valid   = "valid"
 	invalid = "invalid"
 	secret  = "QJg58*aMan7j"
+	name    = "client"
 )
 
 var validID = testsutil.GenerateUUID(&testing.T{})
@@ -277,6 +278,46 @@ func TestListMembersByObjectReqValidate(t *testing.T) {
 				objectID:   "",
 			},
 			err: apiutil.ErrMissingID,
+		},
+	}
+	for _, c := range cases {
+		err := c.req.validate()
+		assert.Equal(t, c.err, err)
+	}
+}
+
+func TestSearchClientsReqValidate(t *testing.T) {
+	cases := []struct {
+		desc string
+		req  searchClientsReq
+		err  error
+	}{
+		{
+			desc: "valid request",
+			req: searchClientsReq{
+				token: valid,
+				Page: mgclients.Page{
+					Name: name,
+				},
+			},
+			err: nil,
+		},
+		{
+			desc: "empty token",
+			req: searchClientsReq{
+				token: "",
+				Page: mgclients.Page{
+					Name: name,
+				},
+			},
+			err: apiutil.ErrBearerToken,
+		},
+		{
+			desc: "empty query",
+			req: searchClientsReq{
+				token: valid,
+			},
+			err: apiutil.ErrEmptySearchQuery,
 		},
 	}
 	for _, c := range cases {
