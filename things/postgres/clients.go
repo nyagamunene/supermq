@@ -8,10 +8,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/absmach/magistrala/internal/api"
+	"github.com/absmach/magistrala/internal/postgres"
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	pgclients "github.com/absmach/magistrala/pkg/clients/postgres"
 	"github.com/absmach/magistrala/pkg/errors"
-	"github.com/absmach/magistrala/internal/api"
 	repoerr "github.com/absmach/magistrala/pkg/errors/repository"
 	"github.com/absmach/magistrala/pkg/postgres"
 )
@@ -205,7 +206,7 @@ func constructSearchQuery(pm mgclients.Page) (string, string) {
 	if len(query) > 0 {
 		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
 	}
-	
+
 	tq = emq
 
 	switch pm.Order {

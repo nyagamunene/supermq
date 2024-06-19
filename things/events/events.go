@@ -20,7 +20,7 @@ const (
 	clientViewPerms    = clientPrefix + "view_perms"
 	clientList         = clientPrefix + "list"
 	clientListByGroup  = clientPrefix + "list_by_channel"
-	clientSearch	   = clientPrefix + "search"
+	clientSearch       = clientPrefix + "search"
 	clientIdentify     = clientPrefix + "identify"
 	clientAuthorize    = clientPrefix + "authorize"
 )
@@ -276,7 +276,7 @@ func (lcge listClientByGroupEvent) Encode() (map[string]interface{}, error) {
 	return val, nil
 }
 
-type searchThingsEvent struct{
+type searchThingsEvent struct {
 	mgclients.Page
 }
 
@@ -297,11 +297,9 @@ func (ste searchThingsEvent) Encode() (map[string]interface{}, error) {
 		ids := fmt.Sprintf("[%s]", strings.Join(ste.IDs, ","))
 		val["ids"] = ids
 	}
-	
 
 	return val, nil
 }
-
 
 type identifyClientEvent struct {
 	thingID string

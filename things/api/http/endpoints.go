@@ -162,9 +162,9 @@ func searchClientsEndpoint(svc things.Service) endpoint.Endpoint {
 			Tag:        req.Tag,
 			Permission: req.Permission,
 			Metadata:   req.Metadata,
-			Identity: req.Identity,
-			Order:    req.Order,
-			Dir:      req.Dir,
+			Identity:   req.Identity,
+			Order:      req.Order,
+			Dir:        req.Dir,
 		}
 		page, err := svc.SearchThings(ctx, req.token, pm)
 		if err != nil {

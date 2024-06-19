@@ -135,7 +135,7 @@ func (req listMembersReq) validate() error {
 }
 
 type searchThingsReq struct {
-	token    string
+	token string
 	mgclients.Page
 }
 
