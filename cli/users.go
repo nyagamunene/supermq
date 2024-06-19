@@ -5,6 +5,8 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/url"
 
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	mgxsdk "github.com/absmach/magistrala/pkg/sdk/go"
@@ -455,6 +457,39 @@ var cmdUsers = []cobra.Command{
 			}
 
 			users, err := sdk.ListUserGroups(args[0], pm, args[1])
+			if err != nil {
+				logError(err)
+				return
+			}
+
+			logJSON(users)
+		},
+	},
+	{
+		Use:   "search <query> <user_auth_token>",
+		Short: "Search users",
+		Long: "Search users by query\n" +
+			"Usage:\n" +
+			"\tmagistrala-cli users search <query> <user_auth_token>\n",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 2 {
+				logUsage(cmd.Use)
+				return
+			}
+
+			values, err := url.ParseQuery(args[0])
+			if err != nil {
+				logError(fmt.Errorf("Failed to parse query: %s", err))
+			}
+
+			pm := mgxsdk.PageMetadata{
+				Offset:   Offset,
+				Limit:    Limit,
+				Name:     values.Get("name"),
+				Identity: values.Get("identity"),
+			}
+
+			users, err := sdk.SearchUsers(pm, args[1])
 			if err != nil {
 				logError(err)
 				return
