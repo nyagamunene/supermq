@@ -317,6 +317,13 @@ func (sce searchClientEvent) Encode() (map[string]interface{}, error) {
 		"operation": clientSearch,
 		"total":     sce.Total,
 		"offset":    sce.Offset,
+		"limit":     sce.Limit,
+	}
+	if sce.Name != "" {
+		val["name"] = sce.Name
+	}
+	if sce.Identity != "" {
+		val["identity"] = sce.Identity
 	}
 
 	return val, nil

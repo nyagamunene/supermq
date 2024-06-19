@@ -530,6 +530,20 @@ func (svc service) ListClientsByGroup(ctx context.Context, token, groupID string
 	}, nil
 }
 
+func (svc service) SearchThings(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
+	_, err := svc.identify(ctx, token)
+	if err != nil {
+		return mgclients.ClientsPage{}, err
+	}
+
+	cp, err := svc.clients.SearchBasicInfo(ctx, pm)
+	if err != nil {
+		return mgclients.ClientsPage{}, err
+	}
+
+	return cp, nil
+}
+
 func (svc service) Identify(ctx context.Context, key string) (string, error) {
 	id, err := svc.clientCache.ID(ctx, key)
 	if err == nil {

@@ -6,6 +6,7 @@ package http
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -59,6 +60,13 @@ func clientsHandler(svc things.Service, r *chi.Mux, logger *slog.Logger) http.Ha
 			api.EncodeResponse,
 			opts...,
 		), "view_thing_permissions").ServeHTTP)
+
+		r.Get("/search", otelhttp.NewHandler(kithttp.NewServer(
+			searchClientsEndpoint(svc),
+			decodeSearchClients,
+			api.EncodeResponse,
+			opts...,
+		), "search_things").ServeHTTP)
 
 		r.Patch("/{thingID}", otelhttp.NewHandler(kithttp.NewServer(
 			updateClientEndpoint(svc),
@@ -205,6 +213,39 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 		permission: p,
 		listPerms:  lp,
 		userID:     chi.URLParam(r, "userID"),
+	}
+	return req, nil
+}
+
+func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error) {
+	fmt.Println("decodeSearchClients")
+	s, err := apiutil.ReadStringQuery(r, api.StatusKey, api.DefClientStatus)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	o, err := apiutil.ReadNumQuery[uint64](r, api.OffsetKey, api.DefOffset)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	l, err := apiutil.ReadNumQuery[uint64](r, api.LimitKey, api.DefLimit)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	n, err := apiutil.ReadStringQuery(r, api.NameKey, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	t, err := apiutil.ReadStringQuery(r, api.TagKey, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	st, err := mgclients.ToStatus(s)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	req := searchThingsReq{
+		apiutil.ExtractBearerToken(r),
+		mgclients.Page{Status: st, Offset: o, Limit: l, Name: n, Tag: t},
 	}
 	return req, nil
 }

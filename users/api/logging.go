@@ -389,7 +389,7 @@ func (lm *loggingMiddleware) SearchClients(ctx context.Context, token string, cp
 			slog.Group("page",
 				slog.Uint64("limit", cp.Limit),
 				slog.Uint64("offset", cp.Offset),
-				slog.Uint64("total", cp.Total),
+				slog.Uint64("total", mp.Total),
 			),
 		}
 		if err != nil {
