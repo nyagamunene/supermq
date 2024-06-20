@@ -144,7 +144,7 @@ func (req searchThingsReq) validate() error {
 		return apiutil.ErrBearerToken
 	}
 
-	if req.Name == "" && req.Tag == "" && req.IDs == nil {
+	if req.Name == "" && req.Tag == "" && req.Identity == "" {
 		return apiutil.ErrEmptySearchQuery
 	}
 

@@ -2411,7 +2411,6 @@ func TestSearchUsers(t *testing.T) {
 	cases := []struct {
 		desc              string
 		token             string
-		page              mgclients.Page
 		status            int
 		query             string
 		listUsersResponse mgclients.ClientsPage
@@ -2506,7 +2505,7 @@ func TestSearchUsers(t *testing.T) {
 		req := testRequest{
 			client: us.Client(),
 			method: http.MethodGet,
-			url:    fmt.Sprintf("%s/users/search?", us.URL) + tc.query,
+			url:    fmt.Sprintf("%s/users/search?%s", us.URL, tc.query),
 			token:  tc.token,
 		}
 

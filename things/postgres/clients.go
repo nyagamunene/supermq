@@ -143,14 +143,17 @@ func (repo clientRepo) SearchBasicInfo(ctx context.Context, pm mgclients.Page) (
 	sq, tq := constructSearchQuery(pm)
 
 	q := fmt.Sprintf(`SELECT c.id, c.name, c.created_at, c.updated_at FROM clients c %s LIMIT :limit OFFSET :offset;`, sq)
-
+	fmt.Println("Query1:", sq, "Query2: ", tq, "Query3: ", q)
 	dbPage, err := pgclients.ToDBClientsPage(pm)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
+	fmt.Printf("pm: %+v\n", pm)
+	fmt.Printf("dbPage: %+v\n", dbPage)
 	rows, err := repo.DB.NamedQueryContext(ctx, q, dbPage)
 	if err != nil {
+		fmt.Println("Am here")
 		return mgclients.ClientsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 	defer rows.Close()
@@ -196,11 +199,11 @@ func constructSearchQuery(pm mgclients.Page) (string, string) {
 	if pm.Name != "" {
 		query = append(query, "name ~ :name")
 	}
-	if pm.IDs != nil {
-		query = append(query, "id = ANY(:ids)")
+	if pm.Identity != "" {
+		query = append(query, "id ~ :identity")
 	}
 	if pm.Tag != "" {
-		query = append(query, "tag ~ :tag")
+		query = append(query, ":tag ~ ANY(tags)")
 	}
 
 	if len(query) > 0 {
@@ -216,6 +219,5 @@ func constructSearchQuery(pm mgclients.Page) (string, string) {
 			emq = fmt.Sprintf("%s %s", emq, pm.Dir)
 		}
 	}
-
 	return emq, tq
 }

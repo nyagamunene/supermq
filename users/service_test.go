@@ -2182,17 +2182,9 @@ func TestSearchClients(t *testing.T) {
 		{
 			desc:  "search clients with valid token",
 			token: validToken,
-			page: mgclients.Page{
-				Offset: 0,
-				Name:   "clientname",
-				Limit:  100,
-			},
+			page:  mgclients.Page{Offset: 0, Name: "clientname", Limit: 100},
 			response: mgclients.ClientsPage{
-				Page: mgclients.Page{
-					Total:  1,
-					Offset: 0,
-					Limit:  100,
-				},
+				Page:    mgclients.Page{Total: 1, Offset: 0, Limit: 100},
 				Clients: []mgclients.Client{client},
 			},
 			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
@@ -2209,11 +2201,11 @@ func TestSearchClients(t *testing.T) {
 
 	for _, tc := range cases {
 		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyResp, tc.identifyErr)
-		repoCall := cRepo.On("SearchBasicInfo", context.Background(), mock.Anything).Return(tc.response, tc.responseErr)
+		repoCall := cRepo.On("SearchBasicInfo", context.Background(), tc.page).Return(tc.response, tc.responseErr)
 
-		_, err := svc.SearchClients(context.Background(), tc.token, tc.page)
+		page, err := svc.SearchClients(context.Background(), tc.token, tc.page)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-
+		assert.Equal(t, tc.response, page, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, page))
 		authCall.Unset()
 		repoCall.Unset()
 	}

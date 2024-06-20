@@ -535,7 +535,6 @@ func (svc service) SearchThings(ctx context.Context, token string, pm mgclients.
 	if err != nil {
 		return mgclients.ClientsPage{}, err
 	}
-
 	cp, err := svc.clients.SearchBasicInfo(ctx, pm)
 	if err != nil {
 		return mgclients.ClientsPage{}, err
