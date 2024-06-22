@@ -143,17 +143,13 @@ func (repo clientRepo) SearchBasicInfo(ctx context.Context, pm mgclients.Page) (
 	sq, tq := constructSearchQuery(pm)
 
 	q := fmt.Sprintf(`SELECT c.id, c.name, c.created_at, c.updated_at FROM clients c %s LIMIT :limit OFFSET :offset;`, sq)
-	fmt.Println("Query1:", sq, "Query2: ", tq, "Query3: ", q)
 	dbPage, err := pgclients.ToDBClientsPage(pm)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
-	fmt.Printf("pm: %+v\n", pm)
-	fmt.Printf("dbPage: %+v\n", dbPage)
 	rows, err := repo.DB.NamedQueryContext(ctx, q, dbPage)
 	if err != nil {
-		fmt.Println("Am here")
 		return mgclients.ClientsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 	defer rows.Close()
