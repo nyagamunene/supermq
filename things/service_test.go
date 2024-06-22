@@ -1636,8 +1636,6 @@ func TestSearchThings(t *testing.T) {
 		repoCall := auth.On("Authorize", mock.Anything, mock.Anything).Return(tc.authorizeResponse, tc.authorizeErr)
 		repoCall1 := cRepo.On("SearchBasicInfo", context.Background(), tc.page).Return(tc.searchResponse, tc.responseErr)
 		page, err := svc.SearchThings(context.Background(), tc.token, tc.page)
-		fmt.Println("Page: ", page)
-		fmt.Println("Response: ", tc.searchResponse)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.searchResponse, page, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.searchResponse, page))
 		authCall.Unset()
