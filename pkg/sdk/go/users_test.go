@@ -402,13 +402,13 @@ func TestSearchClients(t *testing.T) {
 		token        string
 		page         sdk.PageMetadata
 		response     []sdk.User
-		searchreturn mgclients.ClientsPage
+		searchReturn mgclients.ClientsPage
 		identifyRes  *magistrala.IdentityRes
 		err          errors.SDKError
 		identifyErr  error
 	}{
 		{
-			desc:        "search for users",
+			desc:        "search for users with authorized token",
 			token:       validToken,
 			err:         nil,
 			identifyRes: &magistrala.IdentityRes{UserId: validID},
@@ -418,7 +418,7 @@ func TestSearchClients(t *testing.T) {
 				Name:   "client_10",
 			},
 			response: []sdk.User{cls[10]},
-			searchreturn: mgclients.ClientsPage{
+			searchReturn: mgclients.ClientsPage{
 				Clients: []mgclients.Client{convertClient(cls[10])},
 				Page: mgclients.Page{
 					Total:  1,
@@ -485,7 +485,7 @@ func TestSearchClients(t *testing.T) {
 
 	for _, tc := range cases {
 		repoCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
-		repoCall1 := crepo.On("SearchBasicInfo", mock.Anything, mock.Anything).Return(tc.searchreturn, tc.err)
+		repoCall1 := crepo.On("SearchBasicInfo", mock.Anything, mock.Anything).Return(tc.searchReturn, tc.err)
 		page, err := mgsdk.SearchUsers(tc.page, tc.token)
 		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected error %s, got %s", tc.desc, tc.err, err))
 		assert.Equal(t, tc.response, page.Users, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, page))

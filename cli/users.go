@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	mgxsdk "github.com/absmach/magistrala/pkg/sdk/go"
@@ -468,7 +469,7 @@ var cmdUsers = []cobra.Command{
 	{
 		Use:   "search <query> <user_auth_token>",
 		Short: "Search users",
-		Long: "Search users by query\n" +
+		Long: "Search users by name, id or identity\n" +
 			"Usage:\n" +
 			"\tmagistrala-cli users search <query> <user_auth_token>\n",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -483,10 +484,16 @@ var cmdUsers = []cobra.Command{
 			}
 
 			pm := mgxsdk.PageMetadata{
-				Offset:   Offset,
-				Limit:    Limit,
 				Name:     values.Get("name"),
 				Identity: values.Get("identity"),
+			}
+
+			if off, err := strconv.Atoi(values.Get("offset")); err == nil {
+				pm.Offset = uint64(off)
+			}
+
+			if lim, err := strconv.Atoi(values.Get("limit")); err == nil {
+				pm.Limit = uint64(lim)
 			}
 
 			users, err := sdk.SearchUsers(pm, args[1])
