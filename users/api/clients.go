@@ -475,17 +475,33 @@ func decodeListMembersByThing(_ context.Context, r *http.Request) (interface{}, 
 }
 
 func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error) {
-	page, err := queryPageParams(r, api.DefPermission)
+	o, err := apiutil.ReadNumQuery[uint64](r, api.OffsetKey, api.DefOffset)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	l, err := apiutil.ReadNumQuery[uint64](r, api.LimitKey, api.DefLimit)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	n, err := apiutil.ReadStringQuery(r, api.NameKey, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	id, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	i, err := apiutil.ReadStringQuery(r, api.IdentityKey, "")
+	if err != nil {
+		return mgclients.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
 	req := searchClientsReq{
 		token: apiutil.ExtractBearerToken(r),
-		Page:  page,
+		Page:  mgclients.Page{Offset: o, Limit: l, Name: n, Tag: id, Identity: i},
 	}
 
-	for _, field := range []string{req.Name, req.Identity} {
+	for _, field := range []string{req.Name, req.Identity, req.Tag} {
 		if field != "" && len(field) < 3 {
 			req = searchClientsReq{
 				token: apiutil.ExtractBearerToken(r),

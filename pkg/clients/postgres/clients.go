@@ -511,6 +511,9 @@ func constructSearchQuery(pm clients.Page) (string, string) {
 	if pm.Identity != "" {
 		query = append(query, "identity ~ :identity")
 	}
+	if pm.Tag != "" {
+		query = append(query, "id ~ :tag")
+	}
 
 	if len(query) > 0 {
 		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
