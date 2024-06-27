@@ -190,8 +190,8 @@ func (repo *Repository) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 	return page, nil
 }
 
-func (repo *Repository) SearchBasicInfo(ctx context.Context, pm clients.Page) (clients.ClientsPage, error) {
-	sq, tq := constructSearchQuery(pm)
+func (repo *Repository) RetrieveAllBasicInfo(ctx context.Context, pm clients.Page) (clients.ClientsPage, error) {
+	sq, tq := ConstructSearchQuery(pm)
 
 	q := fmt.Sprintf(`SELECT c.id, c.name, c.created_at, c.updated_at FROM clients c %s LIMIT :limit OFFSET :offset;`, sq)
 
@@ -500,7 +500,7 @@ func PageQuery(pm clients.Page) (string, error) {
 	return emq, nil
 }
 
-func constructSearchQuery(pm clients.Page) (string, string) {
+func ConstructSearchQuery(pm clients.Page) (string, string) {
 	var query []string
 	var emq string
 	var tq string

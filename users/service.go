@@ -554,7 +554,7 @@ func (svc service) ListMembers(ctx context.Context, token, objectKind, objectID 
 	}, nil
 }
 
-func (svc service) SearchClients(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
+func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
 	_, err := svc.identify(ctx, token)
 	if err != nil {
 		return mgclients.ClientsPage{}, err
@@ -562,7 +562,7 @@ func (svc service) SearchClients(ctx context.Context, token string, pm mgclients
 
 	cp, err := svc.clients.SearchBasicInfo(ctx, pm)
 	if err != nil {
-		return mgclients.ClientsPage{}, err
+		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrSearch, err)
 	}
 
 	return cp, nil

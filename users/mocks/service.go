@@ -331,12 +331,12 @@ func (_m *Service) ResetSecret(ctx context.Context, resetToken string, secret st
 	return r0
 }
 
-// SearchClients provides a mock function with given fields: ctx, token, pm
-func (_m *Service) SearchClients(ctx context.Context, token string, pm clients.Page) (clients.ClientsPage, error) {
+// SearchUsers provides a mock function with given fields: ctx, token, pm
+func (_m *Service) SearchUsers(ctx context.Context, token string, pm clients.Page) (clients.ClientsPage, error) {
 	ret := _m.Called(ctx, token, pm)
 
 	if len(ret) == 0 {
-		panic("no return value specified for SearchClients")
+		panic("no return value specified for SearchUsers")
 	}
 
 	var r0 clients.ClientsPage

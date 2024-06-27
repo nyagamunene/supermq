@@ -155,7 +155,7 @@ func listMembersByThingEndpoint(svc users.Service) endpoint.Endpoint {
 	}
 }
 
-func searchClientsEndpoint(svc users.Service) endpoint.Endpoint {
+func searchUsersEndpoint(svc users.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(searchClientsReq)
 		if err := req.validate(); err != nil {
@@ -173,7 +173,7 @@ func searchClientsEndpoint(svc users.Service) endpoint.Endpoint {
 			Order:    req.Order,
 			Dir:      req.Dir,
 		}
-		page, err := svc.SearchClients(ctx, req.token, pm)
+		page, err := svc.SearchUsers(ctx, req.token, pm)
 		if err != nil {
 			return nil, err
 		}

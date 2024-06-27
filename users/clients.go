@@ -32,7 +32,7 @@ type Service interface {
 	ListMembers(ctx context.Context, token, objectKind, objectID string, pm clients.Page) (clients.MembersPage, error)
 
 	// SearchClients searches for users with provided filters for a valid auth token.
-	SearchClients(ctx context.Context, token string, pm clients.Page) (clients.ClientsPage, error)
+	SearchUsers(ctx context.Context, token string, pm clients.Page) (clients.ClientsPage, error)
 
 	// UpdateClient updates the client's name and metadata.
 	UpdateClient(ctx context.Context, token string, client clients.Client) (clients.Client, error)

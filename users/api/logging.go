@@ -382,7 +382,7 @@ func (lm *loggingMiddleware) ListMembers(ctx context.Context, token, objectKind,
 }
 
 // SearchClients logs the search_clients request. It logs the page metadata and the time it took to complete the request.
-func (lm *loggingMiddleware) SearchClients(ctx context.Context, token string, cp mgclients.Page) (mp mgclients.ClientsPage, err error) {
+func (lm *loggingMiddleware) SearchUsers(ctx context.Context, token string, cp mgclients.Page) (mp mgclients.ClientsPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -399,7 +399,7 @@ func (lm *loggingMiddleware) SearchClients(ctx context.Context, token string, cp
 		}
 		lm.logger.Info("Search clients completed successfully", args...)
 	}(time.Now())
-	return lm.svc.SearchClients(ctx, token, cp)
+	return lm.svc.SearchUsers(ctx, token, cp)
 }
 
 // Identify logs the identify request. It logs the time it took to complete the request.

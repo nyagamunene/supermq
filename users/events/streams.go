@@ -176,8 +176,8 @@ func (es *eventStore) ListMembers(ctx context.Context, token, objectKind, object
 	return mp, nil
 }
 
-func (es *eventStore) SearchClients(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
-	cp, err := es.svc.SearchClients(ctx, token, pm)
+func (es *eventStore) SearchUsers(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
+	cp, err := es.svc.SearchUsers(ctx, token, pm)
 	if err != nil {
 		return cp, err
 	}

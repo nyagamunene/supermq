@@ -63,8 +63,8 @@ func clientsHandler(svc users.Service, r *chi.Mux, logger *slog.Logger, pr *rege
 		), "list_clients").ServeHTTP)
 
 		r.Get("/search", otelhttp.NewHandler(kithttp.NewServer(
-			searchClientsEndpoint(svc),
-			decodeSearchClients,
+			searchUsersEndpoint(svc),
+			decodeSearchUsers,
 			api.EncodeResponse,
 			opts...,
 		), "search_clients").ServeHTTP)
@@ -474,7 +474,7 @@ func decodeListMembersByThing(_ context.Context, r *http.Request) (interface{}, 
 	return req, nil
 }
 
-func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeSearchUsers(_ context.Context, r *http.Request) (interface{}, error) {
 	o, err := apiutil.ReadNumQuery[uint64](r, api.OffsetKey, api.DefOffset)
 	if err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
