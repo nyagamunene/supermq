@@ -2509,7 +2509,7 @@ func TestSearchUsers(t *testing.T) {
 			token:  tc.token,
 		}
 
-		svcCall := svc.On("SearchClients", mock.Anything, tc.token, mock.Anything).Return(
+		svcCall := svc.On("SearchUsers", mock.Anything, tc.token, mock.Anything).Return(
 			mgclients.ClientsPage{
 				Page:    tc.listUsersResponse.Page,
 				Clients: tc.listUsersResponse.Clients,
