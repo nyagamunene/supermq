@@ -286,15 +286,15 @@ func TestListMembersByObjectReqValidate(t *testing.T) {
 	}
 }
 
-func TestSearchClientsReqValidate(t *testing.T) {
+func TestSearchUsersReqValidate(t *testing.T) {
 	cases := []struct {
 		desc string
-		req  searchClientsReq
+		req  searchUsersReq
 		err  error
 	}{
 		{
 			desc: "valid request",
-			req: searchClientsReq{
+			req: searchUsersReq{
 				token: valid,
 				Page: mgclients.Page{
 					Name: name,
@@ -304,7 +304,7 @@ func TestSearchClientsReqValidate(t *testing.T) {
 		},
 		{
 			desc: "empty token",
-			req: searchClientsReq{
+			req: searchUsersReq{
 				token: "",
 				Page: mgclients.Page{
 					Name: name,
@@ -314,7 +314,7 @@ func TestSearchClientsReqValidate(t *testing.T) {
 		},
 		{
 			desc: "empty query",
-			req: searchClientsReq{
+			req: searchUsersReq{
 				token: valid,
 			},
 			err: apiutil.ErrEmptySearchQuery,

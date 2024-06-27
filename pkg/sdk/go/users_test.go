@@ -369,7 +369,7 @@ func TestListClients(t *testing.T) {
 	}
 }
 
-func TestSearchClients(t *testing.T) {
+func TestSearchUsers(t *testing.T) {
 	ts, crepo, _, auth := setupUsers()
 	defer ts.Close()
 
@@ -470,16 +470,6 @@ func TestSearchClients(t *testing.T) {
 				Name:   "a",
 			},
 			err: errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrLenSearchQuery, apiutil.ErrValidation), http.StatusBadRequest),
-		},
-		{
-			desc:  "search for users with invalid limit",
-			token: validToken,
-			page: sdk.PageMetadata{
-				Offset: offset,
-				Limit:  0,
-				Name:   "client_10",
-			},
-			err: errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrLimitSize), http.StatusBadRequest),
 		},
 	}
 

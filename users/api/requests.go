@@ -109,12 +109,12 @@ func (req listMembersByObjectReq) validate() error {
 	return nil
 }
 
-type searchClientsReq struct {
+type searchUsersReq struct {
 	mgclients.Page
 	token string
 }
 
-func (req searchClientsReq) validate() error {
+func (req searchUsersReq) validate() error {
 	if req.token == "" {
 		return apiutil.ErrBearerToken
 	}

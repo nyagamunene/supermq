@@ -157,7 +157,7 @@ func listMembersByThingEndpoint(svc users.Service) endpoint.Endpoint {
 
 func searchUsersEndpoint(svc users.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(searchClientsReq)
+		req := request.(searchUsersReq)
 		if err := req.validate(); err != nil {
 			return nil, errors.Wrap(apiutil.ErrValidation, err)
 		}
