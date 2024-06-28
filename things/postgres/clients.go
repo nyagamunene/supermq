@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/absmach/magistrala/internal/postgres"
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	pgclients "github.com/absmach/magistrala/pkg/clients/postgres"
 	"github.com/absmach/magistrala/pkg/errors"
