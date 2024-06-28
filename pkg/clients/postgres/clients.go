@@ -506,13 +506,13 @@ func ConstructSearchQuery(pm clients.Page) (string, string) {
 	var tq string
 
 	if pm.Name != "" {
-		query = append(query, "name ~ :name")
+		query = append(query, "name ~* :name")
 	}
 	if pm.Identity != "" {
-		query = append(query, "identity ~ :identity")
+		query = append(query, "identity ~* :identity")
 	}
 	if pm.Tag != "" {
-		query = append(query, "id ~ :tag")
+		query = append(query, "id ~* :tag")
 	}
 
 	if len(query) > 0 {
