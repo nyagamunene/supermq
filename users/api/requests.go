@@ -119,7 +119,7 @@ func (req searchUsersReq) validate() error {
 		return apiutil.ErrBearerToken
 	}
 
-	if req.Name == "" && req.Identity == "" {
+	if req.Name == "" && req.Identity == "" && req.Tag == "" {
 		return apiutil.ErrEmptySearchQuery
 	}
 

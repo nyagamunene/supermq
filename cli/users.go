@@ -485,6 +485,7 @@ var cmdUsers = []cobra.Command{
 
 			pm := mgxsdk.PageMetadata{
 				Name:     values.Get("name"),
+				ID:       values.Get("id"),
 				Identity: values.Get("identity"),
 			}
 
