@@ -498,10 +498,10 @@ func decodeSearchUsers(_ context.Context, r *http.Request) (interface{}, error) 
 
 	req := searchUsersReq{
 		token: apiutil.ExtractBearerToken(r),
-		Page:  mgclients.Page{Offset: o, Limit: l, Name: n, Tag: id, Identity: i},
+		Page:  mgclients.Page{Offset: o, Limit: l, Name: n, Id: id, Identity: i},
 	}
 
-	for _, field := range []string{req.Name, req.Identity, req.Tag} {
+	for _, field := range []string{req.Name, req.Identity, req.Id} {
 		if field != "" && len(field) < 3 {
 			req = searchUsersReq{
 				token: apiutil.ExtractBearerToken(r),

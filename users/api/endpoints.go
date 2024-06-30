@@ -163,12 +163,10 @@ func searchUsersEndpoint(svc users.Service) endpoint.Endpoint {
 		}
 
 		pm := mgclients.Page{
-			Status:   req.Status,
 			Offset:   req.Offset,
 			Limit:    req.Limit,
 			Name:     req.Name,
-			Tag:      req.Tag,
-			Metadata: req.Metadata,
+			Id:       req.Id,
 			Identity: req.Identity,
 			Order:    req.Order,
 			Dir:      req.Dir,
