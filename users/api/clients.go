@@ -62,13 +62,6 @@ func clientsHandler(svc users.Service, r *chi.Mux, logger *slog.Logger, pr *rege
 			opts...,
 		), "list_clients").ServeHTTP)
 
-		r.Get("/search", otelhttp.NewHandler(kithttp.NewServer(
-			searchUsersEndpoint(svc),
-			decodeSearchUsers,
-			api.EncodeResponse,
-			opts...,
-		), "search_clients").ServeHTTP)
-
 		r.Patch("/secret", otelhttp.NewHandler(kithttp.NewServer(
 			updateClientSecretEndpoint(svc),
 			decodeUpdateClientSecret,
@@ -253,6 +246,10 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 	if err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
 	}
+	id, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
 
 	st, err := mgclients.ToStatus(s)
 	if err != nil {
@@ -269,6 +266,7 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 		tag:      t,
 		order:    order,
 		dir:      dir,
+		id:       id,
 	}
 
 	return req, nil

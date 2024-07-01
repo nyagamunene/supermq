@@ -334,6 +334,24 @@ func (repo *Repository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
+func (repo *Repository) CheckSuperAdmin(ctx context.Context, adminID string) error {
+	q := "SELECT 1 FROM clients WHERE id = $1 AND role = $2"
+	rows, err := repo.DB.QueryContext(ctx, q, adminID, clients.AdminRole)
+	if err != nil {
+		return postgres.HandleError(repoerr.ErrViewEntity, err)
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		if err := rows.Err(); err != nil {
+			return postgres.HandleError(repoerr.ErrViewEntity, err)
+		}
+		return nil
+	}
+
+	return repoerr.ErrNotFound
+}
+
 type DBClient struct {
 	ID        string           `db:"id"`
 	Name      string           `db:"name,omitempty"`
@@ -477,11 +495,14 @@ func PageQuery(pm clients.Page) (string, error) {
 	if len(pm.IDs) != 0 {
 		query = append(query, fmt.Sprintf("id IN ('%s')", strings.Join(pm.IDs, "','")))
 	}
-	if pm.Identity != "" {
-		query = append(query, "c.identity = :identity")
-	}
 	if pm.Name != "" {
-		query = append(query, "c.name = :name")
+		query = append(query, "name ILIKE '%' || :name || '%'")
+	}
+	if pm.Identity != "" {
+		query = append(query, "identity ILIKE '%' || :identity || '%'")
+	}
+	if pm.Id != "" {
+		query = append(query, "id ILIKE '%' || :id || '%'")
 	}
 	if pm.Tag != "" {
 		query = append(query, ":tag = ANY(c.tags)")

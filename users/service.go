@@ -200,7 +200,6 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
-
 	for i, c := range pg.Clients {
 		pg.Clients[i] = mgclients.Client{ID: c.ID, Name: c.Name}
 	}
