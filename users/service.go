@@ -196,7 +196,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		Identity: pm.Identity,
 		Role:     mgclients.UserRole,
 	}
-	pg, err := svc.clients.RetrieveAll(ctx, p)
+	pg, err := svc.clients.SearchBasicInfo(ctx, p)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
