@@ -30,7 +30,7 @@ var (
 	phasher        = hasher.New()
 	secret         = "strongsecret"
 	validCMetadata = mgclients.Metadata{"role": "client"}
-	clientID       = testsutil.GenerateUUID(&testing.T{})
+	clientID       = "d8dd12ef-aa2a-43fe-8ef2-2e4fe514360f"
 	client         = mgclients.Client{
 		ID:          clientID,
 		Name:        "clientname",
@@ -2196,6 +2196,36 @@ func TestSearchUsers(t *testing.T) {
 			response:    mgclients.ClientsPage{},
 			responseErr: svcerr.ErrAuthentication,
 			err:         svcerr.ErrAuthentication,
+		},
+		{
+			desc:  "search clients with id",
+			token: validToken,
+			page:  mgclients.Page{Offset: 0, Id: "d8dd12ef-aa2a-43fe-8ef2-2e4fe514360f", Limit: 100},
+			response: mgclients.ClientsPage{
+				Page:    mgclients.Page{Total: 1, Offset: 0, Limit: 100},
+				Clients: []mgclients.Client{client},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
+		},
+		{
+			desc:  "search clients with username",
+			token: validToken,
+			page:  mgclients.Page{Offset: 0, Identity: "clientidentity", Limit: 100},
+			response: mgclients.ClientsPage{
+				Page:    mgclients.Page{Total: 1, Offset: 0, Limit: 100},
+				Clients: []mgclients.Client{client},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
+		},
+		{
+			desc:  "search clients with random name",
+			token: validToken,
+			page:  mgclients.Page{Offset: 0, Name: "randomname", Limit: 100},
+			response: mgclients.ClientsPage{
+				Page:    mgclients.Page{Total: 0, Offset: 0, Limit: 100},
+				Clients: []mgclients.Client{},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
 		},
 	}
 

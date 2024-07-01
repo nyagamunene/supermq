@@ -469,7 +469,7 @@ var cmdUsers = []cobra.Command{
 	{
 		Use:   "search <query> <user_auth_token>",
 		Short: "Search users",
-		Long: "Search users by name, id or identity\n" +
+		Long: "Search users by name, id or username\n" +
 			"Usage:\n" +
 			"\tmagistrala-cli users search <query> <user_auth_token>\n",
 		Run: func(cmd *cobra.Command, args []string) {
