@@ -110,23 +110,6 @@ func (req listMembersByObjectReq) validate() error {
 	return nil
 }
 
-type searchUsersReq struct {
-	mgclients.Page
-	token string
-}
-
-func (req searchUsersReq) validate() error {
-	if req.token == "" {
-		return apiutil.ErrBearerToken
-	}
-
-	if req.Name == "" && req.Identity == "" && req.Id == "" {
-		return apiutil.ErrEmptySearchQuery
-	}
-
-	return nil
-}
-
 type updateClientReq struct {
 	token    string
 	id       string
