@@ -380,7 +380,6 @@ func TestListThings(t *testing.T) {
 			desc:   "list things with valid token",
 			token:  validToken,
 			status: http.StatusOK,
-			query:  "name=clientname",
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -392,14 +391,12 @@ func TestListThings(t *testing.T) {
 		{
 			desc:   "list things with empty token",
 			token:  "",
-			query:  "name=clientname",
 			status: http.StatusUnauthorized,
 			err:    apiutil.ErrBearerToken,
 		},
 		{
 			desc:   "list things with invalid token",
 			token:  inValidToken,
-			query:  "name=clientname",
 			status: http.StatusUnauthorized,
 			err:    svcerr.ErrAuthentication,
 		},
@@ -413,14 +410,14 @@ func TestListThings(t *testing.T) {
 				},
 				Clients: []mgclients.Client{client},
 			},
-			query:  "name=clientname&offset=1",
+			query:  "offset=1",
 			status: http.StatusOK,
 			err:    nil,
 		},
 		{
 			desc:   "list things with invalid offset",
 			token:  validToken,
-			query:  "name=clientname&offset=invalid",
+			query:  "offset=invalid",
 			status: http.StatusBadRequest,
 			err:    apiutil.ErrValidation,
 		},
@@ -434,30 +431,16 @@ func TestListThings(t *testing.T) {
 				},
 				Clients: []mgclients.Client{client},
 			},
-			query:  "name=clientname&limit=1",
+			query:  "limit=1",
 			status: http.StatusOK,
 			err:    nil,
 		},
 		{
 			desc:   "list things with invalid limit",
 			token:  validToken,
-			query:  "name=clientname&limit=invalid",
+			query:  "limit=invalid",
 			status: http.StatusBadRequest,
 			err:    apiutil.ErrValidation,
-		},
-		{
-			desc:   "search things with empty query",
-			token:  validToken,
-			query:  "",
-			status: http.StatusBadRequest,
-			err:    apiutil.ErrEmptySearchQuery,
-		},
-		{
-			desc:   "search users with invalid length of query",
-			token:  validToken,
-			query:  "name=a",
-			status: http.StatusBadRequest,
-			err:    apiutil.ErrLenSearchQuery,
 		},
 		{
 			desc:   "list things with limit greater than max",
@@ -465,6 +448,19 @@ func TestListThings(t *testing.T) {
 			query:  fmt.Sprintf("limit=%d", api.MaxLimitSize+1),
 			status: http.StatusBadRequest,
 			err:    apiutil.ErrValidation,
+		},
+		{
+			desc:  "list things with name",
+			token: validToken,
+			listThingsResponse: mgclients.ClientsPage{
+				Page: mgclients.Page{
+					Total: 1,
+				},
+				Clients: []mgclients.Client{client},
+			},
+			query:  "name=clientname",
+			status: http.StatusOK,
+			err:    nil,
 		},
 		{
 			desc:   "list things with invalid name",
@@ -481,11 +477,31 @@ func TestListThings(t *testing.T) {
 			err:    apiutil.ErrInvalidQueryParams,
 		},
 		{
+			desc:  "list things with status",
+			token: validToken,
+			listThingsResponse: mgclients.ClientsPage{
+				Page: mgclients.Page{
+					Total: 1,
+				},
+				Clients: []mgclients.Client{client},
+			},
+			query:  "status=enabled",
+			status: http.StatusOK,
+			err:    nil,
+		},
+		{
 			desc:   "list things with invalid status",
 			token:  validToken,
 			query:  "status=invalid",
 			status: http.StatusBadRequest,
 			err:    apiutil.ErrValidation,
+		},
+		{
+			desc:   "list things with duplicate status",
+			token:  validToken,
+			query:  "status=enabled&status=disabled",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrInvalidQueryParams,
 		},
 		{
 			desc:  "list things with tags",
@@ -501,6 +517,13 @@ func TestListThings(t *testing.T) {
 			err:    nil,
 		},
 		{
+			desc:   "list things with invalid tags",
+			token:  validToken,
+			query:  "tag=invalid",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrValidation,
+		},
+		{
 			desc:   "list things with duplicate tags",
 			token:  validToken,
 			query:  "tag=tag1&tag=tag2",
@@ -508,17 +531,85 @@ func TestListThings(t *testing.T) {
 			err:    apiutil.ErrInvalidQueryParams,
 		},
 		{
-			desc:  "list things with id",
+			desc:  "list things with metadata",
 			token: validToken,
-			query: fmt.Sprintf("id=%s", client.ID),
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
 				},
 				Clients: []mgclients.Client{client},
 			},
+			query:  "metadata=%7B%22domain%22%3A%20%22example.com%22%7D&",
 			status: http.StatusOK,
 			err:    nil,
+		},
+		{
+			desc:   "list things with invalid metadata",
+			token:  validToken,
+			query:  "metadata=invalid",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrValidation,
+		},
+		{
+			desc:   "list things with duplicate metadata",
+			token:  validToken,
+			query:  "metadata=%7B%22domain%22%3A%20%22example.com%22%7D&metadata=%7B%22domain%22%3A%20%22example.com%22%7D",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrInvalidQueryParams,
+		},
+		{
+			desc:  "list things with permissions",
+			token: validToken,
+			listThingsResponse: mgclients.ClientsPage{
+				Page: mgclients.Page{
+					Total: 1,
+				},
+				Clients: []mgclients.Client{client},
+			},
+			query:  "permission=view",
+			status: http.StatusOK,
+			err:    nil,
+		},
+		{
+			desc:   "list things with invalid permissions",
+			token:  validToken,
+			query:  "permission=invalid",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrValidation,
+		},
+		{
+			desc:   "list things with duplicate permissions",
+			token:  validToken,
+			query:  "permission=view&permission=view",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrInvalidQueryParams,
+		},
+		{
+			desc:  "list things with list perms",
+			token: validToken,
+			listThingsResponse: mgclients.ClientsPage{
+				Page: mgclients.Page{
+					Total: 1,
+				},
+				Clients: []mgclients.Client{client},
+			},
+			query:  "list_perms=true",
+			status: http.StatusOK,
+			err:    nil,
+		},
+		{
+			desc:   "list things with invalid list perms",
+			token:  validToken,
+			query:  "list_perms=invalid",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrValidation,
+		},
+		{
+			desc:   "list things with duplicate list perms",
+			token:  validToken,
+			query:  "list_perms=true&listPerms=true",
+			status: http.StatusBadRequest,
+			err:    apiutil.ErrInvalidQueryParams,
 		},
 	}
 

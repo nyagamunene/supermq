@@ -20,7 +20,6 @@ const (
 	clientViewPerms    = clientPrefix + "view_perms"
 	clientList         = clientPrefix + "list"
 	clientListByGroup  = clientPrefix + "list_by_channel"
-	clientSearch       = clientPrefix + "search"
 	clientIdentify     = clientPrefix + "identify"
 	clientAuthorize    = clientPrefix + "authorize"
 )
