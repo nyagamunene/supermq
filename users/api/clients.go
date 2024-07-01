@@ -472,46 +472,6 @@ func decodeListMembersByThing(_ context.Context, r *http.Request) (interface{}, 
 	return req, nil
 }
 
-func decodeSearchUsers(_ context.Context, r *http.Request) (interface{}, error) {
-	o, err := apiutil.ReadNumQuery[uint64](r, api.OffsetKey, api.DefOffset)
-	if err != nil {
-		return nil, errors.Wrap(apiutil.ErrValidation, err)
-	}
-	l, err := apiutil.ReadNumQuery[uint64](r, api.LimitKey, api.DefLimit)
-	if err != nil {
-		return nil, errors.Wrap(apiutil.ErrValidation, err)
-	}
-	n, err := apiutil.ReadStringQuery(r, api.NameKey, "")
-	if err != nil {
-		return nil, errors.Wrap(apiutil.ErrValidation, err)
-	}
-	id, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
-	if err != nil {
-		return nil, errors.Wrap(apiutil.ErrValidation, err)
-	}
-	i, err := apiutil.ReadStringQuery(r, api.IdentityKey, "")
-	if err != nil {
-		return mgclients.Page{}, errors.Wrap(apiutil.ErrValidation, err)
-	}
-
-	req := searchUsersReq{
-		token: apiutil.ExtractBearerToken(r),
-		Page:  mgclients.Page{Offset: o, Limit: l, Name: n, Id: id, Identity: i},
-	}
-
-	for _, field := range []string{req.Name, req.Identity, req.Id} {
-		if field != "" && len(field) < 3 {
-			req = searchUsersReq{
-				token: apiutil.ExtractBearerToken(r),
-				Page:  mgclients.Page{},
-			}
-			return req, errors.Wrap(apiutil.ErrLenSearchQuery, apiutil.ErrValidation)
-		}
-	}
-
-	return req, nil
-}
-
 func decodeListMembersByDomain(_ context.Context, r *http.Request) (interface{}, error) {
 	page, err := queryPageParams(r, auth.MembershipPermission)
 	if err != nil {
