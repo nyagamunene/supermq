@@ -196,7 +196,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		Identity: pm.Identity,
 		Role:     mgclients.UserRole,
 	}
-	pg, err := svc.clients.SearchBasicInfo(ctx, p)
+	pg, err := svc.clients.SearchClients(ctx, p)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
@@ -559,7 +559,7 @@ func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.P
 		return mgclients.ClientsPage{}, err
 	}
 
-	cp, err := svc.clients.SearchBasicInfo(ctx, pm)
+	cp, err := svc.clients.SearchClients(ctx, pm)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrSearch, err)
 	}
