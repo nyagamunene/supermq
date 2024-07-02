@@ -469,36 +469,19 @@ func PageQuery(pm clients.Page) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(errors.ErrMalformedEntity, err)
 	}
-	var query []string
-	var emq string
+
+	query := buildQueryConditions(pm)
 	if mq != "" {
 		query = append(query, mq)
 	}
-	if len(pm.IDs) != 0 {
-		query = append(query, fmt.Sprintf("id IN ('%s')", strings.Join(pm.IDs, "','")))
-	}
-	if pm.Name != "" {
-		query = append(query, "name ILIKE '%' || :name || '%'")
-	}
-	if pm.Identity != "" {
-		query = append(query, "identity ILIKE '%' || :identity || '%'")
-	}
-	if pm.Id != "" {
-		query = append(query, "id ILIKE '%' || :id || '%'")
-	}
-	if pm.Tag != "" {
-		query = append(query, "EXISTS (SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE '%' || :tag || '%')")
-	}
+
 	if pm.Status != clients.AllStatus {
 		query = append(query, "c.status = :status")
 	}
 	if pm.Domain != "" {
 		query = append(query, "c.domain_id = :domain_id")
 	}
-
-	if pm.Role != clients.AllRole {
-		query = append(query, "c.role = :role")
-	}
+	var emq string
 	if len(query) > 0 {
 		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
 	}
@@ -506,10 +489,18 @@ func PageQuery(pm clients.Page) (string, error) {
 }
 
 func constructSearchQuery(pm clients.Page) (string, string) {
-	var query []string
+	query := buildQueryConditions(pm)
 	var emq string
-	var tq string
-	fmt.Printf("PM: %+v\n", pm)
+	if len(query) > 0 {
+		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
+	}
+	tq := emq
+	emq = applyOrdering(emq, pm)
+	return emq, tq
+}
+
+func buildQueryConditions(pm clients.Page) []string {
+	var query []string
 	if pm.Name != "" {
 		query = append(query, "name ILIKE '%' || :name || '%'")
 	}
@@ -522,16 +513,17 @@ func constructSearchQuery(pm clients.Page) (string, string) {
 	if pm.Tag != "" {
 		query = append(query, "EXISTS (SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE '%' || :tag || '%')")
 	}
-	if len(pm.IDs) != 0 {
+	if len(query) == 0 && len(pm.IDs) != 0 {
 		query = append(query, fmt.Sprintf("id IN ('%s')", strings.Join(pm.IDs, "','")))
 	}
-
-	if len(query) > 0 {
-		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
+	if pm.Role != clients.AllRole {
+		query = append(query, "c.role = :role")
 	}
 
-	tq = emq
+	return query
+}
 
+func applyOrdering(emq string, pm clients.Page) string {
 	switch pm.Order {
 	case "name", "identity", "created_at", "updated_at":
 		emq = fmt.Sprintf("%s ORDER BY %s", emq, pm.Order)
@@ -539,6 +531,5 @@ func constructSearchQuery(pm clients.Page) (string, string) {
 			emq = fmt.Sprintf("%s %s", emq, pm.Dir)
 		}
 	}
-
-	return emq, tq
+	return emq
 }
