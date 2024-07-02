@@ -622,15 +622,6 @@ func TestListClients(t *testing.T) {
 			ObjectType:  "domain",
 			Object:      tc.identifyResponse.DomainId,
 		}).Return(tc.authorizeResponse1, tc.authorizeErr1)
-		authorizeCall3 := auth.On("Authorize", context.Background(), &magistrala.AuthorizeReq{
-			Domain:      domainID,
-			SubjectType: authsvc.UserType,
-			SubjectKind: authsvc.UsersKind,
-			Subject:     tc.identifyResponse.UserId,
-			Permission:  "view",
-			ObjectType:  "thing",
-			Object:      client.ID,
-		}).Return(tc.authorizeResponse2, tc.authorizeErr2)
 		listAllObjectsCall := auth.On("ListAllObjects", mock.Anything, mock.Anything).Return(tc.listObjectsResponse, tc.listObjectsErr)
 		retrieveAllCall := cRepo.On("SearchClients", mock.Anything, mock.Anything).Return(tc.retrieveAllResponse, tc.retrieveAllErr)
 		listPermissionsCall := auth.On("ListPermissions", mock.Anything, mock.Anything).Return(tc.listPermissionsResponse, tc.listPermissionsErr)
@@ -644,7 +635,6 @@ func TestListClients(t *testing.T) {
 		listAllObjectsCall.Unset()
 		retrieveAllCall.Unset()
 		listPermissionsCall.Unset()
-		authorizeCall3.Unset()
 	}
 
 	cases2 := []struct {
