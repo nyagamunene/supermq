@@ -191,9 +191,15 @@ func (repo *Repository) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 }
 
 func (repo *Repository) SearchClients(ctx context.Context, pm clients.Page) (clients.ClientsPage, error) {
-	sq, tq := constructSearchQuery(pm)
+	query := buildQueryConditions(pm)
+	var emq string
+	if len(query) > 0 {
+		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
+	}
+	tq := emq
+	emq = applyOrdering(emq, pm)
 
-	q := fmt.Sprintf(`SELECT c.id, c.name, c.created_at, c.updated_at FROM clients c %s LIMIT :limit OFFSET :offset;`, sq)
+	q := fmt.Sprintf(`SELECT c.id, c.name, c.created_at, c.updated_at FROM clients c %s LIMIT :limit OFFSET :offset;`, emq)
 
 	dbPage, err := ToDBClientsPage(pm)
 	if err != nil {
@@ -486,17 +492,6 @@ func PageQuery(pm clients.Page) (string, error) {
 		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
 	}
 	return emq, nil
-}
-
-func constructSearchQuery(pm clients.Page) (string, string) {
-	query := buildQueryConditions(pm)
-	var emq string
-	if len(query) > 0 {
-		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
-	}
-	tq := emq
-	emq = applyOrdering(emq, pm)
-	return emq, tq
 }
 
 func buildQueryConditions(pm clients.Page) []string {
