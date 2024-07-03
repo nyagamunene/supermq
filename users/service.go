@@ -181,6 +181,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		return mgclients.ClientsPage{}, err
 	}
 	if err := svc.checkSuperAdmin(ctx, userID); err == nil {
+		pm.Role = mgclients.AllRole
 		pg, err := svc.clients.RetrieveAll(ctx, pm)
 		if err != nil {
 			return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
@@ -193,6 +194,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		Offset:   pm.Offset,
 		Limit:    pm.Limit,
 		Name:     pm.Name,
+		Id:       pm.Id,
 		Identity: pm.Identity,
 		Role:     mgclients.UserRole,
 	}

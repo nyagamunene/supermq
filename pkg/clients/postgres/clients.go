@@ -143,6 +143,7 @@ func (repo *Repository) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 	if err != nil {
 		return clients.ClientsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
+	query = applyOrdering(query, pm)
 
 	q := fmt.Sprintf(`SELECT c.id, c.name, c.tags, c.identity, c.metadata, COALESCE(c.domain_id, '') AS domain_id, c.status,
 					c.created_at, c.updated_at, COALESCE(c.updated_by, '') AS updated_by FROM clients c %s ORDER BY c.created_at LIMIT :limit OFFSET :offset;`, query)
@@ -191,15 +192,15 @@ func (repo *Repository) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 }
 
 func (repo *Repository) SearchClients(ctx context.Context, pm clients.Page) (clients.ClientsPage, error) {
-	query := buildQueryConditions(pm)
-	var emq string
-	if len(query) > 0 {
-		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
+	query, err := PageQuery(pm)
+	if err != nil {
+		return clients.ClientsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
-	tq := emq
-	emq = applyOrdering(emq, pm)
 
-	q := fmt.Sprintf(`SELECT c.id, c.name, c.created_at, c.updated_at FROM clients c %s LIMIT :limit OFFSET :offset;`, emq)
+	tq := query
+	query = applyOrdering(query, pm)
+
+	q := fmt.Sprintf(`SELECT c.id, c.name, c.created_at, c.updated_at FROM clients c %s LIMIT :limit OFFSET :offset;`, query)
 
 	dbPage, err := ToDBClientsPage(pm)
 	if err != nil {
@@ -255,6 +256,7 @@ func (repo *Repository) RetrieveAllByIDs(ctx context.Context, pm clients.Page) (
 	if err != nil {
 		return clients.ClientsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
+	query = applyOrdering(query, pm)
 
 	q := fmt.Sprintf(`SELECT c.id, c.name, c.tags, c.identity, c.metadata, COALESCE(c.domain_id, '') AS domain_id, c.status,
 					c.created_at, c.updated_at, COALESCE(c.updated_by, '') AS updated_by FROM clients c %s ORDER BY c.created_at LIMIT :limit OFFSET :offset;`, query)
@@ -476,16 +478,25 @@ func PageQuery(pm clients.Page) (string, error) {
 		return "", errors.Wrap(errors.ErrMalformedEntity, err)
 	}
 
-	query := buildQueryConditions(pm)
+	var query []string
+	if pm.Name != "" || pm.Identity != "" || pm.Id != "" || pm.Tag != "" {
+		return buildSearch(query, pm), nil
+	}
 	if mq != "" {
 		query = append(query, mq)
 	}
 
+	if len(pm.IDs) != 0 {
+		query = append(query, fmt.Sprintf("id IN ('%s')", strings.Join(pm.IDs, "','")))
+	}
 	if pm.Status != clients.AllStatus {
 		query = append(query, "c.status = :status")
 	}
 	if pm.Domain != "" {
 		query = append(query, "c.domain_id = :domain_id")
+	}
+	if pm.Role != clients.AllRole {
+		query = append(query, "c.role = :role")
 	}
 	var emq string
 	if len(query) > 0 {
@@ -494,8 +505,18 @@ func PageQuery(pm clients.Page) (string, error) {
 	return emq, nil
 }
 
-func buildQueryConditions(pm clients.Page) []string {
-	var query []string
+func applyOrdering(emq string, pm clients.Page) string {
+	switch pm.Order {
+	case "name", "identity", "created_at", "updated_at":
+		emq = fmt.Sprintf("%s ORDER BY %s", emq, pm.Order)
+		if pm.Dir == api.AscDir || pm.Dir == api.DescDir {
+			emq = fmt.Sprintf("%s %s", emq, pm.Dir)
+		}
+	}
+	return emq
+}
+
+func buildSearch(query []string, pm clients.Page) string {
 	if pm.Name != "" {
 		query = append(query, "name ILIKE '%' || :name || '%'")
 	}
@@ -508,23 +529,12 @@ func buildQueryConditions(pm clients.Page) []string {
 	if pm.Tag != "" {
 		query = append(query, "EXISTS (SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE '%' || :tag || '%')")
 	}
-	if len(query) == 0 && len(pm.IDs) != 0 {
-		query = append(query, fmt.Sprintf("id IN ('%s')", strings.Join(pm.IDs, "','")))
-	}
 	if pm.Role != clients.AllRole {
 		query = append(query, "c.role = :role")
 	}
-
-	return query
-}
-
-func applyOrdering(emq string, pm clients.Page) string {
-	switch pm.Order {
-	case "name", "identity", "created_at", "updated_at":
-		emq = fmt.Sprintf("%s ORDER BY %s", emq, pm.Order)
-		if pm.Dir == api.AscDir || pm.Dir == api.DescDir {
-			emq = fmt.Sprintf("%s %s", emq, pm.Dir)
-		}
+	var emq string
+	if len(query) > 0 {
+		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
 	}
 	return emq
 }
