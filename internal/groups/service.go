@@ -114,6 +114,7 @@ func (svc service) ListGroups(ctx context.Context, token, memberKind, memberID s
 	if err != nil {
 		return groups.Page{}, err
 	}
+	fmt.Printf("GM1: %+v\n", gm)
 	switch memberKind {
 	case auth.ThingsKind:
 		if _, err := svc.authorizeKind(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.ThingType, memberID); err != nil {
@@ -205,7 +206,8 @@ func (svc service) ListGroups(ctx context.Context, token, memberKind, memberID s
 	default:
 		return groups.Page{}, errMemberKind
 	}
-
+	fmt.Printf("IDS: %+v\n", ids)
+	fmt.Printf("GM2: %+v\n", gm)
 	gp, err := svc.groups.RetrieveByIDs(ctx, gm, ids...)
 	if err != nil {
 		return groups.Page{}, errors.Wrap(svcerr.ErrViewEntity, err)
