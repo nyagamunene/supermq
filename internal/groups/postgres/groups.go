@@ -243,10 +243,10 @@ func (repo groupRepository) SearchBasicinfo(ctx context.Context, gm mggroups.Pag
 	var query1 string
 
 	if gm.Name != "" {
-		query = append(query, "name ~ :name")
+		query = append(query, "name ILIKE '%' || :name || '%'")
 	}
 	if gm.ID != "" {
-		query = append(query, "id ~ :id")
+		query = append(query, "id ILIKE '%' || :id || '%'")
 	}
 	if gm.Tag != "" {
 		query = append(query, "tag ~ :tag")
