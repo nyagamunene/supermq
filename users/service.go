@@ -546,20 +546,6 @@ func (svc service) ListMembers(ctx context.Context, token, objectKind, objectID 
 	}, nil
 }
 
-func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
-	_, err := svc.identify(ctx, token)
-	if err != nil {
-		return mgclients.ClientsPage{}, err
-	}
-
-	cp, err := svc.clients.SearchClients(ctx, pm)
-	if err != nil {
-		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrSearch, err)
-	}
-
-	return cp, nil
-}
-
 func (svc service) retrieveObjectUsersPermissions(ctx context.Context, domainID, objectType, objectID string, client *mgclients.Client) error {
 	userID := auth.EncodeDomainUserID(domainID, client.ID)
 	permissions, err := svc.listObjectUserPermission(ctx, userID, objectType, objectID)
