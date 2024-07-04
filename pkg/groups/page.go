@@ -12,6 +12,7 @@ type PageMeta struct {
 	Limit    uint64           `json:"limit"`
 	Name     string           `json:"name,omitempty"`
 	DomainID string           `json:"domain_id,omitempty"`
+	SearchID string           `json:"search_id,omitempty"`
 	Tag      string           `json:"tag,omitempty"`
 	Metadata clients.Metadata `json:"metadata,omitempty"`
 	Status   clients.Status   `json:"status,omitempty"`

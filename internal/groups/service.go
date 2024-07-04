@@ -209,6 +209,7 @@ func (svc service) ListGroups(ctx context.Context, token, memberKind, memberID s
 	fmt.Printf("IDS: %+v\n", ids)
 	fmt.Printf("GM2: %+v\n", gm)
 	gp, err := svc.groups.RetrieveByIDs(ctx, gm, ids...)
+	fmt.Printf("Err: %+v\n", err)
 	if err != nil {
 		return groups.Page{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}

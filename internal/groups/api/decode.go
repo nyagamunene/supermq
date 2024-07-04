@@ -272,6 +272,10 @@ func decodePageMeta(r *http.Request) (mggroups.PageMeta, error) {
 	if err != nil {
 		return mggroups.PageMeta{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
+	id, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
+	if err != nil {
+		return mggroups.PageMeta{}, errors.Wrap(apiutil.ErrValidation, err)
+	}
 	meta, err := apiutil.ReadMetadataQuery(r, api.MetadataKey, nil)
 	if err != nil {
 		return mggroups.PageMeta{}, errors.Wrap(apiutil.ErrValidation, err)
@@ -281,6 +285,7 @@ func decodePageMeta(r *http.Request) (mggroups.PageMeta, error) {
 		Offset:   offset,
 		Limit:    limit,
 		Name:     name,
+		SearchID: id,
 		Metadata: meta,
 		Status:   st,
 	}
