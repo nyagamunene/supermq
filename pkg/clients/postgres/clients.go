@@ -513,9 +513,6 @@ func PageQuery(pm clients.Page) (string, error) {
 	if pm.Domain != "" {
 		query = append(query, "c.domain_id = :domain_id")
 	}
-	if pm.Role != clients.AllRole {
-		query = append(query, "c.role = :role")
-	}
 	var emq string
 	if len(query) > 0 {
 		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
