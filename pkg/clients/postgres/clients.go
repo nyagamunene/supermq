@@ -479,9 +479,27 @@ func PageQuery(pm clients.Page) (string, error) {
 	}
 
 	var query []string
-	if pm.Name != "" || pm.Identity != "" || pm.Id != "" || pm.Tag != "" {
-		return buildSearch(query, pm), nil
+	if pm.Name != "" {
+		query = append(query, "name ILIKE '%' || :name || '%'")
 	}
+	if pm.Identity != "" {
+		query = append(query, "identity ILIKE '%' || :identity || '%'")
+	}
+	if pm.Id != "" {
+		query = append(query, "id ILIKE '%' || :id || '%'")
+	}
+	if pm.Tag != "" {
+		query = append(query, "EXISTS (SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE '%' || :tag || '%')")
+	}
+	if pm.Role != clients.AllRole {
+		query = append(query, "c.role = :role")
+	}
+	// If there are search params presents, use search and ignore other options.
+	// Always combine role with search params, so len(query) > 1.
+	if len(query) > 1 {
+		return fmt.Sprintf("WHERE %s", strings.Join(query, " AND ")), nil
+	}
+
 	if mq != "" {
 		query = append(query, mq)
 	}
@@ -512,29 +530,6 @@ func applyOrdering(emq string, pm clients.Page) string {
 		if pm.Dir == api.AscDir || pm.Dir == api.DescDir {
 			emq = fmt.Sprintf("%s %s", emq, pm.Dir)
 		}
-	}
-	return emq
-}
-
-func buildSearch(query []string, pm clients.Page) string {
-	if pm.Name != "" {
-		query = append(query, "name ILIKE '%' || :name || '%'")
-	}
-	if pm.Identity != "" {
-		query = append(query, "identity ILIKE '%' || :identity || '%'")
-	}
-	if pm.Id != "" {
-		query = append(query, "id ILIKE '%' || :id || '%'")
-	}
-	if pm.Tag != "" {
-		query = append(query, "EXISTS (SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE '%' || :tag || '%')")
-	}
-	if pm.Role != clients.AllRole {
-		query = append(query, "c.role = :role")
-	}
-	var emq string
-	if len(query) > 0 {
-		emq = fmt.Sprintf("WHERE %s", strings.Join(query, " AND "))
 	}
 	return emq
 }

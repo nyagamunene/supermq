@@ -189,16 +189,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		return pg, err
 	}
 
-	p := mgclients.Page{
-		Status:   mgclients.EnabledStatus,
-		Offset:   pm.Offset,
-		Limit:    pm.Limit,
-		Name:     pm.Name,
-		Id:       pm.Id,
-		Identity: pm.Identity,
-		Role:     mgclients.UserRole,
-	}
-	pg, err := svc.clients.SearchClients(ctx, p)
+	pg, err := svc.clients.SearchClients(ctx, pm)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
