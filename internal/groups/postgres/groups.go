@@ -375,11 +375,14 @@ func buildHierachy(gm mggroups.Page) string {
 func buildQuery(gm mggroups.Page, ids ...string) string {
 	queries := []string{}
 
-	// if len(ids) > 0 {
-	// 	queries = append(queries, fmt.Sprintf(" id in ('%s') ", strings.Join(ids, "', '")))
-	// }
+	if len(ids) > 0 {
+		queries = append(queries, fmt.Sprintf(" id in ('%s') ", strings.Join(ids, "', '")))
+	}
 	if gm.Name != "" {
-		queries = append(queries, "g.name ILIKE :name")
+		queries = append(queries, "g.name ILIKE '%' || :name || '%'")
+	}
+	if gm.SearchID != "" {
+		queries = append(queries, "g.id ILIKE '%' || :search_id || '%'")
 	}
 	if gm.Status != mgclients.AllStatus {
 		queries = append(queries, "g.status = :status")
