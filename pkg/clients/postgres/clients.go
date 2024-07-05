@@ -482,7 +482,7 @@ func PageQuery(pm clients.Page) (string, error) {
 	if pm.Name != "" {
 		query = append(query, "name ILIKE '%' || :name || '%'")
 	}
-	if pm.Identity != "" && pm.Role != clients.UserRole {
+	if pm.Identity != "" {
 		query = append(query, "identity ILIKE '%' || :identity || '%'")
 	}
 	if pm.Id != "" {

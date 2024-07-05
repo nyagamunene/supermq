@@ -1142,7 +1142,6 @@ func TestSearchClients(t *testing.T) {
 				Limit:    10,
 				Order:    "name",
 				Dir:      "asc",
-				Role:     mgclients.AllRole,
 			},
 			response: mgclients.ClientsPage{
 				Clients: findClients(expectedClients, expectedClients[0].Name[:4], 0, 10),
@@ -1160,7 +1159,6 @@ func TestSearchClients(t *testing.T) {
 				Identity: expectedClients[0].Name,
 				Offset:   0,
 				Limit:    10,
-				Role:     mgclients.AllRole,
 			},
 			response: mgclients.ClientsPage{
 				Clients: []mgclients.Client{expectedClients[0]},
@@ -1178,7 +1176,6 @@ func TestSearchClients(t *testing.T) {
 				Identity: fmt.Sprintf("%s' OR '1'='1", expectedClients[0].Name[:1]),
 				Offset:   0,
 				Limit:    10,
-				Role:     mgclients.AllRole,
 			},
 			response: mgclients.ClientsPage{
 				Clients: []mgclients.Client(nil),
@@ -1230,7 +1227,6 @@ func TestSearchClients(t *testing.T) {
 				Identity: namegen.Generate(),
 				Offset:   0,
 				Limit:    10,
-				Role:     mgclients.AllRole,
 			},
 			response: mgclients.ClientsPage{
 				Clients: []mgclients.Client(nil),
@@ -1274,7 +1270,6 @@ func TestSearchClients(t *testing.T) {
 				Identity: expectedClients[0].Name[:1],
 				Offset:   0,
 				Limit:    10,
-				Role:     mgclients.AllRole,
 			},
 			response: mgclients.ClientsPage{},
 			err:      nil,
@@ -1287,7 +1282,6 @@ func TestSearchClients(t *testing.T) {
 				Identity: expectedClients[0].Name[:1],
 				Offset:   0,
 				Limit:    10,
-				Role:     mgclients.AllRole,
 			},
 			response: mgclients.ClientsPage{},
 			err:      nil,
