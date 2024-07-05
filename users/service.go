@@ -189,6 +189,8 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		return pg, err
 	}
 
+	// Return empty page if user is not super admin
+	// And search criteria by identity
 	if pm.Identity != "" {
 		return mgclients.ClientsPage{}, nil
 	}
