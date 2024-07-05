@@ -189,6 +189,10 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		return pg, err
 	}
 
+	if pm.Identity != "" {
+		return mgclients.ClientsPage{}, nil
+	}
+
 	page := mgclients.Page{
 		Offset: pm.Offset,
 		Limit:  pm.Limit,
