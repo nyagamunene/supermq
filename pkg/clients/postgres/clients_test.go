@@ -1227,6 +1227,7 @@ func TestSearchClients(t *testing.T) {
 				Identity: namegen.Generate(),
 				Offset:   0,
 				Limit:    10,
+				Role:     mgclients.AllRole,
 			},
 			response: mgclients.ClientsPage{
 				Clients: []mgclients.Client(nil),
