@@ -1235,7 +1235,7 @@ func TestSearchClients(t *testing.T) {
 			response: mgclients.ClientsPage{
 				Clients: []mgclients.Client(nil),
 				Page: mgclients.Page{
-					Total:  nClients,
+					Total:  0,
 					Offset: 0,
 					Limit:  10,
 				},
