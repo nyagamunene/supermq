@@ -149,10 +149,10 @@ func (repo groupRepository) RetrieveAll(ctx context.Context, gm mggroups.Page) (
 	var q string
 	query := buildQuery(gm)
 
-	if gm.ID != "" {
+	if gm.ParentID != "" {
 		q = buildHierachy(gm)
 	}
-	if gm.ID == "" {
+	if gm.ParentID == "" {
 		q = `SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.description,
 		g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g`
 	}
@@ -197,10 +197,10 @@ func (repo groupRepository) RetrieveByIDs(ctx context.Context, gm mggroups.Page,
 	}
 	query := buildQuery(gm, ids...)
 
-	if gm.ID != "" {
+	if gm.ParentID != "" {
 		q = buildHierachy(gm)
 	}
-	if gm.ID == "" {
+	if gm.ParentID == "" {
 		q = `SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.description,
 		g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g`
 	}
@@ -334,8 +334,8 @@ func buildQuery(gm mggroups.Page, ids ...string) string {
 	if gm.Name != "" {
 		queries = append(queries, "g.name ILIKE '%' || :name || '%'")
 	}
-	if gm.SearchID != "" {
-		queries = append(queries, "g.id ILIKE '%' || :search_id || '%'")
+	if gm.PageMeta.ID != "" {
+		queries = append(queries, "g.id ILIKE '%' || :id || '%'")
 	}
 	if gm.Status != mgclients.AllStatus {
 		queries = append(queries, "g.status = :status")
@@ -462,10 +462,9 @@ func toDBGroupPage(pm mggroups.Page) (dbGroupPage, error) {
 		Total:    pm.Total,
 		Offset:   pm.Offset,
 		Limit:    pm.Limit,
-		ParentID: pm.ID,
+		ParentID: pm.ParentID,
 		DomainID: pm.DomainID,
 		Status:   pm.Status,
-		SearchID: pm.SearchID,
 	}, nil
 }
 
