@@ -214,7 +214,7 @@ func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.P
 		return mgclients.ClientsPage{}, err
 	}
 
-	cp, err := svc.clients.SearchBasicInfo(ctx, pm)
+	cp, err := svc.clients.SearchClients(ctx, pm)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrSearch, err)
 	}

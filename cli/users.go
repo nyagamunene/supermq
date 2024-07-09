@@ -465,6 +465,7 @@ var cmdUsers = []cobra.Command{
 			logJSONCmd(*cmd, users)
 		},
 	},
+
 	{
 		Use:   "search <query> <user_auth_token>",
 		Short: "Search users",
@@ -473,7 +474,7 @@ var cmdUsers = []cobra.Command{
 			"\tmagistrala-cli users search <query> <user_auth_token>\n",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 2 {
-				logUsage(cmd.Use)
+				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
 
@@ -487,15 +488,16 @@ var cmdUsers = []cobra.Command{
 				Limit:    Limit,
 				Name:     values.Get("name"),
 				Identity: values.Get("identity"),
+				ID:		  values.Get("id")
 			}
 
 			users, err := sdk.SearchUsers(pm, args[1])
 			if err != nil {
-				logError(err)
+				logErrorCmd(*cmd, err)
 				return
 			}
 
-			logJSON(users)
+			logJSONCmd(*cmd, users)
 		},
 	},
 }
