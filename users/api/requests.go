@@ -99,6 +99,10 @@ func (req searchClientsReq) validate() error {
 		return apiutil.ErrBearerToken
 	}
 
+	if req.Name == "" && req.Identity == "" && req.Id == "" {
+		return apiutil.ErrEmptySearchQuery
+	}
+
 	return nil
 }
 

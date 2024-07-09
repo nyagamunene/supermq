@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	mgxsdk "github.com/absmach/magistrala/pkg/sdk/go"
@@ -489,6 +490,14 @@ var cmdUsers = []cobra.Command{
 				Name:     values.Get("name"),
 				Identity: values.Get("identity"),
 				ID:		  values.Get("id"),
+			}
+
+			if off, err := strconv.Atoi(values.Get("offset")); err == nil {
+				pm.Offset = uint64(off)
+			}
+
+			if lim, err := strconv.Atoi(values.Get("limit")); err == nil {
+				pm.Limit = uint64(lim)
 			}
 
 			users, err := sdk.SearchUsers(pm, args[1])
