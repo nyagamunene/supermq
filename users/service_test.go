@@ -616,6 +616,79 @@ func TestListClients(t *testing.T) {
 	}
 }
 
+func TestSearchUsers(t *testing.T) {
+	svc, cRepo, auth, _ := newService(true)
+	cases := []struct {
+		desc         string
+		token        string
+		page         mgclients.Page
+		identifyResp *magistrala.IdentityRes
+		response     mgclients.ClientsPage
+		responseErr  error
+		identifyErr  error
+		err          error
+	}{
+		{
+			desc:  "search clients with valid token",
+			token: validToken,
+			page:  mgclients.Page{Offset: 0, Name: "clientname", Limit: 100},
+			response: mgclients.ClientsPage{
+				Page:    mgclients.Page{Total: 1, Offset: 0, Limit: 100},
+				Clients: []mgclients.Client{client},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
+		},
+		{
+			desc:        "search clients with invalid token",
+			token:       inValidToken,
+			page:        mgclients.Page{Offset: 0, Name: "clientname", Limit: 100},
+			response:    mgclients.ClientsPage{},
+			responseErr: svcerr.ErrAuthentication,
+			err:         svcerr.ErrAuthentication,
+		},
+		{
+			desc:  "search clients with id",
+			token: validToken,
+			page:  mgclients.Page{Offset: 0, Id: "d8dd12ef-aa2a-43fe-8ef2-2e4fe514360f", Limit: 100},
+			response: mgclients.ClientsPage{
+				Page:    mgclients.Page{Total: 1, Offset: 0, Limit: 100},
+				Clients: []mgclients.Client{client},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
+		},
+		{
+			desc:  "search clients with username",
+			token: validToken,
+			page:  mgclients.Page{Offset: 0, Identity: "clientidentity", Limit: 100},
+			response: mgclients.ClientsPage{
+				Page:    mgclients.Page{Total: 1, Offset: 0, Limit: 100},
+				Clients: []mgclients.Client{client},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
+		},
+		{
+			desc:  "search clients with random name",
+			token: validToken,
+			page:  mgclients.Page{Offset: 0, Name: "randomname", Limit: 100},
+			response: mgclients.ClientsPage{
+				Page:    mgclients.Page{Total: 0, Offset: 0, Limit: 100},
+				Clients: []mgclients.Client{},
+			},
+			identifyResp: &magistrala.IdentityRes{UserId: client.ID},
+		},
+	}
+
+	for _, tc := range cases {
+		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyResp, tc.identifyErr)
+		repoCall := cRepo.On("SearchBasicInfo", context.Background(), tc.page).Return(tc.response, tc.responseErr)
+		page, err := svc.SearchUsers(context.Background(), tc.token, tc.page)
+		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, tc.response, page, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, page))
+		authCall.Unset()
+		repoCall.Unset()
+	}
+}
+
 func TestUpdateClient(t *testing.T) {
 	svc, cRepo, auth, _ := newService(true)
 

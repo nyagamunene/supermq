@@ -189,12 +189,6 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		return pg, err
 	}
 
-	// Return empty page if user is not super admin
-	// And search criteria by identity
-	if pm.Identity != "" {
-		return mgclients.ClientsPage{}, nil
-	}
-
 	page := mgclients.Page{
 		Offset: pm.Offset,
 		Limit:  pm.Limit,
@@ -203,7 +197,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		Role:   mgclients.UserRole,
 	}
 
-	pg, err := svc.clients.SearchClients(ctx, page)
+	pg, err := svc.clients.RetrieveAll(ctx, page)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
@@ -212,6 +206,20 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 	}
 
 	return pg, nil
+}
+
+func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
+	_, err := svc.identify(ctx, token)
+	if err != nil {
+		return mgclients.ClientsPage{}, err
+	}
+
+	cp, err := svc.clients.SearchBasicInfo(ctx, pm)
+	if err != nil {
+		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrSearch, err)
+	}
+
+	return cp, nil
 }
 
 func (svc service) UpdateClient(ctx context.Context, token string, cli mgclients.Client) (mgclients.Client, error) {
