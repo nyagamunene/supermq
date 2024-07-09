@@ -326,6 +326,9 @@ func (sce searchClientEvent) Encode() (map[string]interface{}, error) {
 	if sce.Identity != "" {
 		val["identity"] = sce.Identity
 	}
+	if sce.Id != "" {
+		val["id"] = sce.Id
+	}
 
 	return val, nil
 }
