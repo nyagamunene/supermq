@@ -311,10 +311,8 @@ func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error
 
 	req := searchClientsReq{
 		token: apiutil.ExtractBearerToken(r),
-		Status:     st,
 		Offset:     o,
 		Limit:      l,
-		Metadata:   m,
 		Identity:   i,
 		Name:       n,
 		Id:			id,

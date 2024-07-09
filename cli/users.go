@@ -488,7 +488,7 @@ var cmdUsers = []cobra.Command{
 				Limit:    Limit,
 				Name:     values.Get("name"),
 				Identity: values.Get("identity"),
-				ID:		  values.Get("id")
+				ID:		  values.Get("id"),
 			}
 
 			users, err := sdk.SearchUsers(pm, args[1])
