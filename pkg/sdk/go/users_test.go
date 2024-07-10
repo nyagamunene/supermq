@@ -580,9 +580,9 @@ func TestSearchClients(t *testing.T) {
 		identifyErr  error
 	}{
 		{
-			desc:        "search for users",
-			token:       validToken,
-			err:         nil,
+			desc:  "search for users",
+			token: validToken,
+			err:   nil,
 			page: sdk.PageMetadata{
 				Offset: offset,
 				Limit:  limit,

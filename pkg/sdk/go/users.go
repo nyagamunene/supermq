@@ -347,7 +347,6 @@ func (sdk mgSDK) SearchUsers(pm PageMetadata, token string) (UsersPage, errors.S
 	return cp, nil
 }
 
-
 func (sdk mgSDK) EnableUser(id, token string) (User, errors.SDKError) {
 	return sdk.changeClientStatus(token, id, enableEndpoint)
 }

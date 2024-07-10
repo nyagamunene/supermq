@@ -116,7 +116,7 @@ func searchClientsEndpoint(svc users.Service) endpoint.Endpoint {
 			Offset:   req.Offset,
 			Limit:    req.Limit,
 			Name:     req.Name,
-			Id:		  req.Id,
+			Id:       req.Id,
 			Identity: req.Identity,
 			Order:    req.Order,
 			Dir:      req.Dir,
