@@ -680,7 +680,7 @@ func TestSearchUsers(t *testing.T) {
 
 	for _, tc := range cases {
 		authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyResp, tc.identifyErr)
-		repoCall := cRepo.On("SearchBasicInfo", context.Background(), tc.page).Return(tc.response, tc.responseErr)
+		repoCall := cRepo.On("SearchClients", context.Background(), tc.page).Return(tc.response, tc.responseErr)
 		page, err := svc.SearchUsers(context.Background(), tc.token, tc.page)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.response, page, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, page))

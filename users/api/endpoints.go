@@ -121,7 +121,7 @@ func searchClientsEndpoint(svc users.Service) endpoint.Endpoint {
 			Order:    req.Order,
 			Dir:      req.Dir,
 		}
-		page, err := svc.SearchClients(ctx, req.token, pm)
+		page, err := svc.SearchUsers(ctx, req.token, pm)
 		if err != nil {
 			return nil, err
 		}

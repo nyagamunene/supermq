@@ -309,25 +309,15 @@ func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
-	for _, field := range []string{req.Name, req.Identity, req.Id} {
-		if field != "" && len(field) < 3 {
-			req = searchClientsReq{
-				token: apiutil.ExtractBearerToken(r),
-				Page:  mgclients.Page{},
-			}
-			return req, errors.Wrap(apiutil.ErrLenSearchQuery, apiutil.ErrValidation)
-		}
-	}
-
 	req := searchClientsReq{
-		token: apiutil.ExtractBearerToken(r),
-		Offset:     o,
-		Limit:      l,
-		Identity:   i,
-		Name:       n,
-		Id:			id,
-		Order:		order,
-		Dir:		dir,
+		token:    apiutil.ExtractBearerToken(r),
+		Offset:   o,
+		Limit:    l,
+		Identity: i,
+		Name:     n,
+		Id:       id,
+		Order:    order,
+		Dir:      dir,
 	}
 
 	return req, nil

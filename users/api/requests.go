@@ -91,7 +91,14 @@ func (req listClientsReq) validate() error {
 
 type searchClientsReq struct {
 	mgclients.Page
-	token string
+	token    string
+	Offset   uint64
+	Limit    uint64
+	Identity string
+	Name     string
+	Id       string
+	Order    string
+	Dir      string
 }
 
 func (req searchClientsReq) validate() error {

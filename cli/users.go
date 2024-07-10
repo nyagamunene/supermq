@@ -481,7 +481,7 @@ var cmdUsers = []cobra.Command{
 
 			values, err := url.ParseQuery(args[0])
 			if err != nil {
-				logError(fmt.Errorf("Failed to parse query: %s", err))
+				logErrorCmd(*cmd, fmt.Errorf("failed to parse query: %s", err))
 			}
 
 			pm := mgxsdk.PageMetadata{
@@ -489,7 +489,7 @@ var cmdUsers = []cobra.Command{
 				Limit:    Limit,
 				Name:     values.Get("name"),
 				Identity: values.Get("identity"),
-				ID:		  values.Get("id"),
+				ID:       values.Get("id"),
 			}
 
 			if off, err := strconv.Atoi(values.Get("offset")); err == nil {
