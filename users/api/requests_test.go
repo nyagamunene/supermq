@@ -247,9 +247,7 @@ func TestSearchClientsReqValidate(t *testing.T) {
 			desc: "valid request",
 			req: searchClientsReq{
 				token: valid,
-				Page: mgclients.Page{
-					Name: name,
-				},
+				Name: name,
 			},
 			err: nil,
 		},
@@ -257,9 +255,7 @@ func TestSearchClientsReqValidate(t *testing.T) {
 			desc: "empty token",
 			req: searchClientsReq{
 				token: "",
-				Page: mgclients.Page{
-					Name: name,
-				},
+				Name: name,
 			},
 			err: apiutil.ErrBearerToken,
 		},

@@ -90,7 +90,6 @@ func (req listClientsReq) validate() error {
 }
 
 type searchClientsReq struct {
-	mgclients.Page
 	token    string
 	Offset   uint64
 	Limit    uint64
