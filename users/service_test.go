@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/absmach/magistrala"
 	authsvc "github.com/absmach/magistrala/auth"
@@ -39,8 +38,6 @@ var (
 		Credentials: mgclients.Credentials{Identity: "clientidentity", Secret: secret},
 		Metadata:    validCMetadata,
 		Status:      mgclients.EnabledStatus,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
 	}
 	basicClient = mgclients.Client{
 		Name: "clientname",
