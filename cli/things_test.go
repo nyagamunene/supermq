@@ -626,4 +626,3 @@ func TestDisablethingCmd(t *testing.T) {
 		sdkCall.Unset()
 	}
 }
-
