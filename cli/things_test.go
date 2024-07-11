@@ -607,7 +607,7 @@ func TestDisablethingCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("Disablething", tc.args[1], tc.args[2]).Return(tc.thing, tc.sdkerr)
+		sdkCall := sdkMock.On("DisableThing", tc.args[1], tc.args[2]).Return(tc.thing, tc.sdkerr)
 		out := executeCommand(t, rootCmd, tc.args...)
 
 		switch tc.logType {
@@ -626,3 +626,4 @@ func TestDisablethingCmd(t *testing.T) {
 		sdkCall.Unset()
 	}
 }
+
