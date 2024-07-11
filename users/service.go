@@ -197,7 +197,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		Role:   mgclients.UserRole,
 	}
 
-	pg, err := svc.clients.SearchClients(ctx, page)
+	pg, err := svc.clients.RetrieveAll(ctx, page)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
@@ -209,14 +209,25 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 }
 
 func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
-	_, err := svc.identify(ctx, token)
+	userID, err := svc.Identify(ctx, token)
 	if err != nil {
 		return mgclients.ClientsPage{}, err
+	}
+	if err := svc.checkSuperAdmin(ctx, userID); err == nil {
+		pg, err := svc.clients.SearchClients(ctx, pm)
+		if err != nil {
+			return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
+		}
+		return pg, err
+	}
+
+	if pm.Identity != "" {
+		return mgclients.ClientsPage{}, nil
 	}
 
 	cp, err := svc.clients.SearchClients(ctx, pm)
 	if err != nil {
-		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrSearch, err)
+		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 
 	return cp, nil
