@@ -626,3 +626,27 @@ func TestDisablethingCmd(t *testing.T) {
 		sdkCall.Unset()
 	}
 }
+
+func TestUsersthingCmd(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	usersCommand := "users"
+	thingsCmd := cli.NewThingsCmd()
+	rootCmd := setFlags(thingsCmd)
+
+	page := mgsdk.UsersPage{}
+
+	cases := []struct {
+		desc string
+		args []string
+	}{
+		{
+			desc: "get thing's users successfully",
+			args: []string{
+				usersCommand,
+				thing.ID,
+				token,
+			},
+		},
+	}
+}
