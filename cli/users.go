@@ -488,7 +488,6 @@ var cmdUsers = []cobra.Command{
 				Offset:   Offset,
 				Limit:    Limit,
 				Name:     values.Get("name"),
-				Identity: values.Get("identity"),
 				ID:       values.Get("id"),
 			}
 
@@ -514,7 +513,7 @@ var cmdUsers = []cobra.Command{
 // NewUsersCmd returns users command.
 func NewUsersCmd() *cobra.Command {
 	cmd := cobra.Command{
-		Use:   "users [create | get | update | token | password | enable | disable | delete | channels | things | groups]",
+		Use:   "users [create | get | update | token | password | enable | disable | delete | channels | things | groups | search]",
 		Short: "Users management",
 		Long:  `Users management: create accounts and tokens"`,
 	}
