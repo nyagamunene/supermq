@@ -37,12 +37,6 @@ var thing = mgsdk.Thing{
 	Status:   mgclients.EnabledStatus.String(),
 }
 
-var channel = mgsdk.Channel{
-	ID:       testsutil.GenerateUUID(&testing.T{}),
-	Name:     "testchannel",
-	DomainID: thing.DomainID,
-}
-
 func TestCreateThingsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
@@ -113,7 +107,7 @@ func TestCreateThingsCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "create thing with invalid metdata",
+			desc: "create thing with invalid metadata",
 			args: []string{
 				createCommand,
 				"{\"name\":\"testthing\", \"metadata\":{\"key1\":value1}}",
