@@ -20,53 +20,53 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var channel = mgsdk.Channel{
+var group = mgsdk.Group{
 	ID:   testsutil.GenerateUUID(&testing.T{}),
-	Name: "testchannel",
+	Name: "testgroup",
 }
 
-func TestCreateChannelCmd(t *testing.T) {
+func TestCreateGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	createCommand := "create"
-	channelJson := "{\"name\":\"testchannel\", \"metadata\":{\"key1\":\"value1\"}}"
-	channelCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelCmd)
+	groupJson := "{\"name\":\"testgroup\", \"metadata\":{\"key1\":\"value1\"}}"
+	groupCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupCmd)
 
-	cp := mgsdk.Channel{}
+	gp := mgsdk.Group{}
 	cases := []struct {
 		desc          string
 		args          []string
 		logType       outputLog
-		channel       mgsdk.Channel
+		group         mgsdk.Group
 		sdkErr        errors.SDKError
 		errLogMessage string
 	}{
 		{
-			desc: "create channel successfully",
+			desc: "create group successfully",
 			args: []string{
 				createCommand,
-				channelJson,
+				groupJson,
 				token,
 			},
-			channel: channel,
+			group:   group,
 			logType: entityLog,
 		},
 		{
-			desc: "create channel with invalid args",
+			desc: "create group with invalid args",
 			args: []string{
 				createCommand,
-				channelJson,
+				groupJson,
 				token,
 				extraArg,
 			},
 			logType: usageLog,
 		},
 		{
-			desc: "create channel with invalid json",
+			desc: "create group with invalid json",
 			args: []string{
 				createCommand,
-				"{\"name\":\"testchannel\", \"metadata\":{\"key1\":\"value1\"}",
+				"{\"name\":\"testgroup\", \"metadata\":{\"key1\":\"value1\"}",
 				token,
 			},
 			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
@@ -74,10 +74,10 @@ func TestCreateChannelCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "create channel with invalid token",
+			desc: "create group with invalid token",
 			args: []string{
 				createCommand,
-				channelJson,
+				groupJson,
 				invalidToken,
 			},
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusUnauthorized),
@@ -85,10 +85,10 @@ func TestCreateChannelCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "create channel without domain token",
+			desc: "create group without domain token",
 			args: []string{
 				createCommand,
-				channelJson,
+				groupJson,
 				tokenWithoutDomain,
 			},
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden),
@@ -98,14 +98,14 @@ func TestCreateChannelCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("CreateChannel", mock.Anything, tc.args[2]).Return(tc.channel, tc.sdkErr)
+		sdkCall := sdkMock.On("CreateGroup", mock.Anything, tc.args[2]).Return(tc.group, tc.sdkErr)
 		out := executeCommand(t, rootCmd, tc.args...)
 
 		switch tc.logType {
 		case entityLog:
-			err := json.Unmarshal([]byte(out), &cp)
+			err := json.Unmarshal([]byte(out), &gp)
 			assert.Nil(t, err)
-			assert.Equal(t, tc.channel, cp, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.channel, cp))
+			assert.Equal(t, tc.group, gp, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.group, gp))
 		case usageLog:
 			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 		}
@@ -113,50 +113,42 @@ func TestCreateChannelCmd(t *testing.T) {
 	}
 }
 
-func TestGetChannelsCmd(t *testing.T) {
+func TestGetGroupsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	getCommand := "get"
+	childrenCommand := "children"
+	parentsCommand := "parents"
 
-	channelCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelCmd)
+	groupCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupCmd)
 
-	var ch mgsdk.Channel
-	var page mgsdk.ChannelsPage
+	var ch mgsdk.Group
+	var page mgsdk.GroupsPage
 
 	cases := []struct {
 		desc          string
 		args          []string
 		sdkErr        errors.SDKError
-		page          mgsdk.ChannelsPage
-		channel       mgsdk.Channel
+		page          mgsdk.GroupsPage
+		group         mgsdk.Group
 		logType       outputLog
 		errLogMessage string
 	}{
 		{
-			desc: "get all channels successfully",
+			desc: "get all groups successfully",
 			args: []string{
 				getCommand,
 				all,
 				token,
 			},
-			page: mgsdk.ChannelsPage{
-				Channels: []mgsdk.Channel{channel},
+			page: mgsdk.GroupsPage{
+				Groups: []mgsdk.Group{group},
 			},
 			logType: entityLog,
 		},
 		{
-			desc: "get channel with id",
-			args: []string{
-				getCommand,
-				channel.ID,
-				token,
-			},
-			logType: entityLog,
-			channel: channel,
-		},
-		{
-			desc: "get channels with invalid args",
+			desc: "get all groups with invalid args",
 			args: []string{
 				getCommand,
 				all,
@@ -166,7 +158,97 @@ func TestGetChannelsCmd(t *testing.T) {
 			logType: usageLog,
 		},
 		{
-			desc: "get all channels with invalid token",
+			desc: "get children groups successfully",
+			args: []string{
+				getCommand,
+				childrenCommand,
+				group.ID,
+				token,
+			},
+			page: mgsdk.GroupsPage{
+				Groups: []mgsdk.Group{group},
+			},
+			logType: entityLog,
+		},
+		{
+			desc: "get children groups with invalid args",
+			args: []string{
+				getCommand,
+				childrenCommand,
+				group.ID,
+				token,
+				extraArg,
+			},
+			logType: usageLog,
+		},
+		{
+			desc: "get children groups with invalid token",
+			args: []string{
+				getCommand,
+				childrenCommand,
+				group.ID,
+				invalidID,
+			},
+			logType:       errLog,
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+		},
+		{
+			desc: "get parents groups successfully",
+			args: []string{
+				getCommand,
+				parentsCommand,
+				group.ID,
+				token,
+			},
+			page: mgsdk.GroupsPage{
+				Groups: []mgsdk.Group{group},
+			},
+			logType: entityLog,
+		},
+		{
+			desc: "get parents groups with invalid args",
+			args: []string{
+				getCommand,
+				parentsCommand,
+				group.ID,
+				token,
+				extraArg,
+			},
+			logType: usageLog,
+		},
+		{
+			desc: "get parents groups with invalid token",
+			args: []string{
+				getCommand,
+				parentsCommand,
+				group.ID,
+				invalidID,
+			},
+			logType:       errLog,
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+		},
+		{
+			desc: "get group with id",
+			args: []string{
+				getCommand,
+				group.ID,
+				token,
+			},
+			logType: entityLog,
+			group:   group,
+		},
+		{
+			desc: "get groups with invalid args",
+			args: []string{
+				getCommand,
+				all,
+			},
+			logType: usageLog,
+		},
+		{
+			desc: "get all groups with invalid token",
 			args: []string{
 				getCommand,
 				all,
@@ -177,10 +259,10 @@ func TestGetChannelsCmd(t *testing.T) {
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
 		},
 		{
-			desc: "get channel without domain token",
+			desc: "get group without domain token",
 			args: []string{
 				getCommand,
-				channel.ID,
+				group.ID,
 				invalidID,
 			},
 			logType:       errLog,
@@ -188,7 +270,7 @@ func TestGetChannelsCmd(t *testing.T) {
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden)),
 		},
 		{
-			desc: "get channel with invalid id",
+			desc: "get group with invalid id",
 			args: []string{
 				getCommand,
 				invalidID,
@@ -198,11 +280,23 @@ func TestGetChannelsCmd(t *testing.T) {
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
 			logType:       errLog,
 		},
+		{
+			desc: "get group with invalid args",
+			args: []string{
+				getCommand,
+				invalidID,
+				token,
+				extraArg,
+			},
+			logType:       usageLog,
+		},
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("Channel", tc.args[1], tc.args[2]).Return(tc.channel, tc.sdkErr)
-		sdkCall1 := sdkMock.On("Channels", mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
+		sdkCall := sdkMock.On("Group", mock.Anything, mock.Anything).Return(tc.group, tc.sdkErr)
+		sdkCall1 := sdkMock.On("Groups", mock.Anything, mock.Anything).Return(tc.page, tc.sdkErr)
+		sdkCall2 := sdkMock.On("Parents", mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.sdkErr)
+		sdkCall3 := sdkMock.On("Children", mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.sdkErr)
 
 		out := executeCommand(t, rootCmd, tc.args...)
 
@@ -215,7 +309,7 @@ func TestGetChannelsCmd(t *testing.T) {
 			} else {
 				err := json.Unmarshal([]byte(out), &ch)
 				assert.Nil(t, err)
-				assert.Equal(t, tc.channel, ch, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.channel, ch))
+				assert.Equal(t, tc.group, ch, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.group, ch))
 			}
 		case errLog:
 			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
@@ -224,15 +318,17 @@ func TestGetChannelsCmd(t *testing.T) {
 		}
 		sdkCall.Unset()
 		sdkCall1.Unset()
+		sdkCall2.Unset()
+		sdkCall3.Unset()
 	}
 }
 
-func TestDeleteChannelCmd(t *testing.T) {
+func TestDeletegroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	deleteCommand := "delete"
-	channelCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelCmd)
+	groupCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupCmd)
 
 	cases := []struct {
 		desc          string
@@ -242,26 +338,26 @@ func TestDeleteChannelCmd(t *testing.T) {
 		errLogMessage string
 	}{
 		{
-			desc: "delete channel successfully",
+			desc: "delete group successfully",
 			args: []string{
 				deleteCommand,
-				channel.ID,
+				group.ID,
 				token,
 			},
 			logType: okLog,
 		},
 		{
-			desc: "delete channel with invalid args",
+			desc: "delete group with invalid args",
 			args: []string{
 				deleteCommand,
-				channel.ID,
+				group.ID,
 				token,
 				extraArg,
 			},
 			logType: usageLog,
 		},
 		{
-			desc: "delete channel with invalid channel id",
+			desc: "delete group with invalid group id",
 			args: []string{
 				deleteCommand,
 				invalidID,
@@ -272,10 +368,10 @@ func TestDeleteChannelCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "delete channel with invalid token",
+			desc: "delete group with invalid token",
 			args: []string{
 				deleteCommand,
-				channel.ID,
+				group.ID,
 				invalidToken,
 			},
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -285,7 +381,7 @@ func TestDeleteChannelCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("DeleteChannel", tc.args[1], tc.args[2]).Return(tc.sdkErr)
+		sdkCall := sdkMock.On("DeleteGroup", tc.args[1], tc.args[2]).Return(tc.sdkErr)
 		out := executeCommand(t, rootCmd, tc.args...)
 
 		switch tc.logType {
@@ -300,53 +396,51 @@ func TestDeleteChannelCmd(t *testing.T) {
 	}
 }
 
-func TestUpdateChannelCmd(t *testing.T) {
+func TestUpdategroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	updateCommand := "update"
-	channelCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelCmd)
+	groupCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupCmd)
 
-	newChannelJson := "{\"name\" : \"channel1\"}"
+	newgroupJson := fmt.Sprintf("{\"id\":\"%s\",\"name\" : \"group1\"}", group.ID)
 	cases := []struct {
 		desc          string
 		args          []string
-		channel       mgsdk.Channel
+		group         mgsdk.Group
 		sdkErr        errors.SDKError
 		errLogMessage string
 		logType       outputLog
 	}{
 		{
-			desc: "update channel successfully",
+			desc: "update group successfully",
 			args: []string{
 				updateCommand,
-				channel.ID,
-				newChannelJson,
+				newgroupJson,
 				token,
 			},
-			channel: mgsdk.Channel{
-				Name: "newchannel1",
-				ID:   channel.ID,
+			group: mgsdk.Group{
+				Name: "newgroup1",
+				ID:   group.ID,
 			},
 			logType: entityLog,
 		},
 		{
-			desc: "update channel with invalid args",
+			desc: "update group with invalid args",
 			args: []string{
 				updateCommand,
-				channel.ID,
-				newChannelJson,
+				newgroupJson,
 				token,
 				extraArg,
 			},
 			logType: usageLog,
 		},
 		{
-			desc: "update channel with invalid channel id",
+			desc: "update group with invalid group id",
 			args: []string{
 				updateCommand,
-				invalidID,
-				newChannelJson,
+
+				fmt.Sprintf("{\"id\":\"%s\",\"name\" : \"group1\"}", invalidID),
 				token,
 			},
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -354,11 +448,10 @@ func TestUpdateChannelCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "update channel with invalid json syntax",
+			desc: "update group with invalid json syntax",
 			args: []string{
 				updateCommand,
-				channel.ID,
-				"{\"name\" : \"channel1\"",
+				fmt.Sprintf("{\"id\":\"%s\",\"name\" : \"group1\"", group.ID),
 				token,
 			},
 			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
@@ -367,15 +460,15 @@ func TestUpdateChannelCmd(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		var ch mgsdk.Channel
-		sdkCall := sdkMock.On("UpdateChannel", mock.Anything, tc.args[3]).Return(tc.channel, tc.sdkErr)
+		var ch mgsdk.Group
+		sdkCall := sdkMock.On("UpdateGroup", mock.Anything, tc.args[2]).Return(tc.group, tc.sdkErr)
 		out := executeCommand(t, rootCmd, tc.args...)
 
 		switch tc.logType {
 		case entityLog:
 			err := json.Unmarshal([]byte(out), &ch)
 			assert.Nil(t, err)
-			assert.Equal(t, tc.channel, ch, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.channel, ch))
+			assert.Equal(t, tc.group, ch, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.group, ch))
 		case usageLog:
 			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 		case errLog:
@@ -385,264 +478,27 @@ func TestUpdateChannelCmd(t *testing.T) {
 	}
 }
 
-func TestListConnectionsCmd(t *testing.T) {
-	sdkMock := new(sdkmocks.SDK)
-	cli.SetSDK(sdkMock)
-	connectionsCommand := "connections"
-	channelCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelCmd)
-
-	var tp mgsdk.ThingsPage
-	cases := []struct {
-		desc          string
-		args          []string
-		sdkErr        errors.SDKError
-		errLogMessage string
-		logType       outputLog
-		page          mgsdk.ThingsPage
-	}{
-		{
-			desc: "list connections successfully",
-			args: []string{
-				connectionsCommand,
-				channel.ID,
-				token,
-			},
-			page: mgsdk.ThingsPage{
-				PageRes: mgsdk.PageRes{
-					Total:  1,
-					Offset: 0,
-					Limit:  10,
-				},
-				Things: []mgsdk.Thing{thing},
-			},
-			logType: entityLog,
-		},
-		{
-			desc: "list connections with invalid args",
-			args: []string{
-				connectionsCommand,
-				channel.ID,
-				token,
-				extraArg,
-			},
-			logType: usageLog,
-		},
-		{
-			desc: "list connections with invalid channel id",
-			args: []string{
-				connectionsCommand,
-				invalidID,
-				token,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-	}
-
-	for _, tc := range cases {
-		sdkCall := sdkMock.On("ThingsByChannel", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
-		out := executeCommand(t, rootCmd, tc.args...)
-		switch tc.logType {
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &tp)
-			if err != nil {
-				t.Fatalf("Failed to unmarshal JSON: %v", err)
-			}
-			assert.Equal(t, tc.page, tp, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, tp))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		}
-		sdkCall.Unset()
-	}
-}
-
-func TestEnableChannelCmd(t *testing.T) {
-	sdkMock := new(sdkmocks.SDK)
-	cli.SetSDK(sdkMock)
-	enableCommand := "enable"
-	channelCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelCmd)
-	var ch mgsdk.Channel
-
-	cases := []struct {
-		desc          string
-		args          []string
-		sdkErr        errors.SDKError
-		errLogMessage string
-		channel       mgsdk.Channel
-		logType       outputLog
-	}{
-		{
-			desc: "enable channel successfully",
-			args: []string{
-				enableCommand,
-				channel.ID,
-				validToken,
-			},
-			channel: channel,
-			logType: entityLog,
-		},
-		{
-			desc: "delete channel with invalid token",
-			args: []string{
-				enableCommand,
-				channel.ID,
-				invalidToken,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-		{
-			desc: "delete channel with invalid channel ID",
-			args: []string{
-				enableCommand,
-				invalidID,
-				token,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-		{
-			desc: "enable channel with invalid args",
-			args: []string{
-				enableCommand,
-				channel.ID,
-				validToken,
-				extraArg,
-			},
-			logType: usageLog,
-		},
-	}
-
-	for _, tc := range cases {
-		sdkCall := sdkMock.On("EnableChannel", tc.args[1], tc.args[2]).Return(tc.channel, tc.sdkErr)
-		out := executeCommand(t, rootCmd, tc.args...)
-
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &ch)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.channel, ch, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.channel, ch))
-		}
-
-		sdkCall.Unset()
-	}
-}
-
-func TestDisableChannelCmd(t *testing.T) {
-	sdkMock := new(sdkmocks.SDK)
-	cli.SetSDK(sdkMock)
-	disableCommand := "disable"
-	channelsCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelsCmd)
-
-	var ch mgsdk.Channel
-
-	cases := []struct {
-		desc          string
-		args          []string
-		sdkErr        errors.SDKError
-		errLogMessage string
-		channel       mgsdk.Channel
-		logType       outputLog
-	}{
-		{
-			desc: "disable channel successfully",
-			args: []string{
-				disableCommand,
-				channel.ID,
-				validToken,
-			},
-			logType: entityLog,
-			channel: channel,
-		},
-		{
-			desc: "delete channel with invalid token",
-			args: []string{
-				disableCommand,
-				channel.ID,
-				invalidToken,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-		{
-			desc: "delete channel with invalid id",
-			args: []string{
-				disableCommand,
-				invalidID,
-				token,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-		{
-			desc: "disable thing with invalid args",
-			args: []string{
-				disableCommand,
-				channel.ID,
-				validToken,
-				extraArg,
-			},
-			logType: usageLog,
-		},
-	}
-
-	for _, tc := range cases {
-		sdkCall := sdkMock.On("DisableChannel", tc.args[1], tc.args[2]).Return(tc.channel, tc.sdkErr)
-		out := executeCommand(t, rootCmd, tc.args...)
-
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &ch)
-			if err != nil {
-				t.Fatalf("json.Unmarshal failed: %v", err)
-			}
-			assert.Equal(t, tc.channel, ch, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.channel, ch))
-		}
-
-		sdkCall.Unset()
-	}
-}
-
-func TestUsersChannelCmd(t *testing.T) {
+func TestListUsersCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	usersCommand := "users"
-	channelsCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelsCmd)
+	groupsCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupsCmd)
 
-	page := mgsdk.UsersPage{}
-
+	var up mgsdk.UsersPage
 	cases := []struct {
 		desc          string
 		args          []string
-		logType       outputLog
-		errLogMessage string
-		page          mgsdk.UsersPage
 		sdkErr        errors.SDKError
+		errLogMessage string
+		logType       outputLog
+		page          mgsdk.UsersPage
 	}{
 		{
-			desc: "get channel's users successfully",
+			desc: "list users successfully",
 			args: []string{
 				usersCommand,
-				channel.ID,
+				group.ID,
 				token,
 			},
 			page: mgsdk.UsersPage{
@@ -656,28 +512,17 @@ func TestUsersChannelCmd(t *testing.T) {
 			logType: entityLog,
 		},
 		{
-			desc: "list channel users with invalid args",
+			desc: "list users with invalid args",
 			args: []string{
 				usersCommand,
-				channel.ID,
+				group.ID,
 				token,
 				extraArg,
 			},
 			logType: usageLog,
 		},
 		{
-			desc: "list channel users without domain token",
-			args: []string{
-				usersCommand,
-				channel.ID,
-				tokenWithoutDomain,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-		{
-			desc: "list channel users with invalid id",
+			desc: "list users with invalid id",
 			args: []string{
 				usersCommand,
 				invalidID,
@@ -687,30 +532,17 @@ func TestUsersChannelCmd(t *testing.T) {
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
 			logType:       errLog,
 		},
-		{
-			desc: "list channel users without domain token",
-			args: []string{
-				usersCommand,
-				channel.ID,
-				tokenWithoutDomain,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
 	}
-
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("ListChannelUsers", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
+		sdkCall := sdkMock.On("ListGroupUsers", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
 		out := executeCommand(t, rootCmd, tc.args...)
-
 		switch tc.logType {
 		case entityLog:
-			err := json.Unmarshal([]byte(out), &page)
+			err := json.Unmarshal([]byte(out), &up)
 			if err != nil {
 				t.Fatalf("Failed to unmarshal JSON: %v", err)
 			}
-			assert.Equal(t, tc.page, page, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, page))
+			assert.Equal(t, tc.page, up, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, up))
 		case usageLog:
 			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 		case errLog:
@@ -720,53 +552,53 @@ func TestUsersChannelCmd(t *testing.T) {
 	}
 }
 
-func TestListGroupCmd(t *testing.T) {
+func TestListChannelsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	groupsCommand := "groups"
-	channelsCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelsCmd)
+	channelsCommand := "channels"
+	groupsCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupsCmd)
 
-	var gp mgsdk.GroupsPage
+	var cp mgsdk.ChannelsPage
 	cases := []struct {
 		desc          string
 		args          []string
 		sdkErr        errors.SDKError
 		errLogMessage string
 		logType       outputLog
-		page          mgsdk.GroupsPage
+		page          mgsdk.ChannelsPage
 	}{
 		{
-			desc: "list groups successfully",
+			desc: "list channels successfully",
 			args: []string{
-				groupsCommand,
-				channel.ID,
+				channelsCommand,
+				group.ID,
 				token,
 			},
-			page: mgsdk.GroupsPage{
+			page: mgsdk.ChannelsPage{
 				PageRes: mgsdk.PageRes{
 					Total:  1,
 					Offset: 0,
 					Limit:  10,
 				},
-				Groups: []mgsdk.Group{group},
+				Channels: []mgsdk.Channel{channel},
 			},
 			logType: entityLog,
 		},
 		{
-			desc: "list groups with invalid args",
+			desc: "list channels with invalid args",
 			args: []string{
-				groupsCommand,
-				channel.ID,
+				channelsCommand,
+				group.ID,
 				token,
 				extraArg,
 			},
 			logType: usageLog,
 		},
 		{
-			desc: "list groups with invalid channel id",
+			desc: "list channels with invalid id",
 			args: []string{
-				groupsCommand,
+				channelsCommand,
 				invalidID,
 				token,
 			},
@@ -776,15 +608,15 @@ func TestListGroupCmd(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("ListChannelUserGroups", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
+		sdkCall := sdkMock.On("ListGroupChannels", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
 		out := executeCommand(t, rootCmd, tc.args...)
 		switch tc.logType {
 		case entityLog:
-			err := json.Unmarshal([]byte(out), &gp)
+			err := json.Unmarshal([]byte(out), &cp)
 			if err != nil {
 				t.Fatalf("Failed to unmarshal JSON: %v", err)
 			}
-			assert.Equal(t, tc.page, gp, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, gp))
+			assert.Equal(t, tc.page, cp, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, cp))
 		case usageLog:
 			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 		case errLog:
@@ -794,13 +626,174 @@ func TestListGroupCmd(t *testing.T) {
 	}
 }
 
-func TestAssignUserCmd(t *testing.T) {
+func TestEnablegroupCmd(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	enableCommand := "enable"
+	groupCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupCmd)
+	var ch mgsdk.Group
+
+	cases := []struct {
+		desc          string
+		args          []string
+		sdkErr        errors.SDKError
+		errLogMessage string
+		group         mgsdk.Group
+		logType       outputLog
+	}{
+		{
+			desc: "enable group successfully",
+			args: []string{
+				enableCommand,
+				group.ID,
+				validToken,
+			},
+			group:   group,
+			logType: entityLog,
+		},
+		{
+			desc: "delete group with invalid token",
+			args: []string{
+				enableCommand,
+				group.ID,
+				invalidToken,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+		{
+			desc: "delete group with invalid group ID",
+			args: []string{
+				enableCommand,
+				invalidID,
+				token,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+		{
+			desc: "enable group with invalid args",
+			args: []string{
+				enableCommand,
+				group.ID,
+				validToken,
+				extraArg,
+			},
+			logType: usageLog,
+		},
+	}
+
+	for _, tc := range cases {
+		sdkCall := sdkMock.On("EnableGroup", tc.args[1], tc.args[2]).Return(tc.group, tc.sdkErr)
+		out := executeCommand(t, rootCmd, tc.args...)
+
+		switch tc.logType {
+		case errLog:
+			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+		case usageLog:
+			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+		case entityLog:
+			err := json.Unmarshal([]byte(out), &ch)
+			assert.Nil(t, err)
+			assert.Equal(t, tc.group, ch, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.group, ch))
+		}
+
+		sdkCall.Unset()
+	}
+}
+
+func TestDisablegroupCmd(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	disableCommand := "disable"
+	groupsCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupsCmd)
+
+	var ch mgsdk.Group
+
+	cases := []struct {
+		desc          string
+		args          []string
+		sdkErr        errors.SDKError
+		errLogMessage string
+		group         mgsdk.Group
+		logType       outputLog
+	}{
+		{
+			desc: "disable group successfully",
+			args: []string{
+				disableCommand,
+				group.ID,
+				validToken,
+			},
+			logType: entityLog,
+			group:   group,
+		},
+		{
+			desc: "delete group with invalid token",
+			args: []string{
+				disableCommand,
+				group.ID,
+				invalidToken,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+		{
+			desc: "delete group with invalid id",
+			args: []string{
+				disableCommand,
+				invalidID,
+				token,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+		{
+			desc: "disable thing with invalid args",
+			args: []string{
+				disableCommand,
+				group.ID,
+				validToken,
+				extraArg,
+			},
+			logType: usageLog,
+		},
+	}
+
+	for _, tc := range cases {
+		sdkCall := sdkMock.On("DisableGroup", tc.args[1], tc.args[2]).Return(tc.group, tc.sdkErr)
+		out := executeCommand(t, rootCmd, tc.args...)
+
+		switch tc.logType {
+		case errLog:
+			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+		case usageLog:
+			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+		case entityLog:
+			err := json.Unmarshal([]byte(out), &ch)
+			if err != nil {
+				t.Fatalf("json.Unmarshal failed: %v", err)
+			}
+			assert.Equal(t, tc.group, ch, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.group, ch))
+		}
+
+		sdkCall.Unset()
+	}
+}
+
+func TestAssignUserToGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	assignCommand := "assign"
 	usrCommand := "users"
-	channelsCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelsCmd)
+	groupsCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupsCmd)
 
 	userIds := fmt.Sprintf("[\"%s\"]", user.ID)
 
@@ -818,7 +811,7 @@ func TestAssignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				userIds,
-				channel.ID,
+				group.ID,
 				token,
 			},
 			logType: okLog,
@@ -830,7 +823,7 @@ func TestAssignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				userIds,
-				channel.ID,
+				group.ID,
 				token,
 				extraArg,
 			},
@@ -843,7 +836,7 @@ func TestAssignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"", user.ID),
-				channel.ID,
+				group.ID,
 				token,
 			},
 			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
@@ -851,7 +844,7 @@ func TestAssignUserCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "assign user with invalid channel id",
+			desc: "assign user with invalid group id",
 			args: []string{
 				assignCommand,
 				usrCommand,
@@ -871,7 +864,7 @@ func TestAssignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"]", invalidID),
-				channel.ID,
+				group.ID,
 				token,
 			},
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAddPolicies, http.StatusBadRequest),
@@ -881,7 +874,7 @@ func TestAssignUserCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("AddUserToChannel", tc.args[4], mock.Anything, tc.args[5]).Return(tc.sdkErr)
+		sdkCall := sdkMock.On("AddUserToGroup", tc.args[4], mock.Anything, tc.args[5]).Return(tc.sdkErr)
 		out := executeCommand(t, rootCmd, tc.args...)
 		switch tc.logType {
 		case okLog:
@@ -895,109 +888,13 @@ func TestAssignUserCmd(t *testing.T) {
 	}
 }
 
-func TestAssignGroupCmd(t *testing.T) {
-	sdkMock := new(sdkmocks.SDK)
-	cli.SetSDK(sdkMock)
-	assignCommand := "assign"
-	groupsCommand := "groups"
-	channelsCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelsCmd)
-
-	grpIds := fmt.Sprintf("[\"%s\"]", group.ID)
-
-	cases := []struct {
-		desc          string
-		args          []string
-		logType       outputLog
-		errLogMessage string
-		sdkErr        errors.SDKError
-	}{
-		{
-			desc: "assign group successfully",
-			args: []string{
-				assignCommand,
-				groupsCommand,
-				grpIds,
-				channel.ID,
-				token,
-			},
-			logType: okLog,
-		},
-		{
-			desc: "assign group with invalid args",
-			args: []string{
-				assignCommand,
-				groupsCommand,
-				grpIds,
-				channel.ID,
-				token,
-				extraArg,
-			},
-			logType: usageLog,
-		},
-		{
-			desc: "assign group with invalid json",
-			args: []string{
-				assignCommand,
-				groupsCommand,
-				fmt.Sprintf("[\"%s\"", group.ID),
-				channel.ID,
-				token,
-			},
-			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.New("unexpected end of JSON input")),
-			logType:       errLog,
-		},
-		{
-			desc: "assign group with invalid channel id",
-			args: []string{
-				assignCommand,
-				groupsCommand,
-				grpIds,
-				invalidID,
-				token,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-		{
-			desc: "assign group with invalid user id",
-			args: []string{
-				assignCommand,
-				groupsCommand,
-				fmt.Sprintf("[\"%s\"]", invalidID),
-				channel.ID,
-				token,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAddPolicies, http.StatusBadRequest),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAddPolicies, http.StatusBadRequest)),
-			logType:       errLog,
-		},
-	}
-
-	for _, tc := range cases {
-		sdkCall := sdkMock.On("AddUserGroupToChannel", tc.args[3], mock.Anything, tc.args[4]).Return(tc.sdkErr)
-		out := executeCommand(t, rootCmd, tc.args...)
-		switch tc.logType {
-		case okLog:
-			assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		}
-		sdkCall.Unset()
-	}
-}
-
-func TestUnassignUserCmd(t *testing.T) {
+func TestUnassignUserToGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	unassignCommand := "unassign"
 	usrCommand := "users"
-	channelsCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelsCmd)
+	groupsCmd := cli.NewGroupsCmd()
+	rootCmd := setFlags(groupsCmd)
 
 	userIds := fmt.Sprintf("[\"%s\"]", user.ID)
 
@@ -1015,7 +912,7 @@ func TestUnassignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				userIds,
-				channel.ID,
+				group.ID,
 				token,
 			},
 			logType: okLog,
@@ -1027,7 +924,7 @@ func TestUnassignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				userIds,
-				channel.ID,
+				group.ID,
 				token,
 				extraArg,
 			},
@@ -1040,7 +937,7 @@ func TestUnassignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"", user.ID),
-				channel.ID,
+				group.ID,
 				token,
 			},
 			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
@@ -1048,7 +945,7 @@ func TestUnassignUserCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "unassign user with invalid channel id",
+			desc: "unassign user with invalid group id",
 			args: []string{
 				unassignCommand,
 				usrCommand,
@@ -1068,7 +965,7 @@ func TestUnassignUserCmd(t *testing.T) {
 				usrCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"]", invalidID),
-				channel.ID,
+				group.ID,
 				token,
 			},
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAddPolicies, http.StatusBadRequest),
@@ -1078,103 +975,7 @@ func TestUnassignUserCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("RemoveUserFromChannel", tc.args[4], mock.Anything, tc.args[5]).Return(tc.sdkErr)
-		out := executeCommand(t, rootCmd, tc.args...)
-		switch tc.logType {
-		case okLog:
-			assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		}
-		sdkCall.Unset()
-	}
-}
-
-func TestUnassignGroupCmd(t *testing.T) {
-	sdkMock := new(sdkmocks.SDK)
-	cli.SetSDK(sdkMock)
-	unassignCommand := "unassign"
-	groupsCommand := "groups"
-	channelsCmd := cli.NewChannelsCmd()
-	rootCmd := setFlags(channelsCmd)
-
-	grpIds := fmt.Sprintf("[\"%s\"]", group.ID)
-
-	cases := []struct {
-		desc          string
-		args          []string
-		logType       outputLog
-		errLogMessage string
-		sdkErr        errors.SDKError
-	}{
-		{
-			desc: "unassign group successfully",
-			args: []string{
-				unassignCommand,
-				groupsCommand,
-				grpIds,
-				channel.ID,
-				token,
-			},
-			logType: okLog,
-		},
-		{
-			desc: "unassign group with invalid args",
-			args: []string{
-				unassignCommand,
-				groupsCommand,
-				grpIds,
-				channel.ID,
-				token,
-				extraArg,
-			},
-			logType: usageLog,
-		},
-		{
-			desc: "unassign group with invalid json",
-			args: []string{
-				unassignCommand,
-				groupsCommand,
-				fmt.Sprintf("[\"%s\"", group.ID),
-				channel.ID,
-				token,
-			},
-			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.New("unexpected end of JSON input")),
-			logType:       errLog,
-		},
-		{
-			desc: "unassign group with invalid channel id",
-			args: []string{
-				unassignCommand,
-				groupsCommand,
-				grpIds,
-				invalidID,
-				token,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
-		{
-			desc: "unassign group with invalid user id",
-			args: []string{
-				unassignCommand,
-				groupsCommand,
-				fmt.Sprintf("[\"%s\"]", invalidID),
-				channel.ID,
-				token,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAddPolicies, http.StatusBadRequest),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAddPolicies, http.StatusBadRequest)),
-			logType:       errLog,
-		},
-	}
-
-	for _, tc := range cases {
-		sdkCall := sdkMock.On("RemoveUserGroupFromChannel", tc.args[3], mock.Anything, tc.args[4]).Return(tc.sdkErr)
+		sdkCall := sdkMock.On("RemoveUserFromGroup", tc.args[4], mock.Anything, tc.args[5]).Return(tc.sdkErr)
 		out := executeCommand(t, rootCmd, tc.args...)
 		switch tc.logType {
 		case okLog:

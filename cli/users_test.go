@@ -22,6 +22,7 @@ import (
 )
 
 var user = mgsdk.User{
+	ID:   testsutil.GenerateUUID(&testing.T{}),
 	Name: "testuser",
 	Credentials: mgsdk.Credentials{
 		Secret:   "testpassword",
@@ -129,7 +130,6 @@ func TestGetUsersCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	getCommand := "get"
-	all := "all"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 

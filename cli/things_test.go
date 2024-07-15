@@ -159,7 +159,7 @@ func TestGetThingsCmd(t *testing.T) {
 		logType       outputLog
 	}{
 		{
-			desc: "get things successfully",
+			desc: "get all things successfully",
 			args: []string{
 				getCommand,
 				all,
@@ -171,7 +171,7 @@ func TestGetThingsCmd(t *testing.T) {
 			},
 		},
 		{
-			desc: "get things successfully with id",
+			desc: "get thing successfully with id",
 			args: []string{
 				getCommand,
 				thing.ID,
@@ -650,7 +650,7 @@ func TestDisablethingCmd(t *testing.T) {
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
-	var usr mgsdk.Thing
+	var tg mgsdk.Thing
 
 	cases := []struct {
 		desc          string
@@ -714,18 +714,18 @@ func TestDisablethingCmd(t *testing.T) {
 		case usageLog:
 			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 		case entityLog:
-			err := json.Unmarshal([]byte(out), &usr)
+			err := json.Unmarshal([]byte(out), &tg)
 			if err != nil {
 				t.Fatalf("json.Unmarshal failed: %v", err)
 			}
-			assert.Equal(t, tc.thing, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.thing, usr))
+			assert.Equal(t, tc.thing, tg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.thing, tg))
 		}
 
 		sdkCall.Unset()
 	}
 }
 
-func TestUsersthingCmd(t *testing.T) {
+func TestUsersThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	usersCommand := "users"
@@ -781,7 +781,7 @@ func TestUsersthingCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "list thing users' with invalid thing ID",
+			desc: "list thing users with invalid id",
 			args: []string{
 				usersCommand,
 				invalidID,
@@ -973,7 +973,7 @@ func TestDisconnectThingCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "list thing users' without domain token",
+			desc: "disconnect thing without domain token",
 			args: []string{
 				disconnectCommand,
 				thing.ID,
@@ -1002,7 +1002,7 @@ func TestDisconnectThingCmd(t *testing.T) {
 	}
 }
 
-func TestConnectionCmd(t *testing.T) {
+func TestListConnectionCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	connectionsCmd := "connections"
