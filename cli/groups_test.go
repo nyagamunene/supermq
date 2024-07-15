@@ -288,7 +288,7 @@ func TestGetGroupsCmd(t *testing.T) {
 				token,
 				extraArg,
 			},
-			logType:       usageLog,
+			logType: usageLog,
 		},
 	}
 
