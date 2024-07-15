@@ -112,12 +112,12 @@ func searchClientsEndpoint(svc users.Service) endpoint.Endpoint {
 		}
 
 		pm := mgclients.Page{
-			Offset:   req.Offset,
-			Limit:    req.Limit,
-			Name:     req.Name,
-			Id:       req.Id,
-			Order:    req.Order,
-			Dir:      req.Dir,
+			Offset: req.Offset,
+			Limit:  req.Limit,
+			Name:   req.Name,
+			Id:     req.Id,
+			Order:  req.Order,
+			Dir:    req.Dir,
 		}
 		page, err := svc.SearchUsers(ctx, req.token, pm)
 		if err != nil {

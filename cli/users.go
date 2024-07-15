@@ -485,10 +485,10 @@ var cmdUsers = []cobra.Command{
 			}
 
 			pm := mgxsdk.PageMetadata{
-				Offset:   Offset,
-				Limit:    Limit,
-				Name:     values.Get("name"),
-				ID:       values.Get("id"),
+				Offset: Offset,
+				Limit:  Limit,
+				Name:   values.Get("name"),
+				ID:     values.Get("id"),
 			}
 
 			if off, err := strconv.Atoi(values.Get("offset")); err == nil {

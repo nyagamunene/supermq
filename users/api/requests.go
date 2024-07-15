@@ -90,13 +90,13 @@ func (req listClientsReq) validate() error {
 }
 
 type searchClientsReq struct {
-	token    string
-	Offset   uint64
-	Limit    uint64
-	Name     string
-	Id       string
-	Order    string
-	Dir      string
+	token  string
+	Offset uint64
+	Limit  uint64
+	Name   string
+	Id     string
+	Order  string
+	Dir    string
 }
 
 func (req searchClientsReq) validate() error {

@@ -306,13 +306,13 @@ func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error
 	}
 
 	req := searchClientsReq{
-		token:    apiutil.ExtractBearerToken(r),
-		Offset:   o,
-		Limit:    l,
-		Name:     n,
-		Id:       id,
-		Order:    order,
-		Dir:      dir,
+		token:  apiutil.ExtractBearerToken(r),
+		Offset: o,
+		Limit:  l,
+		Name:   n,
+		Id:     id,
+		Order:  order,
+		Dir:    dir,
 	}
 
 	for _, field := range []string{req.Name, req.Id} {
