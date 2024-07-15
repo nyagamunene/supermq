@@ -180,13 +180,22 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 	if err != nil {
 		return mgclients.ClientsPage{}, err
 	}
-	if err := svc.checkSuperAdmin(ctx, userID); err == nil {
-		pm.Role = mgclients.AllRole
-		pg, err := svc.clients.RetrieveAll(ctx, pm)
-		if err != nil {
-			return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
-		}
-		return pg, err
+	if err := svc.checkSuperAdmin(ctx, userID); err != nil {
+		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
+	}
+
+	pm.Role = mgclients.AllRole
+	pg, err := svc.clients.RetrieveAll(ctx, pm)
+	if err != nil {
+		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
+	}
+	return pg, err
+}
+
+func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
+	_, err := svc.Identify(ctx, token)
+	if err != nil {
+		return mgclients.ClientsPage{}, err
 	}
 
 	page := mgclients.Page{
@@ -197,35 +206,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		Role:   mgclients.UserRole,
 	}
 
-	pg, err := svc.clients.RetrieveAll(ctx, page)
-	if err != nil {
-		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
-	}
-	for i, c := range pg.Clients {
-		pg.Clients[i] = mgclients.Client{ID: c.ID, Name: c.Name}
-	}
-
-	return pg, nil
-}
-
-func (svc service) SearchUsers(ctx context.Context, token string, pm mgclients.Page) (mgclients.ClientsPage, error) {
-	userID, err := svc.Identify(ctx, token)
-	if err != nil {
-		return mgclients.ClientsPage{}, err
-	}
-	if err := svc.checkSuperAdmin(ctx, userID); err == nil {
-		pg, err := svc.clients.SearchClients(ctx, pm)
-		if err != nil {
-			return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
-		}
-		return pg, err
-	}
-
-	if pm.Identity != "" {
-		return mgclients.ClientsPage{}, nil
-	}
-
-	cp, err := svc.clients.SearchClients(ctx, pm)
+	cp, err := svc.clients.SearchClients(ctx, page)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}

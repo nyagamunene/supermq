@@ -116,7 +116,6 @@ func searchClientsEndpoint(svc users.Service) endpoint.Endpoint {
 			Limit:    req.Limit,
 			Name:     req.Name,
 			Id:       req.Id,
-			Identity: req.Identity,
 			Order:    req.Order,
 			Dir:      req.Dir,
 		}

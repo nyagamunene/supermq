@@ -660,17 +660,6 @@ func TestSearchUsers(t *testing.T) {
 			authorizeResponse: &magistrala.AuthorizeRes{Authorized: true},
 		},
 		{
-			desc:  "search clients with username",
-			token: validToken,
-			page:  mgclients.Page{Offset: 0, Identity: "clientidentity", Limit: 100},
-			response: mgclients.ClientsPage{
-				Page:    mgclients.Page{Total: 1, Offset: 0, Limit: 100},
-				Clients: []mgclients.Client{client},
-			},
-			identifyResp:      &magistrala.IdentityRes{UserId: client.ID},
-			authorizeResponse: &magistrala.AuthorizeRes{Authorized: true},
-		},
-		{
 			desc:  "search clients with random name",
 			token: validToken,
 			page:  mgclients.Page{Offset: 0, Name: "randomname", Limit: 100},

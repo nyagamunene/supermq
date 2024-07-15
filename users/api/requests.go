@@ -93,7 +93,6 @@ type searchClientsReq struct {
 	token    string
 	Offset   uint64
 	Limit    uint64
-	Identity string
 	Name     string
 	Id       string
 	Order    string
@@ -105,7 +104,7 @@ func (req searchClientsReq) validate() error {
 		return apiutil.ErrBearerToken
 	}
 
-	if req.Name == "" && req.Identity == "" && req.Id == "" {
+	if req.Name == "" && req.Id == "" {
 		return apiutil.ErrEmptySearchQuery
 	}
 

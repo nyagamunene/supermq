@@ -292,10 +292,6 @@ func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error
 	if err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
 	}
-	i, err := apiutil.ReadStringQuery(r, api.IdentityKey, "")
-	if err != nil {
-		return nil, errors.Wrap(apiutil.ErrValidation, err)
-	}
 	id, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
 	if err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
@@ -313,14 +309,13 @@ func decodeSearchClients(_ context.Context, r *http.Request) (interface{}, error
 		token:    apiutil.ExtractBearerToken(r),
 		Offset:   o,
 		Limit:    l,
-		Identity: i,
 		Name:     n,
 		Id:       id,
 		Order:    order,
 		Dir:      dir,
 	}
 
-	for _, field := range []string{req.Name, req.Identity, req.Id} {
+	for _, field := range []string{req.Name, req.Id} {
 		if field != "" && len(field) < 3 {
 			req = searchClientsReq{
 				token: apiutil.ExtractBearerToken(r),
