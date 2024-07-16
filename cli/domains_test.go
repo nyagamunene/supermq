@@ -21,19 +21,11 @@ import (
 )
 
 const (
-	createCommand   = "create"
-	getCommand      = "get"
 	usersCommand    = "users"
 	enableCommand   = "enable"
 	disableCommand  = "disable"
 	assignCommand   = "assign"
 	unassignCommand = "unassign"
-	relation        = "administrator"
-)
-
-var (
-	token              = "valid" + "domaintoken"
-	tokenWithoutDomain = "valid"
 )
 
 var domain = mgsdk.Domain{
