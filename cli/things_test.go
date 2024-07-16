@@ -28,12 +28,12 @@ var (
 	tokenWithoutDomain = "valid"
 	relation           = "administrator"
 	all                = "all"
-	get = "get"
+	get                = "get"
 )
 
 var thing = mgsdk.Thing{
-	ID:       testsutil.GenerateUUID(&testing.T{}),
-	Name:     "testthing",
+	ID:   testsutil.GenerateUUID(&testing.T{}),
+	Name: "testthing",
 	Credentials: mgsdk.Credentials{
 		Secret: "secret",
 	},

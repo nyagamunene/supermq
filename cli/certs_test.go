@@ -22,7 +22,7 @@ import (
 
 const (
 	revokeCommand = "revoke"
-	issueCommand = "issue"
+	issueCommand  = "issue"
 )
 
 var cert = mgsdk.Cert{
@@ -150,8 +150,8 @@ func TestRevokeCertCmd(t *testing.T) {
 		sdkErr        errors.SDKError
 		logType       outputLog
 		errLogMessage string
-		time time.Time
-		response string
+		time          time.Time
+		response      string
 	}{
 		{
 			desc: "revoke cert successfully",
@@ -160,9 +160,9 @@ func TestRevokeCertCmd(t *testing.T) {
 				thing.ID,
 				token,
 			},
-			logType: revokeLog,
+			logType:  revokeLog,
 			response: fmt.Sprintf("\nrevoked: %s\n\n", revokeTime),
-			time: revokeTime,
+			time:     revokeTime,
 		},
 		{
 			desc: "revoke cert with invalid args",
@@ -189,7 +189,7 @@ func TestRevokeCertCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("RevokeCert", tc.args[1], tc.args[2]).Return(tc.time,tc.sdkErr)
+			sdkCall := sdkMock.On("RevokeCert", tc.args[1], tc.args[2]).Return(tc.time, tc.sdkErr)
 			out := executeCommand(t, rootCmd, tc.args...)
 
 			switch tc.logType {
@@ -218,7 +218,7 @@ func TestIssueCertCmd(t *testing.T) {
 		logType       outputLog
 		errLogMessage string
 		sdkErr        errors.SDKError
-		cert mgsdk.Cert
+		cert          mgsdk.Cert
 	}{
 		{
 			desc: "issue cert successfully",
@@ -227,8 +227,8 @@ func TestIssueCertCmd(t *testing.T) {
 				thing.ID,
 				validToken,
 			},
-			cert: cert,
-			logType:  entityLog,
+			cert:    cert,
+			logType: entityLog,
 		},
 		{
 			desc: "issue cert with invalid args",
