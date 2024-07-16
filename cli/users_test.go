@@ -116,31 +116,33 @@ func TestCreateUsersCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
-		if len(tc.args) == 3 {
-			sdkUser := mgsdk.User{
-				Name: tc.args[0],
-				Credentials: mgsdk.Credentials{
-					Identity: tc.args[1],
-					Secret:   tc.args[2],
-				},
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("CreateUser", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
+			if len(tc.args) == 3 {
+				sdkUser := mgsdk.User{
+					Name: tc.args[0],
+					Credentials: mgsdk.Credentials{
+						Identity: tc.args[1],
+						Secret:   tc.args[2],
+					},
+				}
+				sdkCall = sdkMock.On("CreateUser", mock.Anything, sdkUser).Return(tc.user, tc.sdkerr)
 			}
-			sdkCall = sdkMock.On("CreateUser", mock.Anything, sdkUser).Return(tc.user, tc.sdkerr)
-		}
-		out := executeCommand(t, rootCmd, tc.args...)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &usr)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
+			switch tc.logType {
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &usr)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -257,43 +259,45 @@ func TestGetUsersCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("Users", mock.Anything, mock.Anything).Return(tc.page, tc.sdkerr)
-		sdkCall1 := sdkMock.On("User", tc.args[1], tc.args[2]).Return(tc.user, tc.sdkerr)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("Users", mock.Anything, mock.Anything).Return(tc.page, tc.sdkerr)
+			sdkCall1 := sdkMock.On("User", tc.args[1], tc.args[2]).Return(tc.user, tc.sdkerr)
 
-		out = executeCommand(t, rootCmd, tc.args...)
+			out = executeCommand(t, rootCmd, tc.args...)
 
-		if tc.logType == entityLog {
-			switch {
-			case tc.args[1] == all:
-				err := json.Unmarshal([]byte(out), &page)
-				if err != nil {
-					t.Fatalf("Failed to unmarshal JSON: %v", err)
-				}
-			default:
-				err := json.Unmarshal([]byte(out), &usr)
-				if err != nil {
-					t.Fatalf("Failed to unmarshal JSON: %v", err)
+			if tc.logType == entityLog {
+				switch {
+				case tc.args[1] == all:
+					err := json.Unmarshal([]byte(out), &page)
+					if err != nil {
+						t.Fatalf("Failed to unmarshal JSON: %v", err)
+					}
+				default:
+					err := json.Unmarshal([]byte(out), &usr)
+					if err != nil {
+						t.Fatalf("Failed to unmarshal JSON: %v", err)
+					}
 				}
 			}
-		}
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
-
-		if tc.logType == entityLog {
-			if tc.args[1] != all {
-				assert.Equal(t, tc.user, usr, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.user, usr))
-			} else {
-				assert.Equal(t, tc.page, page, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, page))
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 			}
-		}
 
-		sdkCall.Unset()
-		sdkCall1.Unset()
+			if tc.logType == entityLog {
+				if tc.args[1] != all {
+					assert.Equal(t, tc.user, usr, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.user, usr))
+				} else {
+					assert.Equal(t, tc.page, page, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, page))
+				}
+			}
+
+			sdkCall.Unset()
+			sdkCall1.Unset()
+		})
 	}
 }
 
@@ -366,36 +370,38 @@ func TestIssueTokenCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("CreateToken", mock.Anything).Return(tc.token, tc.sdkerr)
-		switch len(tc.args) {
-		case 3:
-			lg := mgsdk.Login{
-				Identity: tc.args[1],
-				Secret:   tc.args[2],
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("CreateToken", mock.Anything).Return(tc.token, tc.sdkerr)
+			switch len(tc.args) {
+			case 3:
+				lg := mgsdk.Login{
+					Identity: tc.args[1],
+					Secret:   tc.args[2],
+				}
+				sdkCall = sdkMock.On("CreateToken", lg).Return(tc.token, tc.sdkerr)
+			case 4:
+				lg := mgsdk.Login{
+					Identity: tc.args[1],
+					Secret:   tc.args[2],
+					DomainID: tc.args[3],
+				}
+				sdkCall = sdkMock.On("CreateToken", lg).Return(tc.token, tc.sdkerr)
 			}
-			sdkCall = sdkMock.On("CreateToken", lg).Return(tc.token, tc.sdkerr)
-		case 4:
-			lg := mgsdk.Login{
-				Identity: tc.args[1],
-				Secret:   tc.args[2],
-				DomainID: tc.args[3],
+			out := executeCommand(t, rootCmd, tc.args...)
+
+			switch tc.logType {
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &tkn)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.token, tkn, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.token, tkn))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 			}
-			sdkCall = sdkMock.On("CreateToken", lg).Return(tc.token, tc.sdkerr)
-		}
-		out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &tkn)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.token, tkn, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.token, tkn))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
-
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -467,34 +473,36 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("RefreshToken", mock.Anything, mock.Anything).Return(tc.token, tc.sdkerr)
-		switch len(tc.args) {
-		case 2:
-			lg := mgsdk.Login{
-				Identity: tc.args[1],
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("RefreshToken", mock.Anything, mock.Anything).Return(tc.token, tc.sdkerr)
+			switch len(tc.args) {
+			case 2:
+				lg := mgsdk.Login{
+					Identity: tc.args[1],
+				}
+				sdkCall = sdkMock.On("RefreshToken", lg).Return(tc.token, tc.sdkerr)
+			case 3:
+				lg := mgsdk.Login{
+					Identity: tc.args[1],
+					DomainID: tc.args[2],
+				}
+				sdkCall = sdkMock.On("RefreshToken", lg).Return(tc.token, tc.sdkerr)
 			}
-			sdkCall = sdkMock.On("RefreshToken", lg).Return(tc.token, tc.sdkerr)
-		case 3:
-			lg := mgsdk.Login{
-				Identity: tc.args[1],
-				DomainID: tc.args[2],
+			out := executeCommand(t, rootCmd, tc.args...)
+
+			switch tc.logType {
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &tkn)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.token, tkn, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.token, tkn))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 			}
-			sdkCall = sdkMock.On("RefreshToken", lg).Return(tc.token, tc.sdkerr)
-		}
-		out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &tkn)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.token, tkn, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.token, tkn))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
-
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -587,52 +595,54 @@ func TestUpdateUserCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
-		sdkCall1 := sdkMock.On("UpdateUserTags", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
-		sdkCall2 := sdkMock.On("UpdateUserIdentity", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
-		sdkCall3 := sdkMock.On("UpdateUserRole", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
-		switch {
-		case tc.args[1] == tagUpdateType:
-			var u mgsdk.User
-			u.Tags = []string{"tag1", "tag2"}
-			u.ID = tc.args[2]
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("UpdateUser", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
+			sdkCall1 := sdkMock.On("UpdateUserTags", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
+			sdkCall2 := sdkMock.On("UpdateUserIdentity", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
+			sdkCall3 := sdkMock.On("UpdateUserRole", mock.Anything, mock.Anything).Return(tc.user, tc.sdkerr)
+			switch {
+			case tc.args[1] == tagUpdateType:
+				var u mgsdk.User
+				u.Tags = []string{"tag1", "tag2"}
+				u.ID = tc.args[2]
 
-			sdkCall1 = sdkMock.On("UpdateUserTags", u, tc.args[4]).Return(tc.user, tc.sdkerr)
-		case tc.args[1] == identityUpdateType:
-			var u mgsdk.User
-			u.Credentials.Identity = tc.args[3]
-			u.ID = tc.args[2]
+				sdkCall1 = sdkMock.On("UpdateUserTags", u, tc.args[4]).Return(tc.user, tc.sdkerr)
+			case tc.args[1] == identityUpdateType:
+				var u mgsdk.User
+				u.Credentials.Identity = tc.args[3]
+				u.ID = tc.args[2]
 
-			sdkCall2 = sdkMock.On("UpdateUserIdentity", u, tc.args[4]).Return(tc.user, tc.sdkerr)
-		case tc.args[1] == roleUpdateType && len(tc.args) == 5:
-			sdkCall3 = sdkMock.On("UpdateUserRole", mgsdk.User{
-				Role: tc.args[3],
-			}, tc.args[4]).Return(tc.user, tc.sdkerr)
-		case tc.args[1] == userID:
-			sdkCall = sdkMock.On("UpdateUser", mgsdk.User{
-				Name: "new name",
-				Metadata: mgsdk.Metadata{
-					"key": "value",
-				},
-			}, tc.args[3]).Return(tc.user, tc.sdkerr)
-		}
-		out := executeCommand(t, rootCmd, tc.args...)
+				sdkCall2 = sdkMock.On("UpdateUserIdentity", u, tc.args[4]).Return(tc.user, tc.sdkerr)
+			case tc.args[1] == roleUpdateType && len(tc.args) == 5:
+				sdkCall3 = sdkMock.On("UpdateUserRole", mgsdk.User{
+					Role: tc.args[3],
+				}, tc.args[4]).Return(tc.user, tc.sdkerr)
+			case tc.args[1] == userID:
+				sdkCall = sdkMock.On("UpdateUser", mgsdk.User{
+					Name: "new name",
+					Metadata: mgsdk.Metadata{
+						"key": "value",
+					},
+				}, tc.args[3]).Return(tc.user, tc.sdkerr)
+			}
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &usr)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
+			switch tc.logType {
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &usr)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			}
 
-		sdkCall.Unset()
-		sdkCall1.Unset()
-		sdkCall2.Unset()
-		sdkCall3.Unset()
+			sdkCall.Unset()
+			sdkCall1.Unset()
+			sdkCall2.Unset()
+			sdkCall3.Unset()
+		})
 	}
 }
 
@@ -673,20 +683,22 @@ func TestGetUserProfileCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("UserProfile", tc.args[1]).Return(tc.user, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("UserProfile", tc.args[1]).Return(tc.user, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &usr)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
-		}
-		sdkCall.Unset()
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &usr)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
+			}
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -725,16 +737,18 @@ func TestResetPasswordRequestCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("ResetPasswordRequest", tc.args[1]).Return(tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("ResetPasswordRequest", tc.args[1]).Return(tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
-		sdkCall.Unset()
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			}
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -777,17 +791,19 @@ func TestResetPasswordCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("ResetPassword", tc.args[1], tc.args[2], tc.args[3]).Return(tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("ResetPassword", tc.args[1], tc.args[2], tc.args[3]).Return(tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -838,21 +854,23 @@ func TestUpdatePasswordCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("UpdatePassword", tc.args[1], tc.args[2], tc.args[3]).Return(tc.user, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("UpdatePassword", tc.args[1], tc.args[2], tc.args[3]).Return(tc.user, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err = json.Unmarshal([]byte(out), &usr)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.user, usr, fmt.Sprintf("%s user mismatch: expected %+v got %+v", tc.desc, tc.user, usr))
-		}
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err = json.Unmarshal([]byte(out), &usr)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.user, usr, fmt.Sprintf("%s user mismatch: expected %+v got %+v", tc.desc, tc.user, usr))
+			}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -895,21 +913,23 @@ func TestEnableUserCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("EnableUser", tc.args[1], tc.args[2]).Return(tc.user, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("EnableUser", tc.args[1], tc.args[2]).Return(tc.user, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &usr)
-			assert.Nil(t, err)
-			assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
-		}
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &usr)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
+			}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -953,23 +973,25 @@ func TestDisableUserCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("DisableUser", tc.args[1], tc.args[2]).Return(tc.user, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("DisableUser", tc.args[1], tc.args[2]).Return(tc.user, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &usr)
-			if err != nil {
-				t.Fatalf("json.Unmarshal failed: %v", err)
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &usr)
+				if err != nil {
+					t.Fatalf("json.Unmarshal failed: %v", err)
+				}
+				assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
 			}
-			assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
-		}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -1040,19 +1062,21 @@ func TestDeleteUserCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case okLog:
-			assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		}
+			switch tc.logType {
+			case okLog:
+				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -1119,23 +1143,25 @@ func TestListUserChannelsCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("ListUserChannels", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("ListUserChannels", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &pg)
-			if err != nil {
-				t.Fatalf("json.Unmarshal failed: %v", err)
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &pg)
+				if err != nil {
+					t.Fatalf("json.Unmarshal failed: %v", err)
+				}
+				assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
 			}
-			assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
-		}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -1186,23 +1212,25 @@ func TestListUserThingsCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		sdkCall := sdkMock.On("ListUserThings", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("ListUserThings", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &pg)
-			if err != nil {
-				t.Fatalf("json.Unmarshal failed: %v", err)
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &pg)
+				if err != nil {
+					t.Fatalf("json.Unmarshal failed: %v", err)
+				}
+				assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
 			}
-			assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
-		}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -1250,24 +1278,26 @@ func TestListUserDomainsCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		var pg mgsdk.DomainsPage
-		sdkCall := sdkMock.On("ListUserDomains", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			var pg mgsdk.DomainsPage
+			sdkCall := sdkMock.On("ListUserDomains", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &pg)
-			if err != nil {
-				t.Fatalf("json.Unmarshal failed: %v", err)
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &pg)
+				if err != nil {
+					t.Fatalf("json.Unmarshal failed: %v", err)
+				}
+				assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
 			}
-			assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
-		}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
 
@@ -1315,23 +1345,25 @@ func TestListUserGroupsCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		var pg mgsdk.GroupsPage
-		sdkCall := sdkMock.On("ListUserGroups", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
-		out := executeCommand(t, rootCmd, tc.args...)
+		t.Run(tc.desc, func(t *testing.T) {
+			var pg mgsdk.GroupsPage
+			sdkCall := sdkMock.On("ListUserGroups", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkerr)
+			out := executeCommand(t, rootCmd, tc.args...)
 
-		switch tc.logType {
-		case errLog:
-			assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
-		case usageLog:
-			assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
-		case entityLog:
-			err := json.Unmarshal([]byte(out), &pg)
-			if err != nil {
-				t.Fatalf("json.Unmarshal failed: %v", err)
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &pg)
+				if err != nil {
+					t.Fatalf("json.Unmarshal failed: %v", err)
+				}
+				assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
 			}
-			assert.Equal(t, tc.page, pg, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.page, pg))
-		}
 
-		sdkCall.Unset()
+			sdkCall.Unset()
+		})
 	}
 }
