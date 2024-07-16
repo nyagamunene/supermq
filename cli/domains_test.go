@@ -21,13 +21,20 @@ import (
 )
 
 const (
-	createCommand   = "create"
-	getCommand      = "get"
-	usersCommand    = "users"
-	enableCommand   = "enable"
-	disableCommand  = "disable"
-	assignCommand   = "assign"
-	unassignCommand = "unassign"
+	createCommand     = "create"
+	getCommand        = "get"
+	updateCommand     = "update"
+	deleteCommand     = "delete"
+	usersCommand      = "users"
+	enableCommand     = "enable"
+	disableCommand    = "disable"
+	connectCommand    = "connect"
+	disconnectCommand = "disconnect"
+	connectionsCmd    = "connections"
+	assignCommand     = "assign"
+	unassignCommand   = "unassign"
+	shareCmd          = "share"
+	unshareCmd        = "unshare"
 )
 
 var domain = mgsdk.Domain{
@@ -304,7 +311,6 @@ func TestListDomainUsers(t *testing.T) {
 func TestUpdateDomainCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	updateCommand := "update"
 	domainsCmd := cli.NewDomainsCmd()
 	rootCmd := setFlags(domainsCmd)
 
