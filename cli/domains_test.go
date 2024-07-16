@@ -21,6 +21,8 @@ import (
 )
 
 const (
+	createCommand   = "create"
+	getCommand      = "get"
 	usersCommand    = "users"
 	enableCommand   = "enable"
 	disableCommand  = "disable"
