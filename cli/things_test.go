@@ -28,11 +28,15 @@ var (
 	tokenWithoutDomain = "valid"
 	relation           = "administrator"
 	all                = "all"
+	get = "get"
 )
 
 var thing = mgsdk.Thing{
 	ID:       testsutil.GenerateUUID(&testing.T{}),
 	Name:     "testthing",
+	Credentials: mgsdk.Credentials{
+		Secret: "secret",
+	},
 	DomainID: testsutil.GenerateUUID(&testing.T{}),
 	Status:   mgclients.EnabledStatus.String(),
 }
