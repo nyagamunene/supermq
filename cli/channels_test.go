@@ -20,6 +20,10 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const (
+	connectionsCommand = "connections"
+)
+
 var channel = mgsdk.Channel{
 	ID:   testsutil.GenerateUUID(&testing.T{}),
 	Name: "testchannel",
@@ -28,7 +32,6 @@ var channel = mgsdk.Channel{
 func TestCreateChannelCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	createCommand := "create"
 	channelJson := "{\"name\":\"testchannel\", \"metadata\":{\"key1\":\"value1\"}}"
 	channelCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelCmd)
@@ -116,7 +119,6 @@ func TestCreateChannelCmd(t *testing.T) {
 func TestGetChannelsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	getCommand := "get"
 
 	channelCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelCmd)
@@ -170,7 +172,7 @@ func TestGetChannelsCmd(t *testing.T) {
 			args: []string{
 				getCommand,
 				all,
-				invalidID,
+				invalidToken,
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -181,7 +183,7 @@ func TestGetChannelsCmd(t *testing.T) {
 			args: []string{
 				getCommand,
 				channel.ID,
-				invalidID,
+				tokenWithoutDomain,
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden),
@@ -230,7 +232,6 @@ func TestGetChannelsCmd(t *testing.T) {
 func TestDeleteChannelCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	deleteCommand := "delete"
 	channelCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelCmd)
 
@@ -303,7 +304,6 @@ func TestDeleteChannelCmd(t *testing.T) {
 func TestUpdateChannelCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	updateCommand := "update"
 	channelCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelCmd)
 
@@ -388,7 +388,6 @@ func TestUpdateChannelCmd(t *testing.T) {
 func TestListConnectionsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	connectionsCommand := "connections"
 	channelCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelCmd)
 
@@ -463,7 +462,6 @@ func TestListConnectionsCmd(t *testing.T) {
 func TestEnableChannelCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	enableCommand := "enable"
 	channelCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelCmd)
 	var ch mgsdk.Channel
@@ -542,7 +540,6 @@ func TestEnableChannelCmd(t *testing.T) {
 func TestDisableChannelCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	disableCommand := "disable"
 	channelsCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelsCmd)
 
@@ -567,7 +564,7 @@ func TestDisableChannelCmd(t *testing.T) {
 			channel: channel,
 		},
 		{
-			desc: "delete channel with invalid token",
+			desc: "disable channel with invalid token",
 			args: []string{
 				disableCommand,
 				channel.ID,
@@ -578,7 +575,7 @@ func TestDisableChannelCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "delete channel with invalid id",
+			desc: "disable channel with invalid id",
 			args: []string{
 				disableCommand,
 				invalidID,
@@ -624,7 +621,6 @@ func TestDisableChannelCmd(t *testing.T) {
 func TestUsersChannelCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	usersCommand := "users"
 	channelsCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelsCmd)
 
@@ -687,17 +683,6 @@ func TestUsersChannelCmd(t *testing.T) {
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
 			logType:       errLog,
 		},
-		{
-			desc: "list channel users without domain token",
-			args: []string{
-				usersCommand,
-				channel.ID,
-				tokenWithoutDomain,
-			},
-			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden),
-			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden)),
-			logType:       errLog,
-		},
 	}
 
 	for _, tc := range cases {
@@ -723,7 +708,6 @@ func TestUsersChannelCmd(t *testing.T) {
 func TestListGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	groupsCommand := "groups"
 	channelsCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelsCmd)
 
@@ -797,8 +781,6 @@ func TestListGroupCmd(t *testing.T) {
 func TestAssignUserCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	assignCommand := "assign"
-	usrCommand := "users"
 	channelsCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelsCmd)
 
@@ -815,7 +797,7 @@ func TestAssignUserCmd(t *testing.T) {
 			desc: "assign user successfully",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				channel.ID,
@@ -827,7 +809,7 @@ func TestAssignUserCmd(t *testing.T) {
 			desc: "assign user with invalid args",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				channel.ID,
@@ -840,7 +822,7 @@ func TestAssignUserCmd(t *testing.T) {
 			desc: "assign user with invalid json",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"", user.ID),
 				channel.ID,
@@ -854,7 +836,7 @@ func TestAssignUserCmd(t *testing.T) {
 			desc: "assign user with invalid channel id",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				invalidID,
@@ -868,7 +850,7 @@ func TestAssignUserCmd(t *testing.T) {
 			desc: "assign user with invalid user id",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"]", invalidID),
 				channel.ID,
@@ -898,8 +880,6 @@ func TestAssignUserCmd(t *testing.T) {
 func TestAssignGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	assignCommand := "assign"
-	groupsCommand := "groups"
 	channelsCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelsCmd)
 
@@ -994,8 +974,6 @@ func TestAssignGroupCmd(t *testing.T) {
 func TestUnassignUserCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	unassignCommand := "unassign"
-	usrCommand := "users"
 	channelsCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelsCmd)
 
@@ -1012,7 +990,7 @@ func TestUnassignUserCmd(t *testing.T) {
 			desc: "unassign user successfully",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				channel.ID,
@@ -1024,7 +1002,7 @@ func TestUnassignUserCmd(t *testing.T) {
 			desc: "unassign user with invalid args",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				channel.ID,
@@ -1037,7 +1015,7 @@ func TestUnassignUserCmd(t *testing.T) {
 			desc: "unassign user with invalid json",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"", user.ID),
 				channel.ID,
@@ -1051,7 +1029,7 @@ func TestUnassignUserCmd(t *testing.T) {
 			desc: "unassign user with invalid channel id",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				invalidID,
@@ -1065,7 +1043,7 @@ func TestUnassignUserCmd(t *testing.T) {
 			desc: "unassign user with invalid user id",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"]", invalidID),
 				channel.ID,
@@ -1095,8 +1073,6 @@ func TestUnassignUserCmd(t *testing.T) {
 func TestUnassignGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	unassignCommand := "unassign"
-	groupsCommand := "groups"
 	channelsCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelsCmd)
 

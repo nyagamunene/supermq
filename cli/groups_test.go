@@ -20,6 +20,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const (
+	childrenCommand = "children"
+	parentsCommand  = "parents"
+	usersCommand    = "users"
+	assignCommand   = "assign"
+	unassignCommand = "unassign"
+)
+
 var group = mgsdk.Group{
 	ID:   testsutil.GenerateUUID(&testing.T{}),
 	Name: "testgroup",
@@ -28,7 +36,6 @@ var group = mgsdk.Group{
 func TestCreateGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	createCommand := "create"
 	groupJson := "{\"name\":\"testgroup\", \"metadata\":{\"key1\":\"value1\"}}"
 	groupCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupCmd)
@@ -116,10 +123,6 @@ func TestCreateGroupCmd(t *testing.T) {
 func TestGetGroupsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	getCommand := "get"
-	childrenCommand := "children"
-	parentsCommand := "parents"
-
 	groupCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupCmd)
 
@@ -187,7 +190,7 @@ func TestGetGroupsCmd(t *testing.T) {
 				getCommand,
 				childrenCommand,
 				group.ID,
-				invalidID,
+				invalidToken,
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -223,7 +226,7 @@ func TestGetGroupsCmd(t *testing.T) {
 				getCommand,
 				parentsCommand,
 				group.ID,
-				invalidID,
+				invalidToken,
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -252,7 +255,7 @@ func TestGetGroupsCmd(t *testing.T) {
 			args: []string{
 				getCommand,
 				all,
-				invalidID,
+				invalidToken,
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -263,7 +266,7 @@ func TestGetGroupsCmd(t *testing.T) {
 			args: []string{
 				getCommand,
 				group.ID,
-				invalidID,
+				invalidToken,
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrDomainAuthorization, http.StatusForbidden),
@@ -284,7 +287,7 @@ func TestGetGroupsCmd(t *testing.T) {
 			desc: "get group with invalid args",
 			args: []string{
 				getCommand,
-				invalidID,
+				group.ID,
 				token,
 				extraArg,
 			},
@@ -326,7 +329,6 @@ func TestGetGroupsCmd(t *testing.T) {
 func TestDeletegroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	deleteCommand := "delete"
 	groupCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupCmd)
 
@@ -357,7 +359,7 @@ func TestDeletegroupCmd(t *testing.T) {
 			logType: usageLog,
 		},
 		{
-			desc: "delete group with invalid group id",
+			desc: "delete group with invalid id",
 			args: []string{
 				deleteCommand,
 				invalidID,
@@ -399,7 +401,6 @@ func TestDeletegroupCmd(t *testing.T) {
 func TestUpdategroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	updateCommand := "update"
 	groupCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupCmd)
 
@@ -481,7 +482,6 @@ func TestUpdategroupCmd(t *testing.T) {
 func TestListUsersCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	usersCommand := "users"
 	groupsCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupsCmd)
 
@@ -555,7 +555,6 @@ func TestListUsersCmd(t *testing.T) {
 func TestListChannelsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	channelsCommand := "channels"
 	groupsCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupsCmd)
 
@@ -629,7 +628,6 @@ func TestListChannelsCmd(t *testing.T) {
 func TestEnablegroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	enableCommand := "enable"
 	groupCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupCmd)
 	var ch mgsdk.Group
@@ -708,7 +706,6 @@ func TestEnablegroupCmd(t *testing.T) {
 func TestDisablegroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	disableCommand := "disable"
 	groupsCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupsCmd)
 
@@ -733,7 +730,7 @@ func TestDisablegroupCmd(t *testing.T) {
 			group:   group,
 		},
 		{
-			desc: "delete group with invalid token",
+			desc: "disable group with invalid token",
 			args: []string{
 				disableCommand,
 				group.ID,
@@ -744,7 +741,7 @@ func TestDisablegroupCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "delete group with invalid id",
+			desc: "disable group with invalid id",
 			args: []string{
 				disableCommand,
 				invalidID,
@@ -790,8 +787,6 @@ func TestDisablegroupCmd(t *testing.T) {
 func TestAssignUserToGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	assignCommand := "assign"
-	usrCommand := "users"
 	groupsCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupsCmd)
 
@@ -808,7 +803,7 @@ func TestAssignUserToGroupCmd(t *testing.T) {
 			desc: "assign user successfully",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				group.ID,
@@ -820,7 +815,7 @@ func TestAssignUserToGroupCmd(t *testing.T) {
 			desc: "assign user with invalid args",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				group.ID,
@@ -833,7 +828,7 @@ func TestAssignUserToGroupCmd(t *testing.T) {
 			desc: "assign user with invalid json",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"", user.ID),
 				group.ID,
@@ -847,7 +842,7 @@ func TestAssignUserToGroupCmd(t *testing.T) {
 			desc: "assign user with invalid group id",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				invalidID,
@@ -861,7 +856,7 @@ func TestAssignUserToGroupCmd(t *testing.T) {
 			desc: "assign user with invalid user id",
 			args: []string{
 				assignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"]", invalidID),
 				group.ID,
@@ -891,8 +886,6 @@ func TestAssignUserToGroupCmd(t *testing.T) {
 func TestUnassignUserToGroupCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	unassignCommand := "unassign"
-	usrCommand := "users"
 	groupsCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupsCmd)
 
@@ -909,7 +902,7 @@ func TestUnassignUserToGroupCmd(t *testing.T) {
 			desc: "unassign user successfully",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				group.ID,
@@ -921,7 +914,7 @@ func TestUnassignUserToGroupCmd(t *testing.T) {
 			desc: "unassign user with invalid args",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				group.ID,
@@ -934,7 +927,7 @@ func TestUnassignUserToGroupCmd(t *testing.T) {
 			desc: "unassign user with invalid json",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"", user.ID),
 				group.ID,
@@ -948,7 +941,7 @@ func TestUnassignUserToGroupCmd(t *testing.T) {
 			desc: "unassign user with invalid group id",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				userIds,
 				invalidID,
@@ -962,7 +955,7 @@ func TestUnassignUserToGroupCmd(t *testing.T) {
 			desc: "unassign user with invalid user id",
 			args: []string{
 				unassignCommand,
-				usrCommand,
+				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"]", invalidID),
 				group.ID,

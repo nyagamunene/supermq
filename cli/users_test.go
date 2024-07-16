@@ -21,6 +21,25 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const (
+	createCommand           = "create"
+	getCommand              = "get"
+	tokenCommand            = "token"
+	refreshtokenCommand     = "refreshtoken"
+	updateCommand           = "update"
+	profileCommand          = "profile"
+	resetPasswordReqCommand = "resetpasswordrequest"
+	resetPasswordCommand    = "resetpassword"
+	passwordCommand         = "password"
+	enableCommand           = "enable"
+	disableCommand          = "disable"
+	deleteCommand           = "delete"
+	channelsCommand         = "channels"
+	thingsCommand           = "things"
+	domainsCommand          = "domains"
+	groupsCommand           = "groups"
+)
+
 var user = mgsdk.User{
 	ID:   testsutil.GenerateUUID(&testing.T{}),
 	Name: "testuser",
@@ -41,7 +60,6 @@ var (
 func TestCreateUsersCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	createCommand := "create"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -129,7 +147,6 @@ func TestCreateUsersCmd(t *testing.T) {
 func TestGetUsersCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	getCommand := "get"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -283,7 +300,6 @@ func TestGetUsersCmd(t *testing.T) {
 func TestIssueTokenCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	tokenCommand := "token"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -386,7 +402,6 @@ func TestIssueTokenCmd(t *testing.T) {
 func TestRefreshIssueTokenCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	tokenCommand := "refreshtoken"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -410,7 +425,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token successfully without domain id",
 			args: []string{
-				tokenCommand,
+				refreshtokenCommand,
 				user.Credentials.Identity,
 			},
 			sdkerr:  nil,
@@ -420,7 +435,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token successfully with domain id",
 			args: []string{
-				tokenCommand,
+				refreshtokenCommand,
 				user.Credentials.Identity,
 				domainID,
 			},
@@ -431,7 +446,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token with invalid args",
 			args: []string{
-				tokenCommand,
+				refreshtokenCommand,
 				user.Credentials.Identity,
 				domainID,
 				extraArg,
@@ -441,7 +456,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token with invalid identity",
 			args: []string{
-				tokenCommand,
+				refreshtokenCommand,
 				invalidIdentity,
 			},
 			sdkerr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -486,7 +501,6 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 func TestUpdateUserCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	updateCommand := "update"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -625,7 +639,6 @@ func TestUpdateUserCmd(t *testing.T) {
 func TestGetUserProfileCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	profileCommand := "profile"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -682,7 +695,6 @@ func TestResetPasswordRequestCmd(t *testing.T) {
 	cli.SetSDK(sdkMock)
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
-	resetPasswordCommand := "resetpasswordrequest"
 	exampleEmail := "example@mail.com"
 
 	cases := []struct {
@@ -695,7 +707,7 @@ func TestResetPasswordRequestCmd(t *testing.T) {
 		{
 			desc: "request password reset successfully",
 			args: []string{
-				resetPasswordCommand,
+				resetPasswordReqCommand,
 				exampleEmail,
 			},
 			sdkerr:  nil,
@@ -704,7 +716,7 @@ func TestResetPasswordRequestCmd(t *testing.T) {
 		{
 			desc: "request password reset with invalid args",
 			args: []string{
-				resetPasswordCommand,
+				resetPasswordReqCommand,
 				exampleEmail,
 				extraArg,
 			},
@@ -731,7 +743,6 @@ func TestResetPasswordCmd(t *testing.T) {
 	cli.SetSDK(sdkMock)
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
-	resetPasswordCommand := "resetpassword"
 	newPassword := "new-password"
 
 	cases := []struct {
@@ -785,7 +796,6 @@ func TestUpdatePasswordCmd(t *testing.T) {
 	cli.SetSDK(sdkMock)
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
-	passwordCommand := "password"
 	oldPassword := "old-password"
 	newPassword := "new-password"
 
@@ -849,7 +859,6 @@ func TestUpdatePasswordCmd(t *testing.T) {
 func TestEnableUserCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	enableCommand := "enable"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 	var usr mgsdk.User
@@ -907,7 +916,6 @@ func TestEnableUserCmd(t *testing.T) {
 func TestDisableUserCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	disableCommand := "disable"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -968,7 +976,6 @@ func TestDisableUserCmd(t *testing.T) {
 func TestDeleteUserCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	deleteCommand := "delete"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 
@@ -1052,7 +1059,6 @@ func TestDeleteUserCmd(t *testing.T) {
 func TestListUserChannelsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	channelsCommand := "channels"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 	ch := mgsdk.Channel{
@@ -1136,7 +1142,6 @@ func TestListUserChannelsCmd(t *testing.T) {
 func TestListUserThingsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	thingsCommand := "things"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 	th := mgsdk.Thing{
@@ -1204,7 +1209,6 @@ func TestListUserThingsCmd(t *testing.T) {
 func TestListUserDomainsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	domainsCommand := "domains"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 	d := mgsdk.Domain{
@@ -1270,7 +1274,6 @@ func TestListUserDomainsCmd(t *testing.T) {
 func TestListUserGroupsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	domainsCommand := "groups"
 	usersCmd := cli.NewUsersCmd()
 	rootCmd := setFlags(usersCmd)
 	g := mgsdk.Group{
@@ -1289,7 +1292,7 @@ func TestListUserGroupsCmd(t *testing.T) {
 		{
 			desc: "list user groups successfully",
 			args: []string{
-				domainsCommand,
+				groupsCommand,
 				user.ID,
 				validToken,
 			},
@@ -1302,7 +1305,7 @@ func TestListUserGroupsCmd(t *testing.T) {
 		{
 			desc: "list user groups with invalid args",
 			args: []string{
-				domainsCommand,
+				groupsCommand,
 				user.ID,
 				validToken,
 				extraArg,
