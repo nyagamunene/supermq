@@ -1,4 +1,4 @@
-// Copyright (c) Abstract Machines
+ // Copyright (c) Abstract Machines
 // SPDX-License-Identifier: Apache-2.0
 
 package cli_test
@@ -24,7 +24,7 @@ func TestHealthCmd(t *testing.T) {
 	rootCmd := setFlags(healthCmd)
 	service := "users"
 
-	var hl mgsdk.HealthInfo
+	var health mgsdk.HealthInfo
 	cases := []struct {
 		desc          string
 		args          []string
@@ -70,9 +70,9 @@ func TestHealthCmd(t *testing.T) {
 
 			switch tc.logType {
 			case entityLog:
-				err := json.Unmarshal([]byte(out), &hl)
+				err := json.Unmarshal([]byte(out), &health)
 				assert.Nil(t, err)
-				assert.Equal(t, tc.health, hl, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.health, hl))
+				assert.Equal(t, tc.health, health, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.health, health))
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:

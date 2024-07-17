@@ -88,11 +88,11 @@ func TestGetCertCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "get cert successfully by id with invalid token",
+			desc: "get cert by id with invalid token",
 			args: []string{
 				get,
 				thing.ID,
-				validToken,
+				invalidToken,
 			},
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusUnauthorized),
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusUnauthorized)),

@@ -62,7 +62,7 @@ func TestSendMesageCmd(t *testing.T) {
 			logType: usageLog,
 		},
 		{
-			desc: "send message with invalid secret",
+			desc: "send message with invalid thing secret",
 			args: []string{
 				send,
 				channel.ID,
