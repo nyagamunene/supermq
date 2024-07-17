@@ -106,7 +106,7 @@ func TestCreateUsersCmd(t *testing.T) {
 				}
 				sdkCall = sdkMock.On("CreateUser", mock.Anything, sdkUser).Return(tc.user, tc.sdkerr)
 			}
-			out := executeCommand(t, rootCmd, append([]string{createCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{createCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -234,7 +234,7 @@ func TestGetUsersCmd(t *testing.T) {
 			sdkCall := sdkMock.On("Users", mock.Anything, mock.Anything).Return(tc.page, tc.sdkerr)
 			sdkCall1 := sdkMock.On("User", tc.args[0], tc.args[1]).Return(tc.user, tc.sdkerr)
 
-			out = executeCommand(t, rootCmd, append([]string{getCmd},tc.args...)...)
+			out = executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)
 
 			if tc.logType == entityLog {
 				switch {
@@ -354,7 +354,7 @@ func TestIssueTokenCmd(t *testing.T) {
 				}
 				sdkCall = sdkMock.On("CreateToken", lg).Return(tc.token, tc.sdkerr)
 			}
-			out := executeCommand(t, rootCmd, append([]string{tokCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{tokCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -451,7 +451,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 				}
 				sdkCall = sdkMock.On("RefreshToken", lg).Return(tc.token, tc.sdkerr)
 			}
-			out := executeCommand(t, rootCmd, append([]string{refTokCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{refTokCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -583,7 +583,7 @@ func TestUpdateUserCmd(t *testing.T) {
 					},
 				}, tc.args[2]).Return(tc.user, tc.sdkerr)
 			}
-			out := executeCommand(t, rootCmd, append([]string{updCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{updCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -641,7 +641,7 @@ func TestGetUserProfileCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("UserProfile", tc.args[0]).Return(tc.user, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{profCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{profCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -693,7 +693,7 @@ func TestResetPasswordRequestCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("ResetPasswordRequest", tc.args[0]).Return(tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{resPassCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{resPassCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -745,7 +745,7 @@ func TestResetPasswordCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("ResetPassword", tc.args[0], tc.args[1], tc.args[2]).Return(tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{resPassCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{resPassCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -806,7 +806,7 @@ func TestUpdatePasswordCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("UpdatePassword", tc.args[0], tc.args[1], tc.args[2]).Return(tc.user, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{passCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{passCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -863,7 +863,7 @@ func TestEnableUserCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("EnableUser", tc.args[0], tc.args[1]).Return(tc.user, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{enableCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{enableCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -921,7 +921,7 @@ func TestDisableUserCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("DisableUser", tc.args[0], tc.args[1]).Return(tc.user, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{disableCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{disableCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -1005,7 +1005,7 @@ func TestDeleteUserCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("DeleteUser", mock.Anything, mock.Anything).Return(tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{delCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{delCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case okLog:
@@ -1083,7 +1083,7 @@ func TestListUserChannelsCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("ListUserChannels", tc.args[0], mock.Anything, tc.args[1]).Return(tc.page, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{chansCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{chansCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -1150,7 +1150,7 @@ func TestListUserThingsCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("ListUserThings", tc.args[0], mock.Anything, tc.args[1]).Return(tc.page, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{thsCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{thsCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -1215,7 +1215,7 @@ func TestListUserDomainsCmd(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			var pg mgsdk.DomainsPage
 			sdkCall := sdkMock.On("ListUserDomains", tc.args[0], mock.Anything, tc.args[1]).Return(tc.page, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{domsCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{domsCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -1280,7 +1280,7 @@ func TestListUserGroupsCmd(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			var pg mgsdk.GroupsPage
 			sdkCall := sdkMock.On("ListUserGroups", tc.args[0], mock.Anything, tc.args[1]).Return(tc.page, tc.sdkerr)
-			out := executeCommand(t, rootCmd, append([]string{grpCmd},tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{grpCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
