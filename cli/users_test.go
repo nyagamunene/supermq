@@ -21,25 +21,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	createCommand           = "create"
-	getCommand              = "get"
-	tokenCommand            = "token"
-	refreshtokenCommand     = "refreshtoken"
-	updateCommand           = "update"
-	profileCommand          = "profile"
-	resetPasswordReqCommand = "resetpasswordrequest"
-	resetPasswordCommand    = "resetpassword"
-	passwordCommand         = "password"
-	enableCommand           = "enable"
-	disableCommand          = "disable"
-	deleteCommand           = "delete"
-	channelsCommand         = "channels"
-	thingsCommand           = "things"
-	domainsCommand          = "domains"
-	groupsCommand           = "groups"
-)
-
 var user = mgsdk.User{
 	ID:   testsutil.GenerateUUID(&testing.T{}),
 	Name: "testuser",
@@ -76,7 +57,7 @@ func TestCreateUsersCmd(t *testing.T) {
 		{
 			desc: "create user successfully with token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				user.Name,
 				user.Credentials.Identity,
 				user.Credentials.Secret,
@@ -88,7 +69,7 @@ func TestCreateUsersCmd(t *testing.T) {
 		{
 			desc: "create user successfully without token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				user.Name,
 				user.Credentials.Identity,
 				user.Credentials.Secret,
@@ -99,7 +80,7 @@ func TestCreateUsersCmd(t *testing.T) {
 		{
 			desc: "failed to create user",
 			args: []string{
-				createCommand,
+				crtCmd,
 				user.Name,
 				user.Credentials.Identity,
 				user.Credentials.Secret,
@@ -110,7 +91,7 @@ func TestCreateUsersCmd(t *testing.T) {
 		},
 		{
 			desc:    "create user with invalid args",
-			args:    []string{createCommand, user.Name, user.Credentials.Identity},
+			args:    []string{crtCmd, user.Name, user.Credentials.Identity},
 			logType: usageLog,
 		},
 	}
@@ -169,7 +150,7 @@ func TestGetUsersCmd(t *testing.T) {
 		{
 			desc: "get users successfully",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				validToken,
 			},
@@ -182,7 +163,7 @@ func TestGetUsersCmd(t *testing.T) {
 		{
 			desc: "get user successfully with id",
 			args: []string{
-				getCommand,
+				getCmd,
 				userID,
 				validToken,
 			},
@@ -193,7 +174,7 @@ func TestGetUsersCmd(t *testing.T) {
 		{
 			desc: "get user with invalid id",
 			args: []string{
-				getCommand,
+				getCmd,
 				invalidID,
 				validToken,
 			},
@@ -205,7 +186,7 @@ func TestGetUsersCmd(t *testing.T) {
 		{
 			desc: "get users successfully with offset and limit",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				validToken,
 				"--offset=2",
@@ -220,7 +201,7 @@ func TestGetUsersCmd(t *testing.T) {
 		{
 			desc: "get users with invalid token",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				invalidToken,
 			},
@@ -232,7 +213,7 @@ func TestGetUsersCmd(t *testing.T) {
 		{
 			desc: "get users with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				invalidToken,
 				all,
@@ -247,7 +228,7 @@ func TestGetUsersCmd(t *testing.T) {
 		{
 			desc: "get user with failed get operation",
 			args: []string{
-				getCommand,
+				getCmd,
 				userID,
 				validToken,
 			},
@@ -327,7 +308,7 @@ func TestIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue token successfully without domain id",
 			args: []string{
-				tokenCommand,
+				tokCmd,
 				user.Credentials.Identity,
 				user.Credentials.Secret,
 			},
@@ -338,7 +319,7 @@ func TestIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue token successfully with domain id",
 			args: []string{
-				tokenCommand,
+				tokCmd,
 				user.Credentials.Identity,
 				user.Credentials.Secret,
 				domainID,
@@ -350,7 +331,7 @@ func TestIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue token with failed authentication",
 			args: []string{
-				tokenCommand,
+				tokCmd,
 				user.Credentials.Identity,
 				invalidPassword,
 			},
@@ -362,7 +343,7 @@ func TestIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue token with invalid args",
 			args: []string{
-				tokenCommand,
+				tokCmd,
 				user.Credentials.Identity,
 			},
 			logType: usageLog,
@@ -431,7 +412,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token successfully without domain id",
 			args: []string{
-				refreshtokenCommand,
+				refTokCmd,
 				user.Credentials.Identity,
 			},
 			sdkerr:  nil,
@@ -441,7 +422,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token successfully with domain id",
 			args: []string{
-				refreshtokenCommand,
+				refTokCmd,
 				user.Credentials.Identity,
 				domainID,
 			},
@@ -452,7 +433,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token with invalid args",
 			args: []string{
-				refreshtokenCommand,
+				refTokCmd,
 				user.Credentials.Identity,
 				domainID,
 				extraArg,
@@ -462,7 +443,7 @@ func TestRefreshIssueTokenCmd(t *testing.T) {
 		{
 			desc: "issue refresh token with invalid identity",
 			args: []string{
-				refreshtokenCommand,
+				refTokCmd,
 				invalidIdentity,
 			},
 			sdkerr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
@@ -535,7 +516,7 @@ func TestUpdateUserCmd(t *testing.T) {
 		{
 			desc: "update user tags successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				tagUpdateType,
 				userID,
 				newTagsJSON,
@@ -548,7 +529,7 @@ func TestUpdateUserCmd(t *testing.T) {
 		{
 			desc: "update user identity successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				identityUpdateType,
 				userID,
 				newIdentity,
@@ -560,7 +541,7 @@ func TestUpdateUserCmd(t *testing.T) {
 		{
 			desc: "update user successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				userID,
 				newNameMetadataJSON,
 				validToken,
@@ -571,7 +552,7 @@ func TestUpdateUserCmd(t *testing.T) {
 		{
 			desc: "update user role successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				roleUpdateType,
 				userID,
 				newRole,
@@ -583,7 +564,7 @@ func TestUpdateUserCmd(t *testing.T) {
 		{
 			desc: "update user with invalid args",
 			args: []string{
-				updateCommand,
+				updCmd,
 				roleUpdateType,
 				userID,
 				newRole,
@@ -665,7 +646,7 @@ func TestGetUserProfileCmd(t *testing.T) {
 		{
 			desc: "get user profile successfully",
 			args: []string{
-				profileCommand,
+				profCmd,
 				validToken,
 			},
 			sdkerr:  nil,
@@ -674,7 +655,7 @@ func TestGetUserProfileCmd(t *testing.T) {
 		{
 			desc: "get user profile with invalid args",
 			args: []string{
-				profileCommand,
+				profCmd,
 				validToken,
 				extraArg,
 			},
@@ -719,7 +700,7 @@ func TestResetPasswordRequestCmd(t *testing.T) {
 		{
 			desc: "request password reset successfully",
 			args: []string{
-				resetPasswordReqCommand,
+				resPassReqCmd,
 				exampleEmail,
 			},
 			sdkerr:  nil,
@@ -728,7 +709,7 @@ func TestResetPasswordRequestCmd(t *testing.T) {
 		{
 			desc: "request password reset with invalid args",
 			args: []string{
-				resetPasswordReqCommand,
+				resPassReqCmd,
 				exampleEmail,
 				extraArg,
 			},
@@ -769,7 +750,7 @@ func TestResetPasswordCmd(t *testing.T) {
 		{
 			desc: "reset password successfully",
 			args: []string{
-				resetPasswordCommand,
+				resPassCmd,
 				newPassword,
 				newPassword,
 				validToken,
@@ -780,7 +761,7 @@ func TestResetPasswordCmd(t *testing.T) {
 		{
 			desc: "reset password with invalid args",
 			args: []string{
-				resetPasswordCommand,
+				resPassCmd,
 				newPassword,
 				newPassword,
 				validToken,
@@ -829,7 +810,7 @@ func TestUpdatePasswordCmd(t *testing.T) {
 		{
 			desc: "update password successfully",
 			args: []string{
-				passwordCommand,
+				passCmd,
 				oldPassword,
 				newPassword,
 				validToken,
@@ -841,7 +822,7 @@ func TestUpdatePasswordCmd(t *testing.T) {
 		{
 			desc: "reset password with invalid args",
 			args: []string{
-				passwordCommand,
+				passCmd,
 				oldPassword,
 				newPassword,
 				validToken,
@@ -892,7 +873,7 @@ func TestEnableUserCmd(t *testing.T) {
 		{
 			desc: "enable user successfully",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				user.ID,
 				validToken,
 			},
@@ -903,7 +884,7 @@ func TestEnableUserCmd(t *testing.T) {
 		{
 			desc: "enable user with invalid args",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				user.ID,
 				validToken,
 				extraArg,
@@ -952,7 +933,7 @@ func TestDisableUserCmd(t *testing.T) {
 		{
 			desc: "disable user successfully",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				user.ID,
 				validToken,
 			},
@@ -963,7 +944,7 @@ func TestDisableUserCmd(t *testing.T) {
 		{
 			desc: "disable user with invalid args",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				user.ID,
 				validToken,
 				extraArg,
@@ -1011,7 +992,7 @@ func TestDeleteUserCmd(t *testing.T) {
 		{
 			desc: "delete user successfully",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				user.ID,
 				validToken,
 			},
@@ -1020,7 +1001,7 @@ func TestDeleteUserCmd(t *testing.T) {
 		{
 			desc: "delete user with invalid token",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				user.ID,
 				invalidToken,
 			},
@@ -1031,7 +1012,7 @@ func TestDeleteUserCmd(t *testing.T) {
 		{
 			desc: "delete user with invalid user ID",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				invalidID,
 				validToken,
 			},
@@ -1042,7 +1023,7 @@ func TestDeleteUserCmd(t *testing.T) {
 		{
 			desc: "delete user with failed to delete",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				user.ID,
 				validToken,
 			},
@@ -1053,7 +1034,7 @@ func TestDeleteUserCmd(t *testing.T) {
 		{
 			desc: "delete user with invalid args",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				user.ID,
 				extraArg,
 			},
@@ -1105,7 +1086,7 @@ func TestListUserChannelsCmd(t *testing.T) {
 		{
 			desc: "list user channels successfully",
 			args: []string{
-				channelsCommand,
+				chanCmd,
 				user.ID,
 				validToken,
 			},
@@ -1118,7 +1099,7 @@ func TestListUserChannelsCmd(t *testing.T) {
 		{
 			desc: "list user channels successfully with flags",
 			args: []string{
-				channelsCommand,
+				chanCmd,
 				user.ID,
 				validToken,
 				"--offset=0",
@@ -1133,7 +1114,7 @@ func TestListUserChannelsCmd(t *testing.T) {
 		{
 			desc: "list user channels with invalid args",
 			args: []string{
-				channelsCommand,
+				chanCmd,
 				user.ID,
 				validToken,
 				extraArg,
@@ -1189,7 +1170,7 @@ func TestListUserThingsCmd(t *testing.T) {
 		{
 			desc: "list user things successfully",
 			args: []string{
-				thingsCommand,
+				thiCmd,
 				user.ID,
 				validToken,
 			},
@@ -1202,7 +1183,7 @@ func TestListUserThingsCmd(t *testing.T) {
 		{
 			desc: "list user things with invalid args",
 			args: []string{
-				thingsCommand,
+				thiCmd,
 				user.ID,
 				validToken,
 				extraArg,
@@ -1255,7 +1236,7 @@ func TestListUserDomainsCmd(t *testing.T) {
 		{
 			desc: "list user domains successfully",
 			args: []string{
-				domainsCommand,
+				domsCmd,
 				user.ID,
 				validToken,
 			},
@@ -1268,7 +1249,7 @@ func TestListUserDomainsCmd(t *testing.T) {
 		{
 			desc: "list user domains with invalid args",
 			args: []string{
-				domainsCommand,
+				domsCmd,
 				user.ID,
 				validToken,
 				extraArg,
@@ -1322,7 +1303,7 @@ func TestListUserGroupsCmd(t *testing.T) {
 		{
 			desc: "list user groups successfully",
 			args: []string{
-				groupsCommand,
+				grpCmd,
 				user.ID,
 				validToken,
 			},
@@ -1335,7 +1316,7 @@ func TestListUserGroupsCmd(t *testing.T) {
 		{
 			desc: "list user groups with invalid args",
 			args: []string{
-				groupsCommand,
+				grpCmd,
 				user.ID,
 				validToken,
 				extraArg,

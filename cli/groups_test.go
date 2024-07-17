@@ -52,7 +52,7 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group successfully",
 			args: []string{
-				createCommand,
+				crtCmd,
 				groupJson,
 				token,
 			},
@@ -62,7 +62,7 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group with invalid args",
 			args: []string{
-				createCommand,
+				crtCmd,
 				groupJson,
 				token,
 				extraArg,
@@ -72,7 +72,7 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group with invalid json",
 			args: []string{
-				createCommand,
+				crtCmd,
 				"{\"name\":\"testgroup\", \"metadata\":{\"key1\":\"value1\"}",
 				token,
 			},
@@ -83,7 +83,7 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group with invalid token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				groupJson,
 				invalidToken,
 			},
@@ -94,7 +94,7 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group without domain token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				groupJson,
 				tokenWithoutDomain,
 			},
@@ -145,7 +145,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get all groups successfully",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				token,
 			},
@@ -157,7 +157,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get all groups with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				token,
 				extraArg,
@@ -167,7 +167,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get children groups successfully",
 			args: []string{
-				getCommand,
+				getCmd,
 				childrenCommand,
 				group.ID,
 				token,
@@ -180,7 +180,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get children groups with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				childrenCommand,
 				group.ID,
 				token,
@@ -191,7 +191,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get children groups with invalid token",
 			args: []string{
-				getCommand,
+				getCmd,
 				childrenCommand,
 				group.ID,
 				invalidToken,
@@ -203,7 +203,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get parents groups successfully",
 			args: []string{
-				getCommand,
+				getCmd,
 				parentsCommand,
 				group.ID,
 				token,
@@ -216,7 +216,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get parents groups with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				parentsCommand,
 				group.ID,
 				token,
@@ -227,7 +227,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get parents groups with invalid token",
 			args: []string{
-				getCommand,
+				getCmd,
 				parentsCommand,
 				group.ID,
 				invalidToken,
@@ -239,7 +239,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get group with id",
 			args: []string{
-				getCommand,
+				getCmd,
 				group.ID,
 				token,
 			},
@@ -249,7 +249,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get groups with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 			},
 			logType: usageLog,
@@ -257,7 +257,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get all groups with invalid token",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				invalidToken,
 			},
@@ -268,7 +268,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get group without domain token",
 			args: []string{
-				getCommand,
+				getCmd,
 				group.ID,
 				invalidToken,
 			},
@@ -279,7 +279,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get group with invalid id",
 			args: []string{
-				getCommand,
+				getCmd,
 				invalidID,
 				token,
 			},
@@ -290,7 +290,7 @@ func TestGetGroupsCmd(t *testing.T) {
 		{
 			desc: "get group with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				group.ID,
 				token,
 				extraArg,
@@ -348,7 +348,7 @@ func TestDeletegroupCmd(t *testing.T) {
 		{
 			desc: "delete group successfully",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				group.ID,
 				token,
 			},
@@ -357,7 +357,7 @@ func TestDeletegroupCmd(t *testing.T) {
 		{
 			desc: "delete group with invalid args",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				group.ID,
 				token,
 				extraArg,
@@ -367,7 +367,7 @@ func TestDeletegroupCmd(t *testing.T) {
 		{
 			desc: "delete group with invalid id",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				invalidID,
 				token,
 			},
@@ -378,7 +378,7 @@ func TestDeletegroupCmd(t *testing.T) {
 		{
 			desc: "delete group with invalid token",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				group.ID,
 				invalidToken,
 			},
@@ -424,7 +424,7 @@ func TestUpdategroupCmd(t *testing.T) {
 		{
 			desc: "update group successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				newgroupJson,
 				token,
 			},
@@ -437,7 +437,7 @@ func TestUpdategroupCmd(t *testing.T) {
 		{
 			desc: "update group with invalid args",
 			args: []string{
-				updateCommand,
+				updCmd,
 				newgroupJson,
 				token,
 				extraArg,
@@ -447,7 +447,7 @@ func TestUpdategroupCmd(t *testing.T) {
 		{
 			desc: "update group with invalid group id",
 			args: []string{
-				updateCommand,
+				updCmd,
 
 				fmt.Sprintf("{\"id\":\"%s\",\"name\" : \"group1\"}", invalidID),
 				token,
@@ -459,7 +459,7 @@ func TestUpdategroupCmd(t *testing.T) {
 		{
 			desc: "update group with invalid json syntax",
 			args: []string{
-				updateCommand,
+				updCmd,
 				fmt.Sprintf("{\"id\":\"%s\",\"name\" : \"group1\"", group.ID),
 				token,
 			},
@@ -582,7 +582,7 @@ func TestListChannelsCmd(t *testing.T) {
 		{
 			desc: "list channels successfully",
 			args: []string{
-				channelsCommand,
+				chanCmd,
 				group.ID,
 				token,
 			},
@@ -599,7 +599,7 @@ func TestListChannelsCmd(t *testing.T) {
 		{
 			desc: "list channels with invalid args",
 			args: []string{
-				channelsCommand,
+				chanCmd,
 				group.ID,
 				token,
 				extraArg,
@@ -609,7 +609,7 @@ func TestListChannelsCmd(t *testing.T) {
 		{
 			desc: "list channels with invalid id",
 			args: []string{
-				channelsCommand,
+				chanCmd,
 				invalidID,
 				token,
 			},
@@ -657,7 +657,7 @@ func TestEnablegroupCmd(t *testing.T) {
 		{
 			desc: "enable group successfully",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				group.ID,
 				validToken,
 			},
@@ -667,7 +667,7 @@ func TestEnablegroupCmd(t *testing.T) {
 		{
 			desc: "delete group with invalid token",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				group.ID,
 				invalidToken,
 			},
@@ -678,7 +678,7 @@ func TestEnablegroupCmd(t *testing.T) {
 		{
 			desc: "delete group with invalid group ID",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				invalidID,
 				token,
 			},
@@ -689,7 +689,7 @@ func TestEnablegroupCmd(t *testing.T) {
 		{
 			desc: "enable group with invalid args",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				group.ID,
 				validToken,
 				extraArg,
@@ -738,7 +738,7 @@ func TestDisablegroupCmd(t *testing.T) {
 		{
 			desc: "disable group successfully",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				group.ID,
 				validToken,
 			},
@@ -748,7 +748,7 @@ func TestDisablegroupCmd(t *testing.T) {
 		{
 			desc: "disable group with invalid token",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				group.ID,
 				invalidToken,
 			},
@@ -759,7 +759,7 @@ func TestDisablegroupCmd(t *testing.T) {
 		{
 			desc: "disable group with invalid id",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				invalidID,
 				token,
 			},
@@ -770,7 +770,7 @@ func TestDisablegroupCmd(t *testing.T) {
 		{
 			desc: "disable thing with invalid args",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				group.ID,
 				validToken,
 				extraArg,

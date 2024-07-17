@@ -20,10 +20,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	connectionsCommand = "connections"
-)
-
 var channel = mgsdk.Channel{
 	ID:   testsutil.GenerateUUID(&testing.T{}),
 	Name: "testchannel",
@@ -48,7 +44,7 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel successfully",
 			args: []string{
-				createCommand,
+				crtCmd,
 				channelJson,
 				token,
 			},
@@ -58,7 +54,7 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel with invalid args",
 			args: []string{
-				createCommand,
+				crtCmd,
 				channelJson,
 				token,
 				extraArg,
@@ -68,7 +64,7 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel with invalid json",
 			args: []string{
-				createCommand,
+				crtCmd,
 				"{\"name\":\"testchannel\", \"metadata\":{\"key1\":\"value1\"}",
 				token,
 			},
@@ -79,7 +75,7 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel with invalid token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				channelJson,
 				invalidToken,
 			},
@@ -90,7 +86,7 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel without domain token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				channelJson,
 				tokenWithoutDomain,
 			},
@@ -123,7 +119,6 @@ func TestCreateChannelCmd(t *testing.T) {
 func TestGetChannelsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-
 	channelCmd := cli.NewChannelsCmd()
 	rootCmd := setFlags(channelCmd)
 
@@ -142,7 +137,7 @@ func TestGetChannelsCmd(t *testing.T) {
 		{
 			desc: "get all channels successfully",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				token,
 			},
@@ -154,7 +149,7 @@ func TestGetChannelsCmd(t *testing.T) {
 		{
 			desc: "get channel with id",
 			args: []string{
-				getCommand,
+				getCmd,
 				channel.ID,
 				token,
 			},
@@ -164,7 +159,7 @@ func TestGetChannelsCmd(t *testing.T) {
 		{
 			desc: "get channels with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				token,
 				extraArg,
@@ -174,7 +169,7 @@ func TestGetChannelsCmd(t *testing.T) {
 		{
 			desc: "get all channels with invalid token",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				invalidToken,
 			},
@@ -185,7 +180,7 @@ func TestGetChannelsCmd(t *testing.T) {
 		{
 			desc: "get channel without domain token",
 			args: []string{
-				getCommand,
+				getCmd,
 				channel.ID,
 				tokenWithoutDomain,
 			},
@@ -196,7 +191,7 @@ func TestGetChannelsCmd(t *testing.T) {
 		{
 			desc: "get channel with invalid id",
 			args: []string{
-				getCommand,
+				getCmd,
 				invalidID,
 				token,
 			},
@@ -251,7 +246,7 @@ func TestDeleteChannelCmd(t *testing.T) {
 		{
 			desc: "delete channel successfully",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				channel.ID,
 				token,
 			},
@@ -260,7 +255,7 @@ func TestDeleteChannelCmd(t *testing.T) {
 		{
 			desc: "delete channel with invalid args",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				channel.ID,
 				token,
 				extraArg,
@@ -270,7 +265,7 @@ func TestDeleteChannelCmd(t *testing.T) {
 		{
 			desc: "delete channel with invalid channel id",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				invalidID,
 				token,
 			},
@@ -281,7 +276,7 @@ func TestDeleteChannelCmd(t *testing.T) {
 		{
 			desc: "delete channel with invalid token",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				channel.ID,
 				invalidToken,
 			},
@@ -327,7 +322,7 @@ func TestUpdateChannelCmd(t *testing.T) {
 		{
 			desc: "update channel successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				channel.ID,
 				newChannelJson,
 				token,
@@ -341,7 +336,7 @@ func TestUpdateChannelCmd(t *testing.T) {
 		{
 			desc: "update channel with invalid args",
 			args: []string{
-				updateCommand,
+				updCmd,
 				channel.ID,
 				newChannelJson,
 				token,
@@ -352,7 +347,7 @@ func TestUpdateChannelCmd(t *testing.T) {
 		{
 			desc: "update channel with invalid channel id",
 			args: []string{
-				updateCommand,
+				updCmd,
 				invalidID,
 				newChannelJson,
 				token,
@@ -364,7 +359,7 @@ func TestUpdateChannelCmd(t *testing.T) {
 		{
 			desc: "update channel with invalid json syntax",
 			args: []string{
-				updateCommand,
+				updCmd,
 				channel.ID,
 				"{\"name\" : \"channel1\"",
 				token,
@@ -413,7 +408,7 @@ func TestListConnectionsCmd(t *testing.T) {
 		{
 			desc: "list connections successfully",
 			args: []string{
-				connectionsCommand,
+				connsCmd,
 				channel.ID,
 				token,
 			},
@@ -430,7 +425,7 @@ func TestListConnectionsCmd(t *testing.T) {
 		{
 			desc: "list connections with invalid args",
 			args: []string{
-				connectionsCommand,
+				connsCmd,
 				channel.ID,
 				token,
 				extraArg,
@@ -440,7 +435,7 @@ func TestListConnectionsCmd(t *testing.T) {
 		{
 			desc: "list connections with invalid channel id",
 			args: []string{
-				connectionsCommand,
+				connsCmd,
 				invalidID,
 				token,
 			},
@@ -489,7 +484,7 @@ func TestEnableChannelCmd(t *testing.T) {
 		{
 			desc: "enable channel successfully",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				channel.ID,
 				validToken,
 			},
@@ -499,7 +494,7 @@ func TestEnableChannelCmd(t *testing.T) {
 		{
 			desc: "delete channel with invalid token",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				channel.ID,
 				invalidToken,
 			},
@@ -510,7 +505,7 @@ func TestEnableChannelCmd(t *testing.T) {
 		{
 			desc: "delete channel with invalid channel ID",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				invalidID,
 				token,
 			},
@@ -521,7 +516,7 @@ func TestEnableChannelCmd(t *testing.T) {
 		{
 			desc: "enable channel with invalid args",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				channel.ID,
 				validToken,
 				extraArg,
@@ -570,7 +565,7 @@ func TestDisableChannelCmd(t *testing.T) {
 		{
 			desc: "disable channel successfully",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				channel.ID,
 				validToken,
 			},
@@ -580,7 +575,7 @@ func TestDisableChannelCmd(t *testing.T) {
 		{
 			desc: "disable channel with invalid token",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				channel.ID,
 				invalidToken,
 			},
@@ -591,7 +586,7 @@ func TestDisableChannelCmd(t *testing.T) {
 		{
 			desc: "disable channel with invalid id",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				invalidID,
 				token,
 			},
@@ -602,7 +597,7 @@ func TestDisableChannelCmd(t *testing.T) {
 		{
 			desc: "disable thing with invalid args",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				channel.ID,
 				validToken,
 				extraArg,
@@ -741,7 +736,7 @@ func TestListGroupCmd(t *testing.T) {
 		{
 			desc: "list groups successfully",
 			args: []string{
-				groupsCommand,
+				grpCmd,
 				channel.ID,
 				token,
 			},
@@ -758,7 +753,7 @@ func TestListGroupCmd(t *testing.T) {
 		{
 			desc: "list groups with invalid args",
 			args: []string{
-				groupsCommand,
+				grpCmd,
 				channel.ID,
 				token,
 				extraArg,
@@ -768,7 +763,7 @@ func TestListGroupCmd(t *testing.T) {
 		{
 			desc: "list groups with invalid channel id",
 			args: []string{
-				groupsCommand,
+				grpCmd,
 				invalidID,
 				token,
 			},
@@ -918,7 +913,7 @@ func TestAssignGroupCmd(t *testing.T) {
 			desc: "assign group successfully",
 			args: []string{
 				assignCommand,
-				groupsCommand,
+				grpCmd,
 				grpIds,
 				channel.ID,
 				token,
@@ -929,7 +924,7 @@ func TestAssignGroupCmd(t *testing.T) {
 			desc: "assign group with invalid args",
 			args: []string{
 				assignCommand,
-				groupsCommand,
+				grpCmd,
 				grpIds,
 				channel.ID,
 				token,
@@ -941,7 +936,7 @@ func TestAssignGroupCmd(t *testing.T) {
 			desc: "assign group with invalid json",
 			args: []string{
 				assignCommand,
-				groupsCommand,
+				grpCmd,
 				fmt.Sprintf("[\"%s\"", group.ID),
 				channel.ID,
 				token,
@@ -954,7 +949,7 @@ func TestAssignGroupCmd(t *testing.T) {
 			desc: "assign group with invalid channel id",
 			args: []string{
 				assignCommand,
-				groupsCommand,
+				grpCmd,
 				grpIds,
 				invalidID,
 				token,
@@ -967,7 +962,7 @@ func TestAssignGroupCmd(t *testing.T) {
 			desc: "assign group with invalid user id",
 			args: []string{
 				assignCommand,
-				groupsCommand,
+				grpCmd,
 				fmt.Sprintf("[\"%s\"]", invalidID),
 				channel.ID,
 				token,
@@ -1115,7 +1110,7 @@ func TestUnassignGroupCmd(t *testing.T) {
 			desc: "unassign group successfully",
 			args: []string{
 				unassignCommand,
-				groupsCommand,
+				grpCmd,
 				grpIds,
 				channel.ID,
 				token,
@@ -1126,7 +1121,7 @@ func TestUnassignGroupCmd(t *testing.T) {
 			desc: "unassign group with invalid args",
 			args: []string{
 				unassignCommand,
-				groupsCommand,
+				grpCmd,
 				grpIds,
 				channel.ID,
 				token,
@@ -1138,7 +1133,7 @@ func TestUnassignGroupCmd(t *testing.T) {
 			desc: "unassign group with invalid json",
 			args: []string{
 				unassignCommand,
-				groupsCommand,
+				grpCmd,
 				fmt.Sprintf("[\"%s\"", group.ID),
 				channel.ID,
 				token,
@@ -1151,7 +1146,7 @@ func TestUnassignGroupCmd(t *testing.T) {
 			desc: "unassign group with invalid channel id",
 			args: []string{
 				unassignCommand,
-				groupsCommand,
+				grpCmd,
 				grpIds,
 				invalidID,
 				token,
@@ -1164,7 +1159,7 @@ func TestUnassignGroupCmd(t *testing.T) {
 			desc: "unassign group with invalid user id",
 			args: []string{
 				unassignCommand,
-				groupsCommand,
+				grpCmd,
 				fmt.Sprintf("[\"%s\"]", invalidID),
 				channel.ID,
 				token,

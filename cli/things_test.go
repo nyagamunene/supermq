@@ -40,7 +40,6 @@ var thing = mgsdk.Thing{
 func TestCreateThingsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	createCommand := "create"
 	thingJson := "{\"name\":\"testthing\", \"metadata\":{\"key1\":\"value1\"}}"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
@@ -58,7 +57,7 @@ func TestCreateThingsCmd(t *testing.T) {
 		{
 			desc: "create thing successfully with token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				thingJson,
 				token,
 			},
@@ -68,7 +67,7 @@ func TestCreateThingsCmd(t *testing.T) {
 		{
 			desc: "create thing without token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				thingJson,
 			},
 			logType: usageLog,
@@ -76,7 +75,7 @@ func TestCreateThingsCmd(t *testing.T) {
 		{
 			desc: "create thing with invalid token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				thingJson,
 				invalidToken,
 			},
@@ -87,7 +86,7 @@ func TestCreateThingsCmd(t *testing.T) {
 		{
 			desc: "failed to create thing",
 			args: []string{
-				createCommand,
+				crtCmd,
 				thingJson,
 				token,
 			},
@@ -98,7 +97,7 @@ func TestCreateThingsCmd(t *testing.T) {
 		{
 			desc: "create thing without domain token",
 			args: []string{
-				createCommand,
+				crtCmd,
 				thingJson,
 				tokenWithoutDomain,
 			},
@@ -109,7 +108,7 @@ func TestCreateThingsCmd(t *testing.T) {
 		{
 			desc: "create thing with invalid metadata",
 			args: []string{
-				createCommand,
+				crtCmd,
 				"{\"name\":\"testthing\", \"metadata\":{\"key1\":value1}}",
 				token,
 			},
@@ -143,8 +142,6 @@ func TestCreateThingsCmd(t *testing.T) {
 func TestGetThingsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	getCommand := "get"
-
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -163,7 +160,7 @@ func TestGetThingsCmd(t *testing.T) {
 		{
 			desc: "get all things successfully",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				token,
 			},
@@ -175,7 +172,7 @@ func TestGetThingsCmd(t *testing.T) {
 		{
 			desc: "get thing successfully with id",
 			args: []string{
-				getCommand,
+				getCmd,
 				thing.ID,
 				token,
 			},
@@ -185,7 +182,7 @@ func TestGetThingsCmd(t *testing.T) {
 		{
 			desc: "get things with invalid token",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				invalidToken,
 			},
@@ -197,7 +194,7 @@ func TestGetThingsCmd(t *testing.T) {
 		{
 			desc: "get thing without domain token",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				tokenWithoutDomain,
 			},
@@ -208,7 +205,7 @@ func TestGetThingsCmd(t *testing.T) {
 		{
 			desc: "get things with invalid args",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 				invalidToken,
 				all,
@@ -223,7 +220,7 @@ func TestGetThingsCmd(t *testing.T) {
 		{
 			desc: "get thing without token",
 			args: []string{
-				getCommand,
+				getCmd,
 				all,
 			},
 			logType: usageLog,
@@ -231,7 +228,7 @@ func TestGetThingsCmd(t *testing.T) {
 		{
 			desc: "get thing with invalid thing id",
 			args: []string{
-				getCommand,
+				getCmd,
 				invalidID,
 				token,
 			},
@@ -287,7 +284,6 @@ func TestGetThingsCmd(t *testing.T) {
 func TestUpdateThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	updateCommand := "update"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -309,7 +305,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing name and metadata successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				thing.ID,
 				newNameandMeta,
 				token,
@@ -330,7 +326,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing name and metadata with invalid json",
 			args: []string{
-				updateCommand,
+				updCmd,
 				thing.ID,
 				"{\"name\": \"thingName\", \"metadata\": {\"role\": \"general\"}",
 				token,
@@ -342,7 +338,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing name and metadata with invalid thing id",
 			args: []string{
-				updateCommand,
+				updCmd,
 				invalidID,
 				newNameandMeta,
 				token,
@@ -354,7 +350,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing tags successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				tagUpdateType,
 				thing.ID,
 				newTagsJson,
@@ -372,7 +368,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing with invalid tags",
 			args: []string{
-				updateCommand,
+				updCmd,
 				tagUpdateType,
 				thing.ID,
 				"[\"tag1\", \"tag2\"",
@@ -385,7 +381,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing tags with invalid thing id",
 			args: []string{
-				updateCommand,
+				updCmd,
 				tagUpdateType,
 				invalidID,
 				newTagsJson,
@@ -398,7 +394,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing secret successfully",
 			args: []string{
-				updateCommand,
+				updCmd,
 				secretUpdateType,
 				thing.ID,
 				newSecret,
@@ -418,7 +414,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing with invalid secret",
 			args: []string{
-				updateCommand,
+				updCmd,
 				secretUpdateType,
 				thing.ID,
 				"",
@@ -431,7 +427,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing with invalid token",
 			args: []string{
-				updateCommand,
+				updCmd,
 				secretUpdateType,
 				thing.ID,
 				newSecret,
@@ -444,7 +440,7 @@ func TestUpdateThingCmd(t *testing.T) {
 		{
 			desc: "update thing with invalid args",
 			args: []string{
-				updateCommand,
+				updCmd,
 				secretUpdateType,
 				thing.ID,
 				newSecret,
@@ -499,7 +495,6 @@ func TestUpdateThingCmd(t *testing.T) {
 func TestDeleteThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	deleteCommand := "delete"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -513,7 +508,7 @@ func TestDeleteThingCmd(t *testing.T) {
 		{
 			desc: "delete thing successfully",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				thing.ID,
 				token,
 			},
@@ -522,7 +517,7 @@ func TestDeleteThingCmd(t *testing.T) {
 		{
 			desc: "delete thing with invalid token",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				thing.ID,
 				invalidToken,
 			},
@@ -533,7 +528,7 @@ func TestDeleteThingCmd(t *testing.T) {
 		{
 			desc: "delete thing with invalid thing id",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				invalidID,
 				token,
 			},
@@ -544,7 +539,7 @@ func TestDeleteThingCmd(t *testing.T) {
 		{
 			desc: "delete thing with invalid args",
 			args: []string{
-				deleteCommand,
+				delCmd,
 				thing.ID,
 				token,
 				extraArg,
@@ -574,7 +569,6 @@ func TestDeleteThingCmd(t *testing.T) {
 func TestEnableThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	enableCommand := "enable"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 	var tg mgsdk.Thing
@@ -590,7 +584,7 @@ func TestEnableThingCmd(t *testing.T) {
 		{
 			desc: "enable thing successfully",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				thing.ID,
 				validToken,
 			},
@@ -601,7 +595,7 @@ func TestEnableThingCmd(t *testing.T) {
 		{
 			desc: "delete thing with invalid token",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				thing.ID,
 				invalidToken,
 			},
@@ -612,7 +606,7 @@ func TestEnableThingCmd(t *testing.T) {
 		{
 			desc: "delete thing with invalid thing ID",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				invalidID,
 				token,
 			},
@@ -623,7 +617,7 @@ func TestEnableThingCmd(t *testing.T) {
 		{
 			desc: "enable thing with invalid args",
 			args: []string{
-				enableCommand,
+				enableCmd,
 				thing.ID,
 				validToken,
 				extraArg,
@@ -656,7 +650,6 @@ func TestEnableThingCmd(t *testing.T) {
 func TestDisablethingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	disableCommand := "disable"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -673,7 +666,7 @@ func TestDisablethingCmd(t *testing.T) {
 		{
 			desc: "disable thing successfully",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				thing.ID,
 				validToken,
 			},
@@ -683,7 +676,7 @@ func TestDisablethingCmd(t *testing.T) {
 		{
 			desc: "delete thing with invalid token",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				thing.ID,
 				invalidToken,
 			},
@@ -694,7 +687,7 @@ func TestDisablethingCmd(t *testing.T) {
 		{
 			desc: "delete thing with invalid thing ID",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				invalidID,
 				token,
 			},
@@ -705,7 +698,7 @@ func TestDisablethingCmd(t *testing.T) {
 		{
 			desc: "disable thing with invalid args",
 			args: []string{
-				disableCommand,
+				disableCmd,
 				thing.ID,
 				validToken,
 				extraArg,
@@ -740,7 +733,6 @@ func TestDisablethingCmd(t *testing.T) {
 func TestUsersThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	usersCommand := "users"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -841,7 +833,6 @@ func TestUsersThingCmd(t *testing.T) {
 func TestConnectThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	connectCommand := "connect"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -855,7 +846,7 @@ func TestConnectThingCmd(t *testing.T) {
 		{
 			desc: "Connect thing to channel successfully",
 			args: []string{
-				connectCommand,
+				connCmd,
 				thing.ID,
 				channel.ID,
 				token,
@@ -865,7 +856,7 @@ func TestConnectThingCmd(t *testing.T) {
 		{
 			desc: "connect with invalid args",
 			args: []string{
-				connectCommand,
+				connCmd,
 				thing.ID,
 				channel.ID,
 				token,
@@ -876,7 +867,7 @@ func TestConnectThingCmd(t *testing.T) {
 		{
 			desc: "connect with invalid thing id",
 			args: []string{
-				connectCommand,
+				connCmd,
 				invalidID,
 				channel.ID,
 				token,
@@ -888,7 +879,7 @@ func TestConnectThingCmd(t *testing.T) {
 		{
 			desc: "connect with invalid channel id",
 			args: []string{
-				connectCommand,
+				connCmd,
 				thing.ID,
 				invalidID,
 				token,
@@ -900,7 +891,7 @@ func TestConnectThingCmd(t *testing.T) {
 		{
 			desc: "list thing users' without domain token",
 			args: []string{
-				connectCommand,
+				connCmd,
 				thing.ID,
 				channel.ID,
 				tokenWithoutDomain,
@@ -932,7 +923,6 @@ func TestConnectThingCmd(t *testing.T) {
 func TestDisconnectThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	disconnectCommand := "disconnect"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -946,7 +936,7 @@ func TestDisconnectThingCmd(t *testing.T) {
 		{
 			desc: "Disconnect thing to channel successfully",
 			args: []string{
-				disconnectCommand,
+				dConnCmd,
 				thing.ID,
 				channel.ID,
 				token,
@@ -956,7 +946,7 @@ func TestDisconnectThingCmd(t *testing.T) {
 		{
 			desc: "Disconnect with invalid args",
 			args: []string{
-				disconnectCommand,
+				dConnCmd,
 				thing.ID,
 				channel.ID,
 				token,
@@ -967,7 +957,7 @@ func TestDisconnectThingCmd(t *testing.T) {
 		{
 			desc: "disconnect with invalid thing id",
 			args: []string{
-				disconnectCommand,
+				dConnCmd,
 				invalidID,
 				channel.ID,
 				token,
@@ -979,7 +969,7 @@ func TestDisconnectThingCmd(t *testing.T) {
 		{
 			desc: "disconnect with invalid channel id",
 			args: []string{
-				disconnectCommand,
+				dConnCmd,
 				thing.ID,
 				invalidID,
 				token,
@@ -991,7 +981,7 @@ func TestDisconnectThingCmd(t *testing.T) {
 		{
 			desc: "disconnect thing without domain token",
 			args: []string{
-				disconnectCommand,
+				dConnCmd,
 				thing.ID,
 				channel.ID,
 				tokenWithoutDomain,
@@ -1023,7 +1013,6 @@ func TestDisconnectThingCmd(t *testing.T) {
 func TestListConnectionCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	connectionsCmd := "connections"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -1039,7 +1028,7 @@ func TestListConnectionCmd(t *testing.T) {
 		{
 			desc: "list connections successfully",
 			args: []string{
-				connectionsCmd,
+				connsCmd,
 				thing.ID,
 				token,
 			},
@@ -1056,7 +1045,7 @@ func TestListConnectionCmd(t *testing.T) {
 		{
 			desc: "list connections with invalid args",
 			args: []string{
-				connectionsCmd,
+				connsCmd,
 				thing.ID,
 				token,
 				extraArg,
@@ -1066,7 +1055,7 @@ func TestListConnectionCmd(t *testing.T) {
 		{
 			desc: "list connections with invalid thing ID",
 			args: []string{
-				connectionsCmd,
+				connsCmd,
 				invalidID,
 				token,
 			},
@@ -1077,7 +1066,7 @@ func TestListConnectionCmd(t *testing.T) {
 		{
 			desc: "list connections with invalid token",
 			args: []string{
-				connectionsCmd,
+				connsCmd,
 				thing.ID,
 				invalidToken,
 			},
@@ -1112,7 +1101,6 @@ func TestListConnectionCmd(t *testing.T) {
 func TestShareThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	shareCmd := "share"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -1126,7 +1114,7 @@ func TestShareThingCmd(t *testing.T) {
 		{
 			desc: "share thing successfully",
 			args: []string{
-				shareCmd,
+				shrCmd,
 				thing.ID,
 				user.ID,
 				relation,
@@ -1137,7 +1125,7 @@ func TestShareThingCmd(t *testing.T) {
 		{
 			desc: "share thing with invalid user id",
 			args: []string{
-				shareCmd,
+				shrCmd,
 				thing.ID,
 				invalidID,
 				relation,
@@ -1150,7 +1138,7 @@ func TestShareThingCmd(t *testing.T) {
 		{
 			desc: "share thing with invalid thing ID",
 			args: []string{
-				shareCmd,
+				shrCmd,
 				invalidID,
 				user.ID,
 				relation,
@@ -1163,7 +1151,7 @@ func TestShareThingCmd(t *testing.T) {
 		{
 			desc: "share thing with invalid args",
 			args: []string{
-				shareCmd,
+				shrCmd,
 				thing.ID,
 				user.ID,
 				relation,
@@ -1175,7 +1163,7 @@ func TestShareThingCmd(t *testing.T) {
 		{
 			desc: "share thing with invalid relation",
 			args: []string{
-				shareCmd,
+				shrCmd,
 				thing.ID,
 				user.ID,
 				"invalid",
@@ -1207,7 +1195,6 @@ func TestShareThingCmd(t *testing.T) {
 func TestUnshareThingCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
-	unshareCmd := "unshare"
 	thingsCmd := cli.NewThingsCmd()
 	rootCmd := setFlags(thingsCmd)
 
@@ -1221,7 +1208,7 @@ func TestUnshareThingCmd(t *testing.T) {
 		{
 			desc: "unshare thing successfully",
 			args: []string{
-				unshareCmd,
+				unshrCmd,
 				thing.ID,
 				user.ID,
 				relation,
@@ -1232,7 +1219,7 @@ func TestUnshareThingCmd(t *testing.T) {
 		{
 			desc: "unshare thing with invalid thing ID",
 			args: []string{
-				unshareCmd,
+				unshrCmd,
 				invalidID,
 				user.ID,
 				relation,
@@ -1245,7 +1232,7 @@ func TestUnshareThingCmd(t *testing.T) {
 		{
 			desc: "unshare thing with invalid args",
 			args: []string{
-				unshareCmd,
+				unshrCmd,
 				thing.ID,
 				user.ID,
 				relation,
@@ -1257,7 +1244,7 @@ func TestUnshareThingCmd(t *testing.T) {
 		{
 			desc: "unshare thing with invalid relation",
 			args: []string{
-				unshareCmd,
+				unshrCmd,
 				thing.ID,
 				user.ID,
 				"invalid",
