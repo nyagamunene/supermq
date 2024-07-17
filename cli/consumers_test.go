@@ -51,7 +51,6 @@ func TestCreateSubscriptionCmd(t *testing.T) {
 		{
 			desc: "create subscription successfully",
 			args: []string{
-				createCommand,
 				subscription.Topic,
 				subscription.Contact,
 				validToken,
@@ -63,7 +62,6 @@ func TestCreateSubscriptionCmd(t *testing.T) {
 		{
 			desc: "create subscription with invalid args",
 			args: []string{
-				createCommand,
 				subscription.Topic,
 				subscription.Contact,
 				validToken,
@@ -74,7 +72,6 @@ func TestCreateSubscriptionCmd(t *testing.T) {
 		{
 			desc: "create subscription with invalid token",
 			args: []string{
-				createCommand,
 				subscription.Topic,
 				subscription.Contact,
 				invalidToken,
@@ -87,8 +84,8 @@ func TestCreateSubscriptionCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("CreateSubscription", tc.args[1], tc.args[2], tc.args[3]).Return(tc.id, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("CreateSubscription", tc.args[0], tc.args[1], tc.args[2]).Return(tc.id, tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{createCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case usageLog:
@@ -124,7 +121,6 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 		{
 			desc: "get all subscriptions successfully",
 			args: []string{
-				getCommand,
 				all,
 				token,
 			},
@@ -136,7 +132,6 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 		{
 			desc: "get subscription with id",
 			args: []string{
-				getCommand,
 				subscription.ID,
 				token,
 			},
@@ -146,7 +141,6 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 		{
 			desc: "get subscriptions with invalid args",
 			args: []string{
-				getCommand,
 				all,
 				token,
 				extraArg,
@@ -156,7 +150,6 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 		{
 			desc: "get all subscriptions with invalid token",
 			args: []string{
-				getCommand,
 				all,
 				invalidToken,
 			},
@@ -167,7 +160,6 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 		{
 			desc: "get subscription without domain token",
 			args: []string{
-				getCommand,
 				subscription.ID,
 				tokenWithoutDomain,
 			},
@@ -178,7 +170,6 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 		{
 			desc: "get subscription with invalid id",
 			args: []string{
-				getCommand,
 				invalidID,
 				token,
 			},
@@ -190,10 +181,10 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("ViewSubscription", tc.args[1], tc.args[2]).Return(tc.subscription, tc.sdkErr)
-			sdkCall1 := sdkMock.On("ListSubscriptions", mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
+			sdkCall := sdkMock.On("ViewSubscription", tc.args[0], tc.args[1]).Return(tc.subscription, tc.sdkErr)
+			sdkCall1 := sdkMock.On("ListSubscriptions", mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
 
-			out := executeCommand(t, rootCmd, tc.args...)
+			out := executeCommand(t, rootCmd, append([]string{getCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -233,7 +224,6 @@ func TestRemoveSubscriptionCmd(t *testing.T) {
 		{
 			desc: "remove subscription successfully",
 			args: []string{
-				removeCommand,
 				subscription.ID,
 				token,
 			},
@@ -242,7 +232,6 @@ func TestRemoveSubscriptionCmd(t *testing.T) {
 		{
 			desc: "remove subscription with invalid args",
 			args: []string{
-				removeCommand,
 				subscription.ID,
 				token,
 				extraArg,
@@ -252,7 +241,6 @@ func TestRemoveSubscriptionCmd(t *testing.T) {
 		{
 			desc: "remove subscription with invalid subscription id",
 			args: []string{
-				removeCommand,
 				invalidID,
 				token,
 			},
@@ -263,7 +251,6 @@ func TestRemoveSubscriptionCmd(t *testing.T) {
 		{
 			desc: "remove subscription with invalid token",
 			args: []string{
-				removeCommand,
 				subscription.ID,
 				invalidToken,
 			},
@@ -275,8 +262,8 @@ func TestRemoveSubscriptionCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("DeleteSubscription", tc.args[1], tc.args[2]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("DeleteSubscription", tc.args[0], tc.args[1]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{removeCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case okLog:

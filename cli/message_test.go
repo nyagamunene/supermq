@@ -43,7 +43,6 @@ func TestSendMesageCmd(t *testing.T) {
 		{
 			desc: "send message successfully",
 			args: []string{
-				send,
 				channel.ID,
 				message,
 				thing.Credentials.Secret,
@@ -53,7 +52,6 @@ func TestSendMesageCmd(t *testing.T) {
 		{
 			desc: "send message with invalid args",
 			args: []string{
-				send,
 				channel.ID,
 				message,
 				thing.Credentials.Secret,
@@ -64,7 +62,6 @@ func TestSendMesageCmd(t *testing.T) {
 		{
 			desc: "send message with invalid thing secret",
 			args: []string{
-				send,
 				channel.ID,
 				message,
 				"invalid_secret",
@@ -77,8 +74,8 @@ func TestSendMesageCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("SendMessage", tc.args[1], tc.args[2], tc.args[3]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("SendMessage", tc.args[0], tc.args[1], tc.args[2]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{send}, tc.args...)...)
 
 			switch tc.logType {
 			case okLog:
@@ -111,7 +108,6 @@ func TestReadMesageCmd(t *testing.T) {
 		{
 			desc: "read message successfully",
 			args: []string{
-				read,
 				channel.ID,
 				validToken,
 			},
@@ -132,7 +128,6 @@ func TestReadMesageCmd(t *testing.T) {
 		{
 			desc: "read message with invalid args",
 			args: []string{
-				read,
 				channel.ID,
 				validToken,
 				extraArg,
@@ -142,7 +137,6 @@ func TestReadMesageCmd(t *testing.T) {
 		{
 			desc: "read message with invalid token",
 			args: []string{
-				read,
 				channel.ID,
 				invalidToken,
 			},
@@ -154,8 +148,8 @@ func TestReadMesageCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("ReadMessages", mock.Anything, tc.args[1], tc.args[2]).Return(tc.page, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("ReadMessages", mock.Anything, tc.args[0], tc.args[1]).Return(tc.page, tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{read}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:

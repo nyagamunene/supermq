@@ -50,7 +50,6 @@ func TestGetCertCmd(t *testing.T) {
 		{
 			desc: "get cert successfully",
 			args: []string{
-				get,
 				"thing",
 				thing.ID,
 				validToken,
@@ -68,7 +67,6 @@ func TestGetCertCmd(t *testing.T) {
 		{
 			desc: "get cert successfully by id",
 			args: []string{
-				get,
 				thing.ID,
 				validToken,
 			},
@@ -78,7 +76,6 @@ func TestGetCertCmd(t *testing.T) {
 		{
 			desc: "get cert with invalid token",
 			args: []string{
-				get,
 				"thing",
 				thing.ID,
 				invalidToken,
@@ -90,7 +87,6 @@ func TestGetCertCmd(t *testing.T) {
 		{
 			desc: "get cert by id with invalid token",
 			args: []string{
-				get,
 				thing.ID,
 				invalidToken,
 			},
@@ -101,7 +97,6 @@ func TestGetCertCmd(t *testing.T) {
 		{
 			desc: "get cert with invalid args",
 			args: []string{
-				get,
 				thing.ID,
 			},
 			logType: usageLog,
@@ -112,7 +107,7 @@ func TestGetCertCmd(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("ViewCertByThing", mock.Anything, mock.Anything).Return(tc.serials, tc.sdkErr)
 			sdkCall1 := sdkMock.On("ViewCert", mock.Anything, mock.Anything).Return(tc.cert, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			out := executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)
 			switch tc.logType {
 			case entityLog:
 				if tc.args[1] == "thing" {
@@ -156,7 +151,6 @@ func TestRevokeCertCmd(t *testing.T) {
 		{
 			desc: "revoke cert successfully",
 			args: []string{
-				revokeCommand,
 				thing.ID,
 				token,
 			},
@@ -167,7 +161,6 @@ func TestRevokeCertCmd(t *testing.T) {
 		{
 			desc: "revoke cert with invalid args",
 			args: []string{
-				revokeCommand,
 				thing.ID,
 				token,
 				extraArg,
@@ -177,7 +170,6 @@ func TestRevokeCertCmd(t *testing.T) {
 		{
 			desc: "revoke cert with invalid token",
 			args: []string{
-				revokeCommand,
 				thing.ID,
 				invalidToken,
 			},
@@ -189,8 +181,8 @@ func TestRevokeCertCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("RevokeCert", tc.args[1], tc.args[2]).Return(tc.time, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("RevokeCert", tc.args[0], tc.args[1]).Return(tc.time, tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{revokeCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case revokeLog:
@@ -223,7 +215,6 @@ func TestIssueCertCmd(t *testing.T) {
 		{
 			desc: "issue cert successfully",
 			args: []string{
-				issueCommand,
 				thing.ID,
 				validToken,
 			},
@@ -233,7 +224,6 @@ func TestIssueCertCmd(t *testing.T) {
 		{
 			desc: "issue cert with invalid args",
 			args: []string{
-				issueCommand,
 				thing.ID,
 				validToken,
 				extraArg,
@@ -243,7 +233,6 @@ func TestIssueCertCmd(t *testing.T) {
 		{
 			desc: "issue cert with invalid token",
 			args: []string{
-				issueCommand,
 				thing.ID,
 				invalidToken,
 			},
@@ -255,8 +244,8 @@ func TestIssueCertCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("IssueCert", mock.Anything, mock.Anything, tc.args[2]).Return(tc.cert, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("IssueCert", mock.Anything, mock.Anything, tc.args[1]).Return(tc.cert, tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{issueCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case usageLog:
