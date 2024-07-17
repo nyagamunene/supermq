@@ -236,7 +236,7 @@ func TestListDomainUsers(t *testing.T) {
 		sdkErr        errors.SDKError
 	}{
 		{
-			desc: "get domain's users successfully",
+			desc: "list domain users successfully",
 			args: []string{
 				usersCommand,
 				domain.ID,
@@ -314,7 +314,7 @@ func TestUpdateDomainCmd(t *testing.T) {
 	domainsCmd := cli.NewDomainsCmd()
 	rootCmd := setFlags(domainsCmd)
 
-	newDomainJson := "{\"name\" : \"domain1\"}"
+	newDomainJson := "{\"name\" : \"newdomain\"}"
 	cases := []struct {
 		desc          string
 		args          []string
@@ -332,7 +332,7 @@ func TestUpdateDomainCmd(t *testing.T) {
 				token,
 			},
 			domain: mgsdk.Domain{
-				Name: "newdomain1",
+				Name: "newdomain",
 				ID:   domain.ID,
 			},
 			logType: entityLog,
@@ -366,7 +366,7 @@ func TestUpdateDomainCmd(t *testing.T) {
 			args: []string{
 				updateCommand,
 				domain.ID,
-				"{\"name\" : \"domain1\"",
+				"{\"name\" : \"newdomain\"",
 				token,
 			},
 			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
@@ -418,7 +418,7 @@ func TestEnableDomainCmd(t *testing.T) {
 			logType: entityLog,
 		},
 		{
-			desc: "delete domain with invalid token",
+			desc: "enable domain with invalid token",
 			args: []string{
 				enableCommand,
 				domain.ID,
@@ -429,7 +429,7 @@ func TestEnableDomainCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "delete domain with invalid domain ID",
+			desc: "enable domain with invalid domain id",
 			args: []string{
 				enableCommand,
 				invalidID,
