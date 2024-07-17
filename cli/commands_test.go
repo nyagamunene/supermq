@@ -4,7 +4,7 @@
 package cli_test
 
 const (
-	crtCmd        = "create"
+	createCmd     = "create"
 	getCmd        = "get"
 	tokCmd        = "token"
 	refTokCmd     = "refreshtoken"
@@ -16,13 +16,18 @@ const (
 	enableCmd     = "enable"
 	disableCmd    = "disable"
 	delCmd        = "delete"
-	chanCmd       = "channels"
-	thiCmd        = "things"
+	chansCmd      = "channels"
+	thsCmd        = "things"
 	domsCmd       = "domains"
 	grpCmd        = "groups"
 	connsCmd      = "connections"
 	connCmd       = "connect"
-	dConnCmd      = "disconnect"
+	disconnCmd    = "disconnect"
 	shrCmd        = "share"
 	unshrCmd      = "unshare"
+	childCmd      = "children"
+	parentCmd     = "parents"
+	usrCmd        = "users"
+	assignCmd     = "assign"
+	unassignCmd   = "unassign"
 )
