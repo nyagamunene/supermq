@@ -39,7 +39,7 @@ const (
 
 var domain = mgsdk.Domain{
 	ID:    testsutil.GenerateUUID(&testing.T{}),
-	Name:  "testdomain",
+	Name:  "Test domain",
 	Alias: "alias",
 }
 
@@ -62,7 +62,6 @@ func TestCreateDomainsCmd(t *testing.T) {
 		{
 			desc: "create domain successfully",
 			args: []string{
-				createCommand,
 				dom.Name,
 				dom.Alias,
 				validToken,
@@ -73,7 +72,6 @@ func TestCreateDomainsCmd(t *testing.T) {
 		{
 			desc: "create domain with invalid args",
 			args: []string{
-				createCommand,
 				dom.Name,
 				dom.Alias,
 				validToken,
@@ -84,7 +82,6 @@ func TestCreateDomainsCmd(t *testing.T) {
 		{
 			desc: "create domain with invalid token",
 			args: []string{
-				createCommand,
 				dom.Name,
 				dom.Alias,
 				invalidToken,
@@ -98,7 +95,7 @@ func TestCreateDomainsCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("CreateDomain", mock.Anything, mock.Anything).Return(tc.domain, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			out := executeCommand(t, rootCmd, append([]string{createCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -137,7 +134,6 @@ func TestGetDomainsCmd(t *testing.T) {
 		{
 			desc: "get all domains successfully",
 			args: []string{
-				getCommand,
 				all,
 				validToken,
 			},
@@ -149,7 +145,6 @@ func TestGetDomainsCmd(t *testing.T) {
 		{
 			desc: "get domain with id",
 			args: []string{
-				getCommand,
 				domain.ID,
 				validToken,
 			},
@@ -159,7 +154,6 @@ func TestGetDomainsCmd(t *testing.T) {
 		{
 			desc: "get domains with invalid args",
 			args: []string{
-				getCommand,
 				all,
 				validToken,
 				extraArg,
@@ -169,7 +163,6 @@ func TestGetDomainsCmd(t *testing.T) {
 		{
 			desc: "get all domains with invalid token",
 			args: []string{
-				getCommand,
 				all,
 				invalidToken,
 			},
@@ -180,7 +173,6 @@ func TestGetDomainsCmd(t *testing.T) {
 		{
 			desc: "get domain with invalid id",
 			args: []string{
-				getCommand,
 				invalidID,
 				validToken,
 			},
@@ -192,10 +184,10 @@ func TestGetDomainsCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("Domain", tc.args[1], tc.args[2]).Return(tc.domain, tc.sdkErr)
-			sdkCall1 := sdkMock.On("Domains", mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
+			sdkCall := sdkMock.On("Domain", tc.args[0], tc.args[1]).Return(tc.domain, tc.sdkErr)
+			sdkCall1 := sdkMock.On("Domains", mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
 
-			out := executeCommand(t, rootCmd, tc.args...)
+			out := executeCommand(t, rootCmd, append([]string{getCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -238,7 +230,6 @@ func TestListDomainUsers(t *testing.T) {
 		{
 			desc: "list domain users successfully",
 			args: []string{
-				usersCommand,
 				domain.ID,
 				token,
 			},
@@ -255,7 +246,6 @@ func TestListDomainUsers(t *testing.T) {
 		{
 			desc: "list domain users with invalid args",
 			args: []string{
-				usersCommand,
 				domain.ID,
 				token,
 				extraArg,
@@ -265,7 +255,6 @@ func TestListDomainUsers(t *testing.T) {
 		{
 			desc: "list domain users without domain token",
 			args: []string{
-				usersCommand,
 				domain.ID,
 				tokenWithoutDomain,
 			},
@@ -276,7 +265,6 @@ func TestListDomainUsers(t *testing.T) {
 		{
 			desc: "list domain users with invalid id",
 			args: []string{
-				usersCommand,
 				invalidID,
 				token,
 			},
@@ -288,8 +276,8 @@ func TestListDomainUsers(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("ListDomainUsers", tc.args[1], mock.Anything, tc.args[2]).Return(tc.page, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("ListDomainUsers", tc.args[0], mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{usersCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -314,7 +302,7 @@ func TestUpdateDomainCmd(t *testing.T) {
 	domainsCmd := cli.NewDomainsCmd()
 	rootCmd := setFlags(domainsCmd)
 
-	newDomainJson := "{\"name\" : \"newdomain\"}"
+	newDomainJson := "{\"name\" : \"New domain\"}"
 	cases := []struct {
 		desc          string
 		args          []string
@@ -326,13 +314,12 @@ func TestUpdateDomainCmd(t *testing.T) {
 		{
 			desc: "update domain successfully",
 			args: []string{
-				updateCommand,
 				domain.ID,
 				newDomainJson,
 				token,
 			},
 			domain: mgsdk.Domain{
-				Name: "newdomain",
+				Name: "New domain",
 				ID:   domain.ID,
 			},
 			logType: entityLog,
@@ -340,7 +327,6 @@ func TestUpdateDomainCmd(t *testing.T) {
 		{
 			desc: "update domain with invalid args",
 			args: []string{
-				updateCommand,
 				domain.ID,
 				newDomainJson,
 				token,
@@ -352,7 +338,6 @@ func TestUpdateDomainCmd(t *testing.T) {
 		{
 			desc: "update domain with invalid id",
 			args: []string{
-				updateCommand,
 				invalidID,
 				newDomainJson,
 				token,
@@ -364,9 +349,8 @@ func TestUpdateDomainCmd(t *testing.T) {
 		{
 			desc: "update domain with invalid json syntax",
 			args: []string{
-				updateCommand,
 				domain.ID,
-				"{\"name\" : \"newdomain\"",
+				"{\"name\" : \"New domain\"",
 				token,
 			},
 			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
@@ -377,8 +361,8 @@ func TestUpdateDomainCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			var dom mgsdk.Domain
-			sdkCall := sdkMock.On("UpdateDomain", mock.Anything, tc.args[3]).Return(tc.domain, tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("UpdateDomain", mock.Anything, tc.args[2]).Return(tc.domain, tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{updateCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -411,7 +395,6 @@ func TestEnableDomainCmd(t *testing.T) {
 		{
 			desc: "enable domain successfully",
 			args: []string{
-				enableCommand,
 				domain.ID,
 				validToken,
 			},
@@ -420,7 +403,6 @@ func TestEnableDomainCmd(t *testing.T) {
 		{
 			desc: "enable domain with invalid token",
 			args: []string{
-				enableCommand,
 				domain.ID,
 				invalidToken,
 			},
@@ -431,7 +413,6 @@ func TestEnableDomainCmd(t *testing.T) {
 		{
 			desc: "enable domain with invalid domain id",
 			args: []string{
-				enableCommand,
 				invalidID,
 				token,
 			},
@@ -442,7 +423,6 @@ func TestEnableDomainCmd(t *testing.T) {
 		{
 			desc: "enable domain with invalid args",
 			args: []string{
-				enableCommand,
 				domain.ID,
 				validToken,
 				extraArg,
@@ -453,8 +433,8 @@ func TestEnableDomainCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("EnableDomain", tc.args[1], tc.args[2]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("EnableDomain", tc.args[0], tc.args[1]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{enableCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -486,7 +466,6 @@ func TestDisableDomainCmd(t *testing.T) {
 		{
 			desc: "disable domain successfully",
 			args: []string{
-				disableCommand,
 				domain.ID,
 				validToken,
 			},
@@ -495,7 +474,6 @@ func TestDisableDomainCmd(t *testing.T) {
 		{
 			desc: "disable domain with invalid token",
 			args: []string{
-				disableCommand,
 				domain.ID,
 				invalidToken,
 			},
@@ -506,7 +484,6 @@ func TestDisableDomainCmd(t *testing.T) {
 		{
 			desc: "disable domain with invalid id",
 			args: []string{
-				disableCommand,
 				invalidID,
 				token,
 			},
@@ -515,9 +492,8 @@ func TestDisableDomainCmd(t *testing.T) {
 			logType:       errLog,
 		},
 		{
-			desc: "disable thing with invalid args",
+			desc: "disable domain with invalid args",
 			args: []string{
-				disableCommand,
 				domain.ID,
 				validToken,
 				extraArg,
@@ -528,8 +504,8 @@ func TestDisableDomainCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("DisableDomain", tc.args[1], tc.args[2]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("DisableDomain", tc.args[0], tc.args[1]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{disableCommand}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -563,8 +539,6 @@ func TestAssignUserToDomainCmd(t *testing.T) {
 		{
 			desc: "assign user successfully",
 			args: []string{
-				assignCommand,
-				usersCommand,
 				relation,
 				userIds,
 				domain.ID,
@@ -575,8 +549,6 @@ func TestAssignUserToDomainCmd(t *testing.T) {
 		{
 			desc: "assign user with invalid args",
 			args: []string{
-				assignCommand,
-				usersCommand,
 				relation,
 				userIds,
 				domain.ID,
@@ -588,8 +560,6 @@ func TestAssignUserToDomainCmd(t *testing.T) {
 		{
 			desc: "assign user with invalid json",
 			args: []string{
-				assignCommand,
-				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"", user.ID),
 				domain.ID,
@@ -602,8 +572,6 @@ func TestAssignUserToDomainCmd(t *testing.T) {
 		{
 			desc: "assign user with invalid domain id",
 			args: []string{
-				assignCommand,
-				usersCommand,
 				relation,
 				userIds,
 				invalidID,
@@ -616,8 +584,6 @@ func TestAssignUserToDomainCmd(t *testing.T) {
 		{
 			desc: "assign user with invalid user id",
 			args: []string{
-				assignCommand,
-				usersCommand,
 				relation,
 				fmt.Sprintf("[\"%s\"]", invalidID),
 				domain.ID,
@@ -631,8 +597,8 @@ func TestAssignUserToDomainCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("AddUserToDomain", tc.args[4], mock.Anything, tc.args[5]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("AddUserToDomain", tc.args[2], mock.Anything, tc.args[3]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{assignCommand, usersCommand}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
@@ -662,8 +628,6 @@ func TestUnassignUserTodomainCmd(t *testing.T) {
 		{
 			desc: "unassign user successfully",
 			args: []string{
-				unassignCommand,
-				usersCommand,
 				user.ID,
 				domain.ID,
 				token,
@@ -673,8 +637,6 @@ func TestUnassignUserTodomainCmd(t *testing.T) {
 		{
 			desc: "unassign user with invalid args",
 			args: []string{
-				unassignCommand,
-				usersCommand,
 				user.ID,
 				domain.ID,
 				token,
@@ -685,8 +647,6 @@ func TestUnassignUserTodomainCmd(t *testing.T) {
 		{
 			desc: "unassign user with invalid domain id",
 			args: []string{
-				unassignCommand,
-				usersCommand,
 				user.ID,
 				invalidID,
 				token,
@@ -698,8 +658,6 @@ func TestUnassignUserTodomainCmd(t *testing.T) {
 		{
 			desc: "unassign user with invalid user id",
 			args: []string{
-				unassignCommand,
-				usersCommand,
 				invalidID,
 				domain.ID,
 				token,
@@ -712,8 +670,8 @@ func TestUnassignUserTodomainCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("RemoveUserFromDomain", tc.args[3], tc.args[2], tc.args[4]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, tc.args...)
+			sdkCall := sdkMock.On("RemoveUserFromDomain", tc.args[1], tc.args[0], tc.args[2]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{unassignCommand, usersCommand}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
