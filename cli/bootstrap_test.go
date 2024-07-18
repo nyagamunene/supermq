@@ -22,6 +22,8 @@ import (
 const(
 	config = "config"
 	connection = "connection"
+	whitelistCmd = "whitelist"
+	bootStrapCmd = "bootstrap"
 )
 
 var bootConfig = mgsdk.BootstrapConfig{
@@ -346,6 +348,48 @@ func TestUpdateBootstrapConfigCmd(t *testing.T) {
 				err := json.Unmarshal([]byte(out), &boot)
 				assert.Nil(t, err)
 				assert.Equal(t, tc.boot, boot, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.boot, boot))
+			case okLog:
+				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			}
+			sdkCall.Unset()
+		})
+	}
+}
+
+func TestWhitelistConfig(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	bootCmd := cli.NewBootstrapCmd()
+	rootCmd := setFlags(bootCmd)
+
+	// jsonConfig := fmt.Sprintf("{\"thing_id\": \"%s\", \"state\":\"%s\"}", thing.ID, "1")
+
+	cases := []struct{
+		desc string
+		args []string
+		logType outputLog
+		errLogMessage string
+		sdkErr errors.SDKError
+	}{
+		{
+			desc: "whitelist config successfully",
+			args: []string{
+				"{\"name\":\"testchannel\", \"key1\":\"value1\"}",
+				validToken,
+			},
+			logType: okLog,
+		},
+	}
+
+	for _,tc := range  cases{
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("Whitelist", mock.Anything, mock.Anything,tc.args[1]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{whitelistCmd}, tc.args...)...)
+			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
 			case usageLog:
