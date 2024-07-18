@@ -20,11 +20,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	revokeCommand = "revoke"
-	issueCommand  = "issue"
-)
-
 var cert = mgsdk.Cert{
 	ThingID: thing.ID,
 }
@@ -182,7 +177,7 @@ func TestRevokeCertCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("RevokeCert", tc.args[0], tc.args[1]).Return(tc.time, tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{revokeCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{revokeCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case revokeLog:
@@ -245,7 +240,7 @@ func TestIssueCertCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("IssueCert", mock.Anything, mock.Anything, tc.args[1]).Return(tc.cert, tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{issueCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{issueCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case usageLog:
