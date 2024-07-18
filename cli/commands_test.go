@@ -3,7 +3,7 @@
 
 package cli_test
 
-// CRUD and common commands.
+// CRUD and common commands
 const (
 	createCmd  = "create"
 	updateCmd  = "update"
@@ -15,7 +15,7 @@ const (
 	rmCmd      = "remove"
 )
 
-// Users commands.
+// Users commands
 const (
 	tokCmd        = "token"
 	refTokCmd     = "refreshtoken"
@@ -26,7 +26,7 @@ const (
 	domsCmd       = "domains"
 )
 
-// Things commands.
+// Things commands
 const (
 	thsCmd     = "things"
 	connsCmd   = "connections"
@@ -36,7 +36,7 @@ const (
 	unshrCmd   = "unshare"
 )
 
-// Groups and channels commands.
+// Groups and channels commands
 const (
 	chansCmd    = "channels"
 	grpCmd      = "groups"
@@ -47,13 +47,13 @@ const (
 	unassignCmd = "unassign"
 )
 
-// Certs commands.
+// Certs commands
 const (
 	revokeCmd = "revoke"
 	issueCmd  = "issue"
 )
 
-// Messages commands.
+// Messages commands
 const (
 	sendCmd = "send"
 	readCmd = "read"
