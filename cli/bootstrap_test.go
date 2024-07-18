@@ -19,15 +19,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	createCmd = "create"
-	getCmd = "get"
+const(
+	config = "config"
+	connection = "connection"
 )
 
 var bootConfig = mgsdk.BootstrapConfig{
-	ThingID: thing.ID,
+	ThingID:  thing.ID,
 	Channels: []string{channel.ID},
-	Name: "Test Bootstrap",
+	Name:     "Test Bootstrap",
 }
 
 func TestCreateBootstrapConfigCmd(t *testing.T) {
@@ -121,7 +121,7 @@ func TestGetBootstrapConfigCmd(t *testing.T) {
 		args          []string
 		sdkErr        errors.SDKError
 		page          mgsdk.BootstrapPage
-		boot       mgsdk.BootstrapConfig
+		boot          mgsdk.BootstrapConfig
 		logType       outputLog
 		errLogMessage string
 	}{
@@ -132,10 +132,10 @@ func TestGetBootstrapConfigCmd(t *testing.T) {
 				token,
 			},
 			page: mgsdk.BootstrapPage{
-				PageRes:mgsdk.PageRes{
-					Total: 1,
+				PageRes: mgsdk.PageRes{
+					Total:  1,
 					Offset: 0,
-					Limit: 10,
+					Limit:  10,
 				},
 				Configs: []mgsdk.BootstrapConfig{bootConfig},
 			},
@@ -148,7 +148,7 @@ func TestGetBootstrapConfigCmd(t *testing.T) {
 				token,
 			},
 			logType: entityLog,
-			boot: bootConfig,
+			boot:    bootConfig,
 		},
 		{
 			desc: "get bootstrap config with invalid args",
@@ -206,6 +206,154 @@ func TestGetBootstrapConfigCmd(t *testing.T) {
 			}
 			sdkCall.Unset()
 			sdkCall1.Unset()
+		})
+	}
+}
+
+func TestRemoveBootstrapConfigCmd(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	bootCmd := cli.NewBootstrapCmd()
+	rootCmd := setFlags(bootCmd)
+
+	cases := []struct {
+		desc          string
+		args          []string
+		sdkErr        errors.SDKError
+		logType       outputLog
+		errLogMessage string
+	}{
+		{
+			desc: "remove bootstrap config successfully",
+			args: []string{
+				thing.ID,
+				token,
+			},
+			logType: okLog,
+		},
+		{
+			desc: "remove bootstrap config with invalid args",
+			args: []string{
+				thing.ID,
+				token,
+				extraArg,
+			},
+			logType: usageLog,
+		},
+		{
+			desc: "remove bootstrap config with invalid thing id",
+			args: []string{
+				invalidID,
+				token,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+		{
+			desc: "remove bootstrap config with invalid token",
+			args: []string{
+				thing.ID,
+				invalidToken,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("RemoveBootstrap", tc.args[0], tc.args[1]).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{rmCmd}, tc.args...)...)
+
+			switch tc.logType {
+			case okLog:
+				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			}
+			sdkCall.Unset()
+		})
+	}
+}
+
+func TestUpdateBootstrapConfigCmd(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	bootCmd := cli.NewBootstrapCmd()
+	rootCmd := setFlags(bootCmd)
+
+	newConfigJson := "{\"name\" : \"New Bootstrap\"}"
+	cases := []struct {
+		desc          string
+		args          []string
+		boot       mgsdk.BootstrapConfig
+		sdkErr        errors.SDKError
+		errLogMessage string
+		logType       outputLog
+	}{
+		{
+			desc: "update bootstrap config successfully",
+			args: []string{
+				config,
+				newConfigJson,
+				token,
+			},
+			logType: okLog,
+		},
+		// {
+		// 	desc: "update bootstrap config with invalid args",
+		// 	args: []string{
+		// 		newConfigJson,
+		// 		token,
+		// 	},
+		// 	logType: usageLog,
+		// },
+		// {
+		// 	desc: "update bootstrap config with invalid channel id",
+		// 	args: []string{
+		// 		invalidID,
+		// 		newConfigJson,
+		// 		token,
+		// 	},
+		// 	sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+		// 	errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+		// 	logType:       errLog,
+		// },
+		// {
+		// 	desc: "update bootstrap config with invalid json syntax",
+		// 	args: []string{
+		// 		channel.ID,
+		// 		"{\"name\" : \"channel1\"",
+		// 		token,
+		// 	},
+		// 	sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
+		// 	errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.New("unexpected end of JSON input")),
+		// 	logType:       errLog,
+		// },
+	}
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			var boot mgsdk.BootstrapConfig
+			sdkCall := sdkMock.On("UpdateBootstrap", mock.Anything, mock.Anything).Return(tc.sdkErr)
+			out := executeCommand(t, rootCmd, append([]string{updCmd}, tc.args...)...)
+
+			switch tc.logType {
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &boot)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.boot, boot, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.boot, boot))
+			case okLog:
+				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			}
+			sdkCall.Unset()
 		})
 	}
 }
