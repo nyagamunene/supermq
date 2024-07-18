@@ -22,8 +22,8 @@ import (
 
 var invitation = mgsdk.Invitation{
 	InvitedBy: testsutil.GenerateUUID(&testing.T{}),
-	UserID: user.ID,
-	DomainID: domain.ID,
+	UserID:    user.ID,
+	DomainID:  domain.ID,
 }
 
 func TestSendUserInvitationCmd(t *testing.T) {
@@ -106,7 +106,7 @@ func TestGetInvitationCmd(t *testing.T) {
 		args          []string
 		sdkErr        errors.SDKError
 		page          mgsdk.InvitationPage
-		inv          mgsdk.Invitation
+		inv           mgsdk.Invitation
 		logType       outputLog
 		errLogMessage string
 	}{
@@ -117,9 +117,9 @@ func TestGetInvitationCmd(t *testing.T) {
 				token,
 			},
 			page: mgsdk.InvitationPage{
-				Total:  1,
-				Offset: 0,
-				Limit:  10,
+				Total:       1,
+				Offset:      0,
+				Limit:       10,
 				Invitations: []mgsdk.Invitation{invitation},
 			},
 			logType: entityLog,
@@ -132,7 +132,7 @@ func TestGetInvitationCmd(t *testing.T) {
 				token,
 			},
 			logType: entityLog,
-			inv:    invitation,
+			inv:     invitation,
 		},
 		{
 			desc: "get invitation with invalid args",
