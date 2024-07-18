@@ -75,7 +75,6 @@ func TestSendUserInvitationCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("SendInvitation", mock.Anything, mock.Anything).Return(tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{sendCmd}, tc.args...)...)
@@ -239,7 +238,6 @@ func TestAcceptInvitationCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("AcceptInvitation", mock.Anything, mock.Anything).Return(tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{acceptCmd}, tc.args...)...)
@@ -302,7 +300,6 @@ func TestDeleteInvitationCmd(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("DeleteInvitation", mock.Anything, mock.Anything, mock.Anything).Return(tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{delCmd}, tc.args...)...)
