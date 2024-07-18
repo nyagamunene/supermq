@@ -19,13 +19,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	config       = "config"
-	connection   = "connection"
-	whitelistCmd = "whitelist"
-	bootStrapCmd = "bootstrap"
-)
-
 var bootConfig = mgsdk.BootstrapConfig{
 	ThingID:     thing.ID,
 	Channels:    []string{channel.ID},
@@ -290,8 +283,11 @@ func TestUpdateBootstrapConfigCmd(t *testing.T) {
 	bootCmd := cli.NewBootstrapCmd()
 	rootCmd := setFlags(bootCmd)
 
+	config := "config"
+	connection := "connection"
+
 	newConfigJson := "{\"name\" : \"New Bootstrap\"}"
-	chanIDsJson := fmt.Sprintf("[\"%s\"]",channel.ID)
+	chanIDsJson := fmt.Sprintf("[\"%s\"]", channel.ID)
 	cases := []struct {
 		desc          string
 		args          []string
@@ -335,7 +331,7 @@ func TestUpdateBootstrapConfigCmd(t *testing.T) {
 			args: []string{
 				connection,
 				thing.ID,
-				fmt.Sprintf("[\"%s\"",thing.ID),
+				fmt.Sprintf("[\"%s\"", thing.ID),
 				token,
 			},
 			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),

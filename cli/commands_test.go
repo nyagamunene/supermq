@@ -58,3 +58,9 @@ const (
 	sendCmd = "send"
 	readCmd = "read"
 )
+
+// Bootstrap Commands
+const (
+	whitelistCmd = "whitelist"
+	bootStrapCmd = "bootstrap"
+)
