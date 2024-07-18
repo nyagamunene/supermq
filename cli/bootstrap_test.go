@@ -101,7 +101,6 @@ func TestCreateBootstrapConfigCmd(t *testing.T) {
 			sdkCall.Unset()
 		})
 	}
-
 }
 
 func TestGetBootstrapConfigCmd(t *testing.T) {
