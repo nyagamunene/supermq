@@ -20,23 +20,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	createCommand     = "create"
-	getCommand        = "get"
-	updateCommand     = "update"
-	deleteCommand     = "delete"
-	usersCommand      = "users"
-	enableCommand     = "enable"
-	disableCommand    = "disable"
-	connectCommand    = "connect"
-	disconnectCommand = "disconnect"
-	connectionsCmd    = "connections"
-	assignCommand     = "assign"
-	unassignCommand   = "unassign"
-	shareCmd          = "share"
-	unshareCmd        = "unshare"
-)
-
 var domain = mgsdk.Domain{
 	ID:    testsutil.GenerateUUID(&testing.T{}),
 	Name:  "Test domain",
@@ -95,7 +78,7 @@ func TestCreateDomainsCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("CreateDomain", mock.Anything, mock.Anything).Return(tc.domain, tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{createCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{createCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -187,7 +170,7 @@ func TestGetDomainsCmd(t *testing.T) {
 			sdkCall := sdkMock.On("Domain", tc.args[0], tc.args[1]).Return(tc.domain, tc.sdkErr)
 			sdkCall1 := sdkMock.On("Domains", mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
 
-			out := executeCommand(t, rootCmd, append([]string{getCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -277,7 +260,7 @@ func TestListDomainUsers(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("ListDomainUsers", tc.args[0], mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{usersCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{usrCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -362,7 +345,7 @@ func TestUpdateDomainCmd(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			var dom mgsdk.Domain
 			sdkCall := sdkMock.On("UpdateDomain", mock.Anything, tc.args[2]).Return(tc.domain, tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{updateCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{updCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -434,7 +417,7 @@ func TestEnableDomainCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("EnableDomain", tc.args[0], tc.args[1]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{enableCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{enableCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -505,7 +488,7 @@ func TestDisableDomainCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("DisableDomain", tc.args[0], tc.args[1]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{disableCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{disableCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case errLog:
@@ -598,7 +581,7 @@ func TestAssignUserToDomainCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("AddUserToDomain", tc.args[2], mock.Anything, tc.args[3]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{assignCommand, usersCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{assignCmd, usrCmd}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
@@ -671,7 +654,7 @@ func TestUnassignUserTodomainCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("RemoveUserFromDomain", tc.args[1], tc.args[0], tc.args[2]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{unassignCommand, usersCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{unassignCmd, usrCmd}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
