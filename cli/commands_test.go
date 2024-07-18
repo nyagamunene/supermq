@@ -59,8 +59,13 @@ const (
 	readCmd = "read"
 )
 
-// Bootstrap Commands
+// Bootstrap commands
 const (
 	whitelistCmd = "whitelist"
 	bootStrapCmd = "bootstrap"
+)
+
+// Invitations commands
+const (
+	acceptCmd = "accept"
 )
