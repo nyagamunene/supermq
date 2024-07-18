@@ -28,7 +28,6 @@ var (
 	tokenWithoutDomain = "valid"
 	relation           = "administrator"
 	all                = "all"
-	getCmd               = "get"
 )
 
 var thing = mgsdk.Thing{

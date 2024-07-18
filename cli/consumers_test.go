@@ -20,12 +20,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	createCommand = "create"
-	getCommand    = "get"
-	removeCommand = "remove"
-)
-
 var subscription = mgsdk.Subscription{
 	ID:      testsutil.GenerateUUID(&testing.T{}),
 	OwnerID: user.ID,
@@ -85,7 +79,7 @@ func TestCreateSubscriptionCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("CreateSubscription", tc.args[0], tc.args[1], tc.args[2]).Return(tc.id, tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{createCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{createCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case usageLog:
@@ -184,7 +178,7 @@ func TestGetSubscriptionsCmd(t *testing.T) {
 			sdkCall := sdkMock.On("ViewSubscription", tc.args[0], tc.args[1]).Return(tc.subscription, tc.sdkErr)
 			sdkCall1 := sdkMock.On("ListSubscriptions", mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
 
-			out := executeCommand(t, rootCmd, append([]string{getCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
@@ -263,7 +257,7 @@ func TestRemoveSubscriptionCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("DeleteSubscription", tc.args[0], tc.args[1]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{removeCommand}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{rmCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case okLog:

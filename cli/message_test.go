@@ -20,11 +20,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-const (
-	send = "send"
-	read = "read"
-)
-
 func TestSendMesageCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
@@ -75,7 +70,7 @@ func TestSendMesageCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("SendMessage", tc.args[0], tc.args[1], tc.args[2]).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{send}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{sendCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case okLog:
@@ -149,7 +144,7 @@ func TestReadMesageCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("ReadMessages", mock.Anything, tc.args[0], tc.args[1]).Return(tc.page, tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{read}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{readCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
