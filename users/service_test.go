@@ -534,7 +534,7 @@ func TestListClients(t *testing.T) {
 			authorizeResponse: &magistrala.AuthorizeRes{Authorized: false},
 			token:             validToken,
 			authorizeErr:      svcerr.ErrAuthorization,
-			err:               svcerr.ErrViewEntity,
+			err:               svcerr.ErrAuthorization,
 		},
 		{
 			desc: "list clients as admin with failed to retrieve clients",
@@ -557,7 +557,7 @@ func TestListClients(t *testing.T) {
 			authorizeResponse: &magistrala.AuthorizeRes{Authorized: false},
 			token:             validToken,
 			superAdminErr:     svcerr.ErrAuthorization,
-			err:               svcerr.ErrViewEntity,
+			err:               svcerr.ErrAuthorization,
 		},
 		{
 			desc: "list clients as normal user with failed to retrieve clients",
@@ -569,7 +569,7 @@ func TestListClients(t *testing.T) {
 			retrieveAllResponse: mgclients.ClientsPage{},
 			token:               validToken,
 			retrieveAllErr:      repoerr.ErrNotFound,
-			err:                 svcerr.ErrViewEntity,
+			err:                 svcerr.ErrAuthorization,
 		},
 	}
 
