@@ -181,7 +181,7 @@ func (svc service) ListClients(ctx context.Context, token string, pm mgclients.P
 		return mgclients.ClientsPage{}, err
 	}
 	if err := svc.checkSuperAdmin(ctx, userID); err != nil {
-		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
+		return mgclients.ClientsPage{},  err
 	}
 
 	pm.Role = mgclients.AllRole
