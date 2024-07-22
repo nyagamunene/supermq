@@ -183,9 +183,9 @@ func (repo domainRepo) ListDomains(ctx context.Context, pm auth.Page) (auth.Doma
 	}
 
 	q = `SELECT d.id as id, d.name as name, d.tags as tags, d.alias as alias, d.metadata as metadata, d.created_at as created_at, d.updated_at as updated_at, d.updated_by as updated_by, d.created_by as created_by, d.status as status, pc.relation as relation
-	FROM domains as d`
-	// JOIN policies pc
-	// ON pc.object_id = d.id`
+	FROM domains as d
+	JOIN policies pc
+	ON pc.object_id = d.id`
 
 	// The service sends the user ID in the pagemeta subject field, which filters domains by joining with the policies table.
 	// For SuperAdmins, access to domains is granted without the policies filter.
@@ -193,7 +193,8 @@ func (repo domainRepo) ListDomains(ctx context.Context, pm auth.Page) (auth.Doma
 	// In the repository, when the pagemeta subject is empty, the query should be constructed without applying the policies filter.
 	if pm.SubjectID == "" {
 		q = `SELECT d.id as id, d.name as name, d.tags as tags, d.alias as alias, d.metadata as metadata, d.created_at as created_at, d.updated_at as updated_at, d.updated_by as updated_by, d.created_by as created_by, d.status as status
-		FROM domains as d JOIN policies pc ON pc.object_id = d.id`
+		FROM domains as d `
+		//JOIN policies pc ON pc.object_id = d.id`
 	}
 
 	q = fmt.Sprintf("%s %s LIMIT %d OFFSET %d", q, query, pm.Limit, pm.Offset)
