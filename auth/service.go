@@ -727,12 +727,6 @@ func (svc service) ListDomains(ctx context.Context, token string, p Page) (Domai
 		return DomainsPage{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
 	p.SubjectID = key.User
-	// var permission string
-	// 	permission = AdminPermission
-	// if p.Permission != "" {
-	// 	permission = p.Permission
-	// }
-
 	if err := svc.Authorize(ctx, PolicyReq{
 		Subject:     key.User,
 		SubjectType: UserType,
@@ -753,20 +747,6 @@ func (svc service) ListDomains(ctx context.Context, token string, p Page) (Domai
 	}
 	return dp, nil
 }
-
-// func (svc service) listDomainsIDs(ctx context.Context, userID, permission string) ([]string, error) {
-// 	tids, err := svc.auth.ListAllObjects(ctx, &magistrala.ListObjectsReq{
-// 		SubjectType: UserType,
-// 		Subject:     userID,
-// 		Permission:  permission,
-// 		ObjectType:  DomainType,
-// 	})
-// 	if err != nil {
-// 		return nil, errors.Wrap(svcerr.ErrNotFound, err)
-// 	}
-// 	return tids.Policies, nil
-// }
-
 
 func (svc service) AssignUsers(ctx context.Context, token, id string, userIds []string, relation string) error {
 	if err := svc.Authorize(ctx, PolicyReq{

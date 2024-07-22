@@ -194,7 +194,6 @@ func (repo domainRepo) ListDomains(ctx context.Context, pm auth.Page) (auth.Doma
 	if pm.SubjectID == "" {
 		q = `SELECT d.id as id, d.name as name, d.tags as tags, d.alias as alias, d.metadata as metadata, d.created_at as created_at, d.updated_at as updated_at, d.updated_by as updated_by, d.created_by as created_by, d.status as status
 		FROM domains as d `
-		//JOIN policies pc ON pc.object_id = d.id`
 	}
 
 	q = fmt.Sprintf("%s %s LIMIT %d OFFSET %d", q, query, pm.Limit, pm.Offset)
@@ -576,7 +575,7 @@ func buildPageQuery(pm auth.Page) (string, error) {
 		query = append(query, "pc.subject_id = :subject_id")
 	}
 
-	if pm.Permission != "" {
+	if pm.Permission != "" && pm.SubjectID != ""{
 		query = append(query, "pc.relation = :permission")
 	}
 
