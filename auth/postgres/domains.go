@@ -575,7 +575,7 @@ func buildPageQuery(pm auth.Page) (string, error) {
 		query = append(query, "pc.subject_id = :subject_id")
 	}
 
-	if pm.Permission != "" && pm.SubjectID != ""{
+	if pm.Permission != "" && pm.SubjectID != "" {
 		query = append(query, "pc.relation = :permission")
 	}
 
