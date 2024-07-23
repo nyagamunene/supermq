@@ -521,62 +521,6 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-func TestChangeState(t *testing.T) {
-	repo := postgres.NewConfigRepository(db, testLog)
-	err := deleteChannels(context.Background(), repo)
-	require.Nil(t, err, "Channels cleanup expected to succeed.")
-
-	c := config
-	// Use UUID to prevent conflicts.
-	uid, err := uuid.NewV4()
-	assert.Nil(t, err, fmt.Sprintf("Got unexpected error: %s.\n", err))
-	c.ThingKey = uid.String()
-	c.ThingID = uid.String()
-	c.ExternalID = uid.String()
-	c.ExternalKey = uid.String()
-	saved, err := repo.Save(context.Background(), c, channels)
-	assert.Nil(t, err, fmt.Sprintf("Saving config expected to succeed: %s.\n", err))
-
-	cases := []struct {
-		desc     string
-		domainID string
-		id       string
-		state    bootstrap.State
-		err      error
-	}{
-		{
-			desc:     "change state with wrong domain ID ",
-			id:       saved,
-			domainID: "2",
-			err:      repoerr.ErrNotFound,
-		},
-		{
-			desc:     "change state with wrong id",
-			id:       "wrong",
-			domainID: c.DomainID,
-			err:      repoerr.ErrNotFound,
-		},
-		{
-			desc:     "change state to Active",
-			id:       saved,
-			domainID: c.DomainID,
-			state:    bootstrap.Active,
-			err:      nil,
-		},
-		{
-			desc:     "change state to Inactive",
-			id:       saved,
-			domainID: c.DomainID,
-			state:    bootstrap.Inactive,
-			err:      nil,
-		},
-	}
-	for _, tc := range cases {
-		err := repo.ChangeState(context.Background(), tc.domainID, tc.id, tc.state)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-	}
-}
-
 func TestListExisting(t *testing.T) {
 	repo := postgres.NewConfigRepository(db, testLog)
 	err := deleteChannels(context.Background(), repo)

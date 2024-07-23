@@ -17,24 +17,6 @@ type ConfigRepository struct {
 	mock.Mock
 }
 
-// ChangeState provides a mock function with given fields: ctx, domainID, id, state
-func (_m *ConfigRepository) ChangeState(ctx context.Context, domainID string, id string, state bootstrap.State) error {
-	ret := _m.Called(ctx, domainID, id, state)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ChangeState")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, bootstrap.State) error); ok {
-		r0 = rf(ctx, domainID, id, state)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // ConnectThing provides a mock function with given fields: ctx, channelID, thingID
 func (_m *ConfigRepository) ConnectThing(ctx context.Context, channelID string, thingID string) error {
 	ret := _m.Called(ctx, channelID, thingID)

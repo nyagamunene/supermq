@@ -362,32 +362,6 @@ func (cr configRepository) Remove(ctx context.Context, domainID, id string) erro
 	return nil
 }
 
-func (cr configRepository) ChangeState(ctx context.Context, domainID, id string, state bootstrap.State) error {
-	q := `UPDATE configs SET state = :state WHERE magistrala_thing = :magistrala_thing AND domain_id = :domain_id;`
-
-	dbcfg := dbConfig{
-		ThingID:  id,
-		State:    state,
-		DomainID: domainID,
-	}
-
-	res, err := cr.db.NamedExecContext(ctx, q, dbcfg)
-	if err != nil {
-		return errors.Wrap(repoerr.ErrUpdateEntity, err)
-	}
-
-	cnt, err := res.RowsAffected()
-	if err != nil {
-		return errors.Wrap(repoerr.ErrUpdateEntity, err)
-	}
-
-	if cnt == 0 {
-		return repoerr.ErrNotFound
-	}
-
-	return nil
-}
-
 func (cr configRepository) ListExisting(ctx context.Context, domainID string, ids []string) ([]bootstrap.Channel, error) {
 	var channels []bootstrap.Channel
 	if len(ids) == 0 {
@@ -460,8 +434,10 @@ func (cr configRepository) RemoveChannel(ctx context.Context, id string) error {
 }
 
 func (cr configRepository) ConnectThing(ctx context.Context, channelID, thingID string) error {
-	q := `UPDATE configs SET state = $1 WHERE EXISTS (
-		SELECT 1 FROM connections WHERE config_id = $2 AND channel_id = $3)`
+	q := `UPDATE configs SET state = $1
+		WHERE magistrala_thing = $2
+		AND EXISTS (SELECT 1 FROM connections WHERE config_id = $2 AND channel_id = $3)`
+
 	result, err := cr.db.ExecContext(ctx, q, bootstrap.Active, thingID, channelID)
 	if err != nil {
 		return errors.Wrap(errConnectThing, err)
@@ -473,8 +449,9 @@ func (cr configRepository) ConnectThing(ctx context.Context, channelID, thingID 
 }
 
 func (cr configRepository) DisconnectThing(ctx context.Context, channelID, thingID string) error {
-	q := `UPDATE configs SET state = $1 WHERE EXISTS (
-		SELECT 1 FROM connections WHERE config_id = $2 AND channel_id = $3)`
+	q := `UPDATE configs SET state = $1
+		WHERE magistrala_thing = $2
+		AND EXISTS (SELECT 1 FROM connections WHERE config_id = $2 AND channel_id = $3)`
 	_, err := cr.db.ExecContext(ctx, q, bootstrap.Inactive, thingID, channelID)
 	if err != nil {
 		return errors.Wrap(errDisconnectThing, err)

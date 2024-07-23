@@ -170,10 +170,21 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, errNotInSameDomain)
 		}
 	}
+	state := Inactive
+	pm := mgsdk.PageMetadata{}
+	tp := mgsdk.ThingsPage{}
+	for _, channel := range cfg.Channels {
+		if tp, err = bs.sdk.ThingsByChannel(channel.ID, pm, token); err != nil {
+			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, err)
+		}
+		if tp.Total > 0 {
+			state = Active
+		}
+	}
 
 	cfg.ThingID = mgThing.ID
 	cfg.DomainID = user.GetDomainId()
-	cfg.State = Inactive
+	cfg.State = state
 	cfg.ThingKey = mgThing.Credentials.Secret
 
 	saved, err := bs.configs.Save(ctx, cfg, toConnect)
@@ -410,15 +421,10 @@ func (bs bootstrapService) ChangeState(ctx context.Context, token, id string, st
 	if cfg.State == state {
 		return nil
 	}
-
 	switch state {
 	case Active:
 		for _, c := range cfg.Channels {
-			conIDs := mgsdk.Connection{
-				ChannelID: c.ID,
-				ThingID:   cfg.ThingID,
-			}
-			if err := bs.sdk.Connect(conIDs, token); err != nil {
+			if err := bs.sdk.ConnectThing(cfg.ThingID, c.ID, token); err != nil {
 				// Ignore conflict errors as they indicate the connection already exists.
 				if errors.Contains(err, svcerr.ErrConflict) {
 					continue
@@ -435,9 +441,6 @@ func (bs bootstrapService) ChangeState(ctx context.Context, token, id string, st
 				return ErrThings
 			}
 		}
-	}
-	if err := bs.configs.ChangeState(ctx, user.GetDomainId(), id, state); err != nil {
-		return errors.Wrap(errChangeState, err)
 	}
 	return nil
 }
