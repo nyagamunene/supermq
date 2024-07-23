@@ -170,15 +170,17 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, errNotInSameDomain)
 		}
 	}
+
 	state := Inactive
 	pm := mgsdk.PageMetadata{}
-	tp := mgsdk.ThingsPage{}
 	for _, channel := range cfg.Channels {
-		if tp, err = bs.sdk.ThingsByChannel(channel.ID, pm, token); err != nil {
+		tp, err := bs.sdk.ThingsByChannel(channel.ID, pm, token)
+		if err != nil {
 			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, err)
 		}
 		if tp.Total > 0 {
 			state = Active
+			break
 		}
 	}
 
