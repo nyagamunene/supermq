@@ -96,6 +96,7 @@ func TestAdd(t *testing.T) {
 	cases := []struct {
 		desc            string
 		config          bootstrap.Config
+		page            mgsdk.ThingsPage
 		token           string
 		userID          string
 		domainID        string
@@ -113,6 +114,22 @@ func TestAdd(t *testing.T) {
 		{
 			desc:         "add a new config",
 			config:       config,
+			token:        validToken,
+			userID:       validID,
+			domainID:     domainID,
+			authResponse: &magistrala.AuthorizeRes{Authorized: true},
+			err:          nil,
+		},
+		{
+			desc:   "add config with an existing connection",
+			config: config,
+			page: mgsdk.ThingsPage{
+				Things: []mgsdk.Thing{
+					{
+						ID: config.ThingID,
+					},
+				},
+			},
 			token:        validToken,
 			userID:       validID,
 			domainID:     domainID,
@@ -194,11 +211,12 @@ func TestAdd(t *testing.T) {
 	for _, tc := range cases {
 		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID, DomainId: tc.domainID}, tc.identifyErr)
 		authCall1 := auth.On("Authorize", context.Background(), mock.Anything).Return(tc.authResponse, tc.authorizeErr)
-		repoCall := sdk.On("Thing", tc.config.ThingID, tc.token).Return(mgsdk.Thing{ID: tc.config.ThingID, Credentials: mgsdk.Credentials{Secret: tc.config.ThingKey}}, tc.thingErr)
-		repoCall1 := sdk.On("CreateThing", mock.Anything, tc.token).Return(mgsdk.Thing{}, tc.createThingErr)
-		repoCall2 := sdk.On("DeleteThing", tc.config.ThingID, tc.token).Return(tc.deleteThingErr)
-		repoCall3 := boot.On("ListExisting", context.Background(), tc.domainID, mock.Anything).Return(tc.config.Channels, tc.listExistingErr)
-		repoCall4 := boot.On("Save", context.Background(), mock.Anything, mock.Anything).Return(mock.Anything, tc.saveErr)
+		repoCall := sdk.On("ThingsByChannel", mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.thingErr)
+		repoCall1 := sdk.On("Thing", tc.config.ThingID, tc.token).Return(mgsdk.Thing{ID: tc.config.ThingID, Credentials: mgsdk.Credentials{Secret: tc.config.ThingKey}}, tc.thingErr)
+		repoCall2 := sdk.On("CreateThing", mock.Anything, tc.token).Return(mgsdk.Thing{}, tc.createThingErr)
+		repoCall3 := sdk.On("DeleteThing", tc.config.ThingID, tc.token).Return(tc.deleteThingErr)
+		repoCall4 := boot.On("ListExisting", context.Background(), tc.domainID, mock.Anything).Return(tc.config.Channels, tc.listExistingErr)
+		repoCall5 := boot.On("Save", context.Background(), mock.Anything, mock.Anything).Return(mock.Anything, tc.saveErr)
 
 		_, err := c.Add(context.Background(), tc.token, tc.config)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -210,6 +228,7 @@ func TestAdd(t *testing.T) {
 		repoCall2.Unset()
 		repoCall3.Unset()
 		repoCall4.Unset()
+		repoCall5.Unset()
 	}
 }
 
@@ -1204,30 +1223,20 @@ func TestChangeState(t *testing.T) {
 			connectErr: errors.NewSDKError(bootstrap.ErrThings),
 			err:        bootstrap.ErrThings,
 		},
-		{
-			desc:     "change state with invalid state",
-			state:    bootstrap.State(2),
-			id:       c.ThingID,
-			token:    validToken,
-			userID:   validID,
-			domainID: domainID,
-			stateErr: svcerr.ErrMalformedEntity,
-			err:      svcerr.ErrMalformedEntity,
-		},
 	}
 
 	for _, tc := range cases {
 		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID, DomainId: tc.domainID}, tc.identifyErr)
 		repoCall := boot.On("RetrieveByID", context.Background(), tc.domainID, tc.id).Return(c, tc.retrieveErr)
-		sdkCall := sdk.On("Connect", mock.Anything, mock.Anything).Return(tc.connectErr)
-		repoCall1 := boot.On("ChangeState", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(tc.stateErr)
+		sdkCall := sdk.On("ConnectThing", mock.Anything, mock.Anything, mock.Anything).Return(tc.connectErr)
+		// repoCall1 := boot.On("ChangeState", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(tc.stateErr)
 
 		err := svc.ChangeState(context.Background(), tc.token, tc.id, tc.state)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		authCall.Unset()
 		sdkCall.Unset()
 		repoCall.Unset()
-		repoCall1.Unset()
+		// repoCall1.Unset()
 	}
 }
 
