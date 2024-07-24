@@ -146,6 +146,23 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 		return Config{}, err
 	}
 
+	// Check for existing connection between channel and thing
+	// If it exists set state to acive
+	state := Inactive
+	pm := mgsdk.PageMetadata{}
+	for _, channel := range cfg.Channels {
+		tp, err := bs.sdk.ThingsByChannel(channel.ID, pm, token)
+		if err != nil {
+			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, err)
+		}
+		for _, thing := range tp.Things {
+			if thing.ID == cfg.ThingID {
+				state = Active
+				break
+			}
+		}
+	}
+
 	toConnect := bs.toIDList(cfg.Channels)
 
 	// Check if channels exist. This is the way to prevent fetching channels that already exist.
@@ -168,19 +185,6 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 	for _, channel := range cfg.Channels {
 		if channel.DomainID != mgThing.DomainID {
 			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, errNotInSameDomain)
-		}
-	}
-
-	state := Inactive
-	pm := mgsdk.PageMetadata{}
-	for _, channel := range cfg.Channels {
-		tp, err := bs.sdk.ThingsByChannel(channel.ID, pm, token)
-		if err != nil {
-			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, err)
-		}
-		if tp.Total > 0 {
-			state = Active
-			break
 		}
 	}
 
