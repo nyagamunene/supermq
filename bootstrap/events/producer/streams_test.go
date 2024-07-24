@@ -123,6 +123,7 @@ func TestAdd(t *testing.T) {
 		identifyErr  error
 		thingErr     error
 		channel      []bootstrap.Channel
+		page         mgsdk.ThingsPage
 		listErr      error
 		saveErr      error
 		err          error
@@ -209,6 +210,7 @@ func TestAdd(t *testing.T) {
 		sdkCall := sdk.On("Thing", tc.config.ThingID, tc.token).Return(mgsdk.Thing{ID: tc.config.ThingID, Credentials: mgsdk.Credentials{Secret: tc.config.ThingKey}}, errors.NewSDKError(tc.thingErr))
 		repoCall := boot.On("ListExisting", context.Background(), domainID, mock.Anything).Return(tc.config.Channels, tc.listErr)
 		repoCall1 := boot.On("Save", context.Background(), mock.Anything, mock.Anything).Return(mock.Anything, tc.saveErr)
+		repoCall3 := sdk.On("ThingsByChannel", mock.Anything, mock.Anything, mock.Anything).Return(tc.page, errors.NewSDKError(tc.thingErr))
 
 		_, err := svc.Add(context.Background(), tc.token, tc.config)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
@@ -232,6 +234,7 @@ func TestAdd(t *testing.T) {
 		sdkCall.Unset()
 		repoCall.Unset()
 		repoCall1.Unset()
+		repoCall3.Unset()
 	}
 }
 
@@ -1273,25 +1276,13 @@ func TestChangeState(t *testing.T) {
 			err:        bootstrap.ErrThings,
 			event:      nil,
 		},
-		{
-			desc:     "change state unsuccessfully",
-			id:       config.ThingID,
-			token:    validToken,
-			userID:   validID,
-			domainID: domainID,
-			state:    bootstrap.Active,
-			stateErr: svcerr.ErrUpdateEntity,
-			err:      svcerr.ErrUpdateEntity,
-			event:    nil,
-		},
 	}
 
 	lastID := "0"
 	for _, tc := range cases {
 		authCall := auth.On("Identify", mock.Anything, &magistrala.IdentityReq{Token: tc.token}).Return(&magistrala.IdentityRes{Id: tc.userID, DomainId: tc.domainID}, tc.identifyErr)
 		repoCall := boot.On("RetrieveByID", context.Background(), tc.domainID, tc.id).Return(config, tc.retrieveErr)
-		sdkCall1 := sdk.On("Connect", mock.Anything, mock.Anything).Return(errors.NewSDKError(tc.connectErr))
-		repoCall1 := boot.On("ChangeState", context.Background(), mock.Anything, mock.Anything, mock.Anything).Return(tc.stateErr)
+		sdkCall1 := sdk.On("ConnectThing", mock.Anything, mock.Anything, mock.Anything).Return(errors.NewSDKError(tc.connectErr))
 		err := svc.ChangeState(context.Background(), tc.token, tc.id, tc.state)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 
@@ -1311,7 +1302,6 @@ func TestChangeState(t *testing.T) {
 		authCall.Unset()
 		sdkCall1.Unset()
 		repoCall.Unset()
-		repoCall1.Unset()
 	}
 }
 
