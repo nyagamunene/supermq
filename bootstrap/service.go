@@ -410,6 +410,7 @@ func (bs bootstrapService) ChangeState(ctx context.Context, token, id string, st
 	if cfg.State == state {
 		return nil
 	}
+
 	switch state {
 	case Active:
 		for _, c := range cfg.Channels {
