@@ -149,7 +149,8 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 	// Check for existing connection between channel and thing
 	// If it exists set state to acive
 	state := Inactive
-	pm := mgsdk.PageMetadata{}
+	limit := uint64(^uint(0))
+	pm := mgsdk.PageMetadata{Limit: limit}
 	for _, channel := range cfg.Channels {
 		tp, err := bs.sdk.ThingsByChannel(channel.ID, pm, token)
 		if err != nil {
