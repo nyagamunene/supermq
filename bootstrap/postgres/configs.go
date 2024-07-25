@@ -362,6 +362,32 @@ func (cr configRepository) Remove(ctx context.Context, domainID, id string) erro
 	return nil
 }
 
+func (cr configRepository) ChangeState(ctx context.Context, domainID, id string, state bootstrap.State) error {
+	q := `UPDATE configs SET state = :state WHERE magistrala_thing = :magistrala_thing AND domain_id = :domain_id;`
+
+	dbcfg := dbConfig{
+		ThingID:  id,
+		State:    state,
+		DomainID: domainID,
+	}
+
+	res, err := cr.db.NamedExecContext(ctx, q, dbcfg)
+	if err != nil {
+		return errors.Wrap(repoerr.ErrUpdateEntity, err)
+	}
+
+	cnt, err := res.RowsAffected()
+	if err != nil {
+		return errors.Wrap(repoerr.ErrUpdateEntity, err)
+	}
+
+	if cnt == 0 {
+		return repoerr.ErrNotFound
+	}
+
+	return nil
+}
+
 func (cr configRepository) ListExisting(ctx context.Context, domainID string, ids []string) ([]bootstrap.Channel, error) {
 	var channels []bootstrap.Channel
 	if len(ids) == 0 {

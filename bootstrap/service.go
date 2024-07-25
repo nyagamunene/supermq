@@ -146,24 +146,6 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 		return Config{}, err
 	}
 
-	// Check for existing connection between channel and thing
-	// If it exists set state to acive
-	state := Inactive
-	limit := uint64(^uint(0))
-	pm := mgsdk.PageMetadata{Limit: limit}
-	for _, channel := range cfg.Channels {
-		tp, err := bs.sdk.ThingsByChannel(channel.ID, pm, token)
-		if err != nil {
-			return Config{}, errors.Wrap(svcerr.ErrMalformedEntity, err)
-		}
-		for _, thing := range tp.Things {
-			if thing.ID == cfg.ThingID {
-				state = Active
-				break
-			}
-		}
-	}
-
 	toConnect := bs.toIDList(cfg.Channels)
 
 	// Check if channels exist. This is the way to prevent fetching channels that already exist.
@@ -191,7 +173,7 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 
 	cfg.ThingID = mgThing.ID
 	cfg.DomainID = user.GetDomainId()
-	cfg.State = state
+	cfg.State = Inactive
 	cfg.ThingKey = mgThing.Credentials.Secret
 
 	saved, err := bs.configs.Save(ctx, cfg, toConnect)
@@ -431,7 +413,11 @@ func (bs bootstrapService) ChangeState(ctx context.Context, token, id string, st
 	switch state {
 	case Active:
 		for _, c := range cfg.Channels {
-			if err := bs.sdk.ConnectThing(cfg.ThingID, c.ID, token); err != nil {
+			conIDs := mgsdk.Connection{
+				ChannelID: c.ID,
+				ThingID:   cfg.ThingID,
+			}
+			if err := bs.sdk.Connect(conIDs, token); err != nil {
 				// Ignore conflict errors as they indicate the connection already exists.
 				if errors.Contains(err, svcerr.ErrConflict) {
 					continue
@@ -448,6 +434,9 @@ func (bs bootstrapService) ChangeState(ctx context.Context, token, id string, st
 				return ErrThings
 			}
 		}
+	}
+	if err := bs.configs.ChangeState(ctx, user.GetDomainId(), id, state); err != nil {
+		return errors.Wrap(errChangeState, err)
 	}
 	return nil
 }

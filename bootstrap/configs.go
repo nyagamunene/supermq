@@ -94,6 +94,9 @@ type ConfigRepository interface {
 	// by the specified user.
 	Remove(ctx context.Context, domainID, id string) error
 
+	// ChangeState changes of the Config, that is owned by the specific user.
+	ChangeState(ctx context.Context, domainID, id string, state State) error
+
 	// ListExisting retrieves those channels from the given list that exist in DB.
 	ListExisting(ctx context.Context, domainID string, ids []string) ([]Channel, error)
 
