@@ -179,11 +179,10 @@ func (svc service) ListClients(ctx context.Context, token, reqUserID string, pm 
 		}
 	}
 
-	pm.IDs = ids
-	if len(pm.IDs) == 0 && pm.Domain == "" {
+	if len(ids) == 0 && pm.Domain == "" {
 		return mgclients.ClientsPage{}, nil
 	}
-
+	pm.IDs = ids
 	tp, err := svc.clients.SearchClients(ctx, pm)
 	if err != nil {
 		return mgclients.ClientsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
