@@ -180,6 +180,9 @@ func (svc service) ListClients(ctx context.Context, token, reqUserID string, pm 
 	}
 
 	pm.IDs = ids
+	if len(pm.IDs) == 0 && pm.Domain == "" {
+		return mgclients.ClientsPage{}, nil
+	}
 
 	tp, err := svc.clients.SearchClients(ctx, pm)
 	if err != nil {
