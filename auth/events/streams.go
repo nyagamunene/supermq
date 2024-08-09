@@ -262,4 +262,3 @@ func (es *eventStore) CountSubjects(ctx context.Context, pr auth.PolicyReq) (uin
 func (es *eventStore) ListPermissions(ctx context.Context, pr auth.PolicyReq, filterPermission []string) (auth.Permissions, error) {
 	return es.svc.ListPermissions(ctx, pr, filterPermission)
 }
-

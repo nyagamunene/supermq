@@ -1069,4 +1069,3 @@ func (svc service) DeleteEntityPolicies(ctx context.Context, entityType, id stri
 		return errInvalidEntityType
 	}
 }
-

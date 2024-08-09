@@ -507,4 +507,3 @@ func (lm *loggingMiddleware) DeleteEntityPolicies(ctx context.Context, entityTyp
 	}(time.Now())
 	return lm.svc.DeleteEntityPolicies(ctx, entityType, id)
 }
-

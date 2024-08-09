@@ -247,4 +247,3 @@ func (ms *metricsMiddleware) DeleteEntityPolicies(ctx context.Context, entityTyp
 	}(time.Now())
 	return ms.svc.DeleteEntityPolicies(ctx, entityType, id)
 }
-
