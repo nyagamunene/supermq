@@ -22,6 +22,7 @@ var _ magistrala.AuthzServiceServer = (*grpcServer)(nil)
 type grpcServer struct {
 	magistrala.UnimplementedAuthzServiceServer
 	authorize kitgrpc.Handler
+	verifyConnections kitgrpc.Handler
 }
 
 // NewServer returns new AuthServiceServer instance.
@@ -31,6 +32,11 @@ func NewServer(svc things.Service) magistrala.AuthzServiceServer {
 			(authorizeEndpoint(svc)),
 			decodeAuthorizeRequest,
 			encodeAuthorizeResponse,
+		),
+		verifyConnections: kitgrpc.NewServer(
+			(verifyConnectionsEndpoint(svc)),
+			decodeVerifyConnectionsRequest,
+			encodeVerifyConnectionsResponse,
 		),
 	}
 }
@@ -51,6 +57,36 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq interface{}) (interface{}
 func encodeAuthorizeResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(authorizeRes)
 	return &magistrala.AuthorizeRes{Authorized: res.authorized, Id: res.id}, nil
+}
+
+func (s *grpcServer) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
+	_, res, err := s.verifyConnections.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, encodeError(err)
+	}
+	return res.(*magistrala.VerifyConnectionsRes), nil
+}
+
+func decodeVerifyConnectionsRequest(_ context.Context, grpcreq interface{}) (interface{}, error) {
+	req := grpcreq.(*magistrala.VerifyConnectionsReq)
+	return req, nil
+}
+
+func encodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
+	res := grpcRes.(verifyConnectionsRes)
+	connections := []*magistrala.Connectionstatus{}
+
+	for _, conn := range res.Connections {
+		connections = append(connections, &magistrala.Connectionstatus{
+			ThingId:   conn.ThingId,
+			ChannelId: conn.ChannelId,
+			Status:    conn.Status,
+		})
+	}
+	return &magistrala.VerifyConnectionsRes{
+		Status:      res.Status,
+		Connections: connections,
+	}, nil
 }
 
 func encodeError(err error) error {

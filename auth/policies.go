@@ -122,17 +122,6 @@ type PolicyPage struct {
 
 type Permissions []string
 
-type ConnectionsPage struct {
-	Status      string
-	Connections []ConnectionStatus
-}
-
-type ConnectionStatus struct {
-	ThingId   string
-	ChannelId string
-	Status    string
-}
-
 // Authz represents a authorization service. It exposes
 // functionalities through `auth` to perform authorization.
 //
@@ -184,9 +173,6 @@ type Authz interface {
 
 	// DeleteEntityPolicies deletes all policies for the given entity.
 	DeleteEntityPolicies(ctx context.Context, entityType, id string) error
-
-	// VerifyConnections checks for connections between things and channels.
-	VerifyConnections(ctx context.Context, thingsId, channelsId []string) (ConnectionsPage, error)
 }
 
 // PolicyAgent facilitates the communication to authorization

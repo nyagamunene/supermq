@@ -156,14 +156,14 @@ func (es *eventStore) ListClientsByGroup(ctx context.Context, token, chID string
 	return mp, nil
 }
 
-func (es *eventStore) VerifyConnections(ctx context.Context, token string, thingIDs, groupIDs []string) (mgclients.ConnectionsPage, error) {
-	mc, err := es.svc.VerifyConnections(ctx, token, thingIDs, groupIDs)
+func (es *eventStore) VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (mgclients.ConnectionsPage, error) {
+	mc, err := es.svc.VerifyConnectionsHttp(ctx, token, thingIds, groupIds)
 	if err != nil {
 		return mc, err
 	}
 	event := verifyConnectionEvent{
-		thingIDs: thingIDs,
-		groupIDs: groupIDs,
+		thingIDs: thingIds,
+		groupIDs: groupIds,
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return mc, err
@@ -280,4 +280,21 @@ func (es *eventStore) DeleteClient(ctx context.Context, token, id string) error 
 	}
 
 	return nil
+}
+
+func (es *eventStore) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
+	page, err := es.svc.VerifyConnections(ctx, req)
+	if err != nil {
+		return page, err
+	}
+
+	event := verifyConnectionEvent{
+		page:     page,
+		thingIDs: req.GetThingsId(),
+		groupIDs: req.GetGroupsId(),
+	}
+	if err := es.Publish(ctx, event); err != nil {
+		return page, err
+	}
+	return page, nil
 }

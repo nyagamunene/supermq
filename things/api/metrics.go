@@ -110,12 +110,12 @@ func (ms *metricsMiddleware) ListClientsByGroup(ctx context.Context, token, grou
 	return ms.svc.ListClientsByGroup(ctx, token, groupID, pm)
 }
 
-func (ms *metricsMiddleware) VerifyConnections(ctx context.Context, token string, thingIDs, groupIDs []string) (mc mgclients.ConnectionsPage, err error) {
+func (ms *metricsMiddleware) VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (mc mgclients.ConnectionsPage, err error) {
 	defer func(begin time.Time) {
-		ms.counter.With("method", "verify_connections").Add(1)
-		ms.latency.With("method", "verify_connections").Observe(time.Since(begin).Seconds())
+		ms.counter.With("method", "verify_connections_http").Add(1)
+		ms.latency.With("method", "verify_connections_http").Observe(time.Since(begin).Seconds())
 	}(time.Now())
-	return ms.svc.VerifyConnections(ctx, token, thingIDs, groupIDs)
+	return ms.svc.VerifyConnectionsHttp(ctx, token, thingIds, groupIds)
 }
 
 func (ms *metricsMiddleware) Identify(ctx context.Context, key string) (string, error) {
@@ -156,4 +156,12 @@ func (ms *metricsMiddleware) DeleteClient(ctx context.Context, token, id string)
 		ms.latency.With("method", "delete_client").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 	return ms.svc.DeleteClient(ctx, token, id)
+}
+
+func (ms *metricsMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "verify_connections").Add(1)
+		ms.latency.With("method", "verify_connections").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+	return ms.svc.VerifyConnections(ctx, req)
 }

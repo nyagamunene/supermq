@@ -33,8 +33,8 @@ type Service interface {
 	// the provided key.
 	ListClientsByGroup(ctx context.Context, token, groupID string, pm clients.Page) (clients.MembersPage, error)
 
-	// VerifyConnections verifies if a list of channels is connected to a list of channels.
-	VerifyConnections(ctx context.Context, token string, thingIDs, groupIDs []string) (clients.ConnectionsPage, error)
+	// VerifyConnectionsHttp verifies if a list of things is connected to a list of channels.
+	VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (clients.ConnectionsPage, error)
 
 	// UpdateClient updates the client's name and metadata.
 	UpdateClient(ctx context.Context, token string, client clients.Client) (clients.Client, error)
@@ -65,6 +65,9 @@ type Service interface {
 
 	// DeleteClient deletes client with given ID.
 	DeleteClient(ctx context.Context, token, id string) error
+
+	//VerifyConnectionsGrpc verifies connection between thing and channel.
+	VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (clients.ConnectionsPage, error)
 }
 
 // Cache contains thing caching interface.

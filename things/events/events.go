@@ -277,6 +277,7 @@ func (lcge listClientByGroupEvent) Encode() (map[string]interface{}, error) {
 }
 
 type verifyConnectionEvent struct {
+	page     mgclients.ConnectionsPage
 	thingIDs []string
 	groupIDs []string
 }
@@ -286,6 +287,7 @@ func (vce verifyConnectionEvent) Encode() (map[string]interface{}, error) {
 		"operation":   verifyConnections,
 		"thing_ids":   vce.thingIDs,
 		"channel_ids": vce.groupIDs,
+		"page":        vce.page,
 	}, nil
 }
 
