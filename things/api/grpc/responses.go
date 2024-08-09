@@ -7,3 +7,14 @@ type authorizeRes struct {
 	id         string
 	authorized bool
 }
+
+type verifyConnectionsRes struct {
+	Status      string
+	Connections []ConnectionStatus
+}
+
+type ConnectionStatus struct {
+	ThingId   string
+	ChannelId string
+	Status    string
+}

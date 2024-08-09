@@ -214,21 +214,21 @@ func (lm *loggingMiddleware) ListClientsByGroup(ctx context.Context, token, chan
 	return lm.svc.ListClientsByGroup(ctx, token, channelID, cp)
 }
 
-func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, token string, thingIDs, groupIDs []string) (cp mgclients.ConnectionsPage, err error) {
+func (lm *loggingMiddleware) VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (cp mgclients.ConnectionsPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.Any("thing_id", thingIDs),
-			slog.Any("channel_id", groupIDs),
+			slog.Any("thing_id", thingIds),
+			slog.Any("channel_id", groupIds),
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Verify connections failed", args...)
+			lm.logger.Warn("Verify connections via http failed", args...)
 			return
 		}
 		lm.logger.Info("Verify connections completed successfully", args...)
 	}(time.Now())
-	return lm.svc.VerifyConnections(ctx, token, thingIDs, groupIDs)
+	return lm.svc.VerifyConnectionsHttp(ctx, token, thingIds, groupIds)
 }
 
 func (lm *loggingMiddleware) Identify(ctx context.Context, key string) (id string, err error) {
@@ -316,4 +316,21 @@ func (lm *loggingMiddleware) DeleteClient(ctx context.Context, token, id string)
 		lm.logger.Info("Delete thing completed successfully", args...)
 	}(time.Now())
 	return lm.svc.DeleteClient(ctx, token, id)
+}
+
+func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (cp mgclients.ConnectionsPage, err error) {
+	defer func(begin time.Time) {
+		args := []any{
+			slog.String("duration", time.Since(begin).String()),
+			slog.Any("thing_ids", req.GetThingsId()),
+			slog.Any("channels_ids", req.GetGroupsId()),
+		}
+		if err != nil {
+			args = append(args, slog.Any("error", err))
+			lm.logger.Warn("Verify connections failed to complete successfully", args...)
+			return
+		}
+		lm.logger.Info("Verify connections complete successfully", args...)
+	}(time.Now())
+	return lm.svc.VerifyConnections(ctx, req)
 }

@@ -164,11 +164,6 @@ type deleteEntityPoliciesReq struct {
 	ID         string
 }
 
-type verifyConnectionsReq struct {
-	ThingsId []string
-	GroupsId []string
-}
-
 func (req deleteEntityPoliciesReq) validate() error {
 	if req.ID == "" {
 		return apiutil.ErrMissingID

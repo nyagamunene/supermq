@@ -1973,8 +1973,8 @@ func TestVerifyConnections(t *testing.T) {
 	defer ts.Close()
 
 	cs := mgclients.ConnectionStatus{
-		ChannelID: testsutil.GenerateUUID(t),
-		ThingID:   testsutil.GenerateUUID(t),
+		ChannelId: testsutil.GenerateUUID(t),
+		ThingId:   testsutil.GenerateUUID(t),
 		Status:    "connected",
 	}
 
@@ -1990,7 +1990,7 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:    "verify connection with valid token",
 			token:   validToken,
-			reqBody: fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, cs.ThingID, cs.ChannelID),
+			reqBody: fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, cs.ThingId, cs.ChannelId),
 			response: mgclients.ConnectionsPage{
 				Status:      "all_connected",
 				Connections: []mgclients.ConnectionStatus{cs},
@@ -2001,7 +2001,7 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:        "verify connection with empty token",
 			token:       "",
-			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, cs.ThingID, cs.ChannelID),
+			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, cs.ThingId, cs.ChannelId),
 			status:      http.StatusUnauthorized,
 			err:         apiutil.ErrBearerToken,
 			contentType: contentType,
@@ -2009,7 +2009,7 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:        "verify connection with empty thing ids",
 			token:       validToken,
-			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, "", cs.ChannelID),
+			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, "", cs.ChannelId),
 			status:      http.StatusBadRequest,
 			err:         apiutil.ErrMissingID,
 			contentType: contentType,
@@ -2017,7 +2017,7 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:        "verify connection with empty content type",
 			token:       validToken,
-			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, cs.ThingID, cs.ChannelID),
+			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, cs.ThingId, cs.ChannelId),
 			contentType: "",
 			status:      http.StatusUnsupportedMediaType,
 			err:         apiutil.ErrUnsupportedContentType,
@@ -2025,7 +2025,7 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:        "verify connection with invalid json",
 			token:       validToken,
-			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]`, cs.ThingID, cs.ChannelID),
+			reqBody:     fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]`, cs.ThingId, cs.ChannelId),
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			err:         errors.ErrMalformedEntity,

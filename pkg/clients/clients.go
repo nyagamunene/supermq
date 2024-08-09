@@ -53,6 +53,12 @@ type Client struct {
 	Permissions []string    `json:"permissions,omitempty"`
 }
 
+type ConnectionStatus struct {
+	ChannelId string `json:"channel_id"`
+	ThingId   string `json:"thing_id"`
+	Status    string `json:"status"`
+}
+
 // ClientsPage contains page related metadata as well as list
 // of Clients that belong to the page.
 type ClientsPage struct {

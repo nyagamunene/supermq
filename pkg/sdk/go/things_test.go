@@ -753,8 +753,8 @@ func TestVerifyConnections(t *testing.T) {
 	}
 	connsClients := []mgclients.ConnectionStatus{
 		{
-			ChannelID: pm.ChannelsID[0],
-			ThingID:   pm.ThingsID[0],
+			ChannelId: pm.ChannelsID[0],
+			ThingId:   pm.ThingsID[0],
 			Status:    connected,
 		},
 	}

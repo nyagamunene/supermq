@@ -25,3 +25,23 @@ func authorizeEndpoint(svc things.Service) endpoint.Endpoint {
 		}, err
 	}
 }
+
+func verifyConnectionsEndpoint(svc things.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(*magistrala.VerifyConnectionsReq)
+
+		conns, err := svc.VerifyConnections(ctx, req)
+		if err != nil {
+			return verifyConnectionsRes{}, err
+		}
+		cs := []ConnectionStatus{}
+		for _, c := range conns.Connections {
+			cs = append(cs, ConnectionStatus{
+				ThingId:   c.ThingId,
+				ChannelId: c.ChannelId,
+				Status:    c.Status,
+			})
+		}
+		return verifyConnectionsRes{Status: conns.Status, Connections: cs}, nil
+	}
+}

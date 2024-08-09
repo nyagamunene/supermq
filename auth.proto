@@ -12,6 +12,7 @@ service AuthzService {
   // Authorize checks if the subject is authorized to perform
   // the action on the object.
   rpc Authorize(AuthorizeReq) returns (AuthorizeRes) {}
+  rpc VerifyConnections(VerifyConnectionsReq) returns (VerifyConnectionsRes) {}
 }
 
 // AuthService is a service that provides authentication and authorization
@@ -33,7 +34,6 @@ service AuthService {
   rpc CountSubjects(CountSubjectsReq) returns (CountSubjectsRes) {}
   rpc ListPermissions(ListPermissionsReq) returns (ListPermissionsRes) {}
   rpc DeleteEntityPolicies(DeleteEntityPoliciesReq) returns (DeletePolicyRes) {}
-  rpc VerifyConnections(VerifyConnectionsReq) returns (VerifyConnectionsRes) {}
 }
 
 // If a token is not carrying any information itself, the type

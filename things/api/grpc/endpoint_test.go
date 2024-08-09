@@ -12,7 +12,9 @@ import (
 
 	"github.com/absmach/magistrala"
 	"github.com/absmach/magistrala/auth"
+	"github.com/absmach/magistrala/internal/testsutil"
 	"github.com/absmach/magistrala/pkg/apiutil"
+	mgclients "github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	grpcapi "github.com/absmach/magistrala/things/api/grpc"
@@ -175,6 +177,70 @@ func TestAuthorize(t *testing.T) {
 		res, err := client.Authorize(context.Background(), tc.authorizeReq)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s", tc.desc, tc.err, err))
 		assert.Equal(t, tc.res, res, fmt.Sprintf("%s: expected %s got %s", tc.desc, tc.res, res))
+		svcCall.Unset()
+	}
+}
+
+func TestVerifyConnections(t *testing.T) {
+	svc := new(mocks.Service)
+	startGRPCServer(svc, port)
+	authAddr := fmt.Sprintf("localhost:%d", port)
+	conn, err := grpc.NewClient(authAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	assert.Nil(t, err, fmt.Sprintf("Unexpected error creating client connection %s", err))
+	client := grpcapi.NewClient(conn, time.Second)
+
+	thingsID := []string{testsutil.GenerateUUID(t)}
+	channelsID := []string{testsutil.GenerateUUID(t)}
+	cases := []struct {
+		desc                 string
+		verifyConnectionsReq *magistrala.VerifyConnectionsReq
+		verifyConnectionsRes *magistrala.VerifyConnectionsRes
+		verifyConn           mgclients.ConnectionsPage
+		err                  error
+	}{
+		{
+			desc: "verify valid connection",
+			verifyConnectionsReq: &magistrala.VerifyConnectionsReq{
+				ThingsId: thingsID,
+				GroupsId: channelsID,
+			},
+			verifyConnectionsRes: &magistrala.VerifyConnectionsRes{
+				Status: "all_connected",
+				Connections: []*magistrala.Connectionstatus{
+					{
+						ThingId:   thingsID[0],
+						ChannelId: channelsID[0],
+						Status:    "connected",
+					},
+				},
+			},
+			verifyConn: mgclients.ConnectionsPage{
+				Status: "all_connected",
+				Connections: []mgclients.ConnectionStatus{
+					{
+						ThingId:   thingsID[0],
+						ChannelId: channelsID[0],
+						Status:    "connected",
+					},
+				},
+			},
+			err: nil,
+		},
+		{
+			desc: "verify with invalid thing id",
+			verifyConnectionsReq: &magistrala.VerifyConnectionsReq{
+				ThingsId: []string{"invalid"},
+				GroupsId: channelsID,
+			},
+			verifyConnectionsRes: &magistrala.VerifyConnectionsRes{},
+			err:                  svcerr.ErrMalformedEntity,
+		},
+	}
+	for _, tc := range cases {
+		svcCall := svc.On("VerifyConnectionsGrpc", mock.Anything, mock.Anything, mock.Anything).Return(tc.verifyConn, tc.err)
+		vc, err := client.VerifyConnections(context.Background(), tc.verifyConnectionsReq)
+		assert.Equal(t, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections(), fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections()))
+		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		svcCall.Unset()
 	}
 }

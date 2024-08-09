@@ -1627,7 +1627,7 @@ func TestListMembers(t *testing.T) {
 	}
 }
 
-func TestVerifyConnections(t *testing.T) {
+func TestVerifyConnectionsHttp(t *testing.T) {
 	svc, _, auth, _ := newService()
 
 	things := []string{
@@ -1638,45 +1638,36 @@ func TestVerifyConnections(t *testing.T) {
 	}
 	domainID := testsutil.GenerateUUID(t)
 	cases := []struct {
-		desc                      string
-		token                     string
-		thingsID                  []string
-		groupsID                  []string
-		response                  mgclients.ConnectionsPage
-		identifyResponse          *magistrala.IdentityRes
-		authorizeResponse         *magistrala.AuthorizeRes
-		authorizeResponse1        *magistrala.AuthorizeRes
-		verifyConnectionsResponse *magistrala.VerifyConnectionsRes
-		err                       error
-		identifyErr               error
-		authorizeErr              error
-		authorizeErr1             error
-		verifyConnectionsErr      error
+		desc               string
+		token              string
+		thingIds           []string
+		groupIds           []string
+		response           mgclients.ConnectionsPage
+		identifyResponse   *magistrala.IdentityRes
+		authorizeResponse  *magistrala.AuthorizeRes
+		authorizeResponse1 *magistrala.AuthorizeRes
+		authorizeResponse2 *magistrala.AuthorizeRes
+		err                error
+		identifyErr        error
+		authorizeErr       error
+		authorizeErr1      error
+		authorizeErr2      error
 	}{
 		{
 			desc:               "verify connections with connected thing and channel",
 			token:              validToken,
-			thingsID:           things,
-			groupsID:           channels,
+			thingIds:           things,
+			groupIds:           channels,
 			identifyResponse:   &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse:  &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: true},
-			verifyConnectionsResponse: &magistrala.VerifyConnectionsRes{
-				Status: "all_connected",
-				Connections: []*magistrala.Connectionstatus{
-					{
-						ThingId:   things[0],
-						ChannelId: channels[0],
-						Status:    "connected",
-					},
-				},
-			},
+			authorizeResponse2: &magistrala.AuthorizeRes{Authorized: true},
 			response: mgclients.ConnectionsPage{
 				Status: "all_connected",
 				Connections: []mgclients.ConnectionStatus{
 					{
-						ChannelID: channels[0],
-						ThingID:   things[0],
+						ChannelId: channels[0],
+						ThingId:   things[0],
 						Status:    "connected",
 					},
 				},
@@ -1685,27 +1676,18 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:               "verify connections with disconnected thing and channel",
 			token:              validToken,
-			thingsID:           things,
-			groupsID:           channels,
+			thingIds:           things,
+			groupIds:           channels,
 			identifyResponse:   &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse:  &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: true},
-			verifyConnectionsResponse: &magistrala.VerifyConnectionsRes{
-				Status: "all_disconnected",
-				Connections: []*magistrala.Connectionstatus{
-					{
-						ThingId:   things[0],
-						ChannelId: channels[0],
-						Status:    "disconnected",
-					},
-				},
-			},
+			authorizeErr2:      svcerr.ErrAuthorization,
 			response: mgclients.ConnectionsPage{
 				Status: "all_disconnected",
 				Connections: []mgclients.ConnectionStatus{
 					{
-						ChannelID: channels[0],
-						ThingID:   things[0],
+						ChannelId: channels[0],
+						ThingId:   things[0],
 						Status:    "disconnected",
 					},
 				},
@@ -1714,8 +1696,8 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:             "verify connections with unauthorized token",
 			token:            validToken,
-			thingsID:         things,
-			groupsID:         channels,
+			thingIds:         things,
+			groupIds:         channels,
 			identifyResponse: &magistrala.IdentityRes{},
 			identifyErr:      svcerr.ErrAuthentication,
 			err:              svcerr.ErrAuthentication,
@@ -1723,8 +1705,8 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:              "verify connections with unauthorized thing",
 			token:             validToken,
-			thingsID:          things,
-			groupsID:          channels,
+			thingIds:          things,
+			groupIds:          channels,
 			identifyResponse:  &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse: &magistrala.AuthorizeRes{Authorized: false},
 			authorizeErr:      svcerr.ErrAuthorization,
@@ -1733,25 +1715,13 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:               "verify connections with unauthorized channel",
 			token:              validToken,
-			thingsID:           things,
-			groupsID:           channels,
+			thingIds:           things,
+			groupIds:           channels,
 			identifyResponse:   &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse:  &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: false},
 			authorizeErr1:      svcerr.ErrAuthorization,
 			err:                svcerr.ErrAuthorization,
-		},
-		{
-			desc:                      "verify connections with failed to verify objects",
-			token:                     validToken,
-			thingsID:                  things,
-			groupsID:                  channels,
-			identifyResponse:          &magistrala.IdentityRes{Id: validID, DomainId: domainID},
-			authorizeResponse:         &magistrala.AuthorizeRes{Authorized: true},
-			authorizeResponse1:        &magistrala.AuthorizeRes{Authorized: true},
-			verifyConnectionsResponse: &magistrala.VerifyConnectionsRes{},
-			verifyConnectionsErr:      svcerr.ErrMalformedEntity,
-			err:                       svcerr.ErrMalformedEntity,
 		},
 	}
 
@@ -1765,7 +1735,7 @@ func TestVerifyConnections(t *testing.T) {
 				Subject:     validID,
 				Permission:  authsvc.ViewPermission,
 				ObjectType:  authsvc.ThingType,
-				Object:      tc.thingsID[0],
+				Object:      tc.thingIds[0],
 			}).Return(tc.authorizeResponse, tc.authorizeErr)
 			repoCall2 := auth.On("Authorize", mock.Anything, &magistrala.AuthorizeReq{
 				Domain:      domainID,
@@ -1774,10 +1744,16 @@ func TestVerifyConnections(t *testing.T) {
 				Subject:     validID,
 				Permission:  authsvc.ViewPermission,
 				ObjectType:  authsvc.GroupType,
-				Object:      tc.groupsID[0],
+				Object:      tc.groupIds[0],
 			}).Return(tc.authorizeResponse1, tc.authorizeErr1)
-			repoCall3 := auth.On("VerifyConnections", mock.Anything, mock.Anything).Return(tc.verifyConnectionsResponse, tc.verifyConnectionsErr)
-			page, err := svc.VerifyConnections(context.Background(), tc.token, tc.thingsID, tc.groupsID)
+			repoCall3 := auth.On("Authorize", mock.Anything, &magistrala.AuthorizeReq{
+				Subject:     tc.groupIds[0],
+				SubjectType: authsvc.GroupType,
+				Permission:  authsvc.GroupRelation,
+				Object:      tc.thingIds[0],
+				ObjectType:  authsvc.ThingType,
+			}).Return(tc.authorizeResponse2, tc.authorizeErr2)
+			page, err := svc.VerifyConnectionsHttp(context.Background(), tc.token, tc.thingIds, tc.groupIds)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			assert.Equal(t, tc.response, page, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, page))
 			repoCall.Unset()
