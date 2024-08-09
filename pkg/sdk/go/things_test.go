@@ -806,7 +806,7 @@ func TestVerifyConnections(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := tsvc.On("VerifyConnections", mock.Anything, tc.token, tc.pageMeta.ThingsID, tc.pageMeta.ChannelsID).Return(tc.svcRes, tc.svcErr)
+			svcCall := tsvc.On("VerifyConnectionsHttp", mock.Anything, tc.token, tc.pageMeta.ThingsID, tc.pageMeta.ChannelsID).Return(tc.svcRes, tc.svcErr)
 			resp, err := mgsdk.VerifyConnections(tc.pageMeta, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
