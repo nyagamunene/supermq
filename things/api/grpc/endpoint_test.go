@@ -237,7 +237,7 @@ func TestVerifyConnections(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		svcCall := svc.On("VerifyConnectionsGrpc", mock.Anything, mock.Anything, mock.Anything).Return(tc.verifyConn, tc.err)
+		svcCall := svc.On("VerifyConnections", mock.Anything, mock.Anything, mock.Anything).Return(tc.verifyConn, tc.err)
 		vc, err := client.VerifyConnections(context.Background(), tc.verifyConnectionsReq)
 		assert.Equal(t, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections(), fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections()))
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
