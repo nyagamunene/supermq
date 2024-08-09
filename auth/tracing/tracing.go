@@ -312,4 +312,3 @@ func (tm *tracingMiddleware) DeleteEntityPolicies(ctx context.Context, entityTyp
 	defer span.End()
 	return tm.svc.DeleteEntityPolicies(ctx, entityType, id)
 }
-

@@ -21,7 +21,7 @@ var _ magistrala.AuthzServiceServer = (*grpcServer)(nil)
 
 type grpcServer struct {
 	magistrala.UnimplementedAuthzServiceServer
-	authorize kitgrpc.Handler
+	authorize         kitgrpc.Handler
 	verifyConnections kitgrpc.Handler
 }
 
