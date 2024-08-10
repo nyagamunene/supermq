@@ -26,7 +26,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-const port = 7000
+const port = 7001
 
 var (
 	thingID   = "testID"
