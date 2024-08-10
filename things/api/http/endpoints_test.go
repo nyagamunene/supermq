@@ -2043,7 +2043,7 @@ func TestVerifyConnections(t *testing.T) {
 				body:        strings.NewReader(tc.reqBody),
 			}
 
-			svcCall := svc.On("VerifyConnections", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.response, tc.err)
+			svcCall := svc.On("VerifyConnectionsHttp", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.response, tc.err)
 			res, err := req.make()
 			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
