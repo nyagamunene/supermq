@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 	"testing"
 	"time"
 
@@ -26,7 +27,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-const port = 7001
+const port = 7000
 
 var (
 	thingID   = "testID"
@@ -34,6 +35,8 @@ var (
 	invalid   = "invalid"
 	valid     = "valid"
 )
+
+var svc *mocks.Service
 
 func startGRPCServer(svc *mocks.Service, port int) {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
@@ -49,9 +52,16 @@ func startGRPCServer(svc *mocks.Service, port int) {
 	}()
 }
 
-func TestAuthorize(t *testing.T) {
-	svc := new(mocks.Service)
+func TestMain(m *testing.M) {
+	svc = new(mocks.Service)
 	startGRPCServer(svc, port)
+
+	code := m.Run()
+
+	os.Exit(code)
+}
+
+func TestAuthorize(t *testing.T) {
 	authAddr := fmt.Sprintf("localhost:%d", port)
 	conn, _ := grpc.NewClient(authAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	client := grpcapi.NewClient(conn, time.Second)
@@ -182,8 +192,6 @@ func TestAuthorize(t *testing.T) {
 }
 
 func TestVerifyConnections(t *testing.T) {
-	svc := new(mocks.Service)
-	startGRPCServer(svc, port)
 	authAddr := fmt.Sprintf("localhost:%d", port)
 	conn, err := grpc.NewClient(authAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	assert.Nil(t, err, fmt.Sprintf("Unexpected error creating client connection %s", err))
