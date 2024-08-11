@@ -118,23 +118,19 @@ func main() {
 	logger.Info("Successfully connected to auth grpc server " + authHandler.Secure())
 
 	tauthConfig := auth.Config{}
-	logger.Info("Failin here 1")
 	if err := env.ParseWithOptions(&tauthConfig, env.Options{Prefix: envPrefixAuthz}); err != nil {
 		logger.Error(fmt.Sprintf("failed to load %s auth configuration : %s", svcName, err))
 		exitCode = 1
 		return
 	}
 	tauthClient, tauthHandler, err := auth.SetupAuthz(ctx, tauthConfig)
-	logger.Info("Failin here 2")
 	if err != nil {
 		logger.Error(err.Error())
 		exitCode = 1
 		return
 	}
 	defer tauthHandler.Close()
-	logger.Info("Failin here 3")
 	logger.Info("Successfully connected to things grpc server " + tauthHandler.Secure())
-
 
 	tp, err := jaeger.NewProvider(ctx, svcName, cfg.JaegerURL, cfg.InstanceID, cfg.TraceRatio)
 	if err != nil {
