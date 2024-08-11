@@ -124,6 +124,7 @@ type ConfigReader interface {
 
 type bootstrapService struct {
 	auth       magistrala.AuthServiceClient
+	tauth magistrala.AuthzServiceClient
 	configs    ConfigRepository
 	sdk        mgsdk.SDK
 	encKey     []byte
@@ -131,11 +132,12 @@ type bootstrapService struct {
 }
 
 // New returns new Bootstrap service.
-func New(uauth magistrala.AuthServiceClient, configs ConfigRepository, sdk mgsdk.SDK, encKey []byte, idp magistrala.IDProvider) Service {
+func New(uauth magistrala.AuthServiceClient, tauth magistrala.AuthzServiceClient, configs ConfigRepository, sdk mgsdk.SDK, encKey []byte, idp magistrala.IDProvider) Service {
 	return &bootstrapService{
 		configs:    configs,
 		sdk:        sdk,
 		auth:       uauth,
+		tauth: tauth,
 		encKey:     encKey,
 		idProvider: idp,
 	}
@@ -473,7 +475,7 @@ func (bs bootstrapService) ConnectThingHandler(ctx context.Context, channelID, t
 		return errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 	ch := bs.toIDList(channels)
-	resp, err := bs.auth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
+	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
 		ThingsId: []string{thingID},
 		GroupsId: ch,
 	})
@@ -496,7 +498,7 @@ func (bs bootstrapService) DisconnectThingHandler(ctx context.Context, channelID
 		return errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 	ch := bs.toIDList(channels)
-	resp, err := bs.auth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
+	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
 		ThingsId: []string{thingID},
 		GroupsId: ch,
 	})
