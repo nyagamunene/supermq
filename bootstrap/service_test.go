@@ -1325,7 +1325,7 @@ func TestRemoveConfigHandler(t *testing.T) {
 }
 
 func TestConnectThingsHandler(t *testing.T) {
-	svc, boot, _, tauthmocks, _ := newService()
+	svc, boot, _, tAuth, _ := newService()
 	cases := []struct {
 		desc                string
 		thingID             string
@@ -1372,7 +1372,7 @@ func TestConnectThingsHandler(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		authCall := tauthmocks.On("VerifyConnections", context.Background(), mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
+		authCall := tAuth.On("VerifyConnections", context.Background(), mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
 		repoCall := boot.On("ConnectThing", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
 		repoCall1 := boot.On("RetrieveChannelsByID", context.Background(), mock.Anything).Return(tc.retrieveResponse, tc.retrieveResponseErr)
 		err := svc.ConnectThingHandler(context.Background(), tc.channelID, tc.thingID)
@@ -1384,7 +1384,7 @@ func TestConnectThingsHandler(t *testing.T) {
 }
 
 func TestDisconnectThingsHandler(t *testing.T) {
-	svc, boot, _, tauthmocks, _ := newService()
+	svc, boot, _, tAuth, _ := newService()
 	cases := []struct {
 		desc                string
 		thingID             string
@@ -1431,7 +1431,7 @@ func TestDisconnectThingsHandler(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		authCall := tauthmocks.On("VerifyConnections", context.Background(), mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
+		authCall := tAuth.On("VerifyConnections", context.Background(), mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
 		repoCall := boot.On("DisconnectThing", context.Background(), mock.Anything, mock.Anything).Return(tc.err)
 		repoCall1 := boot.On("RetrieveChannelsByID", context.Background(), mock.Anything).Return(tc.retrieveResponse, tc.retrieveResponseErr)
 		err := svc.DisconnectThingHandler(context.Background(), tc.channelID, tc.thingID)
