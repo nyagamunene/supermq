@@ -24,6 +24,7 @@ import (
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
 	sdkmocks "github.com/absmach/magistrala/pkg/sdk/mocks"
 	"github.com/absmach/magistrala/pkg/uuid"
+	tauthmocks "github.com/absmach/magistrala/things/mocks"
 	"github.com/go-redis/redis/v8"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -84,24 +85,25 @@ var (
 	}
 )
 
-func newService(t *testing.T, url string) (bootstrap.Service, *mocks.ConfigRepository, *authmocks.AuthClient, *sdkmocks.SDK) {
+func newService(t *testing.T, url string) (bootstrap.Service, *mocks.ConfigRepository, *authmocks.AuthClient, *tauthmocks.ThingsAuthClient, *sdkmocks.SDK) {
 	boot := new(mocks.ConfigRepository)
 	auth := new(authmocks.AuthClient)
+	tauth := new(tauthmocks.ThingsAuthClient)
 	sdk := new(sdkmocks.SDK)
 	idp := uuid.NewMock()
-	svc := bootstrap.New(auth, boot, sdk, encKey, idp)
+	svc := bootstrap.New(auth, tauth, boot, sdk, encKey, idp)
 	publisher, err := store.NewPublisher(context.Background(), url, streamID)
 	require.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 	svc = producer.NewEventStoreMiddleware(svc, publisher)
 
-	return svc, boot, auth, sdk
+	return svc, boot, auth, tauth, sdk
 }
 
 func TestAdd(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, auth, sdk := newService(t, redisURL)
+	svc, boot, auth, tAuth, sdk := newService(t, redisURL)
 
 	var channels []string
 	for _, ch := range config.Channels {
@@ -211,7 +213,7 @@ func TestAdd(t *testing.T) {
 		authCall1 := auth.On("Authorize", context.Background(), mock.Anything).Return(tc.authResponse, tc.authorizeErr)
 		sdkCall := sdk.On("Thing", tc.config.ThingID, tc.token).Return(mgsdk.Thing{ID: tc.config.ThingID, Credentials: mgsdk.Credentials{Secret: tc.config.ThingKey}}, errors.NewSDKError(tc.thingErr))
 		repoCall := boot.On("ListExisting", context.Background(), domainID, mock.Anything).Return(tc.config.Channels, tc.listErr)
-		authCall2 := auth.On("VerifyConnections", mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
+		authCall2 := tAuth.On("VerifyConnections", mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
 		repoCall1 := boot.On("Save", context.Background(), mock.Anything, mock.Anything).Return(mock.Anything, tc.saveErr)
 
 		_, err := svc.Add(context.Background(), tc.token, tc.config)
@@ -244,7 +246,7 @@ func TestView(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, auth, _ := newService(t, redisURL)
+	svc, boot, auth, _, _ := newService(t, redisURL)
 
 	nonExisting := config
 	nonExisting.ThingID = unknownThingID
@@ -347,7 +349,7 @@ func TestUpdate(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, auth, _ := newService(t, redisURL)
+	svc, boot, auth, _, _ := newService(t, redisURL)
 
 	c := config
 
@@ -467,7 +469,7 @@ func TestUpdateConnections(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, auth, sdk := newService(t, redisURL)
+	svc, boot, auth, _, sdk := newService(t, redisURL)
 
 	cases := []struct {
 		desc         string
@@ -610,7 +612,7 @@ func TestUpdateCert(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, auth, _ := newService(t, redisURL)
+	svc, boot, auth, _, _ := newService(t, redisURL)
 
 	cases := []struct {
 		desc         string
@@ -777,7 +779,7 @@ func TestUpdateCert(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	svc, boot, auth, _ := newService(t, redisURL)
+	svc, boot, auth, _, _ := newService(t, redisURL)
 	numThings := 101
 	var c bootstrap.Config
 	saved := make([]bootstrap.Config, 0)
@@ -1055,7 +1057,7 @@ func TestRemove(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, auth, _ := newService(t, redisURL)
+	svc, boot, auth, _, _ := newService(t, redisURL)
 
 	nonExisting := config
 	nonExisting.ThingID = unknownThingID
@@ -1150,7 +1152,7 @@ func TestBootstrap(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, _, _ := newService(t, redisURL)
+	svc, boot, _, _, _ := newService(t, redisURL)
 
 	cases := []struct {
 		desc        string
@@ -1213,7 +1215,7 @@ func TestChangeState(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, auth, sdk := newService(t, redisURL)
+	svc, boot, auth, _, sdk := newService(t, redisURL)
 
 	cases := []struct {
 		desc         string
@@ -1324,7 +1326,7 @@ func TestUpdateChannelHandler(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, _, _ := newService(t, redisURL)
+	svc, boot, _, _, _ := newService(t, redisURL)
 
 	cases := []struct {
 		desc    string
@@ -1406,7 +1408,7 @@ func TestRemoveChannelHandler(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, _, _ := newService(t, redisURL)
+	svc, boot, _, _, _ := newService(t, redisURL)
 
 	cases := []struct {
 		desc      string
@@ -1468,7 +1470,7 @@ func TestRemoveConfigHandler(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, _, _ := newService(t, redisURL)
+	svc, boot, _, _, _ := newService(t, redisURL)
 
 	cases := []struct {
 		desc     string
@@ -1530,7 +1532,7 @@ func TestConnectThingHandler(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, _, _ := newService(t, redisURL)
+	svc, boot, _, _, _ := newService(t, redisURL)
 
 	cases := []struct {
 		desc      string
@@ -1604,7 +1606,7 @@ func TestDisconnectThingHandler(t *testing.T) {
 	err := redisClient.FlushAll(context.Background()).Err()
 	assert.Nil(t, err, fmt.Sprintf("got unexpected error: %s", err))
 
-	svc, boot, _, _ := newService(t, redisURL)
+	svc, boot, _, _, _ := newService(t, redisURL)
 
 	cases := []struct {
 		desc      string

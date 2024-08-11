@@ -26,6 +26,7 @@ import (
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
 	sdkmocks "github.com/absmach/magistrala/pkg/sdk/mocks"
 	"github.com/absmach/magistrala/pkg/uuid"
+	tauthmocks "github.com/absmach/magistrala/things/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -62,13 +63,14 @@ var (
 	}
 )
 
-func newService() (bootstrap.Service, *mocks.ConfigRepository, *authmocks.AuthClient, *sdkmocks.SDK) {
+func newService() (bootstrap.Service, *mocks.ConfigRepository, *authmocks.AuthClient, *tauthmocks.ThingsAuthClient, *sdkmocks.SDK) {
 	boot := new(mocks.ConfigRepository)
 	auth := new(authmocks.AuthClient)
+	tauth := new(tauthmocks.ThingsAuthClient)
 	sdk := new(sdkmocks.SDK)
 	idp := uuid.NewMock()
 
-	return bootstrap.New(auth, boot, sdk, encKey, idp), boot, auth, sdk
+	return bootstrap.New(auth, tauth, boot, sdk, encKey, idp), boot, auth, tauth, sdk
 }
 
 func enc(in []byte) ([]byte, error) {
@@ -87,7 +89,7 @@ func enc(in []byte) ([]byte, error) {
 }
 
 func TestAdd(t *testing.T) {
-	c, boot, auth, sdk := newService()
+	c, boot, auth, tAuth, sdk := newService()
 	neID := config
 	neID.ThingID = "non-existent"
 
@@ -231,7 +233,7 @@ func TestAdd(t *testing.T) {
 		repoCall1 := sdk.On("CreateThing", mock.Anything, tc.token).Return(mgsdk.Thing{}, tc.createThingErr)
 		repoCall2 := sdk.On("DeleteThing", tc.config.ThingID, tc.token).Return(tc.deleteThingErr)
 		repoCall3 := boot.On("ListExisting", context.Background(), tc.domainID, mock.Anything).Return(tc.config.Channels, tc.listExistingErr)
-		authCall2 := auth.On("VerifyConnections", mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
+		authCall2 := tAuth.On("VerifyConnections", mock.Anything, mock.Anything).Return(tc.verifyResponse, tc.verifyErr)
 		repoCall4 := boot.On("Save", context.Background(), mock.Anything, mock.Anything).Return(mock.Anything, tc.saveErr)
 
 		_, err := c.Add(context.Background(), tc.token, tc.config)
@@ -249,7 +251,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestView(t *testing.T) {
-	svc, boot, auth, _ := newService()
+	svc, boot, auth, _, _ := newService()
 
 	cases := []struct {
 		desc         string
@@ -343,7 +345,7 @@ func TestView(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	svc, boot, auth, _ := newService()
+	svc, boot, auth, _, _ := newService()
 	c := config
 
 	ch := channel
@@ -430,7 +432,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateCert(t *testing.T) {
-	svc, boot, auth, _ := newService()
+	svc, boot, auth, _, _ := newService()
 	c := config
 
 	ch := channel
@@ -541,7 +543,7 @@ func TestUpdateCert(t *testing.T) {
 }
 
 func TestUpdateConnections(t *testing.T) {
-	svc, boot, auth, sdk := newService()
+	svc, boot, auth, _, sdk := newService()
 	c := config
 	c.State = bootstrap.Inactive
 
@@ -655,7 +657,7 @@ func TestUpdateConnections(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	svc, boot, auth, _ := newService()
+	svc, boot, auth, _, _ := newService()
 	numThings := 101
 	var saved []bootstrap.Config
 	for i := 0; i < numThings; i++ {
@@ -1016,7 +1018,7 @@ func TestList(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	svc, boot, auth, _ := newService()
+	svc, boot, auth, _, _ := newService()
 	c := config
 	cases := []struct {
 		desc         string
@@ -1099,7 +1101,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestBootstrap(t *testing.T) {
-	svc, boot, _, _ := newService()
+	svc, boot, _, _, _ := newService()
 	c := config
 	e, err := enc([]byte(c.ExternalKey))
 	assert.Nil(t, err, fmt.Sprintf("Encrypting external key expected to succeed: %s.\n", err))
@@ -1166,7 +1168,7 @@ func TestBootstrap(t *testing.T) {
 }
 
 func TestChangeState(t *testing.T) {
-	svc, boot, auth, sdk := newService()
+	svc, boot, auth, _, sdk := newService()
 
 	c := config
 	cases := []struct {
@@ -1267,7 +1269,7 @@ func TestChangeState(t *testing.T) {
 }
 
 func TestUpdateChannelHandler(t *testing.T) {
-	svc, boot, _, _ := newService()
+	svc, boot, _, _, _ := newService()
 	ch := bootstrap.Channel{
 		ID:       channel.ID,
 		Name:     "new name",
@@ -1300,7 +1302,7 @@ func TestUpdateChannelHandler(t *testing.T) {
 }
 
 func TestRemoveChannelHandler(t *testing.T) {
-	svc, boot, _, _ := newService()
+	svc, boot, _, _, _ := newService()
 
 	cases := []struct {
 		desc string
@@ -1328,7 +1330,7 @@ func TestRemoveChannelHandler(t *testing.T) {
 }
 
 func TestRemoveConfigHandler(t *testing.T) {
-	svc, boot, _, _ := newService()
+	svc, boot, _, _, _ := newService()
 
 	cases := []struct {
 		desc string
@@ -1356,7 +1358,7 @@ func TestRemoveConfigHandler(t *testing.T) {
 }
 
 func TestConnectThingsHandler(t *testing.T) {
-	svc, boot, _, _ := newService()
+	svc, boot, _, _, _ := newService()
 	cases := []struct {
 		desc      string
 		thingID   string
@@ -1386,7 +1388,7 @@ func TestConnectThingsHandler(t *testing.T) {
 }
 
 func TestDisconnectThingsHandler(t *testing.T) {
-	svc, boot, _, _ := newService()
+	svc, boot, _, _, _ := newService()
 	cases := []struct {
 		desc      string
 		thingID   string
