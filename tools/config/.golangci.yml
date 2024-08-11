@@ -15,10 +15,10 @@ issues:
   exclude-rules:
     - path: cli/commands_test.go
       linters:
-        - godot
+        - "-godot"
     - path: bootstrap/service_test.go
       linters:
-        - dogsled
+        - "-dogsled"
 
 linters-settings:
   importas:
