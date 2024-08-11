@@ -16,6 +16,6 @@ packages:
       AuthzServiceClient:
         config:
           dir: "./things/mocks"
-          mockname: "ThingsAuthClient"
+          mockname: "AuthzClient"
           filename: "auth.go"
 
