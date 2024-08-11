@@ -124,7 +124,7 @@ type ConfigReader interface {
 
 type bootstrapService struct {
 	auth       magistrala.AuthServiceClient
-	tauth magistrala.AuthzServiceClient
+	tauth      magistrala.AuthzServiceClient
 	configs    ConfigRepository
 	sdk        mgsdk.SDK
 	encKey     []byte
@@ -137,7 +137,7 @@ func New(uauth magistrala.AuthServiceClient, tauth magistrala.AuthzServiceClient
 		configs:    configs,
 		sdk:        sdk,
 		auth:       uauth,
-		tauth: tauth,
+		tauth:      tauth,
 		encKey:     encKey,
 		idProvider: idp,
 	}
