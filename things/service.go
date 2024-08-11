@@ -4,6 +4,7 @@ package things
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/absmach/magistrala"
@@ -546,14 +547,38 @@ func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thin
 		return mgclients.ConnectionsPage{}, err
 	}
 
+	var wg sync.WaitGroup
+	errChan := make(chan error, len(thingIDs)+len(groupIDs))
+
 	for _, thID := range thingIDs {
-		if _, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.ThingType, thID); err != nil {
-			return mgclients.ConnectionsPage{}, err
-		}
+		wg.Add(1)
+		go func(thingID string) {
+			defer wg.Done()
+			_, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.ThingType, thingID)
+			if err != nil {
+				errChan <- err
+			}
+		}(thID)
 	}
 
 	for _, grpID := range groupIDs {
-		if _, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.GroupType, grpID); err != nil {
+		wg.Add(1)
+		go func(groupID string) {
+			defer wg.Done()
+			_, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.GroupType, groupID)
+			if err != nil {
+				errChan <- err
+			}
+		}(grpID)
+	}
+
+	go func() {
+		wg.Wait()
+		close(errChan)
+	}()
+
+	for err := range errChan {
+		if err != nil {
 			return mgclients.ConnectionsPage{}, err
 		}
 	}
@@ -566,13 +591,13 @@ func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thin
 		return mgclients.ConnectionsPage{}, err
 	}
 
-	cs := []mgclients.ConnectionStatus{}
-	for _, c := range resp.Connections {
-		cs = append(cs, mgclients.ConnectionStatus{
+	cs := make([]mgclients.ConnectionStatus, len(resp.Connections))
+	for i, c := range resp.Connections {
+		cs[i] = mgclients.ConnectionStatus{
 			ThingId:   c.ThingId,
 			ChannelId: c.ChannelId,
 			Status:    c.Status,
-		})
+		}
 	}
 
 	return mgclients.ConnectionsPage{
@@ -602,40 +627,70 @@ func (svc service) VerifyConnections(ctx context.Context, req *magistrala.Verify
 	uniqueThings := getUniqueValues(req.GetThingsId())
 	uniqueChannels := getUniqueValues(req.GetGroupsId())
 
-	cp := mgclients.ConnectionsPage{}
 	totalConnectionsCnt := len(uniqueChannels) * len(uniqueThings)
-	totalConnectedCnt := 0
+	resultChan := make(chan mgclients.ConnectionStatus, totalConnectionsCnt)
+	errorChan := make(chan error, 1)
 
-	cp.Connections = make([]mgclients.ConnectionStatus, 0, totalConnectionsCnt)
+	var wg sync.WaitGroup
+	wg.Add(totalConnectionsCnt)
 
 	for _, th := range uniqueThings {
 		for _, ch := range uniqueChannels {
-			req := &magistrala.AuthorizeReq{
-				Subject:     ch,
-				SubjectType: auth.GroupType,
-				Permission:  auth.GroupRelation,
-				Object:      th,
-				ObjectType:  auth.ThingType,
-			}
+			go func(thing, channel string) {
+				defer wg.Done()
+				authReq := &magistrala.AuthorizeReq{
+					Subject:     channel,
+					SubjectType: auth.GroupType,
+					Permission:  auth.GroupRelation,
+					Object:      thing,
+					ObjectType:  auth.ThingType,
+				}
 
-			_, err := svc.auth.Authorize(ctx, req)
-			var status string
-			switch {
-			case err == nil:
-				status = connected
-				totalConnectedCnt++
-			case errors.Contains(err, svcerr.ErrAuthorization):
-				status = disconnected
-			default:
-				return mgclients.ConnectionsPage{}, errors.Wrap(svcerr.ErrMalformedEntity, err)
-			}
+				_, err := svc.auth.Authorize(ctx, authReq)
+				var status string
+				switch {
+				case err == nil:
+					status = connected
+				case errors.Contains(err, svcerr.ErrAuthorization):
+					status = disconnected
+				default:
+					select {
+					case errorChan <- errors.Wrap(svcerr.ErrMalformedEntity, err):
+					default:
+					}
+					return
+				}
 
-			cp.Connections = append(cp.Connections, mgclients.ConnectionStatus{
-				ThingId:   th,
-				ChannelId: ch,
-				Status:    status,
-			})
+				resultChan <- mgclients.ConnectionStatus{
+					ThingId:   thing,
+					ChannelId: channel,
+					Status:    status,
+				}
+			}(th, ch)
 		}
+	}
+
+	go func() {
+		wg.Wait()
+		close(resultChan)
+		close(errorChan)
+	}()
+
+	cp := mgclients.ConnectionsPage{
+		Connections: make([]mgclients.ConnectionStatus, 0, totalConnectionsCnt),
+	}
+
+	totalConnectedCnt := 0
+
+	for conn := range resultChan {
+		cp.Connections = append(cp.Connections, conn)
+		if conn.Status == connected {
+			totalConnectedCnt++
+		}
+	}
+
+	if err := <-errorChan; err != nil {
+		return mgclients.ConnectionsPage{}, err
 	}
 
 	switch {
