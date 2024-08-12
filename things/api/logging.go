@@ -318,7 +318,7 @@ func (lm *loggingMiddleware) DeleteClient(ctx context.Context, token, id string)
 	return lm.svc.DeleteClient(ctx, token, id)
 }
 
-func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (cp mgclients.ConnectionsPage, err error) {
+func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (cp *magistrala.VerifyConnectionsRes, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),

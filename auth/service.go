@@ -17,11 +17,6 @@ import (
 const (
 	recoveryDuration = 5 * time.Minute
 	defLimit         = 100
-	connected        = "connected"
-	disconnected     = "disconnected"
-	allConn          = "all_connected"
-	allDisConn       = "all_disconnected"
-	partConn         = "partially_connected"
 )
 
 var (

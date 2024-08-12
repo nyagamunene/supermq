@@ -13,6 +13,7 @@ import (
 	"github.com/absmach/magistrala/cli"
 	"github.com/absmach/magistrala/internal/testsutil"
 	"github.com/absmach/magistrala/pkg/apiutil"
+	"github.com/absmach/magistrala/pkg/clients"
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
@@ -1079,7 +1080,7 @@ func TestVerifyConnectionsCmd(t *testing.T) {
 					{
 						ChannelID: channel.ID,
 						ThingID:   thing.ID,
-						Status:    "connected",
+						Status:    clients.Connected,
 					},
 				},
 			},

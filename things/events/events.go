@@ -6,6 +6,7 @@ package events
 import (
 	"time"
 
+	"github.com/absmach/magistrala"
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/events"
 )
@@ -277,7 +278,7 @@ func (lcge listClientByGroupEvent) Encode() (map[string]interface{}, error) {
 }
 
 type verifyConnectionEvent struct {
-	page     mgclients.ConnectionsPage
+	page     *magistrala.VerifyConnectionsRes
 	thingIDs []string
 	groupIDs []string
 }
