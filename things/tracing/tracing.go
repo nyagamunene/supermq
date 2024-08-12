@@ -152,7 +152,7 @@ func (tm *tracingMiddleware) DeleteClient(ctx context.Context, token, id string)
 	return tm.svc.DeleteClient(ctx, token, id)
 }
 
-func (tm *tracingMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
+func (tm *tracingMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
 	ctx, span := tm.tracer.Start(ctx, "verify_connections", trace.WithAttributes(
 		attribute.StringSlice("things_id", req.GetThingsId()),
 		attribute.StringSlice("channels_id", req.GetGroupsId()),

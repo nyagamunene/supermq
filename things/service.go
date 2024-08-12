@@ -572,7 +572,7 @@ func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thin
 	cs := make([]mgclients.ConnectionStatus, len(resp.Connections))
 	for i, c := range resp.Connections {
 		st := mgclients.Disconnected
-		if c.Status == int32(mgclients.Connected) {
+		if c.Status == mgclients.Connected {
 			st = mgclients.Connected
 		}
 		cs[i] = mgclients.ConnectionStatus{
@@ -605,14 +605,14 @@ func (svc service) Identify(ctx context.Context, key string) (string, error) {
 	return client.ID, nil
 }
 
-func (svc service) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
+func (svc service) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
 	uniqueThings := getUniqueValues(req.GetThingsId())
 	uniqueChannels := getUniqueValues(req.GetGroupsId())
 	totalConnectionsCnt := len(uniqueChannels) * len(uniqueThings)
 
 	g, ctx := errgroup.WithContext(ctx)
 
-	connections := make([]*magistrala.Connectionstatus, totalConnectionsCnt)
+	connections := make([]mgclients.ConnectionStatus, totalConnectionsCnt)
 
 	index := 0
 	for _, th := range uniqueThings {
@@ -638,10 +638,10 @@ func (svc service) VerifyConnections(ctx context.Context, req *magistrala.Verify
 						return errors.Wrap(svcerr.ErrMalformedEntity, err)
 					}
 
-					connections[i] = &magistrala.Connectionstatus{
+					connections[i] = mgclients.ConnectionStatus{
 						ThingId:   thing,
 						ChannelId: channel,
-						Status:    int32(status),
+						Status:    status,
 					}
 
 					return nil
@@ -652,7 +652,7 @@ func (svc service) VerifyConnections(ctx context.Context, req *magistrala.Verify
 	}
 
 	if err := g.Wait(); err != nil {
-		return &magistrala.VerifyConnectionsRes{}, err
+		return mgclients.ConnectionsPage{}, err
 	}
 
 	totalConnectedCnt := 0
@@ -672,7 +672,7 @@ func (svc service) VerifyConnections(ctx context.Context, req *magistrala.Verify
 		status = mgclients.PartConnected
 	}
 
-	return &magistrala.VerifyConnectionsRes{
+	return mgclients.ConnectionsPage{
 		Status:      status,
 		Connections: connections,
 	}, nil

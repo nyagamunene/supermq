@@ -162,7 +162,7 @@ func (es *eventStore) VerifyConnectionsHttp(ctx context.Context, token string, t
 		return mc, err
 	}
 	event := verifyConnectionEvent{
-		hPage:    cp,
+		page:    cp,
 		thingIDs: thingIds,
 		groupIDs: groupIds,
 	}
@@ -283,14 +283,14 @@ func (es *eventStore) DeleteClient(ctx context.Context, token, id string) error 
 	return nil
 }
 
-func (es *eventStore) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
+func (es *eventStore) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
 	page, err := es.svc.VerifyConnections(ctx, req)
 	if err != nil {
 		return page, err
 	}
 
 	event := verifyConnectionEvent{
-		gPage:    page,
+		page:     page,
 		thingIDs: req.GetThingsId(),
 		groupIDs: req.GetGroupsId(),
 	}

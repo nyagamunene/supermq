@@ -39,7 +39,7 @@ func verifyConnectionsEndpoint(svc things.Service) endpoint.Endpoint {
 			cs = append(cs, ConnectionStatus{
 				ThingId:   c.ThingId,
 				ChannelId: c.ChannelId,
-				Status:    c.Status,
+				Status:    int32(c.Status),
 			})
 		}
 		return verifyConnectionsRes{Status: conns.Status, Connections: cs}, nil
