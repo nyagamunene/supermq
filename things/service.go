@@ -539,8 +539,8 @@ func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thin
 	}
 
 	eCtx, cancel := context.WithCancel(context.Background())
-    defer cancel()
-    g, _ := errgroup.WithContext(eCtx)
+	defer cancel()
+	g, _ := errgroup.WithContext(eCtx)
 
 	for _, thID := range thingIDs {
 		thID := thID
