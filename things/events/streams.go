@@ -162,7 +162,7 @@ func (es *eventStore) VerifyConnectionsHttp(ctx context.Context, token string, t
 		return mc, err
 	}
 	event := verifyConnectionEvent{
-		page:    cp,
+		page:     cp,
 		thingIDs: thingIds,
 		groupIDs: groupIds,
 	}
