@@ -1630,10 +1630,10 @@ func TestListMembers(t *testing.T) {
 func TestVerifyConnectionsHttp(t *testing.T) {
 	svc, _, auth, _ := newService()
 
-	things := []string{
+	th := []string{
 		testsutil.GenerateUUID(t),
 	}
-	channels := []string{
+	ch := []string{
 		testsutil.GenerateUUID(t),
 	}
 	domainID := testsutil.GenerateUUID(t)
@@ -1656,18 +1656,18 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 		{
 			desc:               "verify connections with connected thing and channel",
 			token:              validToken,
-			thingIds:           things,
-			groupIds:           channels,
+			thingIds:           th,
+			groupIds:           ch,
 			identifyResponse:   &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse:  &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse2: &magistrala.AuthorizeRes{Authorized: true},
 			response: mgclients.ConnectionsPage{
-				Status: "all_connected",
+				Status: mgclients.AllConnected,
 				Connections: []mgclients.ConnectionStatus{
 					{
-						ChannelId: channels[0],
-						ThingId:   things[0],
+						ChannelId: ch[0],
+						ThingId:   th[0],
 						Status:    mgclients.Connected,
 					},
 				},
@@ -1676,18 +1676,18 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 		{
 			desc:               "verify connections with disconnected thing and channel",
 			token:              validToken,
-			thingIds:           things,
-			groupIds:           channels,
+			thingIds:           th,
+			groupIds:           ch,
 			identifyResponse:   &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse:  &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: true},
 			authorizeErr2:      svcerr.ErrAuthorization,
 			response: mgclients.ConnectionsPage{
-				Status: "all_disconnected",
+				Status: mgclients.AllDisconnected,
 				Connections: []mgclients.ConnectionStatus{
 					{
-						ChannelId: channels[0],
-						ThingId:   things[0],
+						ChannelId: ch[0],
+						ThingId:   th[0],
 						Status:    mgclients.Disconnected,
 					},
 				},
@@ -1696,8 +1696,8 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 		{
 			desc:             "verify connections with unauthorized token",
 			token:            validToken,
-			thingIds:         things,
-			groupIds:         channels,
+			thingIds:         th,
+			groupIds:         ch,
 			identifyResponse: &magistrala.IdentityRes{},
 			identifyErr:      svcerr.ErrAuthentication,
 			err:              svcerr.ErrAuthentication,
@@ -1705,8 +1705,8 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 		{
 			desc:              "verify connections with unauthorized thing",
 			token:             validToken,
-			thingIds:          things,
-			groupIds:          channels,
+			thingIds:          th,
+			groupIds:          ch,
 			identifyResponse:  &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse: &magistrala.AuthorizeRes{Authorized: false},
 			authorizeErr:      svcerr.ErrAuthorization,
@@ -1715,8 +1715,8 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 		{
 			desc:               "verify connections with unauthorized channel",
 			token:              validToken,
-			thingIds:           things,
-			groupIds:           channels,
+			thingIds:           th,
+			groupIds:           ch,
 			identifyResponse:   &magistrala.IdentityRes{Id: validID, DomainId: domainID},
 			authorizeResponse:  &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: false},
