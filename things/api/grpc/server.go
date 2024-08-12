@@ -75,7 +75,6 @@ func decodeVerifyConnectionsRequest(_ context.Context, grpcreq interface{}) (int
 func encodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(verifyConnectionsRes)
 	connections := []*magistrala.Connectionstatus{}
-
 	for _, conn := range res.Connections {
 		connections = append(connections, &magistrala.Connectionstatus{
 			ThingId:   conn.ThingId,

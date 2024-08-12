@@ -23,6 +23,47 @@ const (
 	dotSeparator = "."
 )
 
+const (
+	connected       = "connected"
+	disconnected    = "disconnected"
+	AllConnected    = "all_connected"
+	AllDisconnected = "all_disconnected"
+	PartConnected   = "partially_connected"
+)
+
+// State represents connection state.
+type State int
+
+const (
+	// Disconnected represents disabled connection.
+	Disconnected State = iota
+	// Connected represents enabled connection.
+	Connected
+)
+
+// String returns string representation of State.
+func (s State) String() string {
+	switch s {
+	case Disconnected:
+		return disconnected
+	case Connected:
+		return connected
+	default:
+		return Unknown
+	}
+}
+
+type ConnectionStatus struct {
+	ChannelId string `json:"channel_id"`
+	ThingId   string `json:"thing_id"`
+	Status    State  `json:"status"`
+}
+
+type ConnectionsPage struct {
+	Status      string
+	Connections []ConnectionStatus
+}
+
 var (
 	userRegexp    = regexp.MustCompile("^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+$")
 	hostRegexp    = regexp.MustCompile(`^[^\s]+\.[^\s]+$`)
@@ -53,12 +94,6 @@ type Client struct {
 	Permissions []string    `json:"permissions,omitempty"`
 }
 
-type ConnectionStatus struct {
-	ChannelId string `json:"channel_id"`
-	ThingId   string `json:"thing_id"`
-	Status    string `json:"status"`
-}
-
 // ClientsPage contains page related metadata as well as list
 // of Clients that belong to the page.
 type ClientsPage struct {
@@ -71,11 +106,6 @@ type ClientsPage struct {
 type MembersPage struct {
 	Page
 	Members []Client
-}
-
-type ConnectionsPage struct {
-	Status      string
-	Connections []ConnectionStatus
 }
 
 // Repository specifies an account persistence API.

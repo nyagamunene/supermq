@@ -4,7 +4,6 @@ package things
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/absmach/magistrala"
@@ -15,14 +14,6 @@ import (
 	mggroups "github.com/absmach/magistrala/pkg/groups"
 	"github.com/absmach/magistrala/things/postgres"
 	"golang.org/x/sync/errgroup"
-)
-
-const (
-	connected    = "connected"
-	disconnected = "disconnected"
-	allConn      = "all_connected"
-	allDisConn   = "all_disconnected"
-	partConn     = "partially_connected"
 )
 
 type service struct {
@@ -547,42 +538,29 @@ func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thin
 		return mgclients.ConnectionsPage{}, err
 	}
 
-	var wg sync.WaitGroup
-	errChan := make(chan error, len(thingIDs)+len(groupIDs))
+	eCtx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+    g, _ := errgroup.WithContext(eCtx)
 
 	for _, thID := range thingIDs {
-		wg.Add(1)
-		go func(thingID string) {
-			defer wg.Done()
-			_, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.ThingType, thingID)
-			if err != nil {
-				errChan <- err
-			}
-		}(thID)
+		thID := thID
+		g.Go(func() error {
+			_, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.ThingType, thID)
+			return err
+		})
 	}
 
 	for _, grpID := range groupIDs {
-		wg.Add(1)
-		go func(groupID string) {
-			defer wg.Done()
-			_, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.GroupType, groupID)
-			if err != nil {
-				errChan <- err
-			}
-		}(grpID)
+		grpID := grpID
+		g.Go(func() error {
+			_, err := svc.authorize(ctx, res.GetDomainId(), auth.UserType, auth.UsersKind, res.GetId(), auth.ViewPermission, auth.GroupType, grpID)
+			return err
+		})
 	}
 
-	go func() {
-		wg.Wait()
-		close(errChan)
-	}()
-
-	for err := range errChan {
-		if err != nil {
-			return mgclients.ConnectionsPage{}, err
-		}
+	if err := g.Wait(); err != nil {
+		return mgclients.ConnectionsPage{}, err
 	}
-
 	resp, err := svc.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
 		ThingsId: thingIDs,
 		GroupsId: groupIDs,
@@ -593,10 +571,14 @@ func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thin
 
 	cs := make([]mgclients.ConnectionStatus, len(resp.Connections))
 	for i, c := range resp.Connections {
+		st := mgclients.Disconnected
+		if c.Status == int32(mgclients.Connected) {
+			st = mgclients.Connected
+		}
 		cs[i] = mgclients.ConnectionStatus{
 			ThingId:   c.ThingId,
 			ChannelId: c.ChannelId,
-			Status:    c.Status,
+			Status:    st,
 		}
 	}
 
@@ -623,86 +605,77 @@ func (svc service) Identify(ctx context.Context, key string) (string, error) {
 	return client.ID, nil
 }
 
-func (svc service) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
+func (svc service) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
 	uniqueThings := getUniqueValues(req.GetThingsId())
 	uniqueChannels := getUniqueValues(req.GetGroupsId())
-
 	totalConnectionsCnt := len(uniqueChannels) * len(uniqueThings)
-	resultChan := make(chan mgclients.ConnectionStatus, totalConnectionsCnt)
-	errorChan := make(chan error, 1)
 
-	var wg sync.WaitGroup
-	wg.Add(totalConnectionsCnt)
+	g, ctx := errgroup.WithContext(ctx)
 
+	connections := make([]*magistrala.Connectionstatus, totalConnectionsCnt)
+
+	index := 0
 	for _, th := range uniqueThings {
 		for _, ch := range uniqueChannels {
-			go func(thing, channel string) {
-				defer wg.Done()
-				authReq := &magistrala.AuthorizeReq{
-					Subject:     channel,
-					SubjectType: auth.GroupType,
-					Permission:  auth.GroupRelation,
-					Object:      thing,
-					ObjectType:  auth.ThingType,
-				}
-
-				_, err := svc.auth.Authorize(ctx, authReq)
-				var status string
-				switch {
-				case err == nil:
-					status = connected
-				case errors.Contains(err, svcerr.ErrAuthorization):
-					status = disconnected
-				default:
-					select {
-					case errorChan <- errors.Wrap(svcerr.ErrMalformedEntity, err):
-					default:
+			func(thing, channel string, i int) {
+				g.Go(func() error {
+					authReq := &magistrala.AuthorizeReq{
+						Subject:     channel,
+						SubjectType: auth.GroupType,
+						Permission:  auth.GroupRelation,
+						Object:      thing,
+						ObjectType:  auth.ThingType,
 					}
-					return
-				}
 
-				resultChan <- mgclients.ConnectionStatus{
-					ThingId:   thing,
-					ChannelId: channel,
-					Status:    status,
-				}
-			}(th, ch)
+					_, err := svc.auth.Authorize(ctx, authReq)
+					var status mgclients.State
+					switch {
+					case err == nil:
+						status = mgclients.Connected
+					case errors.Contains(err, svcerr.ErrAuthorization):
+						status = mgclients.Disconnected
+					default:
+						return errors.Wrap(svcerr.ErrMalformedEntity, err)
+					}
+
+					connections[i] = &magistrala.Connectionstatus{
+						ThingId:   thing,
+						ChannelId: channel,
+						Status:    int32(status),
+					}
+
+					return nil
+				})
+			}(th, ch, index)
+			index++
 		}
 	}
 
-	go func() {
-		wg.Wait()
-		close(resultChan)
-		close(errorChan)
-	}()
-
-	cp := mgclients.ConnectionsPage{
-		Connections: make([]mgclients.ConnectionStatus, 0, totalConnectionsCnt),
+	if err := g.Wait(); err != nil {
+		return &magistrala.VerifyConnectionsRes{}, err
 	}
 
 	totalConnectedCnt := 0
-
-	for conn := range resultChan {
-		cp.Connections = append(cp.Connections, conn)
-		if conn.Status == connected {
+	for _, conn := range connections {
+		if conn.Status == 1 {
 			totalConnectedCnt++
 		}
 	}
 
-	if err := <-errorChan; err != nil {
-		return mgclients.ConnectionsPage{}, err
-	}
-
+	var status string
 	switch {
 	case totalConnectedCnt == totalConnectionsCnt:
-		cp.Status = allConn
+		status = mgclients.AllConnected
 	case totalConnectedCnt == 0:
-		cp.Status = allDisConn
+		status = mgclients.AllDisconnected
 	default:
-		cp.Status = partConn
+		status = mgclients.PartConnected
 	}
 
-	return cp, nil
+	return &magistrala.VerifyConnectionsRes{
+		Status:      status,
+		Connections: connections,
+	}, nil
 }
 
 func getUniqueValues(slice []string) []string {

@@ -16,5 +16,5 @@ type verifyConnectionsRes struct {
 type ConnectionStatus struct {
 	ThingId   string
 	ChannelId string
-	Status    string
+	Status    int32
 }

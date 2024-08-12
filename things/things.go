@@ -67,7 +67,7 @@ type Service interface {
 	DeleteClient(ctx context.Context, token, id string) error
 
 	// VerifyConnections verifies connection between thing and channel.
-	VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (clients.ConnectionsPage, error)
+	VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error)
 }
 
 // Cache contains thing caching interface.

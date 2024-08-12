@@ -377,22 +377,24 @@ func (_m *Service) UpdateClientTags(ctx context.Context, token string, client cl
 }
 
 // VerifyConnections provides a mock function with given fields: ctx, req
-func (_m *Service) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (clients.ConnectionsPage, error) {
+func (_m *Service) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
 	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for VerifyConnections")
 	}
 
-	var r0 clients.ConnectionsPage
+	var r0 *magistrala.VerifyConnectionsRes
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *magistrala.VerifyConnectionsReq) (clients.ConnectionsPage, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error)); ok {
 		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *magistrala.VerifyConnectionsReq) clients.ConnectionsPage); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, *magistrala.VerifyConnectionsReq) *magistrala.VerifyConnectionsRes); ok {
 		r0 = rf(ctx, req)
 	} else {
-		r0 = ret.Get(0).(clients.ConnectionsPage)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*magistrala.VerifyConnectionsRes)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *magistrala.VerifyConnectionsReq) error); ok {

@@ -1975,7 +1975,7 @@ func TestVerifyConnections(t *testing.T) {
 	cs := mgclients.ConnectionStatus{
 		ChannelId: testsutil.GenerateUUID(t),
 		ThingId:   testsutil.GenerateUUID(t),
-		Status:    "connected",
+		Status:    mgclients.Connected,
 	}
 
 	cases := []struct {

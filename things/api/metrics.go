@@ -158,7 +158,7 @@ func (ms *metricsMiddleware) DeleteClient(ctx context.Context, token, id string)
 	return ms.svc.DeleteClient(ctx, token, id)
 }
 
-func (ms *metricsMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
+func (ms *metricsMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "verify_connections").Add(1)
 		ms.latency.With("method", "verify_connections").Observe(time.Since(begin).Seconds())

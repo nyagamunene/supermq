@@ -15,6 +15,7 @@ import (
 	"github.com/absmach/magistrala/internal/testsutil"
 	mglog "github.com/absmach/magistrala/logger"
 	"github.com/absmach/magistrala/pkg/apiutil"
+	"github.com/absmach/magistrala/pkg/clients"
 	mgclients "github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
@@ -731,10 +732,6 @@ func TestVerifyConnections(t *testing.T) {
 	ts, tsvc := setupThings()
 	defer ts.Close()
 
-	var (
-		connected = "connected"
-		allCon    = "all_connected"
-	)
 	conf := sdk.Config{
 		ThingsURL: ts.URL,
 	}
@@ -748,14 +745,14 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			ChannelID: pm.ChannelsID[0],
 			ThingID:   pm.ThingsID[0],
-			Status:    connected,
+			Status:    clients.Connected,
 		},
 	}
 	connsClients := []mgclients.ConnectionStatus{
 		{
 			ChannelId: pm.ChannelsID[0],
 			ThingId:   pm.ThingsID[0],
-			Status:    connected,
+			Status:    clients.Connected,
 		},
 	}
 
@@ -773,11 +770,11 @@ func TestVerifyConnections(t *testing.T) {
 			token:    validToken,
 			pageMeta: pm,
 			svcRes: mgclients.ConnectionsPage{
-				Status:      allCon,
+				Status:      clients.AllConnected,
 				Connections: connsClients,
 			},
 			response: sdk.ConnectionsPage{
-				Status:      allCon,
+				Status:      clients.AllConnected,
 				Connections: connsSDK,
 			},
 		},

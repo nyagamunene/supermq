@@ -282,7 +282,7 @@ func (es *eventStore) DeleteClient(ctx context.Context, token, id string) error 
 	return nil
 }
 
-func (es *eventStore) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
+func (es *eventStore) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (*magistrala.VerifyConnectionsRes, error) {
 	page, err := es.svc.VerifyConnections(ctx, req)
 	if err != nil {
 		return page, err

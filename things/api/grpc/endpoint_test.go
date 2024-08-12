@@ -218,7 +218,7 @@ func TestVerifyConnections(t *testing.T) {
 					{
 						ThingId:   thingsID[0],
 						ChannelId: channelsID[0],
-						Status:    "connected",
+						Status:    int32(mgclients.Connected),
 					},
 				},
 			},
@@ -228,7 +228,7 @@ func TestVerifyConnections(t *testing.T) {
 					{
 						ThingId:   thingsID[0],
 						ChannelId: channelsID[0],
-						Status:    "connected",
+						Status:    mgclients.Connected,
 					},
 				},
 			},

@@ -1668,7 +1668,7 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 					{
 						ChannelId: channels[0],
 						ThingId:   things[0],
-						Status:    "connected",
+						Status:    mgclients.Connected,
 					},
 				},
 			},
@@ -1688,7 +1688,7 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 					{
 						ChannelId: channels[0],
 						ThingId:   things[0],
-						Status:    "disconnected",
+						Status:    mgclients.Disconnected,
 					},
 				},
 			},
