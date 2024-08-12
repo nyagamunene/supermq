@@ -278,18 +278,27 @@ func (lcge listClientByGroupEvent) Encode() (map[string]interface{}, error) {
 }
 
 type verifyConnectionEvent struct {
-	page     *magistrala.VerifyConnectionsRes
+	gPage    *magistrala.VerifyConnectionsRes
+	hPage    mgclients.ConnectionsPage
 	thingIDs []string
 	groupIDs []string
 }
 
 func (vce verifyConnectionEvent) Encode() (map[string]interface{}, error) {
-	return map[string]interface{}{
+	val := map[string]interface{}{
 		"operation":   verifyConnections,
 		"thing_ids":   vce.thingIDs,
 		"channel_ids": vce.groupIDs,
-		"page":        vce.page,
-	}, nil
+	}
+
+	if vce.gPage != nil {
+		val["gpage"] = vce.gPage
+	}
+	if len(vce.hPage.Connections) == 0 {
+        val["hpage"] = vce.hPage
+    }
+	
+	return val, nil
 }
 
 type identifyClientEvent struct {

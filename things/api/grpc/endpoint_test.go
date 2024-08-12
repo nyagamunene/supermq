@@ -27,7 +27,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-const port = 7000
+const port = 7070
 
 var (
 	thingID   = "testID"
@@ -203,7 +203,6 @@ func TestVerifyConnections(t *testing.T) {
 		desc                 string
 		verifyConnectionsReq *magistrala.VerifyConnectionsReq
 		verifyConnectionsRes *magistrala.VerifyConnectionsRes
-		verifyConn           mgclients.ConnectionsPage
 		err                  error
 	}{
 		{
@@ -213,22 +212,12 @@ func TestVerifyConnections(t *testing.T) {
 				GroupsId: channelsID,
 			},
 			verifyConnectionsRes: &magistrala.VerifyConnectionsRes{
-				Status: "all_connected",
+				Status: mgclients.AllConnected,
 				Connections: []*magistrala.Connectionstatus{
 					{
 						ThingId:   thingsID[0],
 						ChannelId: channelsID[0],
 						Status:    int32(mgclients.Connected),
-					},
-				},
-			},
-			verifyConn: mgclients.ConnectionsPage{
-				Status: "all_connected",
-				Connections: []mgclients.ConnectionStatus{
-					{
-						ThingId:   thingsID[0],
-						ChannelId: channelsID[0],
-						Status:    mgclients.Connected,
 					},
 				},
 			},
@@ -245,7 +234,7 @@ func TestVerifyConnections(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		svcCall := svc.On("VerifyConnections", mock.Anything, mock.Anything, mock.Anything).Return(tc.verifyConn, tc.err)
+		svcCall := svc.On("VerifyConnections", mock.Anything, mock.Anything, mock.Anything).Return(tc.verifyConnectionsRes, tc.err)
 		vc, err := client.VerifyConnections(context.Background(), tc.verifyConnectionsReq)
 		assert.Equal(t, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections(), fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections()))
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
