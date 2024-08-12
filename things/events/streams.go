@@ -156,12 +156,13 @@ func (es *eventStore) ListClientsByGroup(ctx context.Context, token, chID string
 	return mp, nil
 }
 
-func (es *eventStore) VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (mgclients.ConnectionsPage, error) {
+func (es *eventStore) VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (cp mgclients.ConnectionsPage, err error) {
 	mc, err := es.svc.VerifyConnectionsHttp(ctx, token, thingIds, groupIds)
 	if err != nil {
 		return mc, err
 	}
 	event := verifyConnectionEvent{
+		hPage:    cp,
 		thingIDs: thingIds,
 		groupIDs: groupIds,
 	}
@@ -289,7 +290,7 @@ func (es *eventStore) VerifyConnections(ctx context.Context, req *magistrala.Ver
 	}
 
 	event := verifyConnectionEvent{
-		page:     page,
+		gPage:    page,
 		thingIDs: req.GetThingsId(),
 		groupIDs: req.GetGroupsId(),
 	}
