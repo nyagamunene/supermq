@@ -295,9 +295,9 @@ func (vce verifyConnectionEvent) Encode() (map[string]interface{}, error) {
 		val["gpage"] = vce.gPage
 	}
 	if len(vce.hPage.Connections) == 0 {
-        val["hpage"] = vce.hPage
-    }
-	
+		val["hpage"] = vce.hPage
+	}
+
 	return val, nil
 }
 
