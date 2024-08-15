@@ -12,14 +12,11 @@ import (
 
 	"github.com/absmach/magistrala"
 	"github.com/absmach/magistrala/auth"
+	"github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 	repoerr "github.com/absmach/magistrala/pkg/errors/repository"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
-)
-
-const (
-	allConn = "all_connected"
 )
 
 var (
@@ -476,14 +473,14 @@ func (bs bootstrapService) ConnectThingHandler(ctx context.Context, channelID, t
 	}
 	ch := bs.toIDList(channels)
 	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
-		ThingsId: []string{thingID},
-		GroupsId: ch,
+		ThingIds: []string{thingID},
+		GroupIds: ch,
 	})
 	if err != nil {
 		return err
 	}
 
-	if resp.Status == allConn {
+	if resp.Status == clients.AllConnectedState.String() {
 		if err := bs.configs.ConnectThing(ctx, channelID, thingID); err != nil {
 			return errors.Wrap(errConnectThing, err)
 		}
@@ -499,13 +496,13 @@ func (bs bootstrapService) DisconnectThingHandler(ctx context.Context, channelID
 	}
 	ch := bs.toIDList(channels)
 	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
-		ThingsId: []string{thingID},
-		GroupsId: ch,
+		ThingIds: []string{thingID},
+		GroupIds: ch,
 	})
 	if err != nil {
 		return err
 	}
-	if resp.Status != allConn {
+	if resp.Status != clients.AllConnectedState.String() {
 		if err := bs.configs.DisconnectThing(ctx, channelID, thingID); err != nil {
 			return errors.Wrap(errDisconnectThing, err)
 		}
