@@ -19,10 +19,6 @@ import (
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
 )
 
-const (
-	allConn = "all_connected"
-)
-
 var (
 	// ErrThings indicates failure to communicate with Magistrala Things service.
 	// It can be due to networking error or invalid/unauthenticated request.
