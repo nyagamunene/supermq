@@ -1990,9 +1990,9 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc:    "verify connection with valid token",
 			token:   validToken,
-			reqBody: fmt.Sprintf(`{"things_id": ["%s"], "channels_id": ["%s"]}`, cs.ThingId, cs.ChannelId),
+			reqBody: fmt.Sprintf(`{"thing_ids": ["%s"], "channel_ids": ["%s"]}`, cs.ThingId, cs.ChannelId),
 			response: mgclients.ConnectionsPage{
-				Status:      "all_connected",
+				Status:      mgclients.AllConnectedState,
 				Connections: []mgclients.ConnectionStatus{cs},
 			},
 			status:      http.StatusOK,
@@ -2043,7 +2043,7 @@ func TestVerifyConnections(t *testing.T) {
 				body:        strings.NewReader(tc.reqBody),
 			}
 
-			svcCall := svc.On("VerifyConnectionsHttp", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.response, tc.err)
+			svcCall := svc.On("VerifyConnectionsWithAuth", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.response, tc.err)
 			res, err := req.make()
 			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))

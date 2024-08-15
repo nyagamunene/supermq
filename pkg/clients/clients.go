@@ -5,6 +5,7 @@ package clients
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -26,10 +27,31 @@ const (
 const (
 	connected       = "connected"
 	disconnected    = "disconnected"
-	AllConnected    = "all_connected"
-	AllDisconnected = "all_disconnected"
-	PartConnected   = "partially_connected"
+	allConnected    = "all_connected"
+	allDisconnected = "all_disconnected"
+	partConnected   = "partially_connected"
 )
+
+type AllState int
+
+const (
+	AllConnectedState AllState = iota
+	AllDisconnectedState
+	PartConnectedState
+)
+
+func (s AllState) String() string {
+	switch s {
+	case AllConnectedState:
+		return allConnected
+	case AllDisconnectedState:
+		return allDisconnected
+	case PartConnectedState:
+		return partConnected
+	default:
+		return Unknown
+	}
+}
 
 // State represents connection state.
 type State int
@@ -53,6 +75,10 @@ func (s State) String() string {
 	}
 }
 
+func (s State) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
 type ConnectionStatus struct {
 	ChannelId string `json:"channel_id"`
 	ThingId   string `json:"thing_id"`
@@ -60,8 +86,8 @@ type ConnectionStatus struct {
 }
 
 type ConnectionsPage struct {
-	Status      string
-	Connections []ConnectionStatus
+	Status      AllState           `json:"status"`
+	Connections []ConnectionStatus `json:"connections_status"`
 }
 
 var (

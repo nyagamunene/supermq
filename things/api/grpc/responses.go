@@ -9,12 +9,12 @@ type authorizeRes struct {
 }
 
 type verifyConnectionsRes struct {
-	Status      string
-	Connections []ConnectionStatus
+	Status      string             `json:"status"`
+	Connections []connectionStatus `json:"connections,inline"`
 }
 
-type ConnectionStatus struct {
-	ThingId   string
-	ChannelId string
-	Status    int32
+type connectionStatus struct {
+	ThingId   string `json:"thing_id"`
+	ChannelId string `json:"channel_id"`
+	Status    string `json:"status"`
 }

@@ -214,7 +214,7 @@ func (lm *loggingMiddleware) ListClientsByGroup(ctx context.Context, token, chan
 	return lm.svc.ListClientsByGroup(ctx, token, channelID, cp)
 }
 
-func (lm *loggingMiddleware) VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (cp mgclients.ConnectionsPage, err error) {
+func (lm *loggingMiddleware) VerifyConnectionsWithAuth(ctx context.Context, token string, thingIds, groupIds []string) (cp mgclients.ConnectionsPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -228,7 +228,7 @@ func (lm *loggingMiddleware) VerifyConnectionsHttp(ctx context.Context, token st
 		}
 		lm.logger.Info("Verify connections completed successfully", args...)
 	}(time.Now())
-	return lm.svc.VerifyConnectionsHttp(ctx, token, thingIds, groupIds)
+	return lm.svc.VerifyConnectionsWithAuth(ctx, token, thingIds, groupIds)
 }
 
 func (lm *loggingMiddleware) Identify(ctx context.Context, key string) (id string, err error) {
@@ -318,12 +318,12 @@ func (lm *loggingMiddleware) DeleteClient(ctx context.Context, token, id string)
 	return lm.svc.DeleteClient(ctx, token, id)
 }
 
-func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (cp mgclients.ConnectionsPage, err error) {
+func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, thingIds, groupIds []string) (cp mgclients.ConnectionsPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.Any("thing_ids", req.GetThingsId()),
-			slog.Any("channels_ids", req.GetGroupsId()),
+			slog.Any("thing_ids", thingIds),
+			slog.Any("channels_ids", groupIds),
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
@@ -332,5 +332,5 @@ func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, req *magistr
 		}
 		lm.logger.Info("Verify connections complete successfully", args...)
 	}(time.Now())
-	return lm.svc.VerifyConnections(ctx, req)
+	return lm.svc.VerifyConnections(ctx, thingIds, groupIds)
 }

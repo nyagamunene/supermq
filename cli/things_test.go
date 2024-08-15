@@ -1075,12 +1075,12 @@ func TestVerifyConnectionsCmd(t *testing.T) {
 			},
 			logType: entityLog,
 			page: mgsdk.ConnectionsPage{
-				Status: "all_connected",
+				Status: clients.AllConnectedState.String(),
 				Connections: []mgsdk.ConnectionStatus{
 					{
-						ChannelID: channel.ID,
-						ThingID:   thing.ID,
-						Status:    clients.Connected,
+						ChannelId: channel.ID,
+						ThingId:   thing.ID,
+						Status:    clients.Connected.String(),
 					},
 				},
 			},

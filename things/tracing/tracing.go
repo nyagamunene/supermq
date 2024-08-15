@@ -106,14 +106,14 @@ func (tm *tracingMiddleware) ListClientsByGroup(ctx context.Context, token, grou
 }
 
 // VerifyConnections traces the "VerifyConnections" operation of the wrapped policies.Service.
-func (tm *tracingMiddleware) VerifyConnectionsHttp(ctx context.Context, token string, thingIds, groupIds []string) (mgclients.ConnectionsPage, error) {
+func (tm *tracingMiddleware) VerifyConnectionsWithAuth(ctx context.Context, token string, thingIds, groupIds []string) (mgclients.ConnectionsPage, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_verify_connection_http", trace.WithAttributes(
 		attribute.StringSlice("thingIds", thingIds),
 		attribute.StringSlice("channelIds", groupIds),
 	))
 	defer span.End()
 
-	return tm.svc.VerifyConnectionsHttp(ctx, token, thingIds, groupIds)
+	return tm.svc.VerifyConnectionsWithAuth(ctx, token, thingIds, groupIds)
 }
 
 // ListMemberships traces the "ListMemberships" operation of the wrapped policies.Service.
@@ -152,11 +152,11 @@ func (tm *tracingMiddleware) DeleteClient(ctx context.Context, token, id string)
 	return tm.svc.DeleteClient(ctx, token, id)
 }
 
-func (tm *tracingMiddleware) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
+func (tm *tracingMiddleware) VerifyConnections(ctx context.Context, thingIds, groupIds []string) (mgclients.ConnectionsPage, error) {
 	ctx, span := tm.tracer.Start(ctx, "verify_connections", trace.WithAttributes(
-		attribute.StringSlice("things_id", req.GetThingsId()),
-		attribute.StringSlice("channels_id", req.GetGroupsId()),
+		attribute.StringSlice("thing_ids", thingIds),
+		attribute.StringSlice("channel_ids", groupIds),
 	))
 	defer span.End()
-	return tm.svc.VerifyConnections(ctx, req)
+	return tm.svc.VerifyConnections(ctx, thingIds, groupIds)
 }

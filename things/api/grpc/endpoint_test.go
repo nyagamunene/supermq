@@ -197,8 +197,8 @@ func TestVerifyConnections(t *testing.T) {
 	assert.Nil(t, err, fmt.Sprintf("Unexpected error creating client connection %s", err))
 	client := grpcapi.NewClient(conn, time.Second)
 
-	thingsID := []string{testsutil.GenerateUUID(t)}
-	channelsID := []string{testsutil.GenerateUUID(t)}
+	thingIDs := []string{testsutil.GenerateUUID(t)}
+	channelIDs := []string{testsutil.GenerateUUID(t)}
 	cases := []struct {
 		desc                 string
 		verifyConnectionsReq *magistrala.VerifyConnectionsReq
@@ -209,25 +209,25 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc: "verify valid connection",
 			verifyConnectionsReq: &magistrala.VerifyConnectionsReq{
-				ThingsId: thingsID,
-				GroupsId: channelsID,
+				ThingIds: thingIDs,
+				GroupIds: channelIDs,
 			},
 			verifyConnectionsRes: &magistrala.VerifyConnectionsRes{
-				Status: mgclients.AllConnected,
+				Status: mgclients.AllConnectedState.String(),
 				Connections: []*magistrala.Connectionstatus{
 					{
-						ThingId:   thingsID[0],
-						ChannelId: channelsID[0],
+						ThingId:   thingIDs[0],
+						ChannelId: channelIDs[0],
 						Status:    int32(mgclients.Connected),
 					},
 				},
 			},
 			verifyPage: mgclients.ConnectionsPage{
-				Status: mgclients.AllConnected,
+				Status: mgclients.AllConnectedState,
 				Connections: []mgclients.ConnectionStatus{
 					{
-						ThingId:   thingsID[0],
-						ChannelId: channelsID[0],
+						ThingId:   thingIDs[0],
+						ChannelId: channelIDs[0],
 						Status:    mgclients.Connected,
 					},
 				},
@@ -237,8 +237,8 @@ func TestVerifyConnections(t *testing.T) {
 		{
 			desc: "verify with invalid thing id",
 			verifyConnectionsReq: &magistrala.VerifyConnectionsReq{
-				ThingsId: []string{"invalid"},
-				GroupsId: channelsID,
+				ThingIds: []string{"invalid"},
+				GroupIds: channelIDs,
 			},
 			verifyConnectionsRes: &magistrala.VerifyConnectionsRes{},
 			err:                  svcerr.ErrMalformedEntity,

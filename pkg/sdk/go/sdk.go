@@ -122,8 +122,8 @@ type PageMetadata struct {
 	WithMetadata    bool     `json:"with_metadata,omitempty"`
 	WithAttributes  bool     `json:"with_attributes,omitempty"`
 	ID              string   `json:"id,omitempty"`
-	ThingsID        []string `json:"things_id,omitempty"`
-	ChannelsID      []string `json:"channels_id,omitempty"`
+	ThingIds        []string `json:"thing_ids,omitempty"`
+	ChannelIds      []string `json:"channel_ids,omitempty"`
 }
 
 // Credentials represent client credentials: it contains
