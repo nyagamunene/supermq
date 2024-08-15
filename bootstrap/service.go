@@ -12,6 +12,7 @@ import (
 
 	"github.com/absmach/magistrala"
 	"github.com/absmach/magistrala/auth"
+	"github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 	repoerr "github.com/absmach/magistrala/pkg/errors/repository"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
@@ -178,14 +179,14 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 	}
 
 	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
-		ThingsId: []string{cfg.ThingID},
-		GroupsId: bs.toIDList(cfg.Channels),
+		ThingIds: []string{cfg.ThingID},
+		GroupIds: bs.toIDList(cfg.Channels),
 	})
 	if err != nil {
 		return Config{}, err
 	}
 	State := Inactive
-	if resp.Status == allConn {
+	if resp.Status == clients.AllConnectedState.String() {
 		State = Active
 	}
 
