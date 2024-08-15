@@ -332,17 +332,17 @@ var cmdThings = []cobra.Command{
 				th mgxsdk.Thing
 				ch mgxsdk.Channel
 			)
-			if err := json.Unmarshal([]byte(args[0]), &th.ThingsID); err != nil {
+			if err := json.Unmarshal([]byte(args[0]), &th.ThingIds); err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}
-			if err := json.Unmarshal([]byte(args[1]), &ch.ChannelsID); err != nil {
+			if err := json.Unmarshal([]byte(args[1]), &ch.ChannelIds); err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}
 			pm := mgxsdk.PageMetadata{
-				ThingsID:   th.ThingsID,
-				ChannelsID: ch.ChannelsID,
+				ThingIds:   th.ThingIds,
+				ChannelIds: ch.ChannelIds,
 			}
 			cp, err := sdk.VerifyConnections(pm, args[2])
 			if err != nil {

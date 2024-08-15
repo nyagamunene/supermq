@@ -1627,7 +1627,7 @@ func TestListMembers(t *testing.T) {
 	}
 }
 
-func TestVerifyConnectionsHttp(t *testing.T) {
+func TestVerifyConnectionsWithAuth(t *testing.T) {
 	svc, _, auth, _ := newService()
 
 	th := []string{
@@ -1663,7 +1663,7 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: true},
 			authorizeResponse2: &magistrala.AuthorizeRes{Authorized: true},
 			response: mgclients.ConnectionsPage{
-				Status: mgclients.AllConnected,
+				Status: mgclients.AllConnectedState,
 				Connections: []mgclients.ConnectionStatus{
 					{
 						ChannelId: ch[0],
@@ -1683,7 +1683,7 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 			authorizeResponse1: &magistrala.AuthorizeRes{Authorized: true},
 			authorizeErr2:      svcerr.ErrAuthorization,
 			response: mgclients.ConnectionsPage{
-				Status: mgclients.AllDisconnected,
+				Status: mgclients.AllDisconnectedState,
 				Connections: []mgclients.ConnectionStatus{
 					{
 						ChannelId: ch[0],
@@ -1753,7 +1753,7 @@ func TestVerifyConnectionsHttp(t *testing.T) {
 				Object:      tc.thingIds[0],
 				ObjectType:  authsvc.ThingType,
 			}).Return(tc.authorizeResponse2, tc.authorizeErr2)
-			page, err := svc.VerifyConnectionsHttp(context.Background(), tc.token, tc.thingIds, tc.groupIds)
+			page, err := svc.VerifyConnectionsWithAuth(context.Background(), tc.token, tc.thingIds, tc.groupIds)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			assert.Equal(t, tc.response, page, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, page))
 			repoCall.Unset()

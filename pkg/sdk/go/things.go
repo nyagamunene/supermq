@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/absmach/magistrala/pkg/apiutil"
-	"github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 )
 
@@ -36,13 +35,13 @@ type Thing struct {
 	UpdatedAt   time.Time              `json:"updated_at,omitempty"`
 	Status      string                 `json:"status,omitempty"`
 	Permissions []string               `json:"permissions,omitempty"`
-	ThingsID    []string               `json:"things_id,omitempty"`
+	ThingIds    []string               `json:"thing_ids,omitempty"`
 }
 
 type ConnectionStatus struct {
-	ChannelID string        `json:"channel_id"`
-	ThingID   string        `json:"thing_id"`
-	Status    clients.State `json:"status"`
+	ChannelId string `json:"channel_id"`
+	ThingId   string `json:"thing_id"`
+	Status    string `json:"status"`
 }
 
 func (sdk mgSDK) CreateThing(thing Thing, token string) (Thing, errors.SDKError) {

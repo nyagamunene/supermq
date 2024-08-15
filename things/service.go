@@ -532,7 +532,7 @@ func (svc service) ListClientsByGroup(ctx context.Context, token, groupID string
 	}, nil
 }
 
-func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thingIDs, groupIDs []string) (mgclients.ConnectionsPage, error) {
+func (svc service) VerifyConnectionsWithAuth(ctx context.Context, token string, thingIDs, groupIDs []string) (mgclients.ConnectionsPage, error) {
 	res, err := svc.identify(ctx, token)
 	if err != nil {
 		return mgclients.ConnectionsPage{}, err
@@ -561,10 +561,7 @@ func (svc service) VerifyConnectionsHttp(ctx context.Context, token string, thin
 	if err := g.Wait(); err != nil {
 		return mgclients.ConnectionsPage{}, err
 	}
-	resp, err := svc.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
-		ThingsId: thingIDs,
-		GroupsId: groupIDs,
-	})
+	resp, err := svc.VerifyConnections(ctx, thingIDs, groupIDs)
 	if err != nil {
 		return mgclients.ConnectionsPage{}, err
 	}
@@ -605,9 +602,9 @@ func (svc service) Identify(ctx context.Context, key string) (string, error) {
 	return client.ID, nil
 }
 
-func (svc service) VerifyConnections(ctx context.Context, req *magistrala.VerifyConnectionsReq) (mgclients.ConnectionsPage, error) {
-	uniqueThings := getUniqueValues(req.GetThingsId())
-	uniqueChannels := getUniqueValues(req.GetGroupsId())
+func (svc service) VerifyConnections(ctx context.Context, thingIds, groupIds []string) (mgclients.ConnectionsPage, error) {
+	uniqueThings := getUniqueValues(thingIds)
+	uniqueChannels := getUniqueValues(groupIds)
 	totalConnectionsCnt := len(uniqueChannels) * len(uniqueThings)
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -662,14 +659,14 @@ func (svc service) VerifyConnections(ctx context.Context, req *magistrala.Verify
 		}
 	}
 
-	var status string
+	var status mgclients.AllState
 	switch {
 	case totalConnectedCnt == totalConnectionsCnt:
-		status = mgclients.AllConnected
+		status = mgclients.AllConnectedState
 	case totalConnectedCnt == 0:
-		status = mgclients.AllDisconnected
+		status = mgclients.AllDisconnectedState
 	default:
-		status = mgclients.PartConnected
+		status = mgclients.PartConnectedState
 	}
 
 	return mgclients.ConnectionsPage{

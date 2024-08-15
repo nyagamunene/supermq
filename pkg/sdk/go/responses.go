@@ -33,7 +33,7 @@ type ChannelsPage struct {
 
 type ConnectionsPage struct {
 	Status      string             `json:"status"`
-	Connections []ConnectionStatus `json:"connection_status"`
+	Connections []ConnectionStatus `json:"connections_status"`
 }
 
 // MessagesPage contains list of messages in a page with proper metadata.

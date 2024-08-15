@@ -737,21 +737,21 @@ func TestVerifyConnections(t *testing.T) {
 	}
 	mgsdk := sdk.NewSDK(conf)
 	pm := sdk.PageMetadata{
-		ThingsID:   []string{testsutil.GenerateUUID(t)},
-		ChannelsID: []string{testsutil.GenerateUUID(t)},
+		ThingIds:   []string{testsutil.GenerateUUID(t)},
+		ChannelIds: []string{testsutil.GenerateUUID(t)},
 	}
 
 	connsSDK := []sdk.ConnectionStatus{
 		{
-			ChannelID: pm.ChannelsID[0],
-			ThingID:   pm.ThingsID[0],
-			Status:    clients.Connected,
+			ChannelId: pm.ChannelIds[0],
+			ThingId:   pm.ThingIds[0],
+			Status:    clients.Connected.String(),
 		},
 	}
 	connsClients := []mgclients.ConnectionStatus{
 		{
-			ChannelId: pm.ChannelsID[0],
-			ThingId:   pm.ThingsID[0],
+			ChannelId: pm.ChannelIds[0],
+			ThingId:   pm.ThingIds[0],
 			Status:    clients.Connected,
 		},
 	}
@@ -770,11 +770,11 @@ func TestVerifyConnections(t *testing.T) {
 			token:    validToken,
 			pageMeta: pm,
 			svcRes: mgclients.ConnectionsPage{
-				Status:      clients.AllConnected,
+				Status:      clients.AllConnectedState,
 				Connections: connsClients,
 			},
 			response: sdk.ConnectionsPage{
-				Status:      clients.AllConnected,
+				Status:      clients.AllConnectedState.String(),
 				Connections: connsSDK,
 			},
 		},
@@ -803,7 +803,7 @@ func TestVerifyConnections(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := tsvc.On("VerifyConnectionsHttp", mock.Anything, tc.token, tc.pageMeta.ThingsID, tc.pageMeta.ChannelsID).Return(tc.svcRes, tc.svcErr)
+			svcCall := tsvc.On("VerifyConnectionsWithAuth", mock.Anything, tc.token, tc.pageMeta.ThingIds, tc.pageMeta.ChannelIds).Return(tc.svcRes, tc.svcErr)
 			resp, err := mgsdk.VerifyConnections(tc.pageMeta, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)

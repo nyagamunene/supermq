@@ -154,13 +154,13 @@ func verifyConnectionsEndpoint(svc things.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, errors.Wrap(apiutil.ErrValidation, err)
 		}
-		conn, err := svc.VerifyConnectionsHttp(ctx, req.token, req.ThingsID, req.ChannelsID)
+		conn, err := svc.VerifyConnectionsWithAuth(ctx, req.token, req.ThingIDs, req.ChannelIDs)
 		if err != nil {
 			return nil, err
 		}
 
 		res := verifyConnectionRes{
-			Status:      conn.Status,
+			Status:      conn.Status.String(),
 			Connections: conn.Connections,
 		}
 

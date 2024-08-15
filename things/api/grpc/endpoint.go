@@ -30,18 +30,18 @@ func verifyConnectionsEndpoint(svc things.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*magistrala.VerifyConnectionsReq)
 
-		conns, err := svc.VerifyConnections(ctx, req)
+		conns, err := svc.VerifyConnections(ctx, req.GetThingIds(), req.GetGroupIds())
 		if err != nil {
 			return verifyConnectionsRes{}, err
 		}
-		cs := []ConnectionStatus{}
+		cs := []connectionStatus{}
 		for _, c := range conns.Connections {
-			cs = append(cs, ConnectionStatus{
+			cs = append(cs, connectionStatus{
 				ThingId:   c.ThingId,
 				ChannelId: c.ChannelId,
-				Status:    int32(c.Status),
+				Status:    c.Status.String(),
 			})
 		}
-		return verifyConnectionsRes{Status: conns.Status, Connections: cs}, nil
+		return verifyConnectionsRes{Status: conns.Status.String(), Connections: cs}, nil
 	}
 }
