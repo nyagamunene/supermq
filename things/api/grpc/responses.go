@@ -10,7 +10,7 @@ type authorizeRes struct {
 
 type verifyConnectionsRes struct {
 	Status      string             `json:"status"`
-	Connections []connectionStatus `json:"connections,inline"`
+	Connections []connectionStatus `json:"connections_status"`
 }
 
 type connectionStatus struct {

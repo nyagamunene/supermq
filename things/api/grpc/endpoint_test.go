@@ -214,7 +214,7 @@ func TestVerifyConnections(t *testing.T) {
 			},
 			verifyConnectionsRes: &magistrala.VerifyConnectionsRes{
 				Status: mgclients.AllConnectedState.String(),
-				Connections: []*magistrala.Connectionstatus{
+				ConnectionsStatus: []*magistrala.Connectionstatus{
 					{
 						ThingId:   thingIDs[0],
 						ChannelId: channelIDs[0],
@@ -247,7 +247,7 @@ func TestVerifyConnections(t *testing.T) {
 	for _, tc := range cases {
 		svcCall := svc.On("VerifyConnections", mock.Anything, mock.Anything, mock.Anything).Return(tc.verifyPage, tc.err)
 		vc, err := client.VerifyConnections(context.Background(), tc.verifyConnectionsReq)
-		assert.Equal(t, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections(), fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.verifyConnectionsRes.GetConnections(), vc.GetConnections()))
+		assert.Equal(t, tc.verifyConnectionsRes.GetConnectionsStatus(), vc.GetConnectionsStatus(), fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.verifyConnectionsRes.GetConnectionsStatus(), vc.GetConnectionsStatus()))
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		svcCall.Unset()
 	}

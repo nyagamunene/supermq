@@ -108,8 +108,8 @@ func (client grpcClient) VerifyConnections(ctx context.Context, req *magistrala.
 		})
 	}
 	return &magistrala.VerifyConnectionsRes{
-		Status:      vc.Status,
-		Connections: connections,
+		Status:            vc.Status,
+		ConnectionsStatus: connections,
 	}, nil
 }
 
@@ -117,7 +117,7 @@ func decodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (in
 	res := grpcRes.(*magistrala.VerifyConnectionsRes)
 	connections := []connectionStatus{}
 
-	for _, r := range res.GetConnections() {
+	for _, r := range res.GetConnectionsStatus() {
 		State := mgclients.Disconnected.String()
 		if r.Status == 1 {
 			State = mgclients.Connected.String()

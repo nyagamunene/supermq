@@ -88,8 +88,8 @@ func encodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (in
 		})
 	}
 	return &magistrala.VerifyConnectionsRes{
-		Status:      res.Status,
-		Connections: connections,
+		Status:            res.Status,
+		ConnectionsStatus: connections,
 	}, nil
 }
 

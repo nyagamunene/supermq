@@ -218,8 +218,8 @@ func (lm *loggingMiddleware) VerifyConnectionsWithAuth(ctx context.Context, toke
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.Any("thing_id", thingIds),
-			slog.Any("channel_id", groupIds),
+			slog.Any("thing_ids", thingIds),
+			slog.Any("channel_ids", groupIds),
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
@@ -323,7 +323,7 @@ func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, thingIds, gr
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.Any("thing_ids", thingIds),
-			slog.Any("channels_ids", groupIds),
+			slog.Any("channel_ids", groupIds),
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
