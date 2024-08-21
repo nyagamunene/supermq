@@ -137,8 +137,8 @@ func decodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (in
 func encodeVerifyConnectionsRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	reqs := grpcReq.(*magistrala.VerifyConnectionsReq)
 	return &magistrala.VerifyConnectionsReq{
-		ThingIds: reqs.GetThingIds(),
-		GroupIds: reqs.GetGroupIds(),
+		ThingIds:   reqs.GetThingIds(),
+		ChannelIds: reqs.GetChannelIds(),
 	}, nil
 }
 

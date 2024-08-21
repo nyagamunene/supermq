@@ -135,18 +135,18 @@ func (req listMembersReq) validate() error {
 
 type verifyConnectionReq struct {
 	token      string
-	ThingIDs   []string `json:"thing_ids"`
-	ChannelIDs []string `json:"channel_ids"`
+	ThingIds   []string `json:"thing_ids"`
+	ChannelIds []string `json:"channel_ids"`
 }
 
 func (req verifyConnectionReq) validate() error {
 	if req.token == "" {
 		return apiutil.ErrBearerToken
 	}
-	if len(req.ThingIDs) == 0 {
+	if len(req.ThingIds) == 0 {
 		return apiutil.ErrMissingThingIDs
 	}
-	if len(req.ChannelIDs) == 0 {
+	if len(req.ChannelIds) == 0 {
 		return apiutil.ErrMissingChannelIDs
 	}
 	return nil

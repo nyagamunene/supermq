@@ -227,7 +227,7 @@ message DeleteEntityPoliciesReq{
 
 message VerifyConnectionsReq {
   repeated string thing_ids = 1;
-  repeated string group_ids = 2;
+  repeated string channel_ids = 2;
 }
 
 message VerifyConnectionsRes {
