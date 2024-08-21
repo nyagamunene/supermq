@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/absmach/magistrala"
+	"github.com/absmach/magistrala/pkg/apiutil"
 	"github.com/absmach/magistrala/things"
 	"github.com/go-kit/kit/endpoint"
 )
@@ -30,7 +31,14 @@ func verifyConnectionsEndpoint(svc things.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(*magistrala.VerifyConnectionsReq)
 
-		conns, err := svc.VerifyConnections(ctx, req.GetThingIds(), req.GetGroupIds())
+		if len(req.GetThingIds()) == 0 {
+			return verifyConnectionsRes{}, apiutil.ErrMissingThingIDs
+		}
+		if len(req.GetChannelIds()) == 0 {
+			return verifyConnectionsRes{}, apiutil.ErrMissingChannelIDs
+		}
+
+		conns, err := svc.VerifyConnections(ctx, req.GetThingIds(), req.GetChannelIds())
 		if err != nil {
 			return verifyConnectionsRes{}, err
 		}
