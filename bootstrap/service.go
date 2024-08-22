@@ -474,7 +474,7 @@ func (bs bootstrapService) ConnectThingHandler(ctx context.Context, channelID, t
 	ch := bs.toIDList(channels)
 	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
 		ThingIds: []string{thingID},
-		GroupIds: ch,
+		ChannelIds: ch,
 	})
 	if err != nil {
 		return err
@@ -497,7 +497,7 @@ func (bs bootstrapService) DisconnectThingHandler(ctx context.Context, channelID
 	ch := bs.toIDList(channels)
 	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
 		ThingIds: []string{thingID},
-		GroupIds: ch,
+		ChannelIds: ch,
 	})
 	if err != nil {
 		return err
