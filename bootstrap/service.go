@@ -175,8 +175,8 @@ func (bs bootstrapService) Add(ctx context.Context, token string, cfg Config) (C
 	}
 
 	resp, err := bs.tauth.VerifyConnections(ctx, &magistrala.VerifyConnectionsReq{
-		ThingIds: []string{cfg.ThingID},
-		GroupIds: bs.toIDList(cfg.Channels),
+		ThingIds:   []string{cfg.ThingID},
+		ChannelIds: bs.toIDList(cfg.Channels),
 	})
 	if err != nil {
 		return Config{}, err
