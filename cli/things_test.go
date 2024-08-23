@@ -1078,8 +1078,8 @@ func TestVerifyConnectionsCmd(t *testing.T) {
 				Status: clients.AllConnectedState.String(),
 				Connections: []mgsdk.ConnectionStatus{
 					{
-						ChannelId: channel.ID,
-						ThingId:   thing.ID,
+						ChannelID: channel.ID,
+						ThingID:   thing.ID,
 						Status:    clients.Connected.String(),
 					},
 				},

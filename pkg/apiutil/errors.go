@@ -186,9 +186,9 @@ var (
 	// ErrLenSearchQuery indicates search query length.
 	ErrLenSearchQuery = errors.New("search query must be at least 3 characters")
 
-	// ErrMissingChannelIDs indicates missing channels IDs.
+	// ErrMissingChannelIDs indicates missing channel IDs.
 	ErrMissingChannelIDs = errors.New("missing channels ids")
 
-	// ErrMissingThingIDs indicates missing things IDs.
+	// ErrMissingThingIDs indicates missing thing IDs.
 	ErrMissingThingIDs = errors.New("missing things ids")
 )

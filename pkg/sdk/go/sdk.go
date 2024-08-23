@@ -122,8 +122,8 @@ type PageMetadata struct {
 	WithMetadata    bool     `json:"with_metadata,omitempty"`
 	WithAttributes  bool     `json:"with_attributes,omitempty"`
 	ID              string   `json:"id,omitempty"`
-	ThingIds        []string `json:"thing_ids,omitempty"`
-	ChannelIds      []string `json:"channel_ids,omitempty"`
+	ThingIDs        []string `json:"thing_ids,omitempty"`
+	ChannelIDs      []string `json:"channel_ids,omitempty"`
 }
 
 // Credentials represent client credentials: it contains
@@ -408,15 +408,15 @@ type SDK interface {
 	//  fmt.Println(things)
 	ThingsByChannel(chanID string, pm PageMetadata, token string) (ThingsPage, errors.SDKError)
 
-	// VerifyConnectons returns page og things and channels that both connected and disconnected.
+	// VerifyConnections returns page of things and channels that are connected or disconnected.
 	//
 	// example:
 	//  pm := sdk.PageMetadata{
-	//		ThingsID []string{"df7f3e08-d234-4142-860e-4aebfb557fc5"}
-	//		ChannelsID []string{"c9091851-bdcc-43aa-878a-7fe75794cf37"}
+	//		ThingsIds:  []string{"df7f3e08-d234-4142-860e-4aebfb557fc5"},
+	//		ChannelsIds:  []string{"c9091851-bdcc-43aa-878a-7fe75794cf37"}
 	//	}
-	//	connections, _ := sdk.VerifyConnections(pm, "token")
-	//	fmt.Println(connections)
+	//  connections, _ := sdk.VerifyConnections(pm, "token")
+	//  fmt.Println(connections)
 	VerifyConnections(pm PageMetadata, token string) (ConnectionsPage, errors.SDKError)
 
 	// Thing returns thing object by id.

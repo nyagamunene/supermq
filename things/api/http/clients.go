@@ -134,7 +134,7 @@ func clientsHandler(svc things.Service, r *chi.Mux, logger *slog.Logger) http.Ha
 		decodeVerifyConnectionRequest,
 		api.EncodeResponse,
 		opts...,
-	), "verify_connection").ServeHTTP)
+	), "verify_connections").ServeHTTP)
 
 	r.Get("/users/{userID}/things", otelhttp.NewHandler(kithttp.NewServer(
 		listClientsEndpoint(svc),

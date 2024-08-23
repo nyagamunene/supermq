@@ -35,12 +35,12 @@ type Thing struct {
 	UpdatedAt   time.Time              `json:"updated_at,omitempty"`
 	Status      string                 `json:"status,omitempty"`
 	Permissions []string               `json:"permissions,omitempty"`
-	ThingIds    []string               `json:"thing_ids,omitempty"`
+	ThingIDs    []string               `json:"thing_ids,omitempty"`
 }
 
 type ConnectionStatus struct {
-	ChannelId string `json:"channel_id"`
-	ThingId   string `json:"thing_id"`
+	ChannelID string `json:"channel_id"`
+	ThingID   string `json:"thing_id"`
 	Status    string `json:"status"`
 }
 
