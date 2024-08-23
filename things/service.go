@@ -610,10 +610,9 @@ func (svc service) VerifyConnections(ctx context.Context, thingIds, groupIds []s
 
 	connections := make([]mgclients.ConnectionStatus, 0, totalConnectionsCnt)
 
-	index := 0
 	for _, th := range uniqueThings {
 		for _, ch := range uniqueChannels {
-			func(thing, channel string, i int) {
+			func(thing, channel string) {
 				g.Go(func() error {
 					authReq := &magistrala.AuthorizeReq{
 						Subject:     channel,
@@ -642,8 +641,7 @@ func (svc service) VerifyConnections(ctx context.Context, thingIds, groupIds []s
 
 					return nil
 				})
-			}(th, ch, index)
-			index++
+			}(th, ch)
 		}
 	}
 
