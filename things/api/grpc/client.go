@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/absmach/magistrala"
-	mgclients "github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	"github.com/go-kit/kit/endpoint"
@@ -97,14 +96,10 @@ func (client grpcClient) VerifyConnections(ctx context.Context, req *magistrala.
 	vc := res.(verifyConnectionsRes)
 	connections := []*magistrala.Connectionstatus{}
 	for _, rq := range vc.Connections {
-		State := int32(mgclients.Disconnected)
-		if rq.Status == mgclients.Connected.String() {
-			State = int32(mgclients.Connected)
-		}
 		connections = append(connections, &magistrala.Connectionstatus{
 			ThingId:   rq.ThingId,
 			ChannelId: rq.ChannelId,
-			Status:    State,
+			Status:    rq.Status,
 		})
 	}
 	return &magistrala.VerifyConnectionsRes{
@@ -117,15 +112,11 @@ func decodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (in
 	res := grpcRes.(*magistrala.VerifyConnectionsRes)
 	connections := []connectionStatus{}
 
-	for _, r := range res.GetConnectionsStatus() {
-		State := mgclients.Disconnected.String()
-		if r.Status == 1 {
-			State = mgclients.Connected.String()
-		}
+	for _, rs := range res.GetConnectionsStatus() {
 		connections = append(connections, connectionStatus{
-			ThingId:   r.ThingId,
-			ChannelId: r.ChannelId,
-			Status:    State,
+			ThingId:   rs.ThingId,
+			ChannelId: rs.ChannelId,
+			Status:    rs.Status,
 		})
 	}
 	return verifyConnectionsRes{

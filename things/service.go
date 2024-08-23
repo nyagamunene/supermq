@@ -606,10 +606,9 @@ func (svc service) VerifyConnections(ctx context.Context, thingIds, groupIds []s
 	uniqueThings := getUniqueValues(thingIds)
 	uniqueChannels := getUniqueValues(groupIds)
 	totalConnectionsCnt := len(uniqueChannels) * len(uniqueThings)
-
 	g, ctx := errgroup.WithContext(ctx)
 
-	connections := make([]mgclients.ConnectionStatus, totalConnectionsCnt)
+	connections := make([]mgclients.ConnectionStatus, 0, totalConnectionsCnt)
 
 	index := 0
 	for _, th := range uniqueThings {
@@ -635,11 +634,11 @@ func (svc service) VerifyConnections(ctx context.Context, thingIds, groupIds []s
 						return errors.Wrap(svcerr.ErrMalformedEntity, err)
 					}
 
-					connections[i] = mgclients.ConnectionStatus{
+					connections = append(connections, mgclients.ConnectionStatus{
 						ThingId:   thing,
 						ChannelId: channel,
 						Status:    status,
-					}
+					})
 
 					return nil
 				})
