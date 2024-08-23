@@ -9,7 +9,6 @@ import (
 	"github.com/absmach/magistrala"
 	"github.com/absmach/magistrala/auth"
 	"github.com/absmach/magistrala/pkg/apiutil"
-	mgclients "github.com/absmach/magistrala/pkg/clients"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	"github.com/absmach/magistrala/things"
@@ -77,14 +76,10 @@ func encodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (in
 	res := grpcRes.(verifyConnectionsRes)
 	connections := []*magistrala.Connectionstatus{}
 	for _, conn := range res.Connections {
-		state := 0
-		if conn.Status == mgclients.Connected.String() {
-			state = 1
-		}
 		connections = append(connections, &magistrala.Connectionstatus{
 			ThingId:   conn.ThingId,
 			ChannelId: conn.ChannelId,
-			Status:    int32(state),
+			Status:    conn.Status,
 		})
 	}
 	return &magistrala.VerifyConnectionsRes{

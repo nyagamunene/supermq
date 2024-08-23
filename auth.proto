@@ -238,5 +238,5 @@ message VerifyConnectionsRes {
 message Connectionstatus {
   string thing_id   = 1;
   string channel_id = 2;
-  int32  status     = 3;
+  string status     = 3;
 }
