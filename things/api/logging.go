@@ -327,10 +327,10 @@ func (lm *loggingMiddleware) VerifyConnections(ctx context.Context, thingIds, gr
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Verify connections failed to complete successfully", args...)
+			lm.logger.Warn("Verify connections failed", args...)
 			return
 		}
-		lm.logger.Info("Verify connections complete successfully", args...)
+		lm.logger.Info("Verify connections completed successfully", args...)
 	}(time.Now())
 	return lm.svc.VerifyConnections(ctx, thingIds, groupIds)
 }

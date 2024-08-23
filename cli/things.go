@@ -319,8 +319,8 @@ var cmdThings = []cobra.Command{
 	},
 	{
 		Use:   "verify <JSON_thing_ids> <JSON_channel_ids> <user_auth_token>",
-		Short: "Verify Connections",
-		Long: "List connected and disconnected things\n" +
+		Short: "Verify Thing-Channel Connections",
+		Long: "Check the connection status between specified things and channels\n" +
 			"Usage:\n" +
 			"\tmagistrala-cli verify <JSON_thing_ids> <JSON_channel_ids> <user_auth_token>",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -332,17 +332,17 @@ var cmdThings = []cobra.Command{
 				th mgxsdk.Thing
 				ch mgxsdk.Channel
 			)
-			if err := json.Unmarshal([]byte(args[0]), &th.ThingIds); err != nil {
+			if err := json.Unmarshal([]byte(args[0]), &th.ThingIDs); err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}
-			if err := json.Unmarshal([]byte(args[1]), &ch.ChannelIds); err != nil {
+			if err := json.Unmarshal([]byte(args[1]), &ch.ChannelIDs); err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}
 			pm := mgxsdk.PageMetadata{
-				ThingIds:   th.ThingIds,
-				ChannelIds: ch.ChannelIds,
+				ThingIDs:   th.ThingIDs,
+				ChannelIDs: ch.ChannelIDs,
 			}
 			cp, err := sdk.VerifyConnections(pm, args[2])
 			if err != nil {
@@ -384,7 +384,7 @@ func NewThingsCmd() *cobra.Command {
 	cmd := cobra.Command{
 		Use:   "things [create | get | update | delete | share | connect | disconnect | connections | not-connected | users | verify]",
 		Short: "Things management",
-		Long:  `Things management: create, get, update, delete or share Thing, connect or disconnect Thing from Channel, get the list of Channels connected or disconnected from a Thing and verify connections between things and channels`,
+		Long:  `Things management: create, get, update, delete or share Thing, connect or disconnect Thing from Channel, get the list of Channels connected to or disconnected from a Thing and verify connections between things and channels`,
 	}
 
 	for i := range cmdThings {
