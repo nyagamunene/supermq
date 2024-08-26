@@ -791,7 +791,7 @@ func TestVerifyConnections(t *testing.T) {
 			err:   errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
 		{
-			desc:  "verify connection with that can't be unmarshalled",
+			desc:  "verify connection with that can't be marshalled",
 			token: validToken,
 			pageMeta: sdk.PageMetadata{
 				Metadata: sdk.Metadata{
