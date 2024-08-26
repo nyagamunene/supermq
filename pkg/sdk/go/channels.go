@@ -30,7 +30,6 @@ type Channel struct {
 	UpdatedAt   time.Time  `json:"updated_at,omitempty"`
 	Status      string     `json:"status,omitempty"`
 	Permissions []string   `json:"permissions,omitempty"`
-	ChannelIDs  []string   `json:"channel_ids,omitempty"`
 }
 
 func (sdk mgSDK) CreateChannel(c Channel, token string) (Channel, errors.SDKError) {

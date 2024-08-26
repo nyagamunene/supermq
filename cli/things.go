@@ -329,20 +329,19 @@ var cmdThings = []cobra.Command{
 				return
 			}
 			var (
-				th mgxsdk.Thing
-				ch mgxsdk.Channel
+				connections mgxsdk.Connections
 			)
-			if err := json.Unmarshal([]byte(args[0]), &th.ThingIDs); err != nil {
+			if err := json.Unmarshal([]byte(args[0]), &connections.ThingIDs); err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}
-			if err := json.Unmarshal([]byte(args[1]), &ch.ChannelIDs); err != nil {
+			if err := json.Unmarshal([]byte(args[1]), &connections.ChannelIDs); err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}
 			pm := mgxsdk.PageMetadata{
-				ThingIDs:   th.ThingIDs,
-				ChannelIDs: ch.ChannelIDs,
+				ThingIDs:   connections.ThingIDs,
+				ChannelIDs: connections.ChannelIDs,
 			}
 			cp, err := sdk.VerifyConnections(pm, args[2])
 			if err != nil {
