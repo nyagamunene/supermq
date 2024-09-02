@@ -360,9 +360,15 @@ func decodeVerifyConnectionRequest(_ context.Context, r *http.Request) (interfac
 	req := verifyConnectionReq{
 		token: apiutil.ExtractBearerToken(r),
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
 	}
+
+	uniqueThings := GetUniqueValues(req.ThingIds)
+	uniqueChannels := GetUniqueValues(req.ChannelIds)
+	req.ThingIds = uniqueThings
+	req.ChannelIds = uniqueChannels
 
 	return req, nil
 }
@@ -406,4 +412,18 @@ func decodeDeleteClientReq(_ context.Context, r *http.Request) (interface{}, err
 	}
 
 	return req, nil
+}
+
+func GetUniqueValues(slice []string) []string {
+	uniqueMap := make(map[string]bool)
+	var result []string
+
+	for _, value := range slice {
+		if _, exists := uniqueMap[value]; !exists {
+			uniqueMap[value] = true
+			result = append(result, value)
+		}
+	}
+
+	return result
 }

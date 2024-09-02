@@ -12,6 +12,7 @@ import (
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	"github.com/absmach/magistrala/things"
+	"github.com/absmach/magistrala/things/api/http"
 	kitgrpc "github.com/go-kit/kit/transport/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -69,14 +70,18 @@ func (s *grpcServer) VerifyConnections(ctx context.Context, req *magistrala.Veri
 
 func decodeVerifyConnectionsRequest(_ context.Context, grpcreq interface{}) (interface{}, error) {
 	req := grpcreq.(*magistrala.VerifyConnectionsReq)
+	uniqueThings := http.GetUniqueValues(req.ThingIds)
+	uniqueChannels := http.GetUniqueValues(req.ChannelIds)
+	req.ThingIds = uniqueThings
+	req.ChannelIds = uniqueChannels
 	return req, nil
 }
 
 func encodeVerifyConnectionsResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(verifyConnectionsRes)
-	connections := []*magistrala.Connectionstatus{}
+	connections := []*magistrala.ConnStatus{}
 	for _, conn := range res.Connections {
-		connections = append(connections, &magistrala.Connectionstatus{
+		connections = append(connections, &magistrala.ConnStatus{
 			ThingId:   conn.ThingId,
 			ChannelId: conn.ChannelId,
 			Status:    conn.Status,

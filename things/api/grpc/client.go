@@ -94,9 +94,9 @@ func (client grpcClient) VerifyConnections(ctx context.Context, req *magistrala.
 	}
 
 	vc := res.(verifyConnectionsRes)
-	connections := []*magistrala.Connectionstatus{}
+	connections := []*magistrala.ConnStatus{}
 	for _, rq := range vc.Connections {
-		connections = append(connections, &magistrala.Connectionstatus{
+		connections = append(connections, &magistrala.ConnStatus{
 			ThingId:   rq.ThingId,
 			ChannelId: rq.ChannelId,
 			Status:    rq.Status,

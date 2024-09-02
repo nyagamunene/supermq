@@ -318,8 +318,8 @@ var cmdThings = []cobra.Command{
 		},
 	},
 	{
-		Use:   "verify <JSON_thing_ids> <JSON_channel_ids> <user_auth_token>",
-		Short: "Verify Thing-Channel Connections",
+		Use:   "connections-verify <JSON_thing_ids> <JSON_channel_ids> <user_auth_token>",
+		Short: "Verifies Thing-Channel Connections",
 		Long: "Check the connection status between specified things and channels\n" +
 			"Usage:\n" +
 			"\tmagistrala-cli verify <JSON_thing_ids> <JSON_channel_ids> <user_auth_token>",
@@ -379,7 +379,7 @@ var cmdThings = []cobra.Command{
 // NewThingsCmd returns things command.
 func NewThingsCmd() *cobra.Command {
 	cmd := cobra.Command{
-		Use:   "things [create | get | update | delete | share | connect | disconnect | connections | not-connected | users | verify]",
+		Use:   "things [create | get | update | delete | share | connect | disconnect | connections | not-connected | users | connections-verify]",
 		Short: "Things management",
 		Long:  `Things management: create, get, update, delete or share Thing, connect or disconnect Thing from Channel, get the list of Channels connected to or disconnected from a Thing and verify connections between things and channels`,
 	}

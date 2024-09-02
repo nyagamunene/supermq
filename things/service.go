@@ -602,16 +602,14 @@ func (svc service) Identify(ctx context.Context, key string) (string, error) {
 	return client.ID, nil
 }
 
-func (svc service) VerifyConnections(ctx context.Context, thingIds, groupIds []string) (mgclients.ConnectionsPage, error) {
-	uniqueThings := getUniqueValues(thingIds)
-	uniqueChannels := getUniqueValues(groupIds)
-	totalConnectionsCnt := len(uniqueChannels) * len(uniqueThings)
+func (svc service) VerifyConnections(ctx context.Context, thingIds, channelIds []string) (mgclients.ConnectionsPage, error) {
+	totalConnectionsCnt := len(channelIds) * len(thingIds)
 	g, ctx := errgroup.WithContext(ctx)
 
 	connections := make([]mgclients.ConnectionStatus, 0, totalConnectionsCnt)
 
-	for _, th := range uniqueThings {
-		for _, ch := range uniqueChannels {
+	for _, th := range thingIds {
+		for _, ch := range channelIds {
 			func(thing, channel string) {
 				g.Go(func() error {
 					authReq := &magistrala.AuthorizeReq{
@@ -670,20 +668,6 @@ func (svc service) VerifyConnections(ctx context.Context, thingIds, groupIds []s
 		Status:      status,
 		Connections: connections,
 	}, nil
-}
-
-func getUniqueValues(slice []string) []string {
-	uniqueMap := make(map[string]bool)
-	var result []string
-
-	for _, value := range slice {
-		if _, exists := uniqueMap[value]; !exists {
-			uniqueMap[value] = true
-			result = append(result, value)
-		}
-	}
-
-	return result
 }
 
 func (svc service) identify(ctx context.Context, token string) (*magistrala.IdentityRes, error) {

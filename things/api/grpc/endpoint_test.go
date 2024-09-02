@@ -214,7 +214,7 @@ func TestVerifyConnections(t *testing.T) {
 			},
 			verifyConnectionsRes: &magistrala.VerifyConnectionsRes{
 				Status: mgclients.AllConnectedState.String(),
-				ConnectionsStatus: []*magistrala.Connectionstatus{
+				ConnectionsStatus: []*magistrala.ConnStatus{
 					{
 						ThingId:   thingIds[0],
 						ChannelId: channelIds[0],

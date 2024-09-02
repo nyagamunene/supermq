@@ -779,6 +779,15 @@ func TestVerifyConnections(t *testing.T) {
 			},
 		},
 		{
+			desc:     "verify connections with unsuccessful verification",
+			token:    validToken,
+			pageMeta: pm,
+			svcRes:   mgclients.ConnectionsPage{},
+			svcErr:   svcerr.ErrMalformedEntity,
+			response: sdk.ConnectionsPage{},
+			err:      errors.NewSDKErrorWithStatus(svcerr.ErrMalformedEntity, http.StatusBadRequest),
+		},
+		{
 			desc:     "verify connections with an invalid token",
 			token:    invalidToken,
 			pageMeta: pm,
@@ -791,7 +800,7 @@ func TestVerifyConnections(t *testing.T) {
 			err:   errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
 		{
-			desc:  "verify connection with that can't be marshalled",
+			desc:  "verify connection that can't be marshalled",
 			token: validToken,
 			pageMeta: sdk.PageMetadata{
 				Metadata: sdk.Metadata{

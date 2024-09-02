@@ -232,10 +232,10 @@ message VerifyConnectionsReq {
 
 message VerifyConnectionsRes {
   string status = 1;
-  repeated Connectionstatus connections_status = 2;
+  repeated ConnStatus connections_status = 2;
 }
 
-message Connectionstatus {
+message ConnStatus {
   string thing_id   = 1;
   string channel_id = 2;
   string status     = 3;
