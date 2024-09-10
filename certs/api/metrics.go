@@ -12,6 +12,7 @@ import (
 	"github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/certs"
 	"github.com/go-kit/kit/metrics"
+	"github.com/absmach/certs/sdk"
 )
 
 var _ certs.Service = (*metricsMiddleware)(nil)
