@@ -201,7 +201,6 @@ func TestIssueCertCmd(t *testing.T) {
 	serial := mgsdk.Serial{
 		Serial: "serial",
 	}
-	
 
 	var cs mgsdk.Serial
 	cases := []struct {

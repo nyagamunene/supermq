@@ -9,12 +9,11 @@ import (
 	"testing"
 	"time"
 
+	amsdk "github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala"
 	authmocks "github.com/absmach/magistrala/auth/mocks"
 	"github.com/absmach/magistrala/certs"
 	"github.com/absmach/magistrala/certs/mocks"
-
-	amsdk "github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
