@@ -9,6 +9,7 @@ import (
 	"github.com/absmach/magistrala/certs"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+	"github.com/absmach/certs/sdk"
 )
 
 var _ certs.Service = (*tracingMiddleware)(nil)
@@ -24,7 +25,7 @@ func New(svc certs.Service, tracer trace.Tracer) certs.Service {
 }
 
 // IssueCert traces the "IssueCert" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (certs.Cert, error) {
+func (tm *tracingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.SerialNumber, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_create_group", trace.WithAttributes(
 		attribute.String("thing_id", thingID),
 		attribute.String("ttl", ttl),
@@ -35,7 +36,7 @@ func (tm *tracingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl 
 }
 
 // ListCerts traces the "ListCerts" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) ListCerts(ctx context.Context, token, thingID string, offset, limit uint64) (certs.Page, error) {
+func (tm *tracingMiddleware) ListCerts(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_list_certs", trace.WithAttributes(
 		attribute.String("thing_id", thingID),
 		attribute.Int64("offset", int64(offset)),
@@ -47,7 +48,7 @@ func (tm *tracingMiddleware) ListCerts(ctx context.Context, token, thingID strin
 }
 
 // ListSerials traces the "ListSerials" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID string, offset, limit uint64) (certs.Page, error) {
+func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_list_serials", trace.WithAttributes(
 		attribute.String("thing_id", thingID),
 		attribute.Int64("offset", int64(offset)),
@@ -59,7 +60,7 @@ func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID str
 }
 
 // ViewCert traces the "ViewCert" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) ViewCert(ctx context.Context, token, serialID string) (certs.Cert, error) {
+func (tm *tracingMiddleware) ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_view_cert", trace.WithAttributes(
 		attribute.String("serial_id", serialID),
 	))

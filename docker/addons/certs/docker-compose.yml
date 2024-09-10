@@ -88,3 +88,46 @@ services:
         target: /auth-grpc-server-ca${MG_AUTH_GRPC_SERVER_CA_CERTS:+.crt}
         bind:
           create_host_path: true
+
+  am-certs-db:
+    image: postgres:16.2-alpine
+    container_name: magistrala-am-certs-db
+    restart: on-failure
+    networks:
+      - magistrala-base-net
+    command: postgres -c "max_connections=${MG_POSTGRES_MAX_CONNECTIONS}"
+    environment:
+      POSTGRES_USER: ${MG_CERTS_DB_USER}
+      POSTGRES_PASSWORD: ${MG_CERTS_DB_PASS}
+      POSTGRES_DB: ${MG_CERTS_DB_NAME}
+    ports:
+      - 5454:5432
+    volumes:
+      - magistrala-certs-db-volume:/var/lib/postgresql/data
+
+  am-certs:
+    image: ghcr.io/absmach/certs:${MG_RELEASE_TAG}
+    container_name: magistrala-am-certs
+    depends_on:
+      - am-certs-db
+    restart: on-failure
+    networks:
+      - magistrala-base-net
+    environment:
+      AM_CERTS_LOG_LEVEL: ${MG_CERTS_LOG_LEVEL}
+      AM_CERTS_DB_HOST: ${MG_CERTS_DB_HOST}
+      AM_CERTS_DB_PORT: ${MG_CERTS_DB_PORT}
+      AM_CERTS_DB_USER: ${MG_CERTS_DB_USER}
+      AM_CERTS_DB_PASS: ${MG_CERTS_DB_PASS}
+      AM_CERTS_DB: ${MG_CERTS_DB_NAME}
+      AM_CERTS_DB_SSL_MODE: ${MG_CERTS_DB_SSL_MODE}
+
+      AM_CERTS_HTTP_HOST: localhost
+      AM_CERTS_HTTP_PORT: 9010
+      AM_CERTS_GRPC_HOST: ${MG_CERTS_GRPC_HOST}
+      AM_CERTS_GRPC_PORT: ${MG_CERTS_GRPC_PORT}
+      AM_JAEGER_URL: ${MG_JAEGER_URL}
+      AM_JAEGER_TRACE_RATIO: ${MG_JAEGER_TRACE_RATIO}
+    ports:
+      - 9010:9010
+      - 7012:7012

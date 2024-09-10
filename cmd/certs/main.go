@@ -16,14 +16,11 @@ import (
 	"github.com/absmach/magistrala"
 	"github.com/absmach/magistrala/certs"
 	"github.com/absmach/magistrala/certs/api"
-	vault "github.com/absmach/magistrala/certs/pki"
-	certspg "github.com/absmach/magistrala/certs/postgres"
+	pki "github.com/absmach/magistrala/certs/pki/am-certs"
 	"github.com/absmach/magistrala/certs/tracing"
 	mglog "github.com/absmach/magistrala/logger"
 	"github.com/absmach/magistrala/pkg/grpcclient"
 	jaegerclient "github.com/absmach/magistrala/pkg/jaeger"
-	"github.com/absmach/magistrala/pkg/postgres"
-	pgclient "github.com/absmach/magistrala/pkg/postgres"
 	"github.com/absmach/magistrala/pkg/prometheus"
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
 	"github.com/absmach/magistrala/pkg/server"
@@ -63,6 +60,11 @@ type config struct {
 	PkiNamespace string `env:"MG_CERTS_VAULT_NAMESPACE"          envDefault:""`
 	PkiPath      string `env:"MG_CERTS_VAULT_THINGS_CERTS_PKI_PATH"       envDefault:"pki_int"`
 	PkiRole      string `env:"MG_CERTS_VAULT_THINGS_CERTS_PKI_ROLE_NAME"  envDefault:"magistrala"`
+
+	// Amcerts SDK settings
+	SDKHost         string `env:"MG_CERTS_SDK_HOST"         envDefault:""`
+	SDKCertsURL     string `env:"MG_CERTS_SDK_CERTS_URL"    envDefault:"http://localhost:9010"`
+	TLSVerification bool   `env:"MG_CERTS_SDK_TLS_VERIFICATION" envDefault:"false"`
 }
 
 func main() {
@@ -90,13 +92,13 @@ func main() {
 		}
 	}
 
-	if cfg.PkiHost == "" {
+	if cfg.SDKHost == "" {
 		logger.Error("No host specified for PKI engine")
 		exitCode = 1
 		return
 	}
 
-	pkiclient, err := vault.NewVaultClient(cfg.PkiAppRoleID, cfg.PkiAppSecret, cfg.PkiHost, cfg.PkiNamespace, cfg.PkiPath, cfg.PkiRole, logger)
+	pkiclient, err := pki.NewAgent(cfg.SDKHost, cfg.SDKCertsURL, cfg.TLSVerification)
 	if err != nil {
 		logger.Error("failed to configure client for PKI engine")
 		exitCode = 1
@@ -149,7 +151,7 @@ func main() {
 	}()
 	tracer := tp.Tracer(svcName)
 
-	svc := newService(authClient, db, tracer, logger, cfg, dbConfig, pkiclient)
+	svc := newService(authClient, tracer, logger, cfg, pkiclient)
 
 	httpServerConfig := server.Config{Port: defSvcHTTPPort}
 	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefixHTTP}); err != nil {
@@ -184,7 +186,7 @@ func newService(authClient magistrala.AuthnServiceClient, db *sqlx.DB, tracer tr
 		ThingsURL: cfg.ThingsURL,
 	}
 	sdk := mgsdk.NewSDK(config)
-	svc := certs.New(authClient, certsRepo, sdk, pkiAgent)
+	svc := certs.New(authClient, sdk, pkiAgent)
 	svc = api.LoggingMiddleware(svc, logger)
 	counter, latency := prometheus.MakeMetrics(svcName, "api")
 	svc = api.MetricsMiddleware(svc, counter, latency)
