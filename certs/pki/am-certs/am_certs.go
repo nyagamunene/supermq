@@ -3,8 +3,6 @@
 package pki
 
 import (
-	"fmt"
-
 	"github.com/absmach/certs/sdk"
 	"golang.org/x/crypto/ocsp"
 )
