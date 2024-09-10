@@ -60,7 +60,7 @@ func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID str
 }
 
 // ViewCert traces the "ViewCert" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error) {
+func (tm *tracingMiddleware) ViewCert(ctx context.Context, token, serialID string) ([]byte, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_view_cert", trace.WithAttributes(
 		attribute.String("serial_id", serialID),
 	))

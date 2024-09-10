@@ -18,3 +18,10 @@ packages:
           dir: "./auth/mocks"
           mockname: "PolicyServiceClient"
           filename: "policy_client.go"
+  github.com/absmach/magistrala/certs/pki/am-certs:
+    interfaces:
+      Agent:
+        config:
+          dir: "./certs/mocks"
+          mockname: "Agent"
+          filename: "pki.go"

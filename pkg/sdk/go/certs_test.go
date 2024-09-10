@@ -13,6 +13,7 @@ import (
 	"github.com/absmach/magistrala/certs"
 	httpapi "github.com/absmach/magistrala/certs/api"
 	"github.com/absmach/magistrala/certs/mocks"
+	amsdk "github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/internal/testsutil"
 	mglog "github.com/absmach/magistrala/logger"
 	"github.com/absmach/magistrala/pkg/apiutil"
@@ -34,23 +35,18 @@ var (
 	serial               = testsutil.GenerateUUID(&testing.T{})
 	ttl                  = "10h"
 	cert, sdkCert        = generateTestCerts(&testing.T{})
+	sdkSerial			= sdk.Serial{Serial: serial}
 	defOffset     uint64 = 0
 	defLimit      uint64 = 10
 )
 
-func generateTestCerts(t *testing.T) (certs.Cert, sdk.Cert) {
+func generateTestCerts(t *testing.T) (amsdk.Certificate, sdk.Cert) {
 	expirationTime, err := time.Parse(time.RFC3339, "2032-01-01T00:00:00Z")
 	assert.Nil(t, err, fmt.Sprintf("failed to parse expiration time: %v", err))
-	c := certs.Cert{
-		OwnerID:        testsutil.GenerateUUID(&testing.T{}),
-		ThingID:        thingID,
-		ClientCert:     valid,
-		IssuingCA:      valid,
-		CAChain:        []string{valid},
-		ClientKey:      valid,
-		PrivateKeyType: valid,
-		Serial:         serial,
-		Expire:         expirationTime,
+	c := amsdk.Certificate{
+		EntityID:        thingID,
+		SerialNumber:         serial,
+		ExpiryDate:         expirationTime,
 	}
 	sc := sdk.Cert{
 		ThingID:    thingID,
@@ -88,7 +84,7 @@ func TestIssueCert(t *testing.T) {
 		thingID  string
 		duration string
 		token    string
-		svcRes   certs.Cert
+		svcRes   amsdk.SerialNumber
 		svcErr   error
 		err      errors.SDKError
 	}{
@@ -97,7 +93,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    validToken,
-			svcRes:   cert,
+			svcRes:   amsdk.SerialNumber{SerialNumber: cert.SerialNumber},
 			svcErr:   nil,
 			err:      nil,
 		},
@@ -106,7 +102,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  "",
 			duration: ttl,
 			token:    validToken,
-			svcRes:   certs.Cert{},
+			svcRes:   amsdk.SerialNumber{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrMissingID),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingID), http.StatusBadRequest),
 		},
@@ -115,7 +111,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  invalid,
 			duration: ttl,
 			token:    validToken,
-			svcRes:   certs.Cert{},
+			svcRes:   amsdk.SerialNumber{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrValidation),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, certs.ErrFailedCertCreation), http.StatusBadRequest),
 		},
@@ -124,7 +120,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: "",
 			token:    validToken,
-			svcRes:   certs.Cert{},
+			svcRes:   amsdk.SerialNumber{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrMissingCertData),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingCertData), http.StatusBadRequest),
 		},
@@ -133,7 +129,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: invalid,
 			token:    validToken,
-			svcRes:   certs.Cert{},
+			svcRes:   amsdk.SerialNumber{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrInvalidCertData),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrInvalidCertData), http.StatusBadRequest),
 		},
@@ -142,7 +138,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    "",
-			svcRes:   certs.Cert{},
+			svcRes:   amsdk.SerialNumber{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, svcerr.ErrAuthentication),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
@@ -151,7 +147,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    invalidToken,
-			svcRes:   certs.Cert{},
+			svcRes:   amsdk.SerialNumber{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, svcerr.ErrAuthentication),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, certs.ErrFailedCertCreation), http.StatusUnauthorized),
 		},
@@ -160,7 +156,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  "",
 			duration: "",
 			token:    validToken,
-			svcRes:   certs.Cert{},
+			svcRes:   amsdk.SerialNumber{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, certs.ErrFailedCertCreation),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingID), http.StatusBadRequest),
 		},
@@ -172,7 +168,7 @@ func TestIssueCert(t *testing.T) {
 			resp, err := mgsdk.IssueCert(tc.thingID, tc.duration, tc.token)
 			assert.Equal(t, tc.err, err)
 			if tc.err == nil {
-				assert.Equal(t, sdkCert, resp)
+				assert.Equal(t, sdkSerial, resp)
 				ok := svcCall.Parent.AssertCalled(t, "IssueCert", mock.Anything, tc.token, tc.thingID, tc.duration)
 				assert.True(t, ok)
 			}
@@ -200,7 +196,7 @@ func TestViewCert(t *testing.T) {
 		desc   string
 		certID string
 		token  string
-		svcRes certs.Cert
+		svcRes amsdk.Certificate
 		svcErr error
 		err    errors.SDKError
 	}{
@@ -216,7 +212,7 @@ func TestViewCert(t *testing.T) {
 			desc:   "view non-existent cert",
 			certID: invalid,
 			token:  token,
-			svcRes: certs.Cert{},
+			svcRes: amsdk.Certificate{},
 			svcErr: errors.Wrap(svcerr.ErrNotFound, repoerr.ErrNotFound),
 			err:    errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrNotFound), http.StatusNotFound),
 		},
@@ -224,7 +220,7 @@ func TestViewCert(t *testing.T) {
 			desc:   "view cert with invalid token",
 			certID: validID,
 			token:  invalidToken,
-			svcRes: certs.Cert{},
+			svcRes: amsdk.Certificate{},
 			svcErr: svcerr.ErrAuthentication,
 			err:    errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrAuthentication), http.StatusUnauthorized),
 		},
@@ -232,7 +228,7 @@ func TestViewCert(t *testing.T) {
 			desc:   "view cert with empty token",
 			certID: validID,
 			token:  "",
-			svcRes: certs.Cert{},
+			svcRes: amsdk.Certificate{},
 			svcErr: nil,
 			err:    errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
@@ -274,7 +270,7 @@ func TestViewCertByThing(t *testing.T) {
 		desc    string
 		thingID string
 		token   string
-		svcRes  certs.Page
+		svcRes  amsdk.CertificatePage
 		svcErr  error
 		err     errors.SDKError
 	}{
@@ -282,7 +278,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view existing cert",
 			thingID: thingID,
 			token:   validToken,
-			svcRes:  certs.Page{Certs: []certs.Cert{cert}},
+			svcRes:  amsdk.CertificatePage{Certificates: []amsdk.Certificate{cert}},
 			svcErr:  nil,
 			err:     nil,
 		},
@@ -290,7 +286,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view non-existent cert",
 			thingID: invalid,
 			token:   validToken,
-			svcRes:  certs.Page{Certs: []certs.Cert{}},
+			svcRes:  amsdk.CertificatePage{Certificates: []amsdk.Certificate{}},
 			svcErr:  errors.Wrap(svcerr.ErrNotFound, repoerr.ErrNotFound),
 			err:     errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrNotFound), http.StatusNotFound),
 		},
@@ -298,7 +294,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view cert with invalid token",
 			thingID: thingID,
 			token:   invalidToken,
-			svcRes:  certs.Page{Certs: []certs.Cert{}},
+			svcRes:  amsdk.CertificatePage{Certificates: []amsdk.Certificate{}},
 			svcErr:  svcerr.ErrAuthentication,
 			err:     errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrAuthentication), http.StatusUnauthorized),
 		},
@@ -306,7 +302,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view cert with empty token",
 			thingID: thingID,
 			token:   "",
-			svcRes:  certs.Page{Certs: []certs.Cert{}},
+			svcRes:  amsdk.CertificatePage{Certificates: []amsdk.Certificate{}},
 			svcErr:  nil,
 			err:     errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
@@ -314,7 +310,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view cert with empty thing id",
 			thingID: "",
 			token:   validToken,
-			svcRes:  certs.Page{Certs: []certs.Cert{}},
+			svcRes:  amsdk.CertificatePage{Certificates: []amsdk.Certificate{}},
 			svcErr:  nil,
 			err:     errors.NewSDKError(apiutil.ErrMissingID),
 		},

@@ -66,16 +66,12 @@ func viewCert(svc certs.Service) endpoint.Endpoint {
 			return nil, errors.Wrap(apiutil.ErrValidation, err)
 		}
 
-		cert, err := svc.ViewCert(ctx, req.token, req.serialID)
+		bytes, err := svc.ViewCert(ctx, req.token, req.serialID)
 		if err != nil {
-			return certsPageRes{}, errors.Wrap(apiutil.ErrValidation, err)
+			return []byte{}, errors.Wrap(apiutil.ErrValidation, err)
 		}
 
-		certRes := certsRes{
-			CertSerial: cert.SerialNumber,
-		}
-
-		return certRes, nil
+		return bytes, nil
 	}
 }
 

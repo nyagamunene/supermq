@@ -1,7 +1,10 @@
-// Copyright (c) Ultraviolet
+// Copyright (c) Abstract Machines
+// SPDX-License-Identifier: Apache-2.0
 package pki
 
 import (
+	"fmt"
+
 	"github.com/absmach/certs/sdk"
 	"golang.org/x/crypto/ocsp"
 )
@@ -22,7 +25,6 @@ type Agent interface {
 	OCSP(serialNumber string) (ocsp.Response, error)
 }
 
-
 type pkiAgent struct {
 	pki sdk.SDK
 }
@@ -31,7 +33,7 @@ func NewAgent(Host, CertsURL string, TLSVerification bool) (Agent, error) {
 	certConfig := sdk.Config{
 		CertsURL:        CertsURL,
 		HostURL:         Host,
-		MsgContentType:  sdk.CTJSONSenML,
+		MsgContentType:  sdk.CTJSON,
 		TLSVerification: TLSVerification,
 	}
 
@@ -43,6 +45,7 @@ func NewAgent(Host, CertsURL string, TLSVerification bool) (Agent, error) {
 }
 
 func (c pkiAgent) Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, error) {
+	fmt.Printf("entity id: %+v\n", entityId)
 	serial, err := c.pki.IssueCert(entityId, ipAddrs)
 	if err != nil {
 		return sdk.SerialNumber{}, err

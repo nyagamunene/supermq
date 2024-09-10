@@ -62,7 +62,7 @@ func (ms *metricsMiddleware) ListSerials(ctx context.Context, token, thingID str
 }
 
 // ViewCert instruments ViewCert method with metrics.
-func (ms *metricsMiddleware) ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error) {
+func (ms *metricsMiddleware) ViewCert(ctx context.Context, token, serialID string) ([]byte, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "view_cert").Add(1)
 		ms.latency.With("method", "view_cert").Observe(time.Since(begin).Seconds())

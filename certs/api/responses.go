@@ -33,7 +33,7 @@ type serialRes struct {
 }
 
 func (res serialRes) Code() int {
-	return http.StatusOK
+	return http.StatusCreated
 }
 
 func (res serialRes) Headers() map[string]string {

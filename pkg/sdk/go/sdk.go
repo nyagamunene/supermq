@@ -969,7 +969,7 @@ type SDK interface {
 	// example:
 	//  cert, _ := sdk.IssueCert("thingID", "24h", "token")
 	//  fmt.Println(cert)
-	IssueCert(thingID, validity, token string) (Cert, errors.SDKError)
+	IssueCert(thingID, validity, token string) (Serial, errors.SDKError)
 
 	// ViewCert returns a certificate given certificate ID
 	//
