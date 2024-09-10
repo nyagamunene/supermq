@@ -95,7 +95,7 @@ func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID str
 
 // ViewCert logs the view_cert request. It logs the serial ID and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) ViewCert(ctx context.Context, token, serialID string) (c []byte, err error) {
+func (lm *loggingMiddleware) ViewCert(ctx context.Context, token, serialID string) (c sdk.Certificate, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),

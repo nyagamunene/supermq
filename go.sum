@@ -21,6 +21,8 @@ github.com/absmach/callhome v0.14.0 h1:zB4tIZJ1YUmZ1VGHFPfMA/Lo6/Mv19y2dvoOiXj2B
 github.com/absmach/callhome v0.14.0/go.mod h1:l12UJOfibK4Muvg/AbupHuquNV9qSz/ROdTEPg7f2Vk=
 github.com/absmach/certs v0.0.0-20240906145345-4bb5d8b6005e h1:rifpthaeWkwNN3gf47s+5GdlHlvTjXP3b0uT0UEnwOM=
 github.com/absmach/certs v0.0.0-20240906145345-4bb5d8b6005e/go.mod h1:IyIkUJCo/vgMYtCrFQueAbikIiyEu2k5dw5/qijDaQw=
+github.com/absmach/certs v0.0.0-20240910172300-d43d1c986f7c h1:AictNz+kvPy145HTp3l+Bm2jtMmm09OxvFyk5EGp420=
+github.com/absmach/certs v0.0.0-20240910172300-d43d1c986f7c/go.mod h1:IyIkUJCo/vgMYtCrFQueAbikIiyEu2k5dw5/qijDaQw=
 github.com/absmach/mproxy v0.4.3-0.20240712131952-28f88581126a h1:3JtJSekVHb02U3NmIJa5f3a1I15aczKrBBCczGGCbxM=
 github.com/absmach/mproxy v0.4.3-0.20240712131952-28f88581126a/go.mod h1:Nevip6o8u5Zx7l3LTtN8BwlCI5h5KpsnI9YnAxF5RT8=
 github.com/absmach/senml v1.0.5 h1:zNPRYpGr2Wsb8brAusz8DIfFqemy1a2dNbmMnegY3GE=
@@ -125,6 +127,8 @@ github.com/gofrs/uuid/v5 v5.3.0 h1:m0mUMr+oVYUdxpMLgSYCZiXe7PuVPnI94+OMeVBNedk=
 github.com/gofrs/uuid/v5 v5.3.0/go.mod h1:CDOjlDMVAtN56jqyRUZh58JT31Tiw7/oQyEXZV+9bD8=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
 github.com/gogo/protobuf v1.3.2/go.mod h1:P1XiOD3dCwIKUDQYPy72D8LYyHL2YPYrpS2s69NZV8Q=
+github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keLg81eXfW3O+oY=
+github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=

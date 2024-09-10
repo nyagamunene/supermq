@@ -45,7 +45,7 @@ type Service interface {
 	ListSerials(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error)
 
 	// ViewCert retrieves the certificate issued for a given serial ID
-	ViewCert(ctx context.Context, token, serialID string) ([]byte, error)
+	ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error)
 
 	// RevokeCert revokes a certificate for a given thing ID
 	RevokeCert(ctx context.Context, token, thingID string) (Revoke, error)
@@ -153,17 +153,17 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 		Certificates: certs}, nil
 }
 
-func (cs *certsService) ViewCert(ctx context.Context, token, serialID string) ([]byte, error) {
+func (cs *certsService) ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error) {
 	_, err := cs.auth.Identify(ctx, &magistrala.IdentityReq{Token: token})
 	if err != nil {
-		return []byte{}, errors.Wrap(svcerr.ErrAuthentication, err)
+		return sdk.Certificate{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
 	fmt.Println("am here")
 
-	bytes, err := cs.pki.Retrieve(serialID)
+	cert, err := cs.pki.View(serialID)
 	if err != nil {
-		return []byte{}, errors.Wrap(ErrFailedReadFromPKI, err)
+		return sdk.Certificate{}, errors.Wrap(ErrFailedReadFromPKI, err)
 	}
 
-	return bytes, nil
+	return cert, nil
 }

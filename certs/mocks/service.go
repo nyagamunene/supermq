@@ -132,24 +132,22 @@ func (_m *Service) RevokeCert(ctx context.Context, token string, thingID string)
 }
 
 // ViewCert provides a mock function with given fields: ctx, token, serialID
-func (_m *Service) ViewCert(ctx context.Context, token string, serialID string) ([]byte, error) {
+func (_m *Service) ViewCert(ctx context.Context, token string, serialID string) (sdk.Certificate, error) {
 	ret := _m.Called(ctx, token, serialID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ViewCert")
 	}
 
-	var r0 []byte
+	var r0 sdk.Certificate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) ([]byte, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (sdk.Certificate, error)); ok {
 		return rf(ctx, token, serialID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) []byte); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) sdk.Certificate); ok {
 		r0 = rf(ctx, token, serialID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]byte)
-		}
+		r0 = ret.Get(0).(sdk.Certificate)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {

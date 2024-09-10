@@ -349,7 +349,7 @@ func TestViewCert(t *testing.T) {
 		err         error
 	}{
 		{
-			desc:        "list cert with valid token and serial",
+			desc:        "view cert with valid token and serial",
 			token:       token,
 			serialID:    cert.SerialNumber,
 			cert:        cert,
@@ -378,7 +378,7 @@ func TestViewCert(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
-			agentCall := agent.On("Retrieve", tc.serialID).Return([]byte{}, tc.agentErr)
+			agentCall := agent.On("View", tc.serialID).Return(tc.cert, tc.agentErr)
 
 			_, err := svc.ViewCert(context.Background(), tc.token, tc.serialID)
 			// assert.Equal(t, tc.cert, cert, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.cert, cert))

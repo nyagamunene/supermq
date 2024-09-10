@@ -20,12 +20,13 @@ type certsPageRes struct {
 }
 
 type certsRes struct {
-	ThingID    string    `json:"thing_id"`
-	ClientCert string    `json:"client_cert"`
-	ClientKey  string    `json:"client_key"`
-	CertSerial string    `json:"cert_serial"`
-	Expiration time.Time `json:"expiration"`
-	created    bool
+	EntityID     string    `json:"entity_id"`
+	Certificate  string    `json:"certificate"`
+	Key          string    `json:"key"`
+	SerialNumber string    `json:"serial_number"`
+	ExpiryDate   time.Time `json:"expiration"`
+	Revoked      bool      `json:"revoked"`
+	created      bool
 }
 
 type serialRes struct {

@@ -210,7 +210,7 @@ func TestViewCert(t *testing.T) {
 		token    string
 		serialID string
 		status   int
-		svcRes   []byte
+		svcRes   amsdk.Certificate
 		svcErr   error
 		err      error
 	}{
@@ -219,7 +219,7 @@ func TestViewCert(t *testing.T) {
 			token:    valid,
 			serialID: serial,
 			status:   http.StatusOK,
-			svcRes:   []byte{},
+			svcRes:   amsdk.Certificate{SerialNumber: serial},
 			svcErr:   nil,
 			err:      nil,
 		},
@@ -228,7 +228,7 @@ func TestViewCert(t *testing.T) {
 			token:    invalid,
 			serialID: serial,
 			status:   http.StatusUnauthorized,
-			svcRes:   []byte{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   svcerr.ErrAuthentication,
 			err:      svcerr.ErrAuthentication,
 		},
@@ -237,7 +237,7 @@ func TestViewCert(t *testing.T) {
 			token:    "",
 			serialID: serial,
 			status:   http.StatusUnauthorized,
-			svcRes:   []byte{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   nil,
 			err:      apiutil.ErrBearerToken,
 		},
@@ -246,7 +246,7 @@ func TestViewCert(t *testing.T) {
 			token:    valid,
 			serialID: invalid,
 			status:   http.StatusNotFound,
-			svcRes:   []byte{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   svcerr.ErrNotFound,
 			err:      svcerr.ErrNotFound,
 		},

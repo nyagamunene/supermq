@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
+	amsdk "github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/certs"
 	httpapi "github.com/absmach/magistrala/certs/api"
 	"github.com/absmach/magistrala/certs/mocks"
-	amsdk "github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/internal/testsutil"
 	mglog "github.com/absmach/magistrala/logger"
 	"github.com/absmach/magistrala/pkg/apiutil"
@@ -35,7 +35,7 @@ var (
 	serial               = testsutil.GenerateUUID(&testing.T{})
 	ttl                  = "10h"
 	cert, sdkCert        = generateTestCerts(&testing.T{})
-	sdkSerial			= sdk.Serial{Serial: serial}
+	sdkSerial            = sdk.Serial{Serial: serial}
 	defOffset     uint64 = 0
 	defLimit      uint64 = 10
 )
@@ -44,16 +44,17 @@ func generateTestCerts(t *testing.T) (amsdk.Certificate, sdk.Cert) {
 	expirationTime, err := time.Parse(time.RFC3339, "2032-01-01T00:00:00Z")
 	assert.Nil(t, err, fmt.Sprintf("failed to parse expiration time: %v", err))
 	c := amsdk.Certificate{
-		EntityID:        thingID,
-		SerialNumber:         serial,
-		ExpiryDate:         expirationTime,
+		EntityID:     thingID,
+		SerialNumber: serial,
+		ExpiryDate:   expirationTime,
+		Certificate:  &valid,
 	}
 	sc := sdk.Cert{
-		ThingID:    thingID,
-		CertSerial: serial,
-		ClientKey:  valid,
-		ClientCert: valid,
-		Expiration: expirationTime,
+		EntityID:     thingID,
+		SerialNumber: serial,
+		Key:          valid,
+		Certificate:  valid,
+		ExpiryDate:   expirationTime,
 	}
 
 	return c, sc
@@ -190,7 +191,7 @@ func TestViewCert(t *testing.T) {
 	mgsdk := sdk.NewSDK(sdkConf)
 
 	viewCertRes := sdkCert
-	viewCertRes.ClientKey = ""
+	viewCertRes.Key = ""
 
 	cases := []struct {
 		desc   string
@@ -263,7 +264,7 @@ func TestViewCertByThing(t *testing.T) {
 
 	viewCertThingRes := sdk.CertSerials{
 		Certs: []sdk.Cert{{
-			CertSerial: serial,
+			SerialNumber: serial,
 		}},
 	}
 	cases := []struct {
@@ -278,7 +279,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view existing cert",
 			thingID: thingID,
 			token:   validToken,
-			svcRes:  amsdk.CertificatePage{Certificates: []amsdk.Certificate{cert}},
+			svcRes:  amsdk.CertificatePage{Certificates: []amsdk.Certificate{{SerialNumber: serial}}},
 			svcErr:  nil,
 			err:     nil,
 		},

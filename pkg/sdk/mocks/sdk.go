@@ -1373,22 +1373,22 @@ func (_m *SDK) Invitations(pm sdk.PageMetadata, token string) (sdk.InvitationPag
 }
 
 // IssueCert provides a mock function with given fields: thingID, validity, token
-func (_m *SDK) IssueCert(thingID string, validity string, token string) (sdk.Cert, errors.SDKError) {
+func (_m *SDK) IssueCert(thingID string, validity string, token string) (sdk.Serial, errors.SDKError) {
 	ret := _m.Called(thingID, validity, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for IssueCert")
 	}
 
-	var r0 sdk.Cert
+	var r0 sdk.Serial
 	var r1 errors.SDKError
-	if rf, ok := ret.Get(0).(func(string, string, string) (sdk.Cert, errors.SDKError)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, string) (sdk.Serial, errors.SDKError)); ok {
 		return rf(thingID, validity, token)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string) sdk.Cert); ok {
+	if rf, ok := ret.Get(0).(func(string, string, string) sdk.Serial); ok {
 		r0 = rf(thingID, validity, token)
 	} else {
-		r0 = ret.Get(0).(sdk.Cert)
+		r0 = ret.Get(0).(sdk.Serial)
 	}
 
 	if rf, ok := ret.Get(1).(func(string, string, string) errors.SDKError); ok {

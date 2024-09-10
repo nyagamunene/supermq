@@ -26,6 +26,64 @@ func (_m *Agent) EXPECT() *Agent_Expecter {
 	return &Agent_Expecter{mock: &_m.Mock}
 }
 
+// Download provides a mock function with given fields: serialNumber
+func (_m *Agent) Download(serialNumber string) ([]byte, error) {
+	ret := _m.Called(serialNumber)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Download")
+	}
+
+	var r0 []byte
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) ([]byte, error)); ok {
+		return rf(serialNumber)
+	}
+	if rf, ok := ret.Get(0).(func(string) []byte); ok {
+		r0 = rf(serialNumber)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(serialNumber)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Agent_Download_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Download'
+type Agent_Download_Call struct {
+	*mock.Call
+}
+
+// Download is a helper method to define mock.On call
+//   - serialNumber string
+func (_e *Agent_Expecter) Download(serialNumber interface{}) *Agent_Download_Call {
+	return &Agent_Download_Call{Call: _e.mock.On("Download", serialNumber)}
+}
+
+func (_c *Agent_Download_Call) Run(run func(serialNumber string)) *Agent_Download_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *Agent_Download_Call) Return(_a0 []byte, _a1 error) *Agent_Download_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Agent_Download_Call) RunAndReturn(run func(string) ([]byte, error)) *Agent_Download_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetDownloadToken provides a mock function with given fields: serialNumber
 func (_m *Agent) GetDownloadToken(serialNumber string) (sdk.Token, error) {
 	ret := _m.Called(serialNumber)
@@ -297,64 +355,6 @@ func (_c *Agent_Renew_Call) RunAndReturn(run func(string) error) *Agent_Renew_Ca
 	return _c
 }
 
-// Retrieve provides a mock function with given fields: serialNumber
-func (_m *Agent) Retrieve(serialNumber string) ([]byte, error) {
-	ret := _m.Called(serialNumber)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Retrieve")
-	}
-
-	var r0 []byte
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) ([]byte, error)); ok {
-		return rf(serialNumber)
-	}
-	if rf, ok := ret.Get(0).(func(string) []byte); ok {
-		r0 = rf(serialNumber)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]byte)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(serialNumber)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Agent_Retrieve_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Retrieve'
-type Agent_Retrieve_Call struct {
-	*mock.Call
-}
-
-// Retrieve is a helper method to define mock.On call
-//   - serialNumber string
-func (_e *Agent_Expecter) Retrieve(serialNumber interface{}) *Agent_Retrieve_Call {
-	return &Agent_Retrieve_Call{Call: _e.mock.On("Retrieve", serialNumber)}
-}
-
-func (_c *Agent_Retrieve_Call) Run(run func(serialNumber string)) *Agent_Retrieve_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *Agent_Retrieve_Call) Return(_a0 []byte, _a1 error) *Agent_Retrieve_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Agent_Retrieve_Call) RunAndReturn(run func(string) ([]byte, error)) *Agent_Retrieve_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Revoke provides a mock function with given fields: serialNumber
 func (_m *Agent) Revoke(serialNumber string) error {
 	ret := _m.Called(serialNumber)
@@ -397,6 +397,62 @@ func (_c *Agent_Revoke_Call) Return(_a0 error) *Agent_Revoke_Call {
 }
 
 func (_c *Agent_Revoke_Call) RunAndReturn(run func(string) error) *Agent_Revoke_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// View provides a mock function with given fields: serialNumber
+func (_m *Agent) View(serialNumber string) (sdk.Certificate, error) {
+	ret := _m.Called(serialNumber)
+
+	if len(ret) == 0 {
+		panic("no return value specified for View")
+	}
+
+	var r0 sdk.Certificate
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (sdk.Certificate, error)); ok {
+		return rf(serialNumber)
+	}
+	if rf, ok := ret.Get(0).(func(string) sdk.Certificate); ok {
+		r0 = rf(serialNumber)
+	} else {
+		r0 = ret.Get(0).(sdk.Certificate)
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(serialNumber)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Agent_View_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'View'
+type Agent_View_Call struct {
+	*mock.Call
+}
+
+// View is a helper method to define mock.On call
+//   - serialNumber string
+func (_e *Agent_Expecter) View(serialNumber interface{}) *Agent_View_Call {
+	return &Agent_View_Call{Call: _e.mock.On("View", serialNumber)}
+}
+
+func (_c *Agent_View_Call) Run(run func(serialNumber string)) *Agent_View_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *Agent_View_Call) Return(_a0 sdk.Certificate, _a1 error) *Agent_View_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Agent_View_Call) RunAndReturn(run func(string) (sdk.Certificate, error)) *Agent_View_Call {
 	_c.Call.Return(run)
 	return _c
 }

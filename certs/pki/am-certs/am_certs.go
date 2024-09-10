@@ -12,7 +12,9 @@ import (
 type Agent interface {
 	Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, error)
 
-	Retrieve(serialNumber string) ([]byte, error)
+	Download(serialNumber string) ([]byte, error)
+
+	View(serialNumber string) (sdk.Certificate, error)
 
 	Revoke(serialNumber string) error
 
@@ -54,18 +56,26 @@ func (c pkiAgent) Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, er
 	return serial, nil
 }
 
-func (c pkiAgent) Retrieve(serial string) ([]byte, error) {
+func (c pkiAgent) Download(serial string) ([]byte, error) {
 	downloadToken, err := c.pki.RetrieveCertDownloadToken(serial)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	bytes, err := c.pki.RetrieveCert(downloadToken.Token, serial)
+	bytes, err := c.pki.DownloadCert(downloadToken.Token, serial)
 	if err != nil {
 		return []byte{}, err
 	}
 
 	return bytes, nil
+}
+
+func (c pkiAgent) View(serial string) (sdk.Certificate, error) {
+	cert, err := c.pki.ViewCert(serial)
+	if err != nil {
+		return sdk.Certificate{}, err
+	}
+	return cert, nil
 }
 
 func (c pkiAgent) Revoke(serial string) error {
