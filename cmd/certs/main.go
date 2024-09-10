@@ -105,22 +105,6 @@ func main() {
 		return
 	}
 
-	g.Go(func() error {
-		return pkiclient.LoginAndRenew(ctx)
-	})
-
-	dbConfig := pgclient.Config{Name: defDB}
-	if err := env.ParseWithOptions(&dbConfig, env.Options{Prefix: envPrefixDB}); err != nil {
-		logger.Error(err.Error())
-	}
-	db, err := pgclient.Setup(dbConfig, *certspg.Migration())
-	if err != nil {
-		logger.Error(err.Error())
-		exitCode = 1
-		return
-	}
-	defer db.Close()
-
 	authClientCfg := grpcclient.Config{}
 	if err := env.ParseWithOptions(&authClientCfg, env.Options{Prefix: envPrefixAuth}); err != nil {
 		logger.Error(fmt.Sprintf("failed to load %s auth configuration : %s", svcName, err))
@@ -179,9 +163,7 @@ func main() {
 	}
 }
 
-func newService(authClient magistrala.AuthnServiceClient, db *sqlx.DB, tracer trace.Tracer, logger *slog.Logger, cfg config, dbConfig pgclient.Config, pkiAgent vault.Agent) certs.Service {
-	database := postgres.NewDatabase(db, dbConfig, tracer)
-	certsRepo := certspg.NewRepository(database, logger)
+func newService(authClient magistrala.AuthnServiceClient, tracer trace.Tracer, logger *slog.Logger, cfg config, pkiAgent pki.Agent) certs.Service {
 	config := mgsdk.Config{
 		ThingsURL: cfg.ThingsURL,
 	}
