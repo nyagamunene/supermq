@@ -6,8 +6,6 @@ package certs_test
 import (
 	"context"
 	"fmt"
-
-	// "strings"
 	"testing"
 	"time"
 
@@ -16,16 +14,13 @@ import (
 	"github.com/absmach/magistrala/certs"
 	"github.com/absmach/magistrala/certs/mocks"
 
-	// "github.com/absmach/magistrala/certs/pki/vault"
-	"github.com/absmach/magistrala/pkg/errors"
-	// repoerr "github.com/absmach/magistrala/pkg/errors/repository"
 	amsdk "github.com/absmach/certs/sdk"
+	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
 	sdkmocks "github.com/absmach/magistrala/pkg/sdk/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	// "github.com/stretchr/testify/require"
 )
 
 const (

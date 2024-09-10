@@ -47,7 +47,6 @@ func NewAgent(Host, CertsURL string, TLSVerification bool) (Agent, error) {
 }
 
 func (c pkiAgent) Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, error) {
-	fmt.Printf("entity id: %+v\n", entityId)
 	serial, err := c.pki.IssueCert(entityId, ipAddrs)
 	if err != nil {
 		return sdk.SerialNumber{}, err

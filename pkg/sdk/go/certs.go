@@ -20,12 +20,12 @@ const (
 
 // Cert represents certs data.
 type Cert struct {
-    SerialNumber string    `json:"serial_number,omitempty"`
-    Certificate  string    `json:"certificate,omitempty"`
-    Key          string    `json:"key,omitempty"`
-    Revoked      bool      `json:"revoked,omitempty"`
-    ExpiryDate   time.Time `json:"expiry_date,omitempty"`
-    EntityID     string    `json:"entity_id,omitempty"`
+	SerialNumber string    `json:"serial_number,omitempty"`
+	Certificate  string    `json:"certificate,omitempty"`
+	Key          string    `json:"key,omitempty"`
+	Revoked      bool      `json:"revoked,omitempty"`
+	ExpiryDate   time.Time `json:"expiry_date,omitempty"`
+	EntityID     string    `json:"entity_id,omitempty"`
 }
 
 type Serial struct {
@@ -83,7 +83,6 @@ func (sdk mgSDK) ViewCertByThing(thingID, token string) (CertSerials, errors.SDK
 	if err != nil {
 		return CertSerials{}, err
 	}
-	fmt.Println(string(body))
 	var cs CertSerials
 	if err := json.Unmarshal(body, &cs); err != nil {
 		return CertSerials{}, errors.NewSDKError(err)

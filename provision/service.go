@@ -35,7 +35,7 @@ var (
 	ErrMissingCredentials       = errors.New("missing credentials")
 	ErrFailedBootstrapRetrieval = errors.New("failed to retrieve bootstrap")
 	ErrFailedCertCreation       = errors.New("failed to create certificates")
-	ErrFailedCertView		   = errors.New("failed to view certificate")
+	ErrFailedCertView           = errors.New("failed to view certificate")
 	ErrFailedBootstrap          = errors.New("failed to create bootstrap config")
 	ErrFailedBootstrapValidate  = errors.New("failed to validate bootstrap config creation")
 	ErrGatewayUpdate            = errors.New("failed to updated gateway metadata")
@@ -225,7 +225,7 @@ func (ps *provisionService) Provision(token, name, externalID, externalKey strin
 				e := errors.Wrap(err, fmt.Errorf("thing id: %s", thing.ID))
 				return res, errors.Wrap(ErrFailedCertCreation, e)
 			}
-			cert, err :=ps.sdk.ViewCert(serial.Serial, token)
+			cert, err := ps.sdk.ViewCert(serial.Serial, token)
 			if err != nil {
 				return res, errors.Wrap(ErrFailedCertView, err)
 			}

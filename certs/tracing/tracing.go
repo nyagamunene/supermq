@@ -6,10 +6,10 @@ package tracing
 import (
 	"context"
 
+	"github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/certs"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
-	"github.com/absmach/certs/sdk"
 )
 
 var _ certs.Service = (*tracingMiddleware)(nil)

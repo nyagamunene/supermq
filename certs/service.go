@@ -5,7 +5,6 @@ package certs
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/absmach/certs/sdk"
@@ -150,7 +149,8 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 		Offset:       cp.Offset,
 		Limit:        cp.Limit,
 		Total:        cp.Total,
-		Certificates: certs}, nil
+		Certificates: certs,
+	}, nil
 }
 
 func (cs *certsService) ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error) {
@@ -158,7 +158,6 @@ func (cs *certsService) ViewCert(ctx context.Context, token, serialID string) (s
 	if err != nil {
 		return sdk.Certificate{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
-	fmt.Println("am here")
 
 	cert, err := cs.pki.View(serialID)
 	if err != nil {
