@@ -100,7 +100,7 @@ func TestIssueCert(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
 			sdkCall := sdk.On("Thing", tc.thingID, tc.token).Return(mgsdk.Thing{ID: tc.thingID, Credentials: mgsdk.Credentials{Secret: thingKey}}, tc.thingErr)
-			agentCall := agent.On("Issue", thingID, tc.ipAddr).Return(tc.serial, tc.issueCertErr)
+			agentCall := agent.On("Issue", thingID, tc.ttl, tc.ipAddr).Return(tc.serial, tc.issueCertErr)
 
 			serial, err := svc.IssueCert(context.Background(), tc.token, tc.thingID, tc.ttl)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
