@@ -21,8 +21,8 @@ type certsPageRes struct {
 
 type certsRes struct {
 	EntityID     string    `json:"entity_id"`
-	Certificate  *string    `json:"certificate"`
-	Key          *string    `json:"key"`
+	Certificate  *string   `json:"certificate"`
+	Key          *string   `json:"key"`
 	SerialNumber string    `json:"serial_number"`
 	ExpiryTime   time.Time `json:"expiry_time"`
 	Revoked      bool      `json:"revoked"`
