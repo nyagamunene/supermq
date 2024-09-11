@@ -143,12 +143,19 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 
 	var certs []sdk.Certificate
 	for _, c := range cp.Certificates {
-		certs = append(certs, sdk.Certificate{SerialNumber: c.SerialNumber, EntityID: c.EntityID})
+		if !c.Revoked {
+			certs = append(certs, sdk.Certificate{
+				SerialNumber: c.SerialNumber,
+				EntityID:     c.EntityID,
+				ExpiryTime:   c.ExpiryTime,
+				Revoked:      c.Revoked,
+			})
+		}
 	}
 	return sdk.CertificatePage{
 		Offset:       cp.Offset,
 		Limit:        cp.Limit,
-		Total:        cp.Total,
+		Total:        uint64(len(certs)),
 		Certificates: certs,
 	}, nil
 }

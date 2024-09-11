@@ -52,6 +52,9 @@ func listSerials(svc certs.Service) endpoint.Endpoint {
 		for _, cert := range page.Certificates {
 			cr := certsRes{
 				SerialNumber: cert.SerialNumber,
+				ExpiryTime:   cert.ExpiryTime,
+				Revoked:      cert.Revoked,
+				EntityID:     cert.EntityID,
 			}
 			res.Certs = append(res.Certs, cr)
 		}
