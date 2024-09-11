@@ -21,12 +21,11 @@ type certsPageRes struct {
 
 type certsRes struct {
 	EntityID     string    `json:"entity_id"`
-	Certificate  string    `json:"certificate"`
-	Key          string    `json:"key"`
+	Certificate  *string    `json:"certificate"`
+	Key          *string    `json:"key"`
 	SerialNumber string    `json:"serial_number"`
-	ExpiryDate   time.Time `json:"expiration"`
+	ExpiryTime   time.Time `json:"expiry_time"`
 	Revoked      bool      `json:"revoked"`
-	created      bool
 }
 
 type serialRes struct {
@@ -62,10 +61,6 @@ func (res certsPageRes) Empty() bool {
 }
 
 func (res certsRes) Code() int {
-	if res.created {
-		return http.StatusCreated
-	}
-
 	return http.StatusOK
 }
 

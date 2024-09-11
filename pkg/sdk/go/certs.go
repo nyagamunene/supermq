@@ -19,13 +19,14 @@ const (
 )
 
 // Cert represents certs data.
+// ThingID is mapped to entity_id in the API because the API uses a general entity type rather than a specific one.
 type Cert struct {
 	SerialNumber string    `json:"serial_number,omitempty"`
 	Certificate  string    `json:"certificate,omitempty"`
 	Key          string    `json:"key,omitempty"`
 	Revoked      bool      `json:"revoked,omitempty"`
-	ExpiryDate   time.Time `json:"expiry_date,omitempty"`
-	EntityID     string    `json:"entity_id,omitempty"`
+	ExpiryTime   time.Time `json:"expiry_time,omitempty"`
+	ThingID      string    `json:"entity_id,omitempty"`
 }
 
 type Serial struct {

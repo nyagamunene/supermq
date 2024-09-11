@@ -45,7 +45,7 @@ func newService(_ *testing.T) (certs.Service, *mocks.Agent, *authmocks.AuthServi
 var cert = amsdk.Certificate{
 	EntityID:     thingID,
 	SerialNumber: "Serial",
-	ExpiryDate:   time.Time{},
+	ExpiryTime:   time.Time{},
 	Revoked:      false,
 }
 
@@ -188,7 +188,7 @@ func TestListCerts(t *testing.T) {
 		c := amsdk.Certificate{
 			EntityID:     thingID,
 			SerialNumber: fmt.Sprintf("%d", i),
-			ExpiryDate:   time.Now().Add(time.Hour),
+			ExpiryTime:   time.Now().Add(time.Hour),
 		}
 		mycerts = append(mycerts, c)
 	}
@@ -258,7 +258,7 @@ func TestListSerials(t *testing.T) {
 		crt := amsdk.Certificate{
 			EntityID:     cert.EntityID,
 			SerialNumber: cert.SerialNumber,
-			ExpiryDate:   cert.ExpiryDate,
+			ExpiryTime:   cert.ExpiryTime,
 		}
 		issuedCerts = append(issuedCerts, crt)
 	}

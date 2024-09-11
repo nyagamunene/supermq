@@ -81,7 +81,7 @@ func (cs *certsService) IssueCert(ctx context.Context, token, thingID, ttl strin
 		return sdk.SerialNumber{}, errors.Wrap(ErrFailedCertCreation, err)
 	}
 
-	SerialNumber, err := cs.pki.Issue(thing.ID, []string{})
+	SerialNumber, err := cs.pki.Issue(thing.ID, ttl, []string{})
 	if err != nil {
 		return sdk.SerialNumber{}, errors.Wrap(ErrFailedCertCreation, err)
 	}

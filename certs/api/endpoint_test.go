@@ -36,7 +36,7 @@ var (
 	cert        = amsdk.Certificate{
 		EntityID:     thingID,
 		SerialNumber: serial,
-		ExpiryDate:   time.Now().Add(time.Hour),
+		ExpiryTime:   time.Now().Add(time.Hour),
 	}
 )
 

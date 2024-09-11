@@ -63,15 +63,22 @@ func viewCert(svc certs.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(viewReq)
 		if err := req.validate(); err != nil {
-			return nil, errors.Wrap(apiutil.ErrValidation, err)
+			return certsRes{}, errors.Wrap(apiutil.ErrValidation, err)
 		}
 
-		bytes, err := svc.ViewCert(ctx, req.token, req.serialID)
+		cert, err := svc.ViewCert(ctx, req.token, req.serialID)
 		if err != nil {
-			return []byte{}, errors.Wrap(apiutil.ErrValidation, err)
+			return certsRes{}, errors.Wrap(apiutil.ErrValidation, err)
 		}
 
-		return bytes, nil
+		return certsRes{
+			EntityID:     cert.EntityID,
+			Certificate:  cert.Certificate,
+			Key:          cert.Key,
+			SerialNumber: cert.SerialNumber,
+			ExpiryTime:   cert.ExpiryTime,
+			Revoked:      cert.Revoked,
+		}, nil
 	}
 }
 

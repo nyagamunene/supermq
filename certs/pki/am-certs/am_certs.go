@@ -8,7 +8,7 @@ import (
 )
 
 type Agent interface {
-	Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, error)
+	Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error)
 
 	Download(serialNumber string) ([]byte, error)
 
@@ -44,8 +44,8 @@ func NewAgent(Host, CertsURL string, TLSVerification bool) (Agent, error) {
 	return c, nil
 }
 
-func (c pkiAgent) Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, error) {
-	serial, err := c.pki.IssueCert(entityId, ipAddrs)
+func (c pkiAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error) {
+	serial, err := c.pki.IssueCert(entityId, ttl, ipAddrs)
 	if err != nil {
 		return sdk.SerialNumber{}, err
 	}

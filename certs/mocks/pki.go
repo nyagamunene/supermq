@@ -140,9 +140,9 @@ func (_c *Agent_GetDownloadToken_Call) RunAndReturn(run func(string) (sdk.Token,
 	return _c
 }
 
-// Issue provides a mock function with given fields: entityId, ipAddrs
-func (_m *Agent) Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, error) {
-	ret := _m.Called(entityId, ipAddrs)
+// Issue provides a mock function with given fields: entityId, ttl, ipAddrs
+func (_m *Agent) Issue(entityId string, ttl string, ipAddrs []string) (sdk.SerialNumber, error) {
+	ret := _m.Called(entityId, ttl, ipAddrs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Issue")
@@ -150,17 +150,17 @@ func (_m *Agent) Issue(entityId string, ipAddrs []string) (sdk.SerialNumber, err
 
 	var r0 sdk.SerialNumber
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, []string) (sdk.SerialNumber, error)); ok {
-		return rf(entityId, ipAddrs)
+	if rf, ok := ret.Get(0).(func(string, string, []string) (sdk.SerialNumber, error)); ok {
+		return rf(entityId, ttl, ipAddrs)
 	}
-	if rf, ok := ret.Get(0).(func(string, []string) sdk.SerialNumber); ok {
-		r0 = rf(entityId, ipAddrs)
+	if rf, ok := ret.Get(0).(func(string, string, []string) sdk.SerialNumber); ok {
+		r0 = rf(entityId, ttl, ipAddrs)
 	} else {
 		r0 = ret.Get(0).(sdk.SerialNumber)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, []string) error); ok {
-		r1 = rf(entityId, ipAddrs)
+	if rf, ok := ret.Get(1).(func(string, string, []string) error); ok {
+		r1 = rf(entityId, ttl, ipAddrs)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -175,14 +175,15 @@ type Agent_Issue_Call struct {
 
 // Issue is a helper method to define mock.On call
 //   - entityId string
+//   - ttl string
 //   - ipAddrs []string
-func (_e *Agent_Expecter) Issue(entityId interface{}, ipAddrs interface{}) *Agent_Issue_Call {
-	return &Agent_Issue_Call{Call: _e.mock.On("Issue", entityId, ipAddrs)}
+func (_e *Agent_Expecter) Issue(entityId interface{}, ttl interface{}, ipAddrs interface{}) *Agent_Issue_Call {
+	return &Agent_Issue_Call{Call: _e.mock.On("Issue", entityId, ttl, ipAddrs)}
 }
 
-func (_c *Agent_Issue_Call) Run(run func(entityId string, ipAddrs []string)) *Agent_Issue_Call {
+func (_c *Agent_Issue_Call) Run(run func(entityId string, ttl string, ipAddrs []string)) *Agent_Issue_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].([]string))
+		run(args[0].(string), args[1].(string), args[2].([]string))
 	})
 	return _c
 }
@@ -192,7 +193,7 @@ func (_c *Agent_Issue_Call) Return(_a0 sdk.SerialNumber, _a1 error) *Agent_Issue
 	return _c
 }
 
-func (_c *Agent_Issue_Call) RunAndReturn(run func(string, []string) (sdk.SerialNumber, error)) *Agent_Issue_Call {
+func (_c *Agent_Issue_Call) RunAndReturn(run func(string, string, []string) (sdk.SerialNumber, error)) *Agent_Issue_Call {
 	_c.Call.Return(run)
 	return _c
 }
