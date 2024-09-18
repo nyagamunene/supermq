@@ -27,7 +27,6 @@ import (
 	httpserver "github.com/absmach/magistrala/pkg/server/http"
 	"github.com/absmach/magistrala/pkg/uuid"
 	"github.com/caarlos0/env/v11"
-	"github.com/jmoiron/sqlx"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
