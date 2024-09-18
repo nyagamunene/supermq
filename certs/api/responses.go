@@ -44,22 +44,6 @@ func (res serialRes) Empty() bool {
 	return false
 }
 
-type serialRes struct {
-	Serial string `json:"serial"`
-}
-
-func (res serialRes) Code() int {
-	return http.StatusOK
-}
-
-func (res serialRes) Headers() map[string]string {
-	return map[string]string{}
-}
-
-func (res serialRes) Empty() bool {
-	return false
-}
-
 type revokeCertsRes struct {
 	RevocationTime time.Time `json:"revocation_time"`
 }
