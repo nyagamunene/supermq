@@ -5,7 +5,7 @@ go 1.22.7
 require (
 	github.com/0x6flab/namegenerator v1.4.0
 	github.com/absmach/callhome v0.14.0
-	github.com/absmach/certs v0.0.0-20240911105640-8e26408f854d
+	github.com/absmach/certs v0.0.0-20240920101047-358bd11f5476
 	github.com/absmach/mproxy v0.4.3-0.20240712131952-28f88581126a
 	github.com/absmach/senml v1.0.5
 	github.com/authzed/authzed-go v1.0.0
@@ -90,6 +90,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect

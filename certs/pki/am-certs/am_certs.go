@@ -1,6 +1,6 @@
 // Copyright (c) Abstract Machines
 // SPDX-License-Identifier: Apache-2.0
-package pki
+package sdk
 
 import (
 	"github.com/absmach/certs/sdk"
@@ -25,27 +25,26 @@ type Agent interface {
 	OCSP(serialNumber string) (ocsp.Response, error)
 }
 
-type pkiAgent struct {
-	pki sdk.SDK
+type sdkAgent struct {
+	sdk sdk.SDK
 }
 
-func NewAgent(Host, CertsURL string, TLSVerification bool) (Agent, error) {
+func NewAgent(host, certsURL string, TLSVerification bool) (Agent, error) {
+	msgContentType := string(sdk.CTJSONSenML)
 	certConfig := sdk.Config{
-		CertsURL:        CertsURL,
-		HostURL:         Host,
-		MsgContentType:  sdk.CTJSON,
+		CertsURL:        certsURL,
+		HostURL:         host,
+		MsgContentType:  sdk.ContentType(msgContentType),
 		TLSVerification: TLSVerification,
 	}
 
-	c := &pkiAgent{
-		pki: sdk.NewSDK(certConfig),
-	}
-
-	return c, nil
+	return sdkAgent{
+		sdk: sdk.NewSDK(certConfig),
+	}, nil
 }
 
-func (c pkiAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error) {
-	serial, err := c.pki.IssueCert(entityId, ttl, ipAddrs)
+func (c sdkAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error) {
+	serial, err := c.sdk.IssueCert(entityId, ttl, ipAddrs)
 	if err != nil {
 		return sdk.SerialNumber{}, err
 	}
@@ -53,13 +52,13 @@ func (c pkiAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumbe
 	return serial, nil
 }
 
-func (c pkiAgent) Download(serial string) ([]byte, error) {
-	downloadToken, err := c.pki.RetrieveCertDownloadToken(serial)
+func (c sdkAgent) Download(serial string) ([]byte, error) {
+	downloadToken, err := c.sdk.RetrieveCertDownloadToken(serial)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	bytes, err := c.pki.DownloadCert(downloadToken.Token, serial)
+	bytes, err := c.sdk.DownloadCert(downloadToken.Token, serial)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -67,31 +66,31 @@ func (c pkiAgent) Download(serial string) ([]byte, error) {
 	return bytes, nil
 }
 
-func (c pkiAgent) View(serial string) (sdk.Certificate, error) {
-	cert, err := c.pki.ViewCert(serial)
+func (c sdkAgent) View(serial string) (sdk.Certificate, error) {
+	cert, err := c.sdk.ViewCert(serial)
 	if err != nil {
 		return sdk.Certificate{}, err
 	}
 	return cert, nil
 }
 
-func (c pkiAgent) Revoke(serial string) error {
-	if err := c.pki.RevokeCert(serial); err != nil {
+func (c sdkAgent) Revoke(serial string) error {
+	if err := c.sdk.RevokeCert(serial); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (c pkiAgent) Renew(serial string) error {
-	if err := c.pki.RenewCert(serial); err != nil {
+func (c sdkAgent) Renew(serial string) error {
+	if err := c.sdk.RenewCert(serial); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c pkiAgent) GetDownloadToken(serial string) (sdk.Token, error) {
-	downloadToken, err := c.pki.RetrieveCertDownloadToken(serial)
+func (c sdkAgent) GetDownloadToken(serial string) (sdk.Token, error) {
+	downloadToken, err := c.sdk.RetrieveCertDownloadToken(serial)
 	if err != nil {
 		return sdk.Token{}, err
 	}
@@ -99,17 +98,16 @@ func (c pkiAgent) GetDownloadToken(serial string) (sdk.Token, error) {
 	return downloadToken, nil
 }
 
-func (c pkiAgent) ListCerts(pm sdk.PageMetadata) (sdk.CertificatePage, error) {
-	certPage, err := c.pki.ListCerts(pm)
+func (c sdkAgent) ListCerts(pm sdk.PageMetadata) (sdk.CertificatePage, error) {
+	certPage, err := c.sdk.ListCerts(pm)
 	if err != nil {
 		return sdk.CertificatePage{}, err
 	}
-
 	return certPage, nil
 }
 
-func (c pkiAgent) OCSP(serial string) (ocsp.Response, error) {
-	response, err := c.pki.OCSP(serial)
+func (c sdkAgent) OCSP(serial string) (ocsp.Response, error) {
+	response, err := c.sdk.OCSP(serial)
 	if err != nil {
 		return ocsp.Response{}, err
 	}

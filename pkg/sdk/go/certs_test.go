@@ -47,7 +47,7 @@ func generateTestCerts(t *testing.T) (amsdk.Certificate, sdk.Cert) {
 		EntityID:     thingID,
 		SerialNumber: serial,
 		ExpiryTime:   expirationTime,
-		Certificate:  &valid,
+		Certificate:  valid,
 	}
 	sc := sdk.Cert{
 		ThingID:      thingID,

@@ -61,8 +61,8 @@ type config struct {
 	PkiRole      string `env:"MG_CERTS_VAULT_THINGS_CERTS_PKI_ROLE_NAME"  envDefault:"magistrala"`
 
 	// Amcerts SDK settings
-	SDKHost         string `env:"MG_CERTS_SDK_HOST"         envDefault:""`
-	SDKCertsURL     string `env:"MG_CERTS_SDK_CERTS_URL"    envDefault:"http://localhost:9010"`
+	SDKHost         string `env:"MG_CERTS_SDK_HOST"             envDefault:""`
+	SDKCertsURL     string `env:"MG_CERTS_SDK_CERTS_URL"        envDefault:"http://localhost:9010"`
 	TLSVerification bool   `env:"MG_CERTS_SDK_TLS_VERIFICATION" envDefault:"false"`
 }
 
