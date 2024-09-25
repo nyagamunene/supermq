@@ -5,7 +5,7 @@ go 1.22.7
 require (
 	github.com/0x6flab/namegenerator v1.4.0
 	github.com/absmach/callhome v0.14.0
-	github.com/absmach/certs v0.0.0-20240924090934-7188f89ad0d7
+	github.com/absmach/certs v0.0.0-20240925161546-0f074e301929
 	github.com/absmach/mproxy v0.4.3-0.20240712131952-28f88581126a
 	github.com/absmach/senml v1.0.5
 	github.com/authzed/authzed-go v1.0.0

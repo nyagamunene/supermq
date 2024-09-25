@@ -10,7 +10,7 @@ import (
 type Agent interface {
 	Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error)
 
-	Download(serialNumber string) ([]byte, error)
+	Download(serialNumber string) (sdk.CertificateBundle, error)
 
 	View(serialNumber string) (sdk.Certificate, error)
 
@@ -44,7 +44,7 @@ func NewAgent(host, certsURL string, TLSVerification bool) (Agent, error) {
 }
 
 func (c sdkAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error) {
-	serial, err := c.sdk.IssueCert(entityId, ttl, ipAddrs)
+	serial, err := c.sdk.IssueCert(entityId, ttl, ipAddrs, sdk.Options{CommonName: "Magistrala"})
 	if err != nil {
 		return sdk.SerialNumber{}, err
 	}
@@ -52,18 +52,18 @@ func (c sdkAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumbe
 	return serial, nil
 }
 
-func (c sdkAgent) Download(serial string) ([]byte, error) {
+func (c sdkAgent) Download(serial string) (sdk.CertificateBundle, error) {
 	downloadToken, err := c.sdk.RetrieveCertDownloadToken(serial)
 	if err != nil {
-		return []byte{}, err
+		return sdk.CertificateBundle{}, err
 	}
 
-	bytes, err := c.sdk.DownloadCert(downloadToken.Token, serial)
+	bundle, err := c.sdk.DownloadCert(downloadToken.Token, serial)
 	if err != nil {
-		return []byte{}, err
+		return sdk.CertificateBundle{}, err
 	}
 
-	return bytes, nil
+	return bundle, nil
 }
 
 func (c sdkAgent) View(serial string) (sdk.Certificate, error) {
