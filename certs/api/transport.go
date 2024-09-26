@@ -90,7 +90,7 @@ func decodeListCerts(_ context.Context, r *http.Request) (interface{}, error) {
 		thingID: chi.URLParam(r, "thingID"),
 		meta: certs.PageMetadata{
 			Offset: o,
-			Limit: l,
+			Limit:  l,
 			Revoke: rv,
 		},
 	}
