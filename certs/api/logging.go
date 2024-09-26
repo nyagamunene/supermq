@@ -47,7 +47,7 @@ func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl 
 }
 
 // ListCerts logs the list_certs request. It logs the thing ID and the time it took to complete the request.
-func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID string, offset, limit uint64) (cp sdk.CertificatePage, err error) {
+func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.PageMetadata) (cp sdk.CertificatePage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -66,17 +66,17 @@ func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID strin
 		lm.logger.Info("List certificates completed successfully", args...)
 	}(time.Now())
 
-	return lm.svc.ListCerts(ctx, token, thingID, offset, limit)
+	return lm.svc.ListCerts(ctx, token, thingID, pm)
 }
 
 // ListSerials logs the list_serials request. It logs the thing ID and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID, revoke string, offset, limit uint64) (cp sdk.CertificatePage, err error) {
+func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.PageMetadata) (cp sdk.CertificatePage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("thing_id", thingID),
-			slog.String("revoke", revoke),
+			slog.String("revoke", pm.Revoke),
 			slog.Group("page",
 				slog.Uint64("offset", cp.Offset),
 				slog.Uint64("limit", cp.Limit),
@@ -91,7 +91,7 @@ func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID, re
 		lm.logger.Info("List certificates serials completed successfully", args...)
 	}(time.Now())
 
-	return lm.svc.ListSerials(ctx, token, thingID, revoke, offset, limit)
+	return lm.svc.ListSerials(ctx, token, thingID, pm)
 }
 
 // ViewCert logs the view_cert request. It logs the serial ID and the time it took to complete the request.

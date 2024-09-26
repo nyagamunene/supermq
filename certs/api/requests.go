@@ -6,6 +6,7 @@ package api
 import (
 	"time"
 
+	"github.com/absmach/magistrala/certs"
 	"github.com/absmach/magistrala/pkg/apiutil"
 )
 
@@ -40,16 +41,14 @@ func (req addCertsReq) validate() error {
 type listReq struct {
 	thingID string
 	token   string
-	revoke  string
-	offset  uint64
-	limit   uint64
+	meta    certs.PageMetadata
 }
 
 func (req *listReq) validate() error {
 	if req.token == "" {
 		return apiutil.ErrBearerToken
 	}
-	if req.limit > maxLimitSize {
+	if req.meta.Limit > maxLimitSize {
 		return apiutil.ErrLimitSize
 	}
 	return nil

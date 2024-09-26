@@ -88,9 +88,11 @@ func decodeListCerts(_ context.Context, r *http.Request) (interface{}, error) {
 	req := listReq{
 		token:   apiutil.ExtractBearerToken(r),
 		thingID: chi.URLParam(r, "thingID"),
-		revoke:  rv,
-		limit:   l,
-		offset:  o,
+		meta: certs.PageMetadata{
+			Offset: o,
+			Limit: l,
+			Revoke: rv,
+		},
 	}
 	return req, nil
 }
