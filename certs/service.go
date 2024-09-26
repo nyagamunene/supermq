@@ -163,7 +163,7 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 func (cs *certsService) ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error) {
 	_, err := cs.auth.Identify(ctx, &magistrala.IdentityReq{Token: token})
 	if err != nil {
-		return sdk.Certificate{}, errors.Wrap(svcerr.ErrAuthentication, err)
+		return sdk.Certificate{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 
 	cert, err := cs.pki.View(serialID)

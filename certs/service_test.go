@@ -153,7 +153,7 @@ func TestRevokeCert(t *testing.T) {
 			err:         certs.ErrFailedCertRevocation,
 		},
 		{
-			desc:        "revoke cert failed list certs",
+			desc:        "revoke cert with failed to list certs",
 			token:       token,
 			thingID:     thingID,
 			page:        amsdk.CertificatePage{},
@@ -349,24 +349,24 @@ func TestViewCert(t *testing.T) {
 			cert:        cert,
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 		},
-		// {
-		// 	desc:        "list cert with invalid token",
-		// 	token:       invalid,
-		// 	serialID:    cert.Serial,
-		// 	cert:        certs.Cert{},
-		// 	identifyRes: &magistrala.IdentityRes{Id: validID},
-		// 	identifyErr: svcerr.ErrAuthentication,
-		// 	err:         svcerr.ErrAuthentication,
-		// },
-		// {
-		// 	desc:        "list cert with invalid serial",
-		// 	token:       token,
-		// 	serialID:    invalid,
-		// 	cert:        certs.Cert{},
-		// 	identifyRes: &magistrala.IdentityRes{Id: validID},
-		// 	repoErr:     repoerr.ErrNotFound,
-		// 	err:         svcerr.ErrNotFound,
-		// },
+		{
+			desc:        "list cert with invalid token",
+			token:       invalid,
+			serialID:    cert.SerialNumber,
+			cert:        amsdk.Certificate{},
+			identifyRes: &magistrala.IdentityRes{Id: validID},
+			identifyErr: svcerr.ErrAuthentication,
+			err:         svcerr.ErrAuthentication,
+		},
+		{
+			desc:        "list cert with invalid serial",
+			token:       token,
+			serialID:    invalid,
+			cert:        amsdk.Certificate{},
+			identifyRes: &magistrala.IdentityRes{Id: validID},
+			agentErr:    svcerr.ErrNotFound,
+			err:         svcerr.ErrNotFound,
+		},
 	}
 
 	for _, tc := range cases {
@@ -374,8 +374,8 @@ func TestViewCert(t *testing.T) {
 			authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
 			agentCall := agent.On("View", tc.serialID).Return(tc.cert, tc.agentErr)
 
-			_, err := svc.ViewCert(context.Background(), tc.token, tc.serialID)
-			// assert.Equal(t, tc.cert, cert, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.cert, cert))
+			res, err := svc.ViewCert(context.Background(), tc.token, tc.serialID)
+			assert.Equal(t, tc.cert.SerialNumber, res.SerialNumber, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.cert.SerialNumber, res.SerialNumber))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			authCall.Unset()
 			agentCall.Unset()
