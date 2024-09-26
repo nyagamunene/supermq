@@ -48,7 +48,7 @@ func (tm *tracingMiddleware) ListCerts(ctx context.Context, token, thingID strin
 }
 
 // ListSerials traces the "ListSerials" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error) {
+func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID, revoke string, offset, limit uint64) (sdk.CertificatePage, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_list_serials", trace.WithAttributes(
 		attribute.String("thing_id", thingID),
 		attribute.Int64("offset", int64(offset)),
@@ -56,7 +56,7 @@ func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID str
 	))
 	defer span.End()
 
-	return tm.svc.ListSerials(ctx, token, thingID, offset, limit)
+	return tm.svc.ListSerials(ctx, token, thingID, revoke, offset, limit)
 }
 
 // ViewCert traces the "ViewCert" operation of the wrapped certs.Service.

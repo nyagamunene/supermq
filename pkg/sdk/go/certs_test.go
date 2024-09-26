@@ -38,6 +38,7 @@ var (
 	sdkSerial            = sdk.Serial{Serial: serial}
 	defOffset     uint64 = 0
 	defLimit      uint64 = 10
+	defRevoke            = "false"
 )
 
 func generateTestCerts(t *testing.T) (amsdk.Certificate, sdk.Cert) {
@@ -318,12 +319,12 @@ func TestViewCertByThing(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := svc.On("ListSerials", mock.Anything, tc.token, tc.thingID, defOffset, defLimit).Return(tc.svcRes, tc.svcErr)
+			svcCall := svc.On("ListSerials", mock.Anything, tc.token, tc.thingID, defRevoke, defOffset, defLimit).Return(tc.svcRes, tc.svcErr)
 			resp, err := mgsdk.ViewCertByThing(tc.thingID, tc.token)
 			assert.Equal(t, tc.err, err)
 			if tc.err == nil {
 				assert.Equal(t, viewCertThingRes, resp)
-				ok := svcCall.Parent.AssertCalled(t, "ListSerials", mock.Anything, tc.token, tc.thingID, defOffset, defLimit)
+				ok := svcCall.Parent.AssertCalled(t, "ListSerials", mock.Anything, tc.token, tc.thingID, defRevoke, defOffset, defLimit)
 				assert.True(t, ok)
 			}
 			svcCall.Unset()

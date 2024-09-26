@@ -24,6 +24,8 @@ const (
 	contentType = "application/json"
 	offsetKey   = "offset"
 	limitKey    = "limit"
+	revokeKey   = "revoke"
+	defRevoke   = "false"
 	defOffset   = 0
 	defLimit    = 10
 )
@@ -78,10 +80,15 @@ func decodeListCerts(_ context.Context, r *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
 	}
+	rv, err := apiutil.ReadStringQuery(r, revokeKey, defRevoke)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
 
 	req := listReq{
 		token:   apiutil.ExtractBearerToken(r),
 		thingID: chi.URLParam(r, "thingID"),
+		revoke:  rv,
 		limit:   l,
 		offset:  o,
 	}

@@ -40,6 +40,7 @@ func (req addCertsReq) validate() error {
 type listReq struct {
 	thingID string
 	token   string
+	revoke  string
 	offset  uint64
 	limit   uint64
 }

@@ -36,7 +36,7 @@ func listSerials(svc certs.Service) endpoint.Endpoint {
 			return nil, errors.Wrap(apiutil.ErrValidation, err)
 		}
 
-		page, err := svc.ListSerials(ctx, req.token, req.thingID, req.offset, req.limit)
+		page, err := svc.ListSerials(ctx, req.token, req.thingID, req.revoke, req.offset, req.limit)
 		if err != nil {
 			return certsPageRes{}, errors.Wrap(apiutil.ErrValidation, err)
 		}

@@ -52,13 +52,13 @@ func (ms *metricsMiddleware) ListCerts(ctx context.Context, token, thingID strin
 }
 
 // ListSerials instruments ListSerials method with metrics.
-func (ms *metricsMiddleware) ListSerials(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error) {
+func (ms *metricsMiddleware) ListSerials(ctx context.Context, token, thingID, revoke string, offset, limit uint64) (sdk.CertificatePage, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_serials").Add(1)
 		ms.latency.With("method", "list_serials").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 
-	return ms.svc.ListSerials(ctx, token, thingID, offset, limit)
+	return ms.svc.ListSerials(ctx, token, thingID, revoke, offset, limit)
 }
 
 // ViewCert instruments ViewCert method with metrics.

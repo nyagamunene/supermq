@@ -41,7 +41,7 @@ type Service interface {
 	ListCerts(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error)
 
 	// ListSerials lists certificate serial IDs issued for a given thing ID
-	ListSerials(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error)
+	ListSerials(ctx context.Context, token, thingID, revoke string, offset, limit uint64) (sdk.CertificatePage, error)
 
 	// ViewCert retrieves the certificate issued for a given serial ID
 	ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error)
@@ -130,7 +130,7 @@ func (cs *certsService) ListCerts(ctx context.Context, token, thingID string, of
 	return cp, nil
 }
 
-func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, offset, limit uint64) (sdk.CertificatePage, error) {
+func (cs *certsService) ListSerials(ctx context.Context, token, thingID, revoke string, offset, limit uint64) (sdk.CertificatePage, error) {
 	_, err := cs.auth.Identify(ctx, &magistrala.IdentityReq{Token: token})
 	if err != nil {
 		return sdk.CertificatePage{}, errors.Wrap(svcerr.ErrAuthentication, err)
@@ -142,8 +142,31 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 	}
 
 	var certs []sdk.Certificate
-	for _, c := range cp.Certificates {
-		if !c.Revoked {
+	switch revoke {
+	case "true":
+		for _, c := range cp.Certificates {
+			if c.Revoked {
+				certs = append(certs, sdk.Certificate{
+					SerialNumber: c.SerialNumber,
+					EntityID:     c.EntityID,
+					ExpiryTime:   c.ExpiryTime,
+					Revoked:      c.Revoked,
+				})
+			}
+		}
+	case "false":
+		for _, c := range cp.Certificates {
+			if !c.Revoked {
+				certs = append(certs, sdk.Certificate{
+					SerialNumber: c.SerialNumber,
+					EntityID:     c.EntityID,
+					ExpiryTime:   c.ExpiryTime,
+					Revoked:      c.Revoked,
+				})
+			}
+		}
+	case "all":
+		for _, c := range cp.Certificates {
 			certs = append(certs, sdk.Certificate{
 				SerialNumber: c.SerialNumber,
 				EntityID:     c.EntityID,
@@ -152,6 +175,7 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 			})
 		}
 	}
+
 	return sdk.CertificatePage{
 		Offset:       cp.Offset,
 		Limit:        cp.Limit,
