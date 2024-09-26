@@ -252,6 +252,7 @@ func TestListCerts(t *testing.T) {
 
 func TestListSerials(t *testing.T) {
 	svc, agent, auth, _ := newService(t)
+	revoke := "false"
 
 	var issuedCerts []amsdk.Certificate
 	for i := 0; i < certNum; i++ {
@@ -259,6 +260,7 @@ func TestListSerials(t *testing.T) {
 			EntityID:     cert.EntityID,
 			SerialNumber: cert.SerialNumber,
 			ExpiryTime:   cert.ExpiryTime,
+			Revoked:      false,
 		}
 		issuedCerts = append(issuedCerts, crt)
 	}
@@ -280,6 +282,7 @@ func TestListSerials(t *testing.T) {
 			desc:        "list all certs with valid token",
 			token:       token,
 			thingID:     thingID,
+			revoke:      revoke,
 			offset:      0,
 			limit:       certNum,
 			certs:       issuedCerts,
@@ -289,6 +292,7 @@ func TestListSerials(t *testing.T) {
 			desc:        "list all certs with invalid token",
 			token:       invalid,
 			thingID:     thingID,
+			revoke:      revoke,
 			offset:      0,
 			limit:       certNum,
 			certs:       nil,
@@ -300,6 +304,7 @@ func TestListSerials(t *testing.T) {
 			desc:        "list half certs with valid token",
 			token:       token,
 			thingID:     thingID,
+			revoke:      revoke,
 			offset:      certNum / 2,
 			limit:       certNum,
 			certs:       issuedCerts[certNum/2:],
@@ -309,6 +314,7 @@ func TestListSerials(t *testing.T) {
 			desc:        "list last cert with valid token",
 			token:       token,
 			thingID:     thingID,
+			revoke:      revoke,
 			offset:      certNum - 1,
 			limit:       certNum,
 			certs:       []amsdk.Certificate{issuedCerts[certNum-1]},
