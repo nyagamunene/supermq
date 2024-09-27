@@ -12,6 +12,13 @@ import (
 	"github.com/absmach/magistrala/pkg/errors"
 )
 
+type Page struct {
+	Total  uint64
+	Offset uint64
+	Limit  uint64
+	Revoke string
+}
+
 var ErrMissingCerts = errors.New("CA path or CA key path not set")
 
 func LoadCertificates(caPath, caKeyPath string) (tls.Certificate, *x509.Certificate, error) {

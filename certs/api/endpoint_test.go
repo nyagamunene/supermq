@@ -550,7 +550,7 @@ func TestListSerials(t *testing.T) {
 			url:    fmt.Sprintf("%s/serials/%s", cs.URL, tc.thingID) + tc.query,
 			token:  tc.token,
 		}
-		svcCall := svc.On("ListSerials", mock.Anything, tc.token, tc.thingID, certs.PageMetadata{Revoke: tc.revoke, Offset: tc.offset, Limit: tc.limit}).Return(tc.svcRes, tc.svcErr)
+		svcCall := svc.On("ListSerials", mock.Anything, tc.token, tc.thingID, certs.Page{Revoke: tc.revoke, Offset: tc.offset, Limit: tc.limit}).Return(tc.svcRes, tc.svcErr)
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 		var errRes respBody

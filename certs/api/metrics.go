@@ -42,7 +42,7 @@ func (ms *metricsMiddleware) IssueCert(ctx context.Context, token, thingID, ttl 
 }
 
 // ListCerts instruments ListCerts method with metrics.
-func (ms *metricsMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.PageMetadata) (sdk.CertificatePage, error) {
+func (ms *metricsMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.Page) (sdk.CertificatePage, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_certs").Add(1)
 		ms.latency.With("method", "list_certs").Observe(time.Since(begin).Seconds())
@@ -52,7 +52,7 @@ func (ms *metricsMiddleware) ListCerts(ctx context.Context, token, thingID strin
 }
 
 // ListSerials instruments ListSerials method with metrics.
-func (ms *metricsMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.PageMetadata) (sdk.CertificatePage, error) {
+func (ms *metricsMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.Page) (sdk.CertificatePage, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_serials").Add(1)
 		ms.latency.With("method", "list_serials").Observe(time.Since(begin).Seconds())

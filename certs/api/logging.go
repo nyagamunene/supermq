@@ -47,7 +47,7 @@ func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl 
 }
 
 // ListCerts logs the list_certs request. It logs the thing ID and the time it took to complete the request.
-func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.PageMetadata) (cp sdk.CertificatePage, err error) {
+func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.Page) (cp sdk.CertificatePage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -71,7 +71,7 @@ func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID strin
 
 // ListSerials logs the list_serials request. It logs the thing ID and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.PageMetadata) (cp sdk.CertificatePage, err error) {
+func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.Page) (cp sdk.CertificatePage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),

@@ -29,12 +29,6 @@ var (
 
 var _ Service = (*certsService)(nil)
 
-type PageMetadata struct {
-	Offset uint64
-	Limit  uint64
-	Revoke string
-}
-
 // Service specifies an API that must be fulfilled by the domain service
 // implementation, and all of its decorators (e.g. logging & metrics).
 //
@@ -44,10 +38,10 @@ type Service interface {
 	IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.SerialNumber, error)
 
 	// ListCerts lists certificates issued for a given thing ID
-	ListCerts(ctx context.Context, token, thingID string, pm PageMetadata) (sdk.CertificatePage, error)
+	ListCerts(ctx context.Context, token, thingID string, pm Page) (sdk.CertificatePage, error)
 
 	// ListSerials lists certificate serial IDs issued for a given thing ID
-	ListSerials(ctx context.Context, token, thingID string, pm PageMetadata) (sdk.CertificatePage, error)
+	ListSerials(ctx context.Context, token, thingID string, pm Page) (sdk.CertificatePage, error)
 
 	// ViewCert retrieves the certificate issued for a given serial ID
 	ViewCert(ctx context.Context, token, serialID string) (sdk.Certificate, error)
@@ -122,7 +116,7 @@ func (cs *certsService) RevokeCert(ctx context.Context, token, thingID string) (
 	return revoke, nil
 }
 
-func (cs *certsService) ListCerts(ctx context.Context, token, thingID string, pm PageMetadata) (sdk.CertificatePage, error) {
+func (cs *certsService) ListCerts(ctx context.Context, token, thingID string, pm Page) (sdk.CertificatePage, error) {
 	_, err := cs.auth.Identify(ctx, &magistrala.IdentityReq{Token: token})
 	if err != nil {
 		return sdk.CertificatePage{}, errors.Wrap(svcerr.ErrAuthentication, err)
@@ -136,7 +130,7 @@ func (cs *certsService) ListCerts(ctx context.Context, token, thingID string, pm
 	return cp, nil
 }
 
-func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, pm PageMetadata) (sdk.CertificatePage, error) {
+func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, pm Page) (sdk.CertificatePage, error) {
 	_, err := cs.auth.Identify(ctx, &magistrala.IdentityReq{Token: token})
 	if err != nil {
 		return sdk.CertificatePage{}, errors.Wrap(svcerr.ErrAuthentication, err)

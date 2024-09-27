@@ -36,7 +36,7 @@ func (tm *tracingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl 
 }
 
 // ListCerts traces the "ListCerts" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.PageMetadata) (sdk.CertificatePage, error) {
+func (tm *tracingMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.Page) (sdk.CertificatePage, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_list_certs", trace.WithAttributes(
 		attribute.String("thing_id", thingID),
 		attribute.Int64("offset", int64(pm.Offset)),
@@ -48,7 +48,7 @@ func (tm *tracingMiddleware) ListCerts(ctx context.Context, token, thingID strin
 }
 
 // ListSerials traces the "ListSerials" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.PageMetadata) (sdk.CertificatePage, error) {
+func (tm *tracingMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.Page) (sdk.CertificatePage, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_list_serials", trace.WithAttributes(
 		attribute.String("thing_id", thingID),
 		attribute.Int64("offset", int64(pm.Offset)),

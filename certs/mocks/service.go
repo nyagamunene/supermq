@@ -48,7 +48,7 @@ func (_m *Service) IssueCert(ctx context.Context, token string, thingID string, 
 }
 
 // ListCerts provides a mock function with given fields: ctx, token, thingID, pm
-func (_m *Service) ListCerts(ctx context.Context, token string, thingID string, pm certs.PageMetadata) (sdk.CertificatePage, error) {
+func (_m *Service) ListCerts(ctx context.Context, token string, thingID string, pm certs.Page) (sdk.CertificatePage, error) {
 	ret := _m.Called(ctx, token, thingID, pm)
 
 	if len(ret) == 0 {
@@ -57,16 +57,16 @@ func (_m *Service) ListCerts(ctx context.Context, token string, thingID string, 
 
 	var r0 sdk.CertificatePage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.PageMetadata) (sdk.CertificatePage, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.Page) (sdk.CertificatePage, error)); ok {
 		return rf(ctx, token, thingID, pm)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.PageMetadata) sdk.CertificatePage); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.Page) sdk.CertificatePage); ok {
 		r0 = rf(ctx, token, thingID, pm)
 	} else {
 		r0 = ret.Get(0).(sdk.CertificatePage)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, certs.PageMetadata) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, certs.Page) error); ok {
 		r1 = rf(ctx, token, thingID, pm)
 	} else {
 		r1 = ret.Error(1)
@@ -76,7 +76,7 @@ func (_m *Service) ListCerts(ctx context.Context, token string, thingID string, 
 }
 
 // ListSerials provides a mock function with given fields: ctx, token, thingID, pm
-func (_m *Service) ListSerials(ctx context.Context, token string, thingID string, pm certs.PageMetadata) (sdk.CertificatePage, error) {
+func (_m *Service) ListSerials(ctx context.Context, token string, thingID string, pm certs.Page) (sdk.CertificatePage, error) {
 	ret := _m.Called(ctx, token, thingID, pm)
 
 	if len(ret) == 0 {
@@ -85,16 +85,16 @@ func (_m *Service) ListSerials(ctx context.Context, token string, thingID string
 
 	var r0 sdk.CertificatePage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.PageMetadata) (sdk.CertificatePage, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.Page) (sdk.CertificatePage, error)); ok {
 		return rf(ctx, token, thingID, pm)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.PageMetadata) sdk.CertificatePage); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, certs.Page) sdk.CertificatePage); ok {
 		r0 = rf(ctx, token, thingID, pm)
 	} else {
 		r0 = ret.Get(0).(sdk.CertificatePage)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, certs.PageMetadata) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, certs.Page) error); ok {
 		r1 = rf(ctx, token, thingID, pm)
 	} else {
 		r1 = ret.Error(1)
