@@ -32,7 +32,7 @@ func MetricsMiddleware(svc certs.Service, counter metrics.Counter, latency metri
 }
 
 // IssueCert instruments IssueCert method with metrics.
-func (ms *metricsMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.SerialNumber, error) {
+func (ms *metricsMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.Certificate, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "issue_cert").Add(1)
 		ms.latency.With("method", "issue_cert").Observe(time.Since(begin).Seconds())

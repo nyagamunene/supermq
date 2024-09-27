@@ -28,7 +28,7 @@ func LoggingMiddleware(svc certs.Service, logger *slog.Logger) certs.Service {
 
 // IssueCert logs the issue_cert request. It logs the ttl, thing ID and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (c sdk.SerialNumber, err error) {
+func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (c sdk.Certificate, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),

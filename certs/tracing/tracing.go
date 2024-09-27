@@ -25,7 +25,7 @@ func New(svc certs.Service, tracer trace.Tracer) certs.Service {
 }
 
 // IssueCert traces the "IssueCert" operation of the wrapped certs.Service.
-func (tm *tracingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.SerialNumber, error) {
+func (tm *tracingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.Certificate, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_create_group", trace.WithAttributes(
 		attribute.String("thing_id", thingID),
 		attribute.String("ttl", ttl),

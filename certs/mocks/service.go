@@ -20,22 +20,22 @@ type Service struct {
 }
 
 // IssueCert provides a mock function with given fields: ctx, token, thingID, ttl
-func (_m *Service) IssueCert(ctx context.Context, token string, thingID string, ttl string) (sdk.SerialNumber, error) {
+func (_m *Service) IssueCert(ctx context.Context, token string, thingID string, ttl string) (sdk.Certificate, error) {
 	ret := _m.Called(ctx, token, thingID, ttl)
 
 	if len(ret) == 0 {
 		panic("no return value specified for IssueCert")
 	}
 
-	var r0 sdk.SerialNumber
+	var r0 sdk.Certificate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (sdk.SerialNumber, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) (sdk.Certificate, error)); ok {
 		return rf(ctx, token, thingID, ttl)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) sdk.SerialNumber); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) sdk.Certificate); ok {
 		r0 = rf(ctx, token, thingID, ttl)
 	} else {
-		r0 = ret.Get(0).(sdk.SerialNumber)
+		r0 = ret.Get(0).(sdk.Certificate)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {

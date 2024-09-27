@@ -29,30 +29,26 @@ type Cert struct {
 	ThingID      string    `json:"entity_id,omitempty"`
 }
 
-type Serial struct {
-	Serial string `json:"serial"`
-}
-
-func (sdk mgSDK) IssueCert(thingID, validity, token string) (Serial, errors.SDKError) {
+func (sdk mgSDK) IssueCert(thingID, validity, token string) (Cert, errors.SDKError) {
 	r := certReq{
 		ThingID:  thingID,
 		Validity: validity,
 	}
 	d, err := json.Marshal(r)
 	if err != nil {
-		return Serial{}, errors.NewSDKError(err)
+		return Cert{}, errors.NewSDKError(err)
 	}
 
 	url := fmt.Sprintf("%s/%s", sdk.certsURL, certsEndpoint)
 
 	_, body, sdkerr := sdk.processRequest(http.MethodPost, url, token, d, nil, http.StatusCreated)
 	if sdkerr != nil {
-		return Serial{}, sdkerr
+		return Cert{}, sdkerr
 	}
 
-	var c Serial
+	var c Cert
 	if err := json.Unmarshal(body, &c); err != nil {
-		return Serial{}, errors.NewSDKError(err)
+		return Cert{}, errors.NewSDKError(err)
 	}
 
 	return c, nil

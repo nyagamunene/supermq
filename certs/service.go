@@ -35,7 +35,7 @@ var _ Service = (*certsService)(nil)
 //go:generate mockery --name Service --output=./mocks --filename service.go --quiet --note "Copyright (c) Abstract Machines"
 type Service interface {
 	// IssueCert issues certificate for given thing id if access is granted with token
-	IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.SerialNumber, error)
+	IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.Certificate, error)
 
 	// ListCerts lists certificates issued for a given thing ID
 	ListCerts(ctx context.Context, token, thingID string, pm Page) (sdk.CertificatePage, error)
@@ -70,23 +70,34 @@ type Revoke struct {
 	RevocationTime time.Time `mapstructure:"revocation_time"`
 }
 
-func (cs *certsService) IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.SerialNumber, error) {
+func (cs *certsService) IssueCert(ctx context.Context, token, thingID, ttl string) (sdk.Certificate, error) {
 	_, err := cs.auth.Identify(ctx, &magistrala.IdentityReq{Token: token})
 	if err != nil {
-		return sdk.SerialNumber{}, errors.Wrap(svcerr.ErrAuthentication, err)
+		return sdk.Certificate{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
 
 	thing, err := cs.sdk.Thing(thingID, token)
 	if err != nil {
-		return sdk.SerialNumber{}, errors.Wrap(ErrFailedCertCreation, err)
+		return sdk.Certificate{}, errors.Wrap(ErrFailedCertCreation, err)
 	}
 
 	SerialNumber, err := cs.pki.Issue(thing.ID, ttl, []string{})
 	if err != nil {
-		return sdk.SerialNumber{}, errors.Wrap(ErrFailedCertCreation, err)
+		return sdk.Certificate{}, errors.Wrap(ErrFailedCertCreation, err)
 	}
 
-	return SerialNumber, err
+	cert, err := cs.pki.View(SerialNumber.SerialNumber)
+	if err != nil {
+		return sdk.Certificate{}, errors.Wrap(ErrFailedCertCreation, err)
+	}
+
+	return sdk.Certificate{
+		SerialNumber: cert.SerialNumber,
+		Certificate:  cert.Certificate,
+		Revoked:      cert.Revoked,
+		ExpiryTime:   cert.ExpiryTime,
+		EntityID:     cert.EntityID,
+	}, err
 }
 
 func (cs *certsService) RevokeCert(ctx context.Context, token, thingID string) (Revoke, error) {

@@ -218,14 +218,14 @@ func (ps *provisionService) Provision(token, name, externalID, externalKey strin
 		}
 
 		if ps.conf.Bootstrap.X509Provision {
-			var serial sdk.Serial
+			var cert sdk.Cert
 
-			serial, err = ps.sdk.IssueCert(thing.ID, ps.conf.Cert.TTL, token)
+			cert, err = ps.sdk.IssueCert(thing.ID, ps.conf.Cert.TTL, token)
 			if err != nil {
 				e := errors.Wrap(err, fmt.Errorf("thing id: %s", thing.ID))
 				return res, errors.Wrap(ErrFailedCertCreation, e)
 			}
-			cert, err := ps.sdk.ViewCert(serial.Serial, token)
+			cert, err := ps.sdk.ViewCert(cert.SerialNumber, token)
 			if err != nil {
 				return res, errors.Wrap(ErrFailedCertView, err)
 			}
@@ -266,11 +266,11 @@ func (ps *provisionService) Cert(token, thingID, ttl string) (string, string, er
 	if err != nil {
 		return "", "", errors.Wrap(ErrUnauthorized, err)
 	}
-	serial, err := ps.sdk.IssueCert(th.ID, ps.conf.Cert.TTL, token)
+	cert, err := ps.sdk.IssueCert(th.ID, ps.conf.Cert.TTL, token)
 	if err != nil {
 		return "", "", errors.Wrap(ErrFailedCertCreation, err)
 	}
-	cert, err := ps.sdk.ViewCert(serial.Serial, token)
+	cert, err = ps.sdk.ViewCert(cert.SerialNumber, token)
 	if err != nil {
 		return "", "", errors.Wrap(ErrFailedCertView, err)
 	}

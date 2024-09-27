@@ -20,28 +20,12 @@ type certsPageRes struct {
 }
 
 type certsRes struct {
-	EntityID     string    `json:"entity_id"`
+	ThingID      string    `json:"entity_id"`
 	Certificate  string    `json:"certificate,omitempty"`
 	Key          string    `json:"key,omitempty"`
 	SerialNumber string    `json:"serial_number"`
 	ExpiryTime   time.Time `json:"expiry_time"`
 	Revoked      bool      `json:"revoked"`
-}
-
-type serialRes struct {
-	Serial string `json:"serial"`
-}
-
-func (res serialRes) Code() int {
-	return http.StatusCreated
-}
-
-func (res serialRes) Headers() map[string]string {
-	return map[string]string{}
-}
-
-func (res serialRes) Empty() bool {
-	return false
 }
 
 type revokeCertsRes struct {

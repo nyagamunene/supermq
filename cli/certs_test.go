@@ -198,18 +198,18 @@ func TestIssueCertCmd(t *testing.T) {
 	certCmd := cli.NewCertsCmd()
 	rootCmd := setFlags(certCmd)
 
-	serial := mgsdk.Serial{
-		Serial: "serial",
+	cert := mgsdk.Cert{
+		SerialNumber: "serial",
 	}
 
-	var cs mgsdk.Serial
+	var cs mgsdk.Cert
 	cases := []struct {
 		desc          string
 		args          []string
 		logType       outputLog
 		errLogMessage string
 		sdkErr        errors.SDKError
-		cert          mgsdk.Serial
+		cert          mgsdk.Cert
 	}{
 		{
 			desc: "issue cert successfully",
@@ -217,7 +217,7 @@ func TestIssueCertCmd(t *testing.T) {
 				thing.ID,
 				validToken,
 			},
-			cert:    serial,
+			cert:    cert,
 			logType: entityLog,
 		},
 		{

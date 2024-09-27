@@ -35,7 +35,7 @@ var (
 	serial               = testsutil.GenerateUUID(&testing.T{})
 	ttl                  = "10h"
 	cert, sdkCert        = generateTestCerts(&testing.T{})
-	sdkSerial            = sdk.Serial{Serial: serial}
+	sdkSerial            = sdk.Cert{SerialNumber: serial}
 	defOffset     uint64 = 0
 	defLimit      uint64 = 10
 	defRevoke            = "false"

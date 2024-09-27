@@ -87,7 +87,7 @@ func TestIssueCert(t *testing.T) {
 		ttl         string
 		request     string
 		status      int
-		svcRes      amsdk.SerialNumber
+		svcRes      amsdk.Certificate
 		svcErr      error
 		err         error
 	}{
@@ -99,7 +99,7 @@ func TestIssueCert(t *testing.T) {
 			ttl:         ttl,
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusCreated,
-			svcRes:      amsdk.SerialNumber{SerialNumber: serial},
+			svcRes:      amsdk.Certificate{SerialNumber: serial},
 			svcErr:      nil,
 			err:         nil,
 		},
@@ -111,7 +111,7 @@ func TestIssueCert(t *testing.T) {
 			ttl:         ttl,
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusUnauthorized,
-			svcRes:      amsdk.SerialNumber{},
+			svcRes:      amsdk.Certificate{},
 			svcErr:      svcerr.ErrAuthentication,
 			err:         svcerr.ErrAuthentication,
 		},
@@ -121,7 +121,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusUnauthorized,
-			svcRes:      amsdk.SerialNumber{},
+			svcRes:      amsdk.Certificate{},
 			svcErr:      nil,
 			err:         apiutil.ErrBearerToken,
 		},
@@ -131,7 +131,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, "", ttl),
 			status:      http.StatusBadRequest,
-			svcRes:      amsdk.SerialNumber{},
+			svcRes:      amsdk.Certificate{},
 			svcErr:      nil,
 			err:         apiutil.ErrMissingID,
 		},
@@ -141,7 +141,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, thingID, ""),
 			status:      http.StatusBadRequest,
-			svcRes:      amsdk.SerialNumber{},
+			svcRes:      amsdk.Certificate{},
 			svcErr:      nil,
 			err:         apiutil.ErrMissingCertData,
 		},
@@ -151,7 +151,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, thingID, invalid),
 			status:      http.StatusBadRequest,
-			svcRes:      amsdk.SerialNumber{},
+			svcRes:      amsdk.Certificate{},
 			svcErr:      nil,
 			err:         apiutil.ErrInvalidCertData,
 		},
@@ -161,7 +161,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: "application/xml",
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusUnsupportedMediaType,
-			svcRes:      amsdk.SerialNumber{},
+			svcRes:      amsdk.Certificate{},
 			svcErr:      nil,
 			err:         apiutil.ErrUnsupportedContentType,
 		},
@@ -171,7 +171,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(invalidReqString, thingID, ttl),
 			status:      http.StatusInternalServerError,
-			svcRes:      amsdk.SerialNumber{},
+			svcRes:      amsdk.Certificate{},
 			svcErr:      nil,
 			err:         apiutil.ErrValidation,
 		},
