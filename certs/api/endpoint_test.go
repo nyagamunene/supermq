@@ -347,13 +347,13 @@ func TestRevokeCert(t *testing.T) {
 func TestListSerials(t *testing.T) {
 	cs, svc := newCertServer()
 	defer cs.Close()
-	revoke := "false"
+	revoked := "false"
 
 	cases := []struct {
 		desc    string
 		token   string
 		thingID string
-		revoke  string
+		revoked string
 		offset  uint64
 		limit   uint64
 		query   string
@@ -366,7 +366,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list certs successfully with default limit",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  0,
 			limit:   10,
 			query:   "",
@@ -384,7 +384,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list certs successfully with default revoke",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  0,
 			limit:   10,
 			query:   "",
@@ -402,10 +402,10 @@ func TestListSerials(t *testing.T) {
 			desc:    "list certs successfully with all certs",
 			token:   valid,
 			thingID: thingID,
-			revoke:  "all",
+			revoked: "all",
 			offset:  0,
 			limit:   10,
-			query:   "?revoke=all",
+			query:   "?revoked=all",
 			status:  http.StatusOK,
 			svcRes: amsdk.CertificatePage{
 				Total:        1,
@@ -420,7 +420,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list certs successfully with limit",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  0,
 			limit:   5,
 			query:   "?limit=5",
@@ -438,7 +438,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list certs successfully with offset",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  1,
 			limit:   10,
 			query:   "?offset=1",
@@ -456,7 +456,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list certs successfully with offset and limit",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  1,
 			limit:   5,
 			query:   "?offset=1&limit=5",
@@ -474,7 +474,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list with invalid token",
 			token:   invalid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  0,
 			limit:   10,
 			query:   "",
@@ -487,7 +487,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list with empty token",
 			token:   "",
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  0,
 			limit:   10,
 			query:   "",
@@ -500,7 +500,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list with limit exceeding max limit",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			query:   "?limit=1000",
 			status:  http.StatusBadRequest,
 			svcRes:  amsdk.CertificatePage{},
@@ -511,7 +511,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list with invalid offset",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			query:   "?offset=invalid",
 			status:  http.StatusBadRequest,
 			svcRes:  amsdk.CertificatePage{},
@@ -522,7 +522,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list with invalid limit",
 			token:   valid,
 			thingID: thingID,
-			revoke:  revoke,
+			revoked: revoked,
 			query:   "?limit=invalid",
 			status:  http.StatusBadRequest,
 			svcRes:  amsdk.CertificatePage{},
@@ -533,7 +533,7 @@ func TestListSerials(t *testing.T) {
 			desc:    "list with invalid thing id",
 			token:   valid,
 			thingID: invalid,
-			revoke:  revoke,
+			revoked: revoked,
 			offset:  0,
 			limit:   10,
 			query:   "",
@@ -550,7 +550,7 @@ func TestListSerials(t *testing.T) {
 			url:    fmt.Sprintf("%s/serials/%s", cs.URL, tc.thingID) + tc.query,
 			token:  tc.token,
 		}
-		svcCall := svc.On("ListSerials", mock.Anything, tc.token, tc.thingID, certs.Page{Revoked: tc.revoke, Offset: tc.offset, Limit: tc.limit}).Return(tc.svcRes, tc.svcErr)
+		svcCall := svc.On("ListSerials", mock.Anything, tc.token, tc.thingID, certs.Page{Revoked: tc.revoked, Offset: tc.offset, Limit: tc.limit}).Return(tc.svcRes, tc.svcErr)
 		res, err := req.make()
 		assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 		var errRes respBody
