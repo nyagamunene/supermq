@@ -142,7 +142,7 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 	}
 
 	var certs []sdk.Certificate
-	switch pm.Revoke {
+	switch pm.Revoked {
 	case "true":
 		for _, c := range cp.Certificates {
 			if c.Revoked {

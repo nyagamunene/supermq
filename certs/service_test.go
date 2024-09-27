@@ -326,7 +326,7 @@ func TestListSerials(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
 			agentCall := agent.On("ListCerts", mock.Anything).Return(amsdk.CertificatePage{Certificates: tc.certs}, tc.repoErr)
-			page, err := svc.ListSerials(context.Background(), tc.token, tc.thingID, certs.Page{Revoke: tc.revoke, Offset: tc.offset, Limit: tc.limit})
+			page, err := svc.ListSerials(context.Background(), tc.token, tc.thingID, certs.Page{Revoked: tc.revoke, Offset: tc.offset, Limit: tc.limit})
 			assert.Equal(t, tc.certs, page.Certificates, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.certs, page.Certificates))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			authCall.Unset()

@@ -76,7 +76,7 @@ func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID str
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("thing_id", thingID),
-			slog.String("revoke", pm.Revoke),
+			slog.String("revoke", pm.Revoked),
 			slog.Group("page",
 				slog.Uint64("offset", cp.Offset),
 				slog.Uint64("limit", cp.Limit),

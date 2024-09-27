@@ -13,10 +13,10 @@ import (
 )
 
 type Page struct {
-	Total  uint64
-	Offset uint64
-	Limit  uint64
-	Revoke string
+	Total   uint64
+	Offset  uint64
+	Limit   uint64
+	Revoked string
 }
 
 var ErrMissingCerts = errors.New("CA path or CA key path not set")
