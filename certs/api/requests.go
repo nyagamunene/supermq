@@ -41,14 +41,14 @@ func (req addCertsReq) validate() error {
 type listReq struct {
 	thingID string
 	token   string
-	meta    certs.Page
+	pm      certs.Page
 }
 
 func (req *listReq) validate() error {
 	if req.token == "" {
 		return apiutil.ErrBearerToken
 	}
-	if req.meta.Limit > maxLimitSize {
+	if req.pm.Limit > maxLimitSize {
 		return apiutil.ErrLimitSize
 	}
 	return nil
