@@ -19,14 +19,13 @@ const (
 )
 
 // Cert represents certs data.
-// ThingID is mapped to entity_id in the API because the API uses a general entity type rather than a specific one.
 type Cert struct {
 	SerialNumber string    `json:"serial_number,omitempty"`
 	Certificate  string    `json:"certificate,omitempty"`
 	Key          string    `json:"key,omitempty"`
 	Revoked      bool      `json:"revoked,omitempty"`
 	ExpiryTime   time.Time `json:"expiry_time,omitempty"`
-	ThingID      string    `json:"entity_id,omitempty"`
+	ThingID      string    `json:"thing_id,omitempty"`
 }
 
 func (sdk mgSDK) IssueCert(thingID, validity, token string) (Cert, errors.SDKError) {

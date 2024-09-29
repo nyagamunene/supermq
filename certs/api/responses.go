@@ -20,7 +20,7 @@ type certsPageRes struct {
 }
 
 type certsRes struct {
-	ThingID      string    `json:"entity_id"`
+	ThingID      string    `json:"thing_id"`
 	Certificate  string    `json:"certificate,omitempty"`
 	Key          string    `json:"key,omitempty"`
 	SerialNumber string    `json:"serial_number"`
