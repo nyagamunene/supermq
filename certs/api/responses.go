@@ -26,6 +26,7 @@ type certsRes struct {
 	SerialNumber string    `json:"serial_number"`
 	ExpiryTime   time.Time `json:"expiry_time"`
 	Revoked      bool      `json:"revoked"`
+	issued       bool
 }
 
 type revokeCertsRes struct {
@@ -45,6 +46,9 @@ func (res certsPageRes) Empty() bool {
 }
 
 func (res certsRes) Code() int {
+	if res.issued {
+		return http.StatusCreated
+	}
 	return http.StatusOK
 }
 

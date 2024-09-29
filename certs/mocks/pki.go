@@ -139,22 +139,22 @@ func (_c *Agent_GetDownloadToken_Call) RunAndReturn(run func(string) (sdk.Token,
 }
 
 // Issue provides a mock function with given fields: entityId, ttl, ipAddrs
-func (_m *Agent) Issue(entityId string, ttl string, ipAddrs []string) (sdk.SerialNumber, error) {
+func (_m *Agent) Issue(entityId string, ttl string, ipAddrs []string) (sdk.Certificate, error) {
 	ret := _m.Called(entityId, ttl, ipAddrs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Issue")
 	}
 
-	var r0 sdk.SerialNumber
+	var r0 sdk.Certificate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, []string) (sdk.SerialNumber, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, []string) (sdk.Certificate, error)); ok {
 		return rf(entityId, ttl, ipAddrs)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, []string) sdk.SerialNumber); ok {
+	if rf, ok := ret.Get(0).(func(string, string, []string) sdk.Certificate); ok {
 		r0 = rf(entityId, ttl, ipAddrs)
 	} else {
-		r0 = ret.Get(0).(sdk.SerialNumber)
+		r0 = ret.Get(0).(sdk.Certificate)
 	}
 
 	if rf, ok := ret.Get(1).(func(string, string, []string) error); ok {
@@ -186,12 +186,12 @@ func (_c *Agent_Issue_Call) Run(run func(entityId string, ttl string, ipAddrs []
 	return _c
 }
 
-func (_c *Agent_Issue_Call) Return(_a0 sdk.SerialNumber, _a1 error) *Agent_Issue_Call {
+func (_c *Agent_Issue_Call) Return(_a0 sdk.Certificate, _a1 error) *Agent_Issue_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Agent_Issue_Call) RunAndReturn(run func(string, string, []string) (sdk.SerialNumber, error)) *Agent_Issue_Call {
+func (_c *Agent_Issue_Call) RunAndReturn(run func(string, string, []string) (sdk.Certificate, error)) *Agent_Issue_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -86,7 +86,7 @@ func TestIssueCert(t *testing.T) {
 		thingID  string
 		duration string
 		token    string
-		svcRes   amsdk.SerialNumber
+		svcRes   amsdk.Certificate
 		svcErr   error
 		err      errors.SDKError
 	}{
@@ -95,7 +95,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    validToken,
-			svcRes:   amsdk.SerialNumber{SerialNumber: cert.SerialNumber},
+			svcRes:   amsdk.Certificate{SerialNumber: serial},
 			svcErr:   nil,
 			err:      nil,
 		},
@@ -104,7 +104,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  "",
 			duration: ttl,
 			token:    validToken,
-			svcRes:   amsdk.SerialNumber{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrMissingID),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingID), http.StatusBadRequest),
 		},
@@ -113,7 +113,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  invalid,
 			duration: ttl,
 			token:    validToken,
-			svcRes:   amsdk.SerialNumber{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrValidation),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, certs.ErrFailedCertCreation), http.StatusBadRequest),
 		},
@@ -122,7 +122,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: "",
 			token:    validToken,
-			svcRes:   amsdk.SerialNumber{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrMissingCertData),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingCertData), http.StatusBadRequest),
 		},
@@ -131,7 +131,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: invalid,
 			token:    validToken,
-			svcRes:   amsdk.SerialNumber{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrInvalidCertData),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrInvalidCertData), http.StatusBadRequest),
 		},
@@ -140,7 +140,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    "",
-			svcRes:   amsdk.SerialNumber{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, svcerr.ErrAuthentication),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
@@ -149,7 +149,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    invalidToken,
-			svcRes:   amsdk.SerialNumber{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, svcerr.ErrAuthentication),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, certs.ErrFailedCertCreation), http.StatusUnauthorized),
 		},
@@ -158,7 +158,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  "",
 			duration: "",
 			token:    validToken,
-			svcRes:   amsdk.SerialNumber{},
+			svcRes:   amsdk.Certificate{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, certs.ErrFailedCertCreation),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingID), http.StatusBadRequest),
 		},
@@ -170,7 +170,7 @@ func TestIssueCert(t *testing.T) {
 			resp, err := mgsdk.IssueCert(tc.thingID, tc.duration, tc.token)
 			assert.Equal(t, tc.err, err)
 			if tc.err == nil {
-				assert.Equal(t, sdkSerial, resp)
+				assert.Equal(t, tc.svcRes.SerialNumber, resp.SerialNumber)
 				ok := svcCall.Parent.AssertCalled(t, "IssueCert", mock.Anything, tc.token, tc.thingID, tc.duration)
 				assert.True(t, ok)
 			}

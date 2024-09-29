@@ -29,6 +29,7 @@ func issueCert(svc certs.Service) endpoint.Endpoint {
 			Certificate:  res.Certificate,
 			ExpiryTime:   res.ExpiryTime,
 			Revoked:      res.Revoked,
+			issued:       true,
 		}, nil
 	}
 }
@@ -85,6 +86,7 @@ func viewCert(svc certs.Service) endpoint.Endpoint {
 			SerialNumber: cert.SerialNumber,
 			ExpiryTime:   cert.ExpiryTime,
 			Revoked:      cert.Revoked,
+			issued:       false,
 		}, nil
 	}
 }

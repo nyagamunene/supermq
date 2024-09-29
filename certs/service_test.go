@@ -45,7 +45,7 @@ func newService(_ *testing.T) (certs.Service, *mocks.Agent, *authmocks.AuthServi
 var cert = amsdk.Certificate{
 	EntityID:     thingID,
 	SerialNumber: "Serial",
-	ExpiryTime:   time.Time{},
+	ExpiryTime:    time.Now().Add(time.Duration(1000)),
 	Revoked:      false,
 }
 
@@ -58,7 +58,7 @@ func TestIssueCert(t *testing.T) {
 		ttl          string
 		ipAddr       []string
 		key          string
-		serial       amsdk.SerialNumber
+		cert         amsdk.Certificate
 		identifyRes  *magistrala.IdentityRes
 		identifyErr  error
 		thingErr     errors.SDKError
@@ -72,7 +72,7 @@ func TestIssueCert(t *testing.T) {
 			ttl:         ttl,
 			ipAddr:      []string{},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
-			serial:      amsdk.SerialNumber{SerialNumber: cert.SerialNumber},
+			cert:        cert,
 		},
 		{
 			desc:        "issue new cert for non existing thing id",
@@ -100,11 +100,11 @@ func TestIssueCert(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
 			sdkCall := sdk.On("Thing", tc.thingID, tc.token).Return(mgsdk.Thing{ID: tc.thingID, Credentials: mgsdk.Credentials{Secret: thingKey}}, tc.thingErr)
-			agentCall := agent.On("Issue", thingID, tc.ttl, tc.ipAddr).Return(tc.serial, tc.issueCertErr)
+			agentCall := agent.On("Issue", thingID, tc.ttl, tc.ipAddr).Return(tc.cert, tc.issueCertErr)
 
-			serial, err := svc.IssueCert(context.Background(), tc.token, tc.thingID, tc.ttl)
+			resp, err := svc.IssueCert(context.Background(), tc.token, tc.thingID, tc.ttl)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			assert.Equal(t, tc.serial, serial, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.serial, serial))
+			assert.Equal(t, tc.cert.SerialNumber, resp.SerialNumber, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.cert.SerialNumber, resp.SerialNumber))
 			authCall.Unset()
 			sdkCall.Unset()
 			agentCall.Unset()

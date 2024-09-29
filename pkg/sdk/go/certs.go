@@ -50,7 +50,6 @@ func (sdk mgSDK) IssueCert(thingID, validity, token string) (Cert, errors.SDKErr
 	if err := json.Unmarshal(body, &c); err != nil {
 		return Cert{}, errors.NewSDKError(err)
 	}
-
 	return c, nil
 }
 

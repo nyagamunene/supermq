@@ -8,7 +8,7 @@ import (
 )
 
 type Agent interface {
-	Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error)
+	Issue(entityId, ttl string, ipAddrs []string) (sdk.Certificate, error)
 
 	Download(serialNumber string) (sdk.CertificateBundle, error)
 
@@ -43,13 +43,13 @@ func NewAgent(host, certsURL string, TLSVerification bool) (Agent, error) {
 	}, nil
 }
 
-func (c sdkAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.SerialNumber, error) {
-	serial, err := c.sdk.IssueCert(entityId, ttl, ipAddrs, sdk.Options{CommonName: "Magistrala"})
+func (c sdkAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.Certificate, error) {
+	cert, err := c.sdk.IssueCert(entityId, ttl, ipAddrs, sdk.Options{CommonName: "Magistrala"})
 	if err != nil {
-		return sdk.SerialNumber{}, err
+		return sdk.Certificate{}, err
 	}
 
-	return serial, nil
+	return cert, nil
 }
 
 func (c sdkAgent) Download(serial string) (sdk.CertificateBundle, error) {

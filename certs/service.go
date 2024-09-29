@@ -81,23 +81,12 @@ func (cs *certsService) IssueCert(ctx context.Context, token, thingID, ttl strin
 		return sdk.Certificate{}, errors.Wrap(ErrFailedCertCreation, err)
 	}
 
-	SerialNumber, err := cs.pki.Issue(thing.ID, ttl, []string{})
+	cert, err := cs.pki.Issue(thing.ID, ttl, []string{})
 	if err != nil {
 		return sdk.Certificate{}, errors.Wrap(ErrFailedCertCreation, err)
 	}
 
-	cert, err := cs.pki.View(SerialNumber.SerialNumber)
-	if err != nil {
-		return sdk.Certificate{}, errors.Wrap(ErrFailedCertCreation, err)
-	}
-
-	return sdk.Certificate{
-		SerialNumber: cert.SerialNumber,
-		Certificate:  cert.Certificate,
-		Revoked:      cert.Revoked,
-		ExpiryTime:   cert.ExpiryTime,
-		EntityID:     cert.EntityID,
-	}, err
+	return cert, err
 }
 
 func (cs *certsService) RevokeCert(ctx context.Context, token, thingID string) (Revoke, error) {
