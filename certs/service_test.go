@@ -45,7 +45,7 @@ func newService(_ *testing.T) (certs.Service, *mocks.Agent, *authmocks.AuthServi
 var cert = amsdk.Certificate{
 	EntityID:     thingID,
 	SerialNumber: "Serial",
-	ExpiryTime:    time.Now().Add(time.Duration(1000)),
+	ExpiryTime:   time.Now().Add(time.Duration(1000)),
 	Revoked:      false,
 }
 
