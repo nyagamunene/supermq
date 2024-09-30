@@ -1,6 +1,8 @@
 module github.com/absmach/magistrala
 
-go 1.22.7
+go 1.23.0
+
+toolchain go1.23.1
 
 require (
 	github.com/0x6flab/namegenerator v1.4.0
