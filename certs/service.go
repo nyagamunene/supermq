@@ -9,7 +9,7 @@ import (
 
 	"github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala"
-	pki "github.com/absmach/magistrala/certs/pki/am-certs"
+	pki "github.com/absmach/magistrala/certs/pki/amcerts"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
@@ -148,9 +148,10 @@ func (cs *certsService) ListCerts(ctx context.Context, token, thingID string, pm
 	}
 
 	return CertPage{
-		Total:  cp.Total,
-		Limit:  cp.Limit,
-		Offset: cp.Offset,
+		Total:        cp.Total,
+		Limit:        cp.Limit,
+		Offset:       cp.Offset,
+		Certificates: crts,
 	}, nil
 }
 

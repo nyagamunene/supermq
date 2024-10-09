@@ -7,7 +7,7 @@
 package mocks
 
 import (
-	amcerts "github.com/absmach/magistrala/certs/pki/am-certs"
+	amcerts "github.com/absmach/magistrala/certs/pki/amcerts"
 	mock "github.com/stretchr/testify/mock"
 
 	sdk "github.com/absmach/certs/sdk"

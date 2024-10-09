@@ -16,7 +16,7 @@ import (
 	"github.com/absmach/magistrala"
 	"github.com/absmach/magistrala/certs"
 	"github.com/absmach/magistrala/certs/api"
-	pki "github.com/absmach/magistrala/certs/pki/am-certs"
+	pki "github.com/absmach/magistrala/certs/pki/amcerts"
 	"github.com/absmach/magistrala/certs/tracing"
 	mglog "github.com/absmach/magistrala/logger"
 	"github.com/absmach/magistrala/pkg/grpcclient"

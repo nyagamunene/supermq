@@ -19,7 +19,7 @@ packages:
           mockname: "PolicyServiceClient"
           filename: "policy_client.go"
 
-  github.com/absmach/magistrala/certs/pki/am-certs:
+  github.com/absmach/magistrala/certs/pki/amcerts:
     interfaces:
       Agent:
         config:

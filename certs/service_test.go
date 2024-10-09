@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	amsdk "github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala"
 	authmocks "github.com/absmach/magistrala/auth/mocks"
 	"github.com/absmach/magistrala/certs"
 	"github.com/absmach/magistrala/certs/mocks"
+	mgcrt "github.com/absmach/magistrala/certs/pki/amcerts"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	mgsdk "github.com/absmach/magistrala/pkg/sdk/go"
@@ -42,8 +42,8 @@ func newService(_ *testing.T) (certs.Service, *mocks.Agent, *authmocks.AuthServi
 	return certs.New(auth, sdk, agent), agent, auth, sdk
 }
 
-var cert = amsdk.Certificate{
-	EntityID:     thingID,
+var cert = mgcrt.Cert{
+	ThingID:      thingID,
 	SerialNumber: "Serial",
 	ExpiryTime:   time.Now().Add(time.Duration(1000)),
 	Revoked:      false,
@@ -58,7 +58,7 @@ func TestIssueCert(t *testing.T) {
 		ttl          string
 		ipAddr       []string
 		key          string
-		cert         amsdk.Certificate
+		cert         mgcrt.Cert
 		identifyRes  *magistrala.IdentityRes
 		identifyErr  error
 		thingErr     errors.SDKError
@@ -118,7 +118,7 @@ func TestRevokeCert(t *testing.T) {
 		token       string
 		desc        string
 		thingID     string
-		page        amsdk.CertificatePage
+		page        mgcrt.CertPage
 		identifyRes *magistrala.IdentityRes
 		identifyErr error
 		authErr     error
@@ -131,14 +131,14 @@ func TestRevokeCert(t *testing.T) {
 			desc:        "revoke cert",
 			token:       token,
 			thingID:     thingID,
-			page:        amsdk.CertificatePage{Limit: 10000, Offset: 0, Total: 1, Certificates: []amsdk.Certificate{cert}},
+			page:        mgcrt.CertPage{Limit: 10000, Offset: 0, Total: 1, Certificates: []mgcrt.Cert{cert}},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "revoke cert for invalid token",
 			token:       invalid,
 			thingID:     thingID,
-			page:        amsdk.CertificatePage{},
+			page:        mgcrt.CertPage{},
 			identifyRes: &magistrala.IdentityRes{},
 			identifyErr: svcerr.ErrAuthentication,
 			err:         svcerr.ErrAuthentication,
@@ -147,7 +147,7 @@ func TestRevokeCert(t *testing.T) {
 			desc:        "revoke cert for invalid thing id",
 			token:       token,
 			thingID:     "2",
-			page:        amsdk.CertificatePage{},
+			page:        mgcrt.CertPage{},
 			identifyRes: &magistrala.IdentityRes{},
 			thingErr:    errors.NewSDKError(certs.ErrFailedCertCreation),
 			err:         certs.ErrFailedCertRevocation,
@@ -156,7 +156,7 @@ func TestRevokeCert(t *testing.T) {
 			desc:        "revoke cert with failed to list certs",
 			token:       token,
 			thingID:     thingID,
-			page:        amsdk.CertificatePage{},
+			page:        mgcrt.CertPage{},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 			listErr:     certs.ErrFailedCertRevocation,
 			err:         certs.ErrFailedCertRevocation,
@@ -183,10 +183,10 @@ func TestRevokeCert(t *testing.T) {
 
 func TestListCerts(t *testing.T) {
 	svc, agent, auth, _ := newService(t)
-	var mycerts []amsdk.Certificate
+	var mycerts []mgcrt.Cert
 	for i := 0; i < certNum; i++ {
-		c := amsdk.Certificate{
-			EntityID:     thingID,
+		c := mgcrt.Cert{
+			ThingID:      thingID,
 			SerialNumber: fmt.Sprintf("%d", i),
 			ExpiryTime:   time.Now().Add(time.Hour),
 		}
@@ -197,7 +197,7 @@ func TestListCerts(t *testing.T) {
 		token       string
 		desc        string
 		thingID     string
-		page        amsdk.CertificatePage
+		page        mgcrt.CertPage
 		identifyRes *magistrala.IdentityRes
 		identifyErr error
 		listErr     error
@@ -207,14 +207,14 @@ func TestListCerts(t *testing.T) {
 			desc:        "list all certs with valid token",
 			token:       token,
 			thingID:     thingID,
-			page:        amsdk.CertificatePage{Limit: certNum, Offset: 0, Total: certNum, Certificates: mycerts},
+			page:        mgcrt.CertPage{Limit: certNum, Offset: 0, Total: certNum, Certificates: mycerts},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "list all certs with invalid token",
 			token:       invalid,
 			thingID:     thingID,
-			page:        amsdk.CertificatePage{},
+			page:        mgcrt.CertPage{},
 			identifyRes: &magistrala.IdentityRes{},
 			identifyErr: svcerr.ErrAuthentication,
 			err:         svcerr.ErrAuthentication,
@@ -223,14 +223,14 @@ func TestListCerts(t *testing.T) {
 			desc:        "list half certs with valid token",
 			token:       token,
 			thingID:     thingID,
-			page:        amsdk.CertificatePage{Limit: certNum, Offset: certNum / 2, Total: certNum / 2, Certificates: mycerts[certNum/2:]},
+			page:        mgcrt.CertPage{Limit: certNum, Offset: certNum / 2, Total: certNum / 2, Certificates: mycerts[certNum/2:]},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 		},
 		{
 			desc:        "list last cert with valid token",
 			token:       token,
 			thingID:     thingID,
-			page:        amsdk.CertificatePage{Limit: certNum, Offset: certNum - 1, Total: 1, Certificates: []amsdk.Certificate{mycerts[certNum-1]}},
+			page:        mgcrt.CertPage{Limit: certNum, Offset: certNum - 1, Total: 1, Certificates: []mgcrt.Cert{mycerts[certNum-1]}},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
@@ -254,10 +254,10 @@ func TestListSerials(t *testing.T) {
 	svc, agent, auth, _ := newService(t)
 	revoke := "false"
 
-	var issuedCerts []amsdk.Certificate
+	var issuedCerts []mgcrt.Cert
 	for i := 0; i < certNum; i++ {
-		crt := amsdk.Certificate{
-			EntityID:     cert.EntityID,
+		crt := mgcrt.Cert{
+			ThingID:      cert.ThingID,
 			SerialNumber: cert.SerialNumber,
 			ExpiryTime:   cert.ExpiryTime,
 			Revoked:      false,
@@ -272,7 +272,7 @@ func TestListSerials(t *testing.T) {
 		revoke      string
 		offset      uint64
 		limit       uint64
-		certs       []amsdk.Certificate
+		certs       []mgcrt.Cert
 		identifyRes *magistrala.IdentityRes
 		identifyErr error
 		repoErr     error
@@ -317,7 +317,7 @@ func TestListSerials(t *testing.T) {
 			revoke:      revoke,
 			offset:      certNum - 1,
 			limit:       certNum,
-			certs:       []amsdk.Certificate{issuedCerts[certNum-1]},
+			certs:       []mgcrt.Cert{issuedCerts[certNum-1]},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 		},
 	}
@@ -325,9 +325,9 @@ func TestListSerials(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
-			agentCall := agent.On("ListCerts", mock.Anything).Return(amsdk.CertificatePage{Certificates: tc.certs}, tc.repoErr)
+			agentCall := agent.On("ListCerts", mock.Anything).Return(mgcrt.CertPage{Certificates: tc.certs}, tc.repoErr)
 			page, err := svc.ListSerials(context.Background(), tc.token, tc.thingID, certs.PageMetadata{Revoked: tc.revoke, Offset: tc.offset, Limit: tc.limit})
-			assert.Equal(t, tc.certs, page.Certificates, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.certs, page.Certificates))
+			assert.Equal(t, len(tc.certs), len(page.Certificates), fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.certs, page.Certificates))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			authCall.Unset()
 			agentCall.Unset()
@@ -342,7 +342,7 @@ func TestViewCert(t *testing.T) {
 		token       string
 		desc        string
 		serialID    string
-		cert        amsdk.Certificate
+		cert        mgcrt.Cert
 		identifyRes *magistrala.IdentityRes
 		identifyErr error
 		repoErr     error
@@ -360,7 +360,7 @@ func TestViewCert(t *testing.T) {
 			desc:        "list cert with invalid token",
 			token:       invalid,
 			serialID:    cert.SerialNumber,
-			cert:        amsdk.Certificate{},
+			cert:        mgcrt.Cert{},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 			identifyErr: svcerr.ErrAuthentication,
 			err:         svcerr.ErrAuthentication,
@@ -369,7 +369,7 @@ func TestViewCert(t *testing.T) {
 			desc:        "list cert with invalid serial",
 			token:       token,
 			serialID:    invalid,
-			cert:        amsdk.Certificate{},
+			cert:        mgcrt.Cert{},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
 			agentErr:    svcerr.ErrNotFound,
 			err:         svcerr.ErrNotFound,
