@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/absmach/magistrala/certs"
-	mgcrt "github.com/absmach/magistrala/certs"
 	httpapi "github.com/absmach/magistrala/certs/api"
 	"github.com/absmach/magistrala/certs/mocks"
 	"github.com/absmach/magistrala/internal/testsutil"
@@ -40,10 +39,10 @@ var (
 	defRevoke            = "false"
 )
 
-func generateTestCerts(t *testing.T) (mgcrt.Cert, sdk.Cert) {
+func generateTestCerts(t *testing.T) (certs.Cert, sdk.Cert) {
 	expirationTime, err := time.Parse(time.RFC3339, "2032-01-01T00:00:00Z")
 	assert.Nil(t, err, fmt.Sprintf("failed to parse expiration time: %v", err))
-	c := mgcrt.Cert{
+	c := certs.Cert{
 		ThingID:      thingID,
 		SerialNumber: serial,
 		ExpiryTime:   expirationTime,
@@ -85,7 +84,7 @@ func TestIssueCert(t *testing.T) {
 		thingID  string
 		duration string
 		token    string
-		svcRes   mgcrt.Cert
+		svcRes   certs.Cert
 		svcErr   error
 		err      errors.SDKError
 	}{
@@ -94,7 +93,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    validToken,
-			svcRes:   mgcrt.Cert{SerialNumber: serial},
+			svcRes:   certs.Cert{SerialNumber: serial},
 			svcErr:   nil,
 			err:      nil,
 		},
@@ -103,7 +102,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  "",
 			duration: ttl,
 			token:    validToken,
-			svcRes:   mgcrt.Cert{},
+			svcRes:   certs.Cert{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrMissingID),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingID), http.StatusBadRequest),
 		},
@@ -112,7 +111,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  invalid,
 			duration: ttl,
 			token:    validToken,
-			svcRes:   mgcrt.Cert{},
+			svcRes:   certs.Cert{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrValidation),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, certs.ErrFailedCertCreation), http.StatusBadRequest),
 		},
@@ -121,7 +120,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: "",
 			token:    validToken,
-			svcRes:   mgcrt.Cert{},
+			svcRes:   certs.Cert{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrMissingCertData),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingCertData), http.StatusBadRequest),
 		},
@@ -130,7 +129,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: invalid,
 			token:    validToken,
-			svcRes:   mgcrt.Cert{},
+			svcRes:   certs.Cert{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, apiutil.ErrInvalidCertData),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrInvalidCertData), http.StatusBadRequest),
 		},
@@ -139,7 +138,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    "",
-			svcRes:   mgcrt.Cert{},
+			svcRes:   certs.Cert{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, svcerr.ErrAuthentication),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
@@ -148,7 +147,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  thingID,
 			duration: ttl,
 			token:    invalidToken,
-			svcRes:   mgcrt.Cert{},
+			svcRes:   certs.Cert{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, svcerr.ErrAuthentication),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, certs.ErrFailedCertCreation), http.StatusUnauthorized),
 		},
@@ -157,7 +156,7 @@ func TestIssueCert(t *testing.T) {
 			thingID:  "",
 			duration: "",
 			token:    validToken,
-			svcRes:   mgcrt.Cert{},
+			svcRes:   certs.Cert{},
 			svcErr:   errors.Wrap(certs.ErrFailedCertCreation, certs.ErrFailedCertCreation),
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingID), http.StatusBadRequest),
 		},
@@ -197,7 +196,7 @@ func TestViewCert(t *testing.T) {
 		desc   string
 		certID string
 		token  string
-		svcRes mgcrt.Cert
+		svcRes certs.Cert
 		svcErr error
 		err    errors.SDKError
 	}{
@@ -213,7 +212,7 @@ func TestViewCert(t *testing.T) {
 			desc:   "view non-existent cert",
 			certID: invalid,
 			token:  token,
-			svcRes: mgcrt.Cert{},
+			svcRes: certs.Cert{},
 			svcErr: errors.Wrap(svcerr.ErrNotFound, repoerr.ErrNotFound),
 			err:    errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrNotFound), http.StatusNotFound),
 		},
@@ -221,7 +220,7 @@ func TestViewCert(t *testing.T) {
 			desc:   "view cert with invalid token",
 			certID: validID,
 			token:  invalidToken,
-			svcRes: mgcrt.Cert{},
+			svcRes: certs.Cert{},
 			svcErr: svcerr.ErrAuthentication,
 			err:    errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrAuthentication), http.StatusUnauthorized),
 		},
@@ -229,7 +228,7 @@ func TestViewCert(t *testing.T) {
 			desc:   "view cert with empty token",
 			certID: validID,
 			token:  "",
-			svcRes: mgcrt.Cert{},
+			svcRes: certs.Cert{},
 			svcErr: nil,
 			err:    errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
@@ -271,7 +270,7 @@ func TestViewCertByThing(t *testing.T) {
 		desc    string
 		thingID string
 		token   string
-		svcRes  mgcrt.CertPage
+		svcRes  certs.CertPage
 		svcErr  error
 		err     errors.SDKError
 	}{
@@ -279,7 +278,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view existing cert",
 			thingID: thingID,
 			token:   validToken,
-			svcRes:  mgcrt.CertPage{Certificates: []mgcrt.Cert{{SerialNumber: serial}}},
+			svcRes:  certs.CertPage{Certificates: []certs.Cert{{SerialNumber: serial}}},
 			svcErr:  nil,
 			err:     nil,
 		},
@@ -287,7 +286,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view non-existent cert",
 			thingID: invalid,
 			token:   validToken,
-			svcRes:  mgcrt.CertPage{Certificates: []mgcrt.Cert{}},
+			svcRes:  certs.CertPage{Certificates: []certs.Cert{}},
 			svcErr:  errors.Wrap(svcerr.ErrNotFound, repoerr.ErrNotFound),
 			err:     errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrNotFound), http.StatusNotFound),
 		},
@@ -295,7 +294,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view cert with invalid token",
 			thingID: thingID,
 			token:   invalidToken,
-			svcRes:  mgcrt.CertPage{Certificates: []mgcrt.Cert{}},
+			svcRes:  certs.CertPage{Certificates: []certs.Cert{}},
 			svcErr:  svcerr.ErrAuthentication,
 			err:     errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, svcerr.ErrAuthentication), http.StatusUnauthorized),
 		},
@@ -303,7 +302,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view cert with empty token",
 			thingID: thingID,
 			token:   "",
-			svcRes:  mgcrt.CertPage{Certificates: []mgcrt.Cert{}},
+			svcRes:  certs.CertPage{Certificates: []certs.Cert{}},
 			svcErr:  nil,
 			err:     errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrBearerToken), http.StatusUnauthorized),
 		},
@@ -311,7 +310,7 @@ func TestViewCertByThing(t *testing.T) {
 			desc:    "view cert with empty thing id",
 			thingID: "",
 			token:   validToken,
-			svcRes:  mgcrt.CertPage{Certificates: []mgcrt.Cert{}},
+			svcRes:  certs.CertPage{Certificates: []certs.Cert{}},
 			svcErr:  nil,
 			err:     errors.NewSDKError(apiutil.ErrMissingID),
 		},

@@ -13,7 +13,6 @@ import (
 	"testing"
 	"time"
 
-	amsdk "github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/certs"
 	httpapi "github.com/absmach/magistrala/certs/api"
 	"github.com/absmach/magistrala/certs/mocks"
@@ -33,8 +32,8 @@ var (
 	thingID     = testsutil.GenerateUUID(&testing.T{})
 	serial      = testsutil.GenerateUUID(&testing.T{})
 	ttl         = "1h"
-	cert        = amsdk.Certificate{
-		EntityID:     thingID,
+	cert        = certs.Cert{
+		ThingID:      thingID,
 		SerialNumber: serial,
 		ExpiryTime:   time.Now().Add(time.Hour),
 	}
@@ -87,7 +86,7 @@ func TestIssueCert(t *testing.T) {
 		ttl         string
 		request     string
 		status      int
-		svcRes      amsdk.Certificate
+		svcRes      certs.Cert
 		svcErr      error
 		err         error
 	}{
@@ -99,7 +98,7 @@ func TestIssueCert(t *testing.T) {
 			ttl:         ttl,
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusCreated,
-			svcRes:      amsdk.Certificate{SerialNumber: serial},
+			svcRes:      certs.Cert{SerialNumber: serial},
 			svcErr:      nil,
 			err:         nil,
 		},
@@ -111,7 +110,7 @@ func TestIssueCert(t *testing.T) {
 			ttl:         ttl,
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusUnauthorized,
-			svcRes:      amsdk.Certificate{},
+			svcRes:      certs.Cert{},
 			svcErr:      svcerr.ErrAuthentication,
 			err:         svcerr.ErrAuthentication,
 		},
@@ -121,7 +120,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusUnauthorized,
-			svcRes:      amsdk.Certificate{},
+			svcRes:      certs.Cert{},
 			svcErr:      nil,
 			err:         apiutil.ErrBearerToken,
 		},
@@ -131,7 +130,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, "", ttl),
 			status:      http.StatusBadRequest,
-			svcRes:      amsdk.Certificate{},
+			svcRes:      certs.Cert{},
 			svcErr:      nil,
 			err:         apiutil.ErrMissingID,
 		},
@@ -141,7 +140,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, thingID, ""),
 			status:      http.StatusBadRequest,
-			svcRes:      amsdk.Certificate{},
+			svcRes:      certs.Cert{},
 			svcErr:      nil,
 			err:         apiutil.ErrMissingCertData,
 		},
@@ -151,7 +150,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(validReqString, thingID, invalid),
 			status:      http.StatusBadRequest,
-			svcRes:      amsdk.Certificate{},
+			svcRes:      certs.Cert{},
 			svcErr:      nil,
 			err:         apiutil.ErrInvalidCertData,
 		},
@@ -161,7 +160,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: "application/xml",
 			request:     fmt.Sprintf(validReqString, thingID, ttl),
 			status:      http.StatusUnsupportedMediaType,
-			svcRes:      amsdk.Certificate{},
+			svcRes:      certs.Cert{},
 			svcErr:      nil,
 			err:         apiutil.ErrUnsupportedContentType,
 		},
@@ -171,7 +170,7 @@ func TestIssueCert(t *testing.T) {
 			contentType: contentType,
 			request:     fmt.Sprintf(invalidReqString, thingID, ttl),
 			status:      http.StatusInternalServerError,
-			svcRes:      amsdk.Certificate{},
+			svcRes:      certs.Cert{},
 			svcErr:      nil,
 			err:         apiutil.ErrValidation,
 		},
@@ -210,7 +209,7 @@ func TestViewCert(t *testing.T) {
 		token    string
 		serialID string
 		status   int
-		svcRes   amsdk.Certificate
+		svcRes   certs.Cert
 		svcErr   error
 		err      error
 	}{
@@ -219,7 +218,7 @@ func TestViewCert(t *testing.T) {
 			token:    valid,
 			serialID: serial,
 			status:   http.StatusOK,
-			svcRes:   amsdk.Certificate{SerialNumber: serial},
+			svcRes:   certs.Cert{SerialNumber: serial},
 			svcErr:   nil,
 			err:      nil,
 		},
@@ -228,7 +227,7 @@ func TestViewCert(t *testing.T) {
 			token:    invalid,
 			serialID: serial,
 			status:   http.StatusUnauthorized,
-			svcRes:   amsdk.Certificate{},
+			svcRes:   certs.Cert{},
 			svcErr:   svcerr.ErrAuthentication,
 			err:      svcerr.ErrAuthentication,
 		},
@@ -237,7 +236,7 @@ func TestViewCert(t *testing.T) {
 			token:    "",
 			serialID: serial,
 			status:   http.StatusUnauthorized,
-			svcRes:   amsdk.Certificate{},
+			svcRes:   certs.Cert{},
 			svcErr:   nil,
 			err:      apiutil.ErrBearerToken,
 		},
@@ -246,7 +245,7 @@ func TestViewCert(t *testing.T) {
 			token:    valid,
 			serialID: invalid,
 			status:   http.StatusNotFound,
-			svcRes:   amsdk.Certificate{},
+			svcRes:   certs.Cert{},
 			svcErr:   svcerr.ErrNotFound,
 			err:      svcerr.ErrNotFound,
 		},
@@ -358,7 +357,7 @@ func TestListSerials(t *testing.T) {
 		limit   uint64
 		query   string
 		status  int
-		svcRes  amsdk.CertificatePage
+		svcRes  certs.CertPage
 		svcErr  error
 		err     error
 	}{
@@ -371,11 +370,11 @@ func TestListSerials(t *testing.T) {
 			limit:   10,
 			query:   "",
 			status:  http.StatusOK,
-			svcRes: amsdk.CertificatePage{
+			svcRes: certs.CertPage{
 				Total:        1,
 				Offset:       0,
 				Limit:        10,
-				Certificates: []amsdk.Certificate{cert},
+				Certificates: []certs.Cert{cert},
 			},
 			svcErr: nil,
 			err:    nil,
@@ -389,11 +388,11 @@ func TestListSerials(t *testing.T) {
 			limit:   10,
 			query:   "",
 			status:  http.StatusOK,
-			svcRes: amsdk.CertificatePage{
+			svcRes: certs.CertPage{
 				Total:        1,
 				Offset:       0,
 				Limit:        10,
-				Certificates: []amsdk.Certificate{cert},
+				Certificates: []certs.Cert{cert},
 			},
 			svcErr: nil,
 			err:    nil,
@@ -407,11 +406,11 @@ func TestListSerials(t *testing.T) {
 			limit:   10,
 			query:   "?revoked=all",
 			status:  http.StatusOK,
-			svcRes: amsdk.CertificatePage{
+			svcRes: certs.CertPage{
 				Total:        1,
 				Offset:       0,
 				Limit:        10,
-				Certificates: []amsdk.Certificate{cert},
+				Certificates: []certs.Cert{cert},
 			},
 			svcErr: nil,
 			err:    nil,
@@ -425,11 +424,11 @@ func TestListSerials(t *testing.T) {
 			limit:   5,
 			query:   "?limit=5",
 			status:  http.StatusOK,
-			svcRes: amsdk.CertificatePage{
+			svcRes: certs.CertPage{
 				Total:        1,
 				Offset:       0,
 				Limit:        5,
-				Certificates: []amsdk.Certificate{cert},
+				Certificates: []certs.Cert{cert},
 			},
 			svcErr: nil,
 			err:    nil,
@@ -443,11 +442,11 @@ func TestListSerials(t *testing.T) {
 			limit:   10,
 			query:   "?offset=1",
 			status:  http.StatusOK,
-			svcRes: amsdk.CertificatePage{
+			svcRes: certs.CertPage{
 				Total:        1,
 				Offset:       1,
 				Limit:        10,
-				Certificates: []amsdk.Certificate{},
+				Certificates: []certs.Cert{},
 			},
 			svcErr: nil,
 			err:    nil,
@@ -461,11 +460,11 @@ func TestListSerials(t *testing.T) {
 			limit:   5,
 			query:   "?offset=1&limit=5",
 			status:  http.StatusOK,
-			svcRes: amsdk.CertificatePage{
+			svcRes: certs.CertPage{
 				Total:        1,
 				Offset:       1,
 				Limit:        5,
-				Certificates: []amsdk.Certificate{},
+				Certificates: []certs.Cert{},
 			},
 			svcErr: nil,
 			err:    nil,
@@ -479,7 +478,7 @@ func TestListSerials(t *testing.T) {
 			limit:   10,
 			query:   "",
 			status:  http.StatusUnauthorized,
-			svcRes:  amsdk.CertificatePage{},
+			svcRes:  certs.CertPage{},
 			svcErr:  svcerr.ErrAuthentication,
 			err:     svcerr.ErrAuthentication,
 		},
@@ -492,7 +491,7 @@ func TestListSerials(t *testing.T) {
 			limit:   10,
 			query:   "",
 			status:  http.StatusUnauthorized,
-			svcRes:  amsdk.CertificatePage{},
+			svcRes:  certs.CertPage{},
 			svcErr:  nil,
 			err:     apiutil.ErrBearerToken,
 		},
@@ -503,7 +502,7 @@ func TestListSerials(t *testing.T) {
 			revoked: revoked,
 			query:   "?limit=1000",
 			status:  http.StatusBadRequest,
-			svcRes:  amsdk.CertificatePage{},
+			svcRes:  certs.CertPage{},
 			svcErr:  nil,
 			err:     apiutil.ErrLimitSize,
 		},
@@ -514,7 +513,7 @@ func TestListSerials(t *testing.T) {
 			revoked: revoked,
 			query:   "?offset=invalid",
 			status:  http.StatusBadRequest,
-			svcRes:  amsdk.CertificatePage{},
+			svcRes:  certs.CertPage{},
 			svcErr:  nil,
 			err:     apiutil.ErrValidation,
 		},
@@ -525,7 +524,7 @@ func TestListSerials(t *testing.T) {
 			revoked: revoked,
 			query:   "?limit=invalid",
 			status:  http.StatusBadRequest,
-			svcRes:  amsdk.CertificatePage{},
+			svcRes:  certs.CertPage{},
 			svcErr:  nil,
 			err:     apiutil.ErrValidation,
 		},
@@ -538,7 +537,7 @@ func TestListSerials(t *testing.T) {
 			limit:   10,
 			query:   "",
 			status:  http.StatusNotFound,
-			svcRes:  amsdk.CertificatePage{},
+			svcRes:  certs.CertPage{},
 			svcErr:  svcerr.ErrNotFound,
 			err:     svcerr.ErrNotFound,
 		},
