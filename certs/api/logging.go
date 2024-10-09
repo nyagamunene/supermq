@@ -10,7 +10,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/absmach/certs/sdk"
 	"github.com/absmach/magistrala/certs"
 )
 
@@ -28,7 +27,7 @@ func LoggingMiddleware(svc certs.Service, logger *slog.Logger) certs.Service {
 
 // IssueCert logs the issue_cert request. It logs the ttl, thing ID and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (c sdk.Certificate, err error) {
+func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl string) (c certs.Cert, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -47,7 +46,7 @@ func (lm *loggingMiddleware) IssueCert(ctx context.Context, token, thingID, ttl 
 }
 
 // ListCerts logs the list_certs request. It logs the thing ID and the time it took to complete the request.
-func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.Page) (cp sdk.CertificatePage, err error) {
+func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID string, pm certs.PageMetadata) (cp certs.CertPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -71,7 +70,7 @@ func (lm *loggingMiddleware) ListCerts(ctx context.Context, token, thingID strin
 
 // ListSerials logs the list_serials request. It logs the thing ID and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.Page) (cp sdk.CertificatePage, err error) {
+func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID string, pm certs.PageMetadata) (cp certs.CertPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -96,7 +95,7 @@ func (lm *loggingMiddleware) ListSerials(ctx context.Context, token, thingID str
 
 // ViewCert logs the view_cert request. It logs the serial ID and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) ViewCert(ctx context.Context, token, serialID string) (c sdk.Certificate, err error) {
+func (lm *loggingMiddleware) ViewCert(ctx context.Context, token, serialID string) (c certs.Cert, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),

@@ -25,7 +25,7 @@ func issueCert(svc certs.Service) endpoint.Endpoint {
 
 		return certsRes{
 			SerialNumber: res.SerialNumber,
-			ThingID:      res.EntityID,
+			ThingID:      res.ThingID,
 			Certificate:  res.Certificate,
 			ExpiryTime:   res.ExpiryTime,
 			Revoked:      res.Revoked,
@@ -59,7 +59,7 @@ func listSerials(svc certs.Service) endpoint.Endpoint {
 				SerialNumber: cert.SerialNumber,
 				ExpiryTime:   cert.ExpiryTime,
 				Revoked:      cert.Revoked,
-				ThingID:      cert.EntityID,
+				ThingID:      cert.ThingID,
 			}
 			res.Certs = append(res.Certs, cr)
 		}
@@ -80,7 +80,7 @@ func viewCert(svc certs.Service) endpoint.Endpoint {
 		}
 
 		return certsRes{
-			ThingID:      cert.EntityID,
+			ThingID:      cert.ThingID,
 			Certificate:  cert.Certificate,
 			Key:          cert.Key,
 			SerialNumber: cert.SerialNumber,

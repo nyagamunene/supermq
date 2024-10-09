@@ -1,28 +1,38 @@
 // Copyright (c) Abstract Machines
 // SPDX-License-Identifier: Apache-2.0
-package sdk
+package amcerts
 
 import (
+	"time"
+
 	"github.com/absmach/certs/sdk"
-	"golang.org/x/crypto/ocsp"
 )
 
+type Cert struct {
+	SerialNumber string    `json:"serial_number"`
+	Certificate  string    `json:"certificate,omitempty"`
+	Key          string    `json:"key,omitempty"`
+	Revoked      bool      `json:"revoked"`
+	ExpiryTime   time.Time `json:"expiry_time"`
+	ThingID      string    `json:"entity_id"`
+	DownloadUrl  string    `json:"-"`
+}
+
+type CertPage struct {
+	Total        uint64 `json:"total"`
+	Offset       uint64 `json:"offset"`
+	Limit        uint64 `json:"limit"`
+	Certificates []Cert `json:"certificates,omitempty"`
+}
+
 type Agent interface {
-	Issue(entityId, ttl string, ipAddrs []string) (sdk.Certificate, error)
+	Issue(entityId, ttl string, ipAddrs []string) (Cert, error)
 
-	Download(serialNumber string) (sdk.CertificateBundle, error)
-
-	View(serialNumber string) (sdk.Certificate, error)
+	View(serialNumber string) (Cert, error)
 
 	Revoke(serialNumber string) error
 
-	Renew(serialNumber string) error
-
-	GetDownloadToken(serialNumber string) (sdk.Token, error)
-
-	ListCerts(pm sdk.PageMetadata) (sdk.CertificatePage, error)
-
-	OCSP(serialNumber string) (ocsp.Response, error)
+	ListCerts(pm sdk.PageMetadata) (CertPage, error)
 }
 
 type sdkAgent struct {
@@ -43,35 +53,34 @@ func NewAgent(host, certsURL string, TLSVerification bool) (Agent, error) {
 	}, nil
 }
 
-func (c sdkAgent) Issue(entityId, ttl string, ipAddrs []string) (sdk.Certificate, error) {
+func (c sdkAgent) Issue(entityId, ttl string, ipAddrs []string) (Cert, error) {
 	cert, err := c.sdk.IssueCert(entityId, ttl, ipAddrs, sdk.Options{CommonName: "Magistrala"})
 	if err != nil {
-		return sdk.Certificate{}, err
+		return Cert{}, err
 	}
 
-	return cert, nil
+	return Cert{
+		SerialNumber: cert.SerialNumber,
+		Certificate:  cert.Certificate,
+		Revoked:      cert.Revoked,
+		ExpiryTime:   cert.ExpiryTime,
+		ThingID:      cert.EntityID,
+	}, nil
 }
 
-func (c sdkAgent) Download(serial string) (sdk.CertificateBundle, error) {
-	downloadToken, err := c.sdk.RetrieveCertDownloadToken(serial)
-	if err != nil {
-		return sdk.CertificateBundle{}, err
-	}
-
-	bundle, err := c.sdk.DownloadCert(downloadToken.Token, serial)
-	if err != nil {
-		return sdk.CertificateBundle{}, err
-	}
-
-	return bundle, nil
-}
-
-func (c sdkAgent) View(serial string) (sdk.Certificate, error) {
+func (c sdkAgent) View(serial string) (Cert, error) {
 	cert, err := c.sdk.ViewCert(serial)
 	if err != nil {
-		return sdk.Certificate{}, err
+		return Cert{}, err
 	}
-	return cert, nil
+	return Cert{
+		SerialNumber: cert.SerialNumber,
+		Certificate:  cert.Certificate,
+		Key:          cert.Key,
+		Revoked:      cert.Revoked,
+		ExpiryTime:   cert.ExpiryTime,
+		ThingID:      cert.EntityID,
+	}, nil
 }
 
 func (c sdkAgent) Revoke(serial string) error {
@@ -82,55 +91,28 @@ func (c sdkAgent) Revoke(serial string) error {
 	return nil
 }
 
-func (c sdkAgent) Renew(serial string) error {
-	if err := c.sdk.RenewCert(serial); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c sdkAgent) GetDownloadToken(serial string) (sdk.Token, error) {
-	downloadToken, err := c.sdk.RetrieveCertDownloadToken(serial)
-	if err != nil {
-		return sdk.Token{}, err
-	}
-
-	return downloadToken, nil
-}
-
-func (c sdkAgent) ListCerts(pm sdk.PageMetadata) (sdk.CertificatePage, error) {
+func (c sdkAgent) ListCerts(pm sdk.PageMetadata) (CertPage, error) {
 	certPage, err := c.sdk.ListCerts(pm)
 	if err != nil {
-		return sdk.CertificatePage{}, err
-	}
-	return certPage, nil
-}
-
-func (c sdkAgent) OCSP(serial string) (ocsp.Response, error) {
-	response, err := c.sdk.OCSP(serial)
-	if err != nil {
-		return ocsp.Response{}, err
+		return CertPage{}, err
 	}
 
-	ocspRes := ocsp.Response{
-		Raw:                response.Raw,
-		Status:             response.Status,
-		SerialNumber:       response.SerialNumber,
-		ProducedAt:         response.ProducedAt,
-		ThisUpdate:         response.ThisUpdate,
-		NextUpdate:         response.NextUpdate,
-		RevokedAt:          response.RevokedAt,
-		RevocationReason:   response.RevocationReason,
-		Certificate:        response.Certificate,
-		TBSResponseData:    response.TBSResponseData,
-		Signature:          response.Signature,
-		SignatureAlgorithm: response.SignatureAlgorithm,
-		IssuerHash:         response.IssuerHash,
-		RawResponderName:   response.RawResponderName,
-		ResponderKeyHash:   response.ResponderKeyHash,
-		Extensions:         response.Extensions,
-		ExtraExtensions:    response.ExtraExtensions,
+	var crts []Cert
+	for _, c := range certPage.Certificates {
+		crts = append(crts, Cert{
+			SerialNumber: c.SerialNumber,
+			Certificate:  c.Certificate,
+			Key:          c.Key,
+			Revoked:      c.Revoked,
+			ExpiryTime:   c.ExpiryTime,
+			ThingID:      c.EntityID,
+		})
 	}
 
-	return ocspRes, nil
+	return CertPage{
+		Total:        certPage.Total,
+		Limit:        certPage.Limit,
+		Offset:       certPage.Offset,
+		Certificates: crts,
+	}, nil
 }

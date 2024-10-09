@@ -8,15 +8,35 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"os"
+	"time"
 
 	"github.com/absmach/magistrala/pkg/errors"
 )
 
-type Page struct {
-	Total   uint64
-	Offset  uint64
-	Limit   uint64
-	Revoked string
+type Cert struct {
+	SerialNumber string    `json:"serial_number"`
+	Certificate  string    `json:"certificate,omitempty"`
+	Key          string    `json:"key,omitempty"`
+	Revoked      bool      `json:"revoked"`
+	ExpiryTime   time.Time `json:"expiry_time"`
+	ThingID      string    `json:"entity_id"`
+}
+
+type CertPage struct {
+	Total        uint64 `json:"total"`
+	Offset       uint64 `json:"offset"`
+	Limit        uint64 `json:"limit"`
+	Certificates []Cert `json:"certificates,omitempty"`
+}
+
+type PageMetadata struct {
+	Total      uint64 `json:"total,omitempty"`
+	Offset     uint64 `json:"offset,omitempty"`
+	Limit      uint64 `json:"limit,omitempty"`
+	ThingID    string `json:"thing_id,omitempty"`
+	Token      string `json:"token,omitempty"`
+	CommonName string `json:"common_name,omitempty"`
+	Revoked    string `json:"revoked,omitempty"`
 }
 
 var ErrMissingCerts = errors.New("CA path or CA key path not set")

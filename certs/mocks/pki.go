@@ -7,8 +7,8 @@
 package mocks
 
 import (
+	amcerts "github.com/absmach/magistrala/certs/pki/am-certs"
 	mock "github.com/stretchr/testify/mock"
-	ocsp "golang.org/x/crypto/ocsp"
 
 	sdk "github.com/absmach/certs/sdk"
 )
@@ -26,135 +26,23 @@ func (_m *Agent) EXPECT() *Agent_Expecter {
 	return &Agent_Expecter{mock: &_m.Mock}
 }
 
-// Download provides a mock function with given fields: serialNumber
-func (_m *Agent) Download(serialNumber string) (sdk.CertificateBundle, error) {
-	ret := _m.Called(serialNumber)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Download")
-	}
-
-	var r0 sdk.CertificateBundle
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (sdk.CertificateBundle, error)); ok {
-		return rf(serialNumber)
-	}
-	if rf, ok := ret.Get(0).(func(string) sdk.CertificateBundle); ok {
-		r0 = rf(serialNumber)
-	} else {
-		r0 = ret.Get(0).(sdk.CertificateBundle)
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(serialNumber)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Agent_Download_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Download'
-type Agent_Download_Call struct {
-	*mock.Call
-}
-
-// Download is a helper method to define mock.On call
-//   - serialNumber string
-func (_e *Agent_Expecter) Download(serialNumber interface{}) *Agent_Download_Call {
-	return &Agent_Download_Call{Call: _e.mock.On("Download", serialNumber)}
-}
-
-func (_c *Agent_Download_Call) Run(run func(serialNumber string)) *Agent_Download_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *Agent_Download_Call) Return(_a0 sdk.CertificateBundle, _a1 error) *Agent_Download_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Agent_Download_Call) RunAndReturn(run func(string) (sdk.CertificateBundle, error)) *Agent_Download_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetDownloadToken provides a mock function with given fields: serialNumber
-func (_m *Agent) GetDownloadToken(serialNumber string) (sdk.Token, error) {
-	ret := _m.Called(serialNumber)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetDownloadToken")
-	}
-
-	var r0 sdk.Token
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (sdk.Token, error)); ok {
-		return rf(serialNumber)
-	}
-	if rf, ok := ret.Get(0).(func(string) sdk.Token); ok {
-		r0 = rf(serialNumber)
-	} else {
-		r0 = ret.Get(0).(sdk.Token)
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(serialNumber)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Agent_GetDownloadToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDownloadToken'
-type Agent_GetDownloadToken_Call struct {
-	*mock.Call
-}
-
-// GetDownloadToken is a helper method to define mock.On call
-//   - serialNumber string
-func (_e *Agent_Expecter) GetDownloadToken(serialNumber interface{}) *Agent_GetDownloadToken_Call {
-	return &Agent_GetDownloadToken_Call{Call: _e.mock.On("GetDownloadToken", serialNumber)}
-}
-
-func (_c *Agent_GetDownloadToken_Call) Run(run func(serialNumber string)) *Agent_GetDownloadToken_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *Agent_GetDownloadToken_Call) Return(_a0 sdk.Token, _a1 error) *Agent_GetDownloadToken_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Agent_GetDownloadToken_Call) RunAndReturn(run func(string) (sdk.Token, error)) *Agent_GetDownloadToken_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Issue provides a mock function with given fields: entityId, ttl, ipAddrs
-func (_m *Agent) Issue(entityId string, ttl string, ipAddrs []string) (sdk.Certificate, error) {
+func (_m *Agent) Issue(entityId string, ttl string, ipAddrs []string) (amcerts.Cert, error) {
 	ret := _m.Called(entityId, ttl, ipAddrs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Issue")
 	}
 
-	var r0 sdk.Certificate
+	var r0 amcerts.Cert
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, []string) (sdk.Certificate, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, string, []string) (amcerts.Cert, error)); ok {
 		return rf(entityId, ttl, ipAddrs)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, []string) sdk.Certificate); ok {
+	if rf, ok := ret.Get(0).(func(string, string, []string) amcerts.Cert); ok {
 		r0 = rf(entityId, ttl, ipAddrs)
 	} else {
-		r0 = ret.Get(0).(sdk.Certificate)
+		r0 = ret.Get(0).(amcerts.Cert)
 	}
 
 	if rf, ok := ret.Get(1).(func(string, string, []string) error); ok {
@@ -186,33 +74,33 @@ func (_c *Agent_Issue_Call) Run(run func(entityId string, ttl string, ipAddrs []
 	return _c
 }
 
-func (_c *Agent_Issue_Call) Return(_a0 sdk.Certificate, _a1 error) *Agent_Issue_Call {
+func (_c *Agent_Issue_Call) Return(_a0 amcerts.Cert, _a1 error) *Agent_Issue_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Agent_Issue_Call) RunAndReturn(run func(string, string, []string) (sdk.Certificate, error)) *Agent_Issue_Call {
+func (_c *Agent_Issue_Call) RunAndReturn(run func(string, string, []string) (amcerts.Cert, error)) *Agent_Issue_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListCerts provides a mock function with given fields: pm
-func (_m *Agent) ListCerts(pm sdk.PageMetadata) (sdk.CertificatePage, error) {
+func (_m *Agent) ListCerts(pm sdk.PageMetadata) (amcerts.CertPage, error) {
 	ret := _m.Called(pm)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListCerts")
 	}
 
-	var r0 sdk.CertificatePage
+	var r0 amcerts.CertPage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(sdk.PageMetadata) (sdk.CertificatePage, error)); ok {
+	if rf, ok := ret.Get(0).(func(sdk.PageMetadata) (amcerts.CertPage, error)); ok {
 		return rf(pm)
 	}
-	if rf, ok := ret.Get(0).(func(sdk.PageMetadata) sdk.CertificatePage); ok {
+	if rf, ok := ret.Get(0).(func(sdk.PageMetadata) amcerts.CertPage); ok {
 		r0 = rf(pm)
 	} else {
-		r0 = ret.Get(0).(sdk.CertificatePage)
+		r0 = ret.Get(0).(amcerts.CertPage)
 	}
 
 	if rf, ok := ret.Get(1).(func(sdk.PageMetadata) error); ok {
@@ -242,114 +130,12 @@ func (_c *Agent_ListCerts_Call) Run(run func(pm sdk.PageMetadata)) *Agent_ListCe
 	return _c
 }
 
-func (_c *Agent_ListCerts_Call) Return(_a0 sdk.CertificatePage, _a1 error) *Agent_ListCerts_Call {
+func (_c *Agent_ListCerts_Call) Return(_a0 amcerts.CertPage, _a1 error) *Agent_ListCerts_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Agent_ListCerts_Call) RunAndReturn(run func(sdk.PageMetadata) (sdk.CertificatePage, error)) *Agent_ListCerts_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// OCSP provides a mock function with given fields: serialNumber
-func (_m *Agent) OCSP(serialNumber string) (ocsp.Response, error) {
-	ret := _m.Called(serialNumber)
-
-	if len(ret) == 0 {
-		panic("no return value specified for OCSP")
-	}
-
-	var r0 ocsp.Response
-	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (ocsp.Response, error)); ok {
-		return rf(serialNumber)
-	}
-	if rf, ok := ret.Get(0).(func(string) ocsp.Response); ok {
-		r0 = rf(serialNumber)
-	} else {
-		r0 = ret.Get(0).(ocsp.Response)
-	}
-
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(serialNumber)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Agent_OCSP_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OCSP'
-type Agent_OCSP_Call struct {
-	*mock.Call
-}
-
-// OCSP is a helper method to define mock.On call
-//   - serialNumber string
-func (_e *Agent_Expecter) OCSP(serialNumber interface{}) *Agent_OCSP_Call {
-	return &Agent_OCSP_Call{Call: _e.mock.On("OCSP", serialNumber)}
-}
-
-func (_c *Agent_OCSP_Call) Run(run func(serialNumber string)) *Agent_OCSP_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *Agent_OCSP_Call) Return(_a0 ocsp.Response, _a1 error) *Agent_OCSP_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Agent_OCSP_Call) RunAndReturn(run func(string) (ocsp.Response, error)) *Agent_OCSP_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Renew provides a mock function with given fields: serialNumber
-func (_m *Agent) Renew(serialNumber string) error {
-	ret := _m.Called(serialNumber)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Renew")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(serialNumber)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// Agent_Renew_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Renew'
-type Agent_Renew_Call struct {
-	*mock.Call
-}
-
-// Renew is a helper method to define mock.On call
-//   - serialNumber string
-func (_e *Agent_Expecter) Renew(serialNumber interface{}) *Agent_Renew_Call {
-	return &Agent_Renew_Call{Call: _e.mock.On("Renew", serialNumber)}
-}
-
-func (_c *Agent_Renew_Call) Run(run func(serialNumber string)) *Agent_Renew_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *Agent_Renew_Call) Return(_a0 error) *Agent_Renew_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Agent_Renew_Call) RunAndReturn(run func(string) error) *Agent_Renew_Call {
+func (_c *Agent_ListCerts_Call) RunAndReturn(run func(sdk.PageMetadata) (amcerts.CertPage, error)) *Agent_ListCerts_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -401,22 +187,22 @@ func (_c *Agent_Revoke_Call) RunAndReturn(run func(string) error) *Agent_Revoke_
 }
 
 // View provides a mock function with given fields: serialNumber
-func (_m *Agent) View(serialNumber string) (sdk.Certificate, error) {
+func (_m *Agent) View(serialNumber string) (amcerts.Cert, error) {
 	ret := _m.Called(serialNumber)
 
 	if len(ret) == 0 {
 		panic("no return value specified for View")
 	}
 
-	var r0 sdk.Certificate
+	var r0 amcerts.Cert
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (sdk.Certificate, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (amcerts.Cert, error)); ok {
 		return rf(serialNumber)
 	}
-	if rf, ok := ret.Get(0).(func(string) sdk.Certificate); ok {
+	if rf, ok := ret.Get(0).(func(string) amcerts.Cert); ok {
 		r0 = rf(serialNumber)
 	} else {
-		r0 = ret.Get(0).(sdk.Certificate)
+		r0 = ret.Get(0).(amcerts.Cert)
 	}
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
@@ -446,12 +232,12 @@ func (_c *Agent_View_Call) Run(run func(serialNumber string)) *Agent_View_Call {
 	return _c
 }
 
-func (_c *Agent_View_Call) Return(_a0 sdk.Certificate, _a1 error) *Agent_View_Call {
+func (_c *Agent_View_Call) Return(_a0 amcerts.Cert, _a1 error) *Agent_View_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Agent_View_Call) RunAndReturn(run func(string) (sdk.Certificate, error)) *Agent_View_Call {
+func (_c *Agent_View_Call) RunAndReturn(run func(string) (amcerts.Cert, error)) *Agent_View_Call {
 	_c.Call.Return(run)
 	return _c
 }
