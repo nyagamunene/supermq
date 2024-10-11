@@ -19,8 +19,6 @@ github.com/VividCortex/gohistogram v1.0.0 h1:6+hBz+qvs0JOrrNhhmR7lFxo5sINxBCGXrd
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/absmach/callhome v0.14.0 h1:zB4tIZJ1YUmZ1VGHFPfMA/Lo6/Mv19y2dvoOiXj2BWs=
 github.com/absmach/callhome v0.14.0/go.mod h1:l12UJOfibK4Muvg/AbupHuquNV9qSz/ROdTEPg7f2Vk=
-github.com/absmach/certs v0.0.0-20240927142732-0ea242d66419 h1:GgYJnZTLvOve/U9VQ5HWqxG5pat5Ic4XudcA4LQfC+E=
-github.com/absmach/certs v0.0.0-20240927142732-0ea242d66419/go.mod h1:a3GrLclyht5xCJTVqgYWCyNiUB9Cb2AsbEyZcGcFw+g=
 github.com/absmach/certs v0.0.0-20241009180647-650901303d04 h1:a18yo/yiwKZPdI6iKDyR6mw/bjVoH6LS3eywmy6EcDQ=
 github.com/absmach/certs v0.0.0-20241009180647-650901303d04/go.mod h1:a3GrLclyht5xCJTVqgYWCyNiUB9Cb2AsbEyZcGcFw+g=
 github.com/absmach/mproxy v0.4.3-0.20240712131952-28f88581126a h1:3JtJSekVHb02U3NmIJa5f3a1I15aczKrBBCczGGCbxM=
