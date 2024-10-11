@@ -75,6 +75,17 @@ func TestIssueCert(t *testing.T) {
 			cert:        cert,
 		},
 		{
+			desc:         "issue new for failed pki",
+			token:        token,
+			thingID:      thingID,
+			ttl:          ttl,
+			ipAddr:       []string{},
+			identifyRes:  &magistrala.IdentityRes{Id: validID},
+			thingErr:     nil,
+			issueCertErr: certs.ErrFailedCertCreation,
+			err:          certs.ErrFailedCertCreation,
+		},
+		{
 			desc:        "issue new cert for non existing thing id",
 			token:       token,
 			thingID:     "2",
@@ -133,6 +144,15 @@ func TestRevokeCert(t *testing.T) {
 			thingID:     thingID,
 			page:        mgcrt.CertPage{Limit: 10000, Offset: 0, Total: 1, Certificates: []mgcrt.Cert{cert}},
 			identifyRes: &magistrala.IdentityRes{Id: validID},
+		},
+		{
+			desc:        "revoke cert for failed pki revoke",
+			token:       token,
+			thingID:     thingID,
+			page:        mgcrt.CertPage{Limit: 10000, Offset: 0, Total: 1, Certificates: []mgcrt.Cert{cert}},
+			identifyRes: &magistrala.IdentityRes{Id: validID},
+			revokeErr:   certs.ErrFailedCertRevocation,
+			err:         certs.ErrFailedCertRevocation,
 		},
 		{
 			desc:        "revoke cert for invalid token",
@@ -220,6 +240,15 @@ func TestListCerts(t *testing.T) {
 			err:         svcerr.ErrAuthentication,
 		},
 		{
+			desc:        "list all certs with failed pki",
+			token:       token,
+			thingID:     thingID,
+			page:        mgcrt.CertPage{},
+			identifyRes: &magistrala.IdentityRes{Id: validID},
+			listErr:     svcerr.ErrViewEntity,
+			err:         svcerr.ErrViewEntity,
+		},
+		{
 			desc:        "list half certs with valid token",
 			token:       token,
 			thingID:     thingID,
@@ -275,7 +304,7 @@ func TestListSerials(t *testing.T) {
 		certs       []mgcrt.Cert
 		identifyRes *magistrala.IdentityRes
 		identifyErr error
-		repoErr     error
+		listErr     error
 		err         error
 	}{
 		{
@@ -299,6 +328,18 @@ func TestListSerials(t *testing.T) {
 			identifyRes: &magistrala.IdentityRes{},
 			identifyErr: svcerr.ErrAuthentication,
 			err:         svcerr.ErrAuthentication,
+		},
+		{
+			desc:        "list all certs with failed pki",
+			token:       token,
+			thingID:     thingID,
+			revoke:      revoke,
+			offset:      0,
+			limit:       certNum,
+			certs:       nil,
+			identifyRes: &magistrala.IdentityRes{Id: validID},
+			listErr:     svcerr.ErrViewEntity,
+			err:         svcerr.ErrViewEntity,
 		},
 		{
 			desc:        "list half certs with valid token",
@@ -325,7 +366,7 @@ func TestListSerials(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			authCall := auth.On("Identify", context.Background(), &magistrala.IdentityReq{Token: tc.token}).Return(tc.identifyRes, tc.identifyErr)
-			agentCall := agent.On("ListCerts", mock.Anything).Return(mgcrt.CertPage{Certificates: tc.certs}, tc.repoErr)
+			agentCall := agent.On("ListCerts", mock.Anything).Return(mgcrt.CertPage{Certificates: tc.certs}, tc.listErr)
 			page, err := svc.ListSerials(context.Background(), tc.token, tc.thingID, certs.PageMetadata{Revoked: tc.revoke, Offset: tc.offset, Limit: tc.limit})
 			assert.Equal(t, len(tc.certs), len(page.Certificates), fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.certs, page.Certificates))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
