@@ -52,14 +52,6 @@ type config struct {
 	SignCAPath    string `env:"MG_CERTS_SIGN_CA_PATH"        envDefault:"ca.crt"`
 	SignCAKeyPath string `env:"MG_CERTS_SIGN_CA_KEY_PATH"    envDefault:"ca.key"`
 
-	// 3rd party PKI API access settings
-	PkiHost      string `env:"MG_CERTS_VAULT_HOST"               envDefault:""`
-	PkiAppRoleID string `env:"MG_CERTS_VAULT_APPROLE_ROLEID"     envDefault:""`
-	PkiAppSecret string `env:"MG_CERTS_VAULT_APPROLE_SECRET"     envDefault:""`
-	PkiNamespace string `env:"MG_CERTS_VAULT_NAMESPACE"          envDefault:""`
-	PkiPath      string `env:"MG_CERTS_VAULT_THINGS_CERTS_PKI_PATH"       envDefault:"pki_int"`
-	PkiRole      string `env:"MG_CERTS_VAULT_THINGS_CERTS_PKI_ROLE_NAME"  envDefault:"magistrala"`
-
 	// Amcerts SDK settings
 	SDKHost         string `env:"MG_CERTS_SDK_HOST"             envDefault:""`
 	SDKCertsURL     string `env:"MG_CERTS_SDK_CERTS_URL"        envDefault:"http://localhost:9010"`

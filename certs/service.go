@@ -167,31 +167,8 @@ func (cs *certsService) ListSerials(ctx context.Context, token, thingID string, 
 	}
 
 	var certs []Cert
-	switch pm.Revoked {
-	case "true":
-		for _, c := range cp.Certificates {
-			if c.Revoked {
-				certs = append(certs, Cert{
-					SerialNumber: c.SerialNumber,
-					ThingID:      c.ThingID,
-					ExpiryTime:   c.ExpiryTime,
-					Revoked:      c.Revoked,
-				})
-			}
-		}
-	case "false":
-		for _, c := range cp.Certificates {
-			if !c.Revoked {
-				certs = append(certs, Cert{
-					SerialNumber: c.SerialNumber,
-					ThingID:      c.ThingID,
-					ExpiryTime:   c.ExpiryTime,
-					Revoked:      c.Revoked,
-				})
-			}
-		}
-	case "all":
-		for _, c := range cp.Certificates {
+	for _, c := range cp.Certificates {
+		if (pm.Revoked == "true" && c.Revoked) || (pm.Revoked == "false" && !c.Revoked) || (pm.Revoked == "all") {
 			certs = append(certs, Cert{
 				SerialNumber: c.SerialNumber,
 				ThingID:      c.ThingID,
