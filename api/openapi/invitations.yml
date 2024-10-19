@@ -114,6 +114,8 @@ paths:
           description: Missing or invalid access token provided.
         "404":
           description: A non-existent entity request.
+        "415":
+          description: Missing or invalid content type.
         "500":
           $ref: "#/components/responses/ServiceError"
 
@@ -138,6 +140,8 @@ paths:
           description: Missing or invalid access token provided.
         "404":
           description: A non-existent entity request.
+        "415":
+          description: Missing or invalid content type.
         "500":
           $ref: "#/components/responses/ServiceError"
 
