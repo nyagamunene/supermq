@@ -454,7 +454,6 @@ components:
           operationId: deleteInvitation
           parameters:
             user_id: $response.body#/user_id
-            domain_id: $response.body#/domain_id
 
     InvitationPageRes:
       description: Data retrieved.
