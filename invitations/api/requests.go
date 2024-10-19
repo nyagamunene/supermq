@@ -12,7 +12,7 @@ const maxLimitSize = 100
 
 type sendInvitationReq struct {
 	token    string
-	domainID string
+	DomainID string `json:"domain_id,omitempty"`
 	UserID   string `json:"user_id,omitempty"`
 	Relation string `json:"relation,omitempty"`
 	Resend   bool   `json:"resend,omitempty"`
@@ -25,7 +25,7 @@ func (req *sendInvitationReq) validate() error {
 	if req.UserID == "" {
 		return apiutil.ErrMissingID
 	}
-	if req.domainID == "" {
+	if req.DomainID == "" {
 		return apiutil.ErrMissingDomainID
 	}
 	if err := invitations.CheckRelation(req.Relation); err != nil {

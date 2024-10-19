@@ -94,7 +94,7 @@ func decodeSendInvitationReq(_ context.Context, r *http.Request) (interface{}, e
 	}
 
 	var req sendInvitationReq
-	req.domainID = chi.URLParam(r, "domainID")
+	req.DomainID = chi.URLParam(r, "domainID")
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
 	}

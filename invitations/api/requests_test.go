@@ -26,7 +26,7 @@ func TestSendInvitationReqValidation(t *testing.T) {
 			req: sendInvitationReq{
 				token:    valid,
 				UserID:   valid,
-				domainID: valid,
+				DomainID: valid,
 				Relation: policies.DomainRelation,
 				Resend:   true,
 			},
@@ -37,7 +37,7 @@ func TestSendInvitationReqValidation(t *testing.T) {
 			req: sendInvitationReq{
 				token:    "",
 				UserID:   valid,
-				domainID: valid,
+				DomainID: valid,
 				Relation: policies.DomainRelation,
 				Resend:   true,
 			},
@@ -48,7 +48,7 @@ func TestSendInvitationReqValidation(t *testing.T) {
 			req: sendInvitationReq{
 				token:    valid,
 				UserID:   "",
-				domainID: valid,
+				DomainID: valid,
 				Relation: policies.DomainRelation,
 				Resend:   true,
 			},
@@ -59,7 +59,7 @@ func TestSendInvitationReqValidation(t *testing.T) {
 			req: sendInvitationReq{
 				token:    valid,
 				UserID:   valid,
-				domainID: "",
+				DomainID: "",
 				Relation: policies.DomainRelation,
 				Resend:   true,
 			},
@@ -70,7 +70,7 @@ func TestSendInvitationReqValidation(t *testing.T) {
 			req: sendInvitationReq{
 				token:    valid,
 				UserID:   valid,
-				domainID: valid,
+				DomainID: valid,
 				Relation: "",
 				Resend:   true,
 			},
@@ -81,7 +81,7 @@ func TestSendInvitationReqValidation(t *testing.T) {
 			req: sendInvitationReq{
 				token:    valid,
 				UserID:   valid,
-				domainID: valid,
+				DomainID: valid,
 				Relation: "invalid",
 				Resend:   true,
 			},
@@ -90,8 +90,10 @@ func TestSendInvitationReqValidation(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		err := tc.req.validate()
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.req.validate()
+			assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		})
 	}
 }
 
@@ -145,8 +147,10 @@ func TestListInvitationsReq(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		err := tc.req.validate()
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.req.validate()
+			assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		})
 	}
 }
 
@@ -182,8 +186,10 @@ func TestAcceptInvitationReq(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		err := tc.req.validate()
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.req.validate()
+			assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		})
 	}
 }
 
@@ -232,7 +238,9 @@ func TestInvitationReqValidation(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		err := tc.req.validate()
-		assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		t.Run(tc.desc, func(t *testing.T) {
+			err := tc.req.validate()
+			assert.Equal(t, tc.err, err, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		})
 	}
 }
