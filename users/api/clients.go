@@ -85,20 +85,6 @@ func clientsHandler(svc users.Service, authn mgauthn.Authentication, tokenClient
 				opts...,
 			), "search_clients").ServeHTTP)
 
-			r.Get("/", otelhttp.NewHandler(kithttp.NewServer(
-				listClientsEndpoint(svc),
-				decodeListClients,
-				api.EncodeResponse,
-				opts...,
-			), "list_clients").ServeHTTP)
-
-			r.Get("/search", otelhttp.NewHandler(kithttp.NewServer(
-				searchClientsEndpoint(svc),
-				decodeSearchClients,
-				api.EncodeResponse,
-				opts...,
-			), "search_clients").ServeHTTP)
-
 			r.Patch("/secret", otelhttp.NewHandler(kithttp.NewServer(
 				updateClientSecretEndpoint(svc),
 				decodeUpdateClientSecret,
