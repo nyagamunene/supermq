@@ -52,7 +52,7 @@ func (sdk mgSDK) SendInvitation(invitation Invitation, token string) (err error)
 }
 
 func (sdk mgSDK) Invitation(userID, domainID, token string) (invitation Invitation, err error) {
-	url := sdk.invitationsURL + "/" + domainsEndpoint + "/" + domainID + invitationsEndpoint + "/" + usersEndpoint + "/" + userID
+	url := sdk.invitationsURL + "/" + domainsEndpoint + "/" + domainID + "/" + invitationsEndpoint + "/" + usersEndpoint + "/" + userID
 
 	_, body, sdkerr := sdk.processRequest(http.MethodGet, url, token, nil, nil, http.StatusOK)
 	if sdkerr != nil {

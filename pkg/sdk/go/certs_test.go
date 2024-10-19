@@ -181,7 +181,7 @@ func TestIssueCert(t *testing.T) {
 				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
-			svcCall := svc.On("IssueCert", mock.Anything, tc.token, tc.thingID, tc.duration).Return(tc.svcRes, tc.svcErr)
+			svcCall := svc.On("IssueCert", mock.Anything, tc.domainID, tc.token, tc.thingID, tc.duration).Return(tc.svcRes, tc.svcErr)
 			resp, err := mgsdk.IssueCert(tc.thingID, tc.duration, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			if tc.err == nil {
@@ -448,7 +448,7 @@ func TestRevokeCert(t *testing.T) {
 				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
-			svcCall := svc.On("RevokeCert", mock.Anything, tc.token, tc.thingID).Return(tc.svcResp, tc.svcErr)
+			svcCall := svc.On("RevokeCert", mock.Anything, tc.domainID, tc.token, tc.thingID).Return(tc.svcResp, tc.svcErr)
 			resp, err := mgsdk.RevokeCert(tc.thingID, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			if err == nil {
