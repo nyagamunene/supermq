@@ -465,9 +465,6 @@ func decodeRefreshToken(_ context.Context, r *http.Request) (interface{}, error)
 	}
 	req := tokenReq{RefreshToken: apiutil.ExtractBearerToken(r)}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
-	}
 	return req, nil
 }
 

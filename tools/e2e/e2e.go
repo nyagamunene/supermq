@@ -170,7 +170,6 @@ func createUser(s sdk.SDK, conf Config) (string, string, error) {
 	login = sdk.Login{
 		Identity: user.Credentials.Identity,
 		Secret:   user.Credentials.Secret,
-		DomainID: domain.ID,
 	}
 	token, err = s.CreateToken(login)
 	if err != nil {

@@ -293,13 +293,10 @@ type SDK interface {
 	// RefreshToken receives credentials and returns user token.
 	//
 	// example:
-	//  lt := sdk.Login{
-	//      DomainID:   "domain_id",
-	//  }
 	// example:
-	//  token, _ := sdk.RefreshToken(lt,"refresh_token")
+	//  token, _ := sdk.RefreshToken("refresh_token")
 	//  fmt.Println(token)
-	RefreshToken(lt Login, token string) (Token, errors.SDKError)
+	RefreshToken(token string) (Token, errors.SDKError)
 
 	// ListUserChannels list all channels belongs a particular user id.
 	//

@@ -131,14 +131,14 @@ func TestSendInvitation(t *testing.T) {
 				Relation: invitation.Relation,
 				Resend:   invitation.Resend,
 			},
-			svcErr: svcerr.ErrCreateEntity,
-			err:    errors.NewSDKErrorWithStatus(svcerr.ErrCreateEntity, http.StatusUnprocessableEntity),
+			authenticateErr: svcerr.ErrCreateEntity,
+			err:             errors.NewSDKErrorWithStatus(svcerr.ErrCreateEntity, http.StatusUnprocessableEntity),
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.token == valid {
-				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
+			if tc.token == validToken {
+				tc.session = mgauthn.Session{DomainUserID: invitation.DomainID + "_" + validID, UserID: validID, DomainID: invitation.DomainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("SendInvitation", mock.Anything, tc.session, tc.svcReq).Return(tc.svcErr)
@@ -206,20 +206,20 @@ func TestViewInvitation(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:     "view invitation with invalid domainID",
-			token:    validToken,
-			userID:   invitation.UserID,
-			domainID: wrongID,
-			svcRes:   invitations.Invitation{},
-			svcErr:   svcerr.ErrNotFound,
-			response: sdk.Invitation{},
-			err:      errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
+			desc:            "view invitation with invalid domainID",
+			token:           validToken,
+			userID:          invitation.UserID,
+			domainID:        wrongID,
+			svcRes:          invitations.Invitation{},
+			authenticateErr: svcerr.ErrNotFound,
+			response:        sdk.Invitation{},
+			err:             errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.token == valid {
-				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID}
+			if tc.token == validToken {
+				tc.session = mgauthn.Session{DomainUserID: invitation.DomainID + "_" + validID, UserID: validID, DomainID: invitation.DomainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("ViewInvitation", mock.Anything, tc.session, tc.userID, tc.domainID).Return(tc.svcRes, tc.svcErr)
@@ -263,12 +263,12 @@ func TestListInvitation(t *testing.T) {
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
+				DomainID: invitation.DomainID,
 			},
 			svcReq: invitations.Page{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
+				DomainID: invitation.DomainID,
 			},
 			svcRes: invitations.InvitationPage{
 				Total:       1,
@@ -287,7 +287,7 @@ func TestListInvitation(t *testing.T) {
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
+				DomainID: invitation.DomainID,
 			},
 			svcReq: invitations.Page{
 				Offset: 0,
@@ -302,7 +302,7 @@ func TestListInvitation(t *testing.T) {
 			desc:  "list invitations with empty token",
 			token: "",
 			pageMeta: sdk.PageMetadata{
-				DomainID: domainID,
+				DomainID: invitation.DomainID,
 			},
 			svcRes:   invitations.InvitationPage{},
 			svcErr:   nil,
@@ -324,7 +324,7 @@ func TestListInvitation(t *testing.T) {
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    101,
-				DomainID: domainID,
+				DomainID: invitation.DomainID,
 			},
 			svcReq:   invitations.Page{},
 			svcRes:   invitations.InvitationPage{},
@@ -335,8 +335,8 @@ func TestListInvitation(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.token == valid {
-				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
+			if tc.token == validToken {
+				tc.session = mgauthn.Session{DomainUserID: invitation.DomainID + "_" + validID, UserID: validID, DomainID: invitation.DomainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("ListInvitations", mock.Anything, tc.session, tc.svcReq).Return(tc.svcRes, tc.svcErr)
@@ -393,17 +393,17 @@ func TestAcceptInvitation(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:     "accept invitation with invalid domainID",
-			token:    validToken,
-			domainID: wrongID,
-			svcErr:   svcerr.ErrNotFound,
-			err:      errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
+			desc:            "accept invitation with invalid domainID",
+			token:           validToken,
+			domainID:        wrongID,
+			authenticateErr: svcerr.ErrNotFound,
+			err:             errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.token == valid {
-				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
+			if tc.token == validToken {
+				tc.session = mgauthn.Session{DomainUserID: invitation.DomainID + "_" + validID, UserID: validID, DomainID: invitation.DomainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("AcceptInvitation", mock.Anything, tc.session, tc.domainID).Return(tc.svcErr)
@@ -459,17 +459,17 @@ func TestRejectInvitation(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:     "reject invitation with invalid domainID",
-			token:    validToken,
-			domainID: wrongID,
-			svcErr:   svcerr.ErrNotFound,
-			err:      errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
+			desc:            "reject invitation with invalid domainID",
+			token:           validToken,
+			domainID:        wrongID,
+			authenticateErr: svcerr.ErrNotFound,
+			err:             errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.token == valid {
-				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
+			if tc.token == validToken {
+				tc.session = mgauthn.Session{DomainUserID: invitation.DomainID + "_" + validID, UserID: validID, DomainID: invitation.DomainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("RejectInvitation", mock.Anything, tc.session, tc.domainID).Return(tc.svcErr)
@@ -529,18 +529,18 @@ func TestDeleteInvitation(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:     "delete invitation with invalid domainID",
-			token:    validToken,
-			userID:   invitation.UserID,
-			domainID: wrongID,
-			svcErr:   svcerr.ErrNotFound,
-			err:      errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
+			desc:            "delete invitation with invalid domainID",
+			token:           validToken,
+			userID:          invitation.UserID,
+			domainID:        wrongID,
+			authenticateErr: svcerr.ErrNotFound,
+			err:             errors.NewSDKErrorWithStatus(svcerr.ErrNotFound, http.StatusNotFound),
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.token == valid {
-				tc.session = mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
+			if tc.token == validToken {
+				tc.session = mgauthn.Session{DomainUserID: invitation.DomainID + "_" + validID, UserID: validID, DomainID: invitation.DomainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("DeleteInvitation", mock.Anything, tc.session, tc.userID, tc.domainID).Return(tc.svcErr)

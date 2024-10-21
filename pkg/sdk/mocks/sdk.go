@@ -1850,9 +1850,9 @@ func (_m *SDK) ReadMessages(pm sdk.MessagePageMetadata, chanID string, token str
 	return r0, r1
 }
 
-// RefreshToken provides a mock function with given fields: lt, token
-func (_m *SDK) RefreshToken(lt sdk.Login, token string) (sdk.Token, errors.SDKError) {
-	ret := _m.Called(lt, token)
+// RefreshToken provides a mock function with given fields: token
+func (_m *SDK) RefreshToken(token string) (sdk.Token, errors.SDKError) {
+	ret := _m.Called(token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RefreshToken")
@@ -1860,17 +1860,17 @@ func (_m *SDK) RefreshToken(lt sdk.Login, token string) (sdk.Token, errors.SDKEr
 
 	var r0 sdk.Token
 	var r1 errors.SDKError
-	if rf, ok := ret.Get(0).(func(sdk.Login, string) (sdk.Token, errors.SDKError)); ok {
-		return rf(lt, token)
+	if rf, ok := ret.Get(0).(func(string) (sdk.Token, errors.SDKError)); ok {
+		return rf(token)
 	}
-	if rf, ok := ret.Get(0).(func(sdk.Login, string) sdk.Token); ok {
-		r0 = rf(lt, token)
+	if rf, ok := ret.Get(0).(func(string) sdk.Token); ok {
+		r0 = rf(token)
 	} else {
 		r0 = ret.Get(0).(sdk.Token)
 	}
 
-	if rf, ok := ret.Get(1).(func(sdk.Login, string) errors.SDKError); ok {
-		r1 = rf(lt, token)
+	if rf, ok := ret.Get(1).(func(string) errors.SDKError); ok {
+		r1 = rf(token)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(errors.SDKError)
