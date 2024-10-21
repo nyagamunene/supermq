@@ -84,7 +84,7 @@ func TestSendInvitation(t *testing.T) {
 			domainID:    domainID,
 			token:       validToken,
 			data:        fmt.Sprintf(`{"user_id": "%s", "relation": "%s"}`, validID, "domain"),
-			authnRes:    mgauthn.Session{UserID: validID, DomainID: validID},
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			status:      http.StatusCreated,
 			contentType: validContenType,
 			svcErr:      nil,
@@ -130,6 +130,7 @@ func TestSendInvitation(t *testing.T) {
 			domainID:    domainID,
 			token:       validToken,
 			data:        fmt.Sprintf(`{"user_id": "%s", "relation": "%s"}`, validID, "domain"),
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			status:      http.StatusForbidden,
 			contentType: validContenType,
 			svcErr:      svcerr.ErrAuthorization,
@@ -175,6 +176,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "valid request",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			status:      http.StatusOK,
 			contentType: validContenType,
@@ -191,6 +193,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with offset",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       "offset=1",
 			status:      http.StatusOK,
@@ -209,6 +212,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with limit",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       "limit=1",
 			status:      http.StatusOK,
@@ -227,6 +231,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with user_id",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       fmt.Sprintf("user_id=%s", validID),
 			status:      http.StatusOK,
@@ -236,6 +241,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with duplicate user_id",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       "user_id=1&user_id=2",
 			status:      http.StatusBadRequest,
@@ -245,6 +251,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with invited_by",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       fmt.Sprintf("invited_by=%s", validID),
 			status:      http.StatusOK,
@@ -254,6 +261,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with duplicate invited_by",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       "invited_by=1&invited_by=2",
 			status:      http.StatusBadRequest,
@@ -263,6 +271,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with relation",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       fmt.Sprintf("relation=%s", "relation"),
 			status:      http.StatusOK,
@@ -272,6 +281,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with duplicate relation",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       "relation=1&relation=2",
 			status:      http.StatusBadRequest,
@@ -289,6 +299,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with state",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			query:       "state=pending",
 			status:      http.StatusOK,
@@ -316,6 +327,7 @@ func TestListInvitation(t *testing.T) {
 		{
 			desc:        "with service error",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			status:      http.StatusForbidden,
 			contentType: validContenType,
@@ -359,9 +371,10 @@ func TestViewInvitation(t *testing.T) {
 	}{
 		{
 			desc:        "valid request",
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			userID:      validID,
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusOK,
 			contentType: validContenType,
 			svcErr:      nil,
@@ -370,16 +383,17 @@ func TestViewInvitation(t *testing.T) {
 			desc:        "invalid token",
 			token:       "",
 			userID:      validID,
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusUnauthorized,
 			contentType: validContenType,
 			svcErr:      nil,
 		},
 		{
 			desc:        "with service error",
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			userID:      validID,
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusForbidden,
 			contentType: validContenType,
 			svcErr:      svcerr.ErrAuthorization,
@@ -388,7 +402,7 @@ func TestViewInvitation(t *testing.T) {
 			desc:        "with empty user_id",
 			token:       validToken,
 			userID:      "",
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusNotFound,
 			contentType: validContenType,
 			svcErr:      nil,
@@ -451,9 +465,10 @@ func TestDeleteInvitation(t *testing.T) {
 	}{
 		{
 			desc:        "valid request",
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			userID:      validID,
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusNoContent,
 			contentType: validContenType,
 			svcErr:      nil,
@@ -462,16 +477,17 @@ func TestDeleteInvitation(t *testing.T) {
 			desc:        "invalid token",
 			token:       "",
 			userID:      validID,
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusUnauthorized,
 			contentType: validContenType,
 			svcErr:      nil,
 		},
 		{
 			desc:        "with service error",
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			userID:      validID,
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusForbidden,
 			contentType: validContenType,
 			svcErr:      svcerr.ErrAuthorization,
@@ -480,7 +496,7 @@ func TestDeleteInvitation(t *testing.T) {
 			desc:        "with empty user_id",
 			token:       validToken,
 			userID:      "",
-			domainID:    validID,
+			domainID:    domainID,
 			status:      http.StatusNotFound,
 			contentType: validContenType,
 			svcErr:      nil,
@@ -543,6 +559,7 @@ func TestAcceptInvitation(t *testing.T) {
 		{
 			desc:        "valid request",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			status:      http.StatusNoContent,
 			contentType: validContenType,
@@ -559,6 +576,7 @@ func TestAcceptInvitation(t *testing.T) {
 		{
 			desc:        "with service error",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			status:      http.StatusForbidden,
 			contentType: validContenType,
@@ -620,6 +638,7 @@ func TestRejectInvitation(t *testing.T) {
 		{
 			desc:        "valid request",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			status:      http.StatusNoContent,
 			contentType: validContenType,
@@ -636,6 +655,7 @@ func TestRejectInvitation(t *testing.T) {
 		{
 			desc:        "unauthorized error",
 			domainID:    domainID,
+			authnRes:    mgauthn.Session{UserID: validID, DomainID: domainID},
 			token:       validToken,
 			status:      http.StatusForbidden,
 			contentType: validContenType,

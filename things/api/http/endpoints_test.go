@@ -120,7 +120,7 @@ func TestCreateThing(t *testing.T) {
 			client:      client,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusCreated,
 			err:         nil,
@@ -130,7 +130,7 @@ func TestCreateThing(t *testing.T) {
 			client:      client,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusConflict,
 			err:         svcerr.ErrConflict,
@@ -156,7 +156,7 @@ func TestCreateThing(t *testing.T) {
 			},
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			err:         apiutil.ErrValidation,
@@ -174,7 +174,7 @@ func TestCreateThing(t *testing.T) {
 			},
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			err:         errors.ErrMalformedEntity,
@@ -191,7 +191,7 @@ func TestCreateThing(t *testing.T) {
 			},
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			err:         svcerr.ErrInvalidStatus,
@@ -207,7 +207,7 @@ func TestCreateThing(t *testing.T) {
 			},
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: "application/xml",
 			status:      http.StatusUnsupportedMediaType,
 			err:         apiutil.ErrValidation,
@@ -281,7 +281,7 @@ func TestCreateThings(t *testing.T) {
 			client:      items,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusOK,
 			err:         nil,
@@ -311,7 +311,7 @@ func TestCreateThings(t *testing.T) {
 			client:      []mgclients.Client{},
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			err:         apiutil.ErrValidation,
@@ -332,7 +332,7 @@ func TestCreateThings(t *testing.T) {
 			},
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 			err:         apiutil.ErrValidation,
@@ -346,7 +346,7 @@ func TestCreateThings(t *testing.T) {
 			},
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: "application/xml",
 			status:      http.StatusUnsupportedMediaType,
 			err:         apiutil.ErrValidation,
@@ -368,7 +368,7 @@ func TestCreateThings(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusBadRequest,
 			err:         errors.ErrMalformedEntity,
 		},
@@ -378,7 +378,7 @@ func TestCreateThings(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusUnprocessableEntity,
 			err:         svcerr.ErrCreateEntity,
 		},
@@ -435,7 +435,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things as admin with valid token",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			status:   http.StatusOK,
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
@@ -449,7 +449,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things as non admin with valid token",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			status:   http.StatusOK,
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
@@ -478,7 +478,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with offset",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Offset: 1,
@@ -494,7 +494,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with invalid offset",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "offset=invalid",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -503,7 +503,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with limit",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Limit: 1,
@@ -519,7 +519,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with invalid limit",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "limit=invalid",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -527,8 +527,7 @@ func TestListThings(t *testing.T) {
 		{
 			desc:     "list things with limit greater than max",
 			token:    validToken,
-			domainID: domainID,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    fmt.Sprintf("limit=%d", api.MaxLimitSize+1),
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -537,7 +536,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with name",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -552,7 +551,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with invalid name",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "name=invalid",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -561,7 +560,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with duplicate name",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "name=1&name=2",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrInvalidQueryParams,
@@ -570,7 +569,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with status",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -585,7 +584,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with invalid status",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "status=invalid",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -594,7 +593,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with duplicate status",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "status=enabled&status=disabled",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrInvalidQueryParams,
@@ -603,7 +602,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with tags",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -618,7 +617,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with invalid tags",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "tag=invalid",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -627,7 +626,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with duplicate tags",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "tag=tag1&tag=tag2",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrInvalidQueryParams,
@@ -636,7 +635,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with metadata",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -651,7 +650,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with invalid metadata",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "metadata=invalid",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -660,7 +659,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with duplicate metadata",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "metadata=%7B%22domain%22%3A%20%22example.com%22%7D&metadata=%7B%22domain%22%3A%20%22example.com%22%7D",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrInvalidQueryParams,
@@ -669,7 +668,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with permissions",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -684,7 +683,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with invalid permissions",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "permission=invalid",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrValidation,
@@ -693,7 +692,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with duplicate permissions",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "permission=view&permission=view",
 			status:   http.StatusBadRequest,
 			err:      apiutil.ErrInvalidQueryParams,
@@ -702,7 +701,7 @@ func TestListThings(t *testing.T) {
 			desc:     "list things with list perms",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			listThingsResponse: mgclients.ClientsPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -711,28 +710,25 @@ func TestListThings(t *testing.T) {
 			},
 			query:  "list_perms=true",
 			status: http.StatusOK,
-
-			err: nil,
+			err:    nil,
 		},
 		{
 			desc:     "list things with invalid list perms",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "list_perms=invalid",
 			status:   http.StatusBadRequest,
-
-			err: apiutil.ErrValidation,
+			err:      apiutil.ErrValidation,
 		},
 		{
 			desc:     "list things with duplicate list perms",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: validID, SuperAdmin: false},
+			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    "list_perms=true&listPerms=true",
 			status:   http.StatusBadRequest,
-
-			err: apiutil.ErrInvalidQueryParams,
+			err:      apiutil.ErrInvalidQueryParams,
 		},
 	}
 
@@ -783,7 +779,7 @@ func TestViewThing(t *testing.T) {
 			desc:     "view client with valid token",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			id:       client.ID,
 			status:   http.StatusOK,
 
@@ -810,7 +806,7 @@ func TestViewThing(t *testing.T) {
 			desc:     "view client with invalid id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			id:       inValid,
 			status:   http.StatusForbidden,
 
@@ -864,7 +860,7 @@ func TestViewThingPerms(t *testing.T) {
 			desc:     "view thing permissions with valid token",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			thingID:  client.ID,
 			response: []string{"view", "delete", "membership"},
 			status:   http.StatusOK,
@@ -894,7 +890,7 @@ func TestViewThingPerms(t *testing.T) {
 			desc:     "view thing permissions with invalid id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			thingID:  inValid,
 			response: []string{},
 			status:   http.StatusForbidden,
@@ -905,7 +901,7 @@ func TestViewThingPerms(t *testing.T) {
 			desc:     "view thing permissions with empty id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			thingID:  "",
 			response: []string{},
 			status:   http.StatusBadRequest,
@@ -967,7 +963,7 @@ func TestUpdateThing(t *testing.T) {
 			desc:        "update thing with valid token",
 			domainID:    domainID,
 			id:          client.ID,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			data:        fmt.Sprintf(`{"name":"%s","tags":["%s"],"metadata":%s}`, newName, newTag, toJSON(newMetadata)),
 			token:       validToken,
 			contentType: contentType,
@@ -1008,7 +1004,7 @@ func TestUpdateThing(t *testing.T) {
 			data:        fmt.Sprintf(`{"name":"%s","tags":["%s"],"metadata":%s}`, newName, newTag, toJSON(newMetadata)),
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: "application/xml",
 			status:      http.StatusUnsupportedMediaType,
 
@@ -1020,7 +1016,7 @@ func TestUpdateThing(t *testing.T) {
 			data:        fmt.Sprintf(`{"name":%s}`, "invalid"),
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1032,7 +1028,7 @@ func TestUpdateThing(t *testing.T) {
 			data:        fmt.Sprintf(`{"name":"%s","tags":["%s"],"metadata":%s}`, newName, newTag, toJSON(newMetadata)),
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1041,7 +1037,7 @@ func TestUpdateThing(t *testing.T) {
 		{
 			desc:           "update thing with name that is too long",
 			id:             client.ID,
-			authnRes:       mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:       mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			data:           fmt.Sprintf(`{"name":"%s","tags":["%s"],"metadata":%s}`, strings.Repeat("a", api.MaxNameSize+1), newTag, toJSON(newMetadata)),
 			domainID:       domainID,
 			token:          validToken,
@@ -1116,7 +1112,7 @@ func TestUpdateThingsTags(t *testing.T) {
 			},
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusOK,
 
 			err: nil,
@@ -1149,7 +1145,7 @@ func TestUpdateThingsTags(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusForbidden,
 
 			err: svcerr.ErrAuthorization,
@@ -1161,7 +1157,7 @@ func TestUpdateThingsTags(t *testing.T) {
 			contentType: "application/xml",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusUnsupportedMediaType,
 			err:         apiutil.ErrValidation,
 		},
@@ -1172,7 +1168,7 @@ func TestUpdateThingsTags(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusBadRequest,
 
 			err: apiutil.ErrValidation,
@@ -1184,7 +1180,7 @@ func TestUpdateThingsTags(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusBadRequest,
 
 			err: errors.ErrMalformedEntity,
@@ -1249,7 +1245,7 @@ func TestUpdateClientSecret(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusOK,
 			err:         nil,
 		},
@@ -1299,7 +1295,7 @@ func TestUpdateClientSecret(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusBadRequest,
 			err:         apiutil.ErrValidation,
 		},
@@ -1316,7 +1312,7 @@ func TestUpdateClientSecret(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusBadRequest,
 
 			err: apiutil.ErrValidation,
@@ -1334,7 +1330,7 @@ func TestUpdateClientSecret(t *testing.T) {
 			contentType: "application/xml",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusUnsupportedMediaType,
 
 			err: apiutil.ErrValidation,
@@ -1352,7 +1348,7 @@ func TestUpdateClientSecret(t *testing.T) {
 			contentType: contentType,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:      http.StatusBadRequest,
 
 			err: apiutil.ErrValidation,
@@ -1412,7 +1408,7 @@ func TestEnableThing(t *testing.T) {
 			},
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusOK,
 
 			err: nil,
@@ -1433,7 +1429,7 @@ func TestEnableThing(t *testing.T) {
 			},
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusBadRequest,
 
 			err: apiutil.ErrValidation,
@@ -1497,7 +1493,7 @@ func TestDisableThing(t *testing.T) {
 			},
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusOK,
 
 			err: nil,
@@ -1518,7 +1514,7 @@ func TestDisableThing(t *testing.T) {
 			},
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusBadRequest,
 
 			err: apiutil.ErrValidation,
@@ -1580,7 +1576,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusCreated,
 
@@ -1613,7 +1609,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     " ",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1625,7 +1621,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1637,7 +1633,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1649,7 +1645,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     "",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1661,7 +1657,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1673,7 +1669,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1685,7 +1681,7 @@ func TestShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: "application/xml",
 			status:      http.StatusUnsupportedMediaType,
 
@@ -1737,7 +1733,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusNoContent,
 
@@ -1770,7 +1766,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     " ",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1782,7 +1778,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1794,7 +1790,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1806,7 +1802,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     "",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1818,7 +1814,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1830,7 +1826,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: contentType,
 			status:      http.StatusBadRequest,
 
@@ -1842,7 +1838,7 @@ func TestUnShareThing(t *testing.T) {
 			thingID:     client.ID,
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			contentType: "application/xml",
 			status:      http.StatusUnsupportedMediaType,
 
@@ -1891,7 +1887,7 @@ func TestDeleteThing(t *testing.T) {
 			id:       client.ID,
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusNoContent,
 
 			err: nil,
@@ -1919,7 +1915,7 @@ func TestDeleteThing(t *testing.T) {
 			id:       " ",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusBadRequest,
 
 			err: apiutil.ErrMissingID,
@@ -1966,7 +1962,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with valid token",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			listMembersResponse: mgclients.MembersPage{
 				Page: mgclients.Page{
@@ -1999,7 +1995,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with offset",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "offset=1",
 			groupID:  client.ID,
 			listMembersResponse: mgclients.MembersPage{
@@ -2017,7 +2013,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with invalid offset",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "offset=invalid",
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
@@ -2028,7 +2024,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with limit",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "limit=1",
 			groupID:  client.ID,
 			listMembersResponse: mgclients.MembersPage{
@@ -2046,7 +2042,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with invalid limit",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "limit=invalid",
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
@@ -2057,7 +2053,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with limit greater than 100",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    fmt.Sprintf("limit=%d", api.MaxLimitSize+1),
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
@@ -2068,7 +2064,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with channel_id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    fmt.Sprintf("channel_id=%s", validID),
 			groupID:  client.ID,
 			listMembersResponse: mgclients.MembersPage{
@@ -2085,7 +2081,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with invalid channel_id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "channel_id=invalid",
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
@@ -2096,7 +2092,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with duplicate channel_id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    fmt.Sprintf("channel_id=%s&channel_id=%s", validID, validID),
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
@@ -2107,7 +2103,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with connected set",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "connected=true",
 			groupID:  client.ID,
 			listMembersResponse: mgclients.MembersPage{
@@ -2124,7 +2120,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with invalid connected set",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "connected=invalid",
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
@@ -2135,7 +2131,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with duplicate connected set",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "connected=true&connected=false",
 			status:   http.StatusBadRequest,
 
@@ -2145,7 +2141,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with empty group id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			query:    "",
 			groupID:  "",
 			status:   http.StatusBadRequest,
@@ -2163,7 +2159,7 @@ func TestListMembers(t *testing.T) {
 			},
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			status:   http.StatusOK,
 
@@ -2174,7 +2170,7 @@ func TestListMembers(t *testing.T) {
 			query:    "status=invalid",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
 
@@ -2185,7 +2181,7 @@ func TestListMembers(t *testing.T) {
 			query:    fmt.Sprintf("status=%s&status=%s", mgclients.EnabledStatus, mgclients.DisabledStatus),
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
 
@@ -2195,7 +2191,7 @@ func TestListMembers(t *testing.T) {
 			desc:     "list members with metadata",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			listMembersResponse: mgclients.MembersPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -2214,7 +2210,7 @@ func TestListMembers(t *testing.T) {
 			groupID:  client.ID,
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusBadRequest,
 
 			err: apiutil.ErrValidation,
@@ -2225,7 +2221,7 @@ func TestListMembers(t *testing.T) {
 			groupID:  client.ID,
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			status:   http.StatusBadRequest,
 
 			err: apiutil.ErrInvalidQueryParams,
@@ -2241,7 +2237,7 @@ func TestListMembers(t *testing.T) {
 			},
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			status:   http.StatusOK,
 
@@ -2252,7 +2248,7 @@ func TestListMembers(t *testing.T) {
 			query:    fmt.Sprintf("permission=%s&permission=%s", "view", "edit"),
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
 
@@ -2263,7 +2259,7 @@ func TestListMembers(t *testing.T) {
 			query:    "list_perms=true",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			listMembersResponse: mgclients.MembersPage{
 				Page: mgclients.Page{
 					Total: 1,
@@ -2280,7 +2276,7 @@ func TestListMembers(t *testing.T) {
 			query:    "list_perms=invalid",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
 
@@ -2291,7 +2287,7 @@ func TestListMembers(t *testing.T) {
 			query:    "list_perms=true&list_perms=false",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			status:   http.StatusBadRequest,
 
@@ -2302,7 +2298,7 @@ func TestListMembers(t *testing.T) {
 			query:    fmt.Sprintf("offset=1&limit=1&channel_id=%s&connected=true&status=%s&metadata=%s&permission=%s&list_perms=true", validID, mgclients.EnabledStatus, "%7B%22domain%22%3A%20%22example.com%22%7D", "view"),
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  client.ID,
 			listMembersResponse: mgclients.MembersPage{
 				Page: mgclients.Page{
@@ -2367,7 +2363,7 @@ func TestAssignUsers(t *testing.T) {
 			desc:     "assign users to a group successfully",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2409,7 +2405,7 @@ func TestAssignUsers(t *testing.T) {
 		{
 			desc:     "assign users to a group with empty group id",
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  "",
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2424,7 +2420,7 @@ func TestAssignUsers(t *testing.T) {
 			desc:     "assign users to a group with empty relation",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "",
@@ -2439,7 +2435,7 @@ func TestAssignUsers(t *testing.T) {
 			desc:     "assign users to a group with empty user ids",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2454,7 +2450,7 @@ func TestAssignUsers(t *testing.T) {
 			desc:     "assign users to a group with invalid request body",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: map[string]interface{}{
 				"relation": make(chan int),
@@ -2468,7 +2464,7 @@ func TestAssignUsers(t *testing.T) {
 			desc:     "assign users to a group with invalid content type",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2524,7 +2520,7 @@ func TestUnassignUsers(t *testing.T) {
 			desc:     "unassign users from a group successfully",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2566,7 +2562,7 @@ func TestUnassignUsers(t *testing.T) {
 			desc:     "unassign users from a group with empty group id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  "",
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2581,7 +2577,7 @@ func TestUnassignUsers(t *testing.T) {
 			desc:     "unassign users from a group with empty relation",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "",
@@ -2596,7 +2592,7 @@ func TestUnassignUsers(t *testing.T) {
 			desc:     "unassign users from a group with empty user ids",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2611,7 +2607,7 @@ func TestUnassignUsers(t *testing.T) {
 			desc:     "unassign users from a group with invalid request body",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: map[string]interface{}{
 				"relation": make(chan int),
@@ -2625,7 +2621,7 @@ func TestUnassignUsers(t *testing.T) {
 			desc:     "unassign users from a group with invalid content type",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				Relation: "member",
@@ -2681,7 +2677,7 @@ func TestAssignGroupsToChannel(t *testing.T) {
 			desc:     "assign groups to a channel successfully",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				GroupIDs: []string{testsutil.GenerateUUID(t), testsutil.GenerateUUID(t)},
@@ -2720,7 +2716,7 @@ func TestAssignGroupsToChannel(t *testing.T) {
 			desc:     "assign groups to a channel with empty group id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  "",
 			reqBody: groupReqBody{
 				GroupIDs: []string{testsutil.GenerateUUID(t), testsutil.GenerateUUID(t)},
@@ -2734,7 +2730,7 @@ func TestAssignGroupsToChannel(t *testing.T) {
 			desc:     "assign groups to a channel with empty group ids",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				GroupIDs: []string{},
@@ -2748,7 +2744,7 @@ func TestAssignGroupsToChannel(t *testing.T) {
 			desc:     "assign groups to a channel with invalid request body",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: map[string]interface{}{
 				"group_ids": make(chan int),
@@ -2762,7 +2758,7 @@ func TestAssignGroupsToChannel(t *testing.T) {
 			desc:     "assign groups to a channel with invalid content type",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				GroupIDs: []string{testsutil.GenerateUUID(t), testsutil.GenerateUUID(t)},
@@ -2817,7 +2813,7 @@ func TestUnassignGroupsFromChannel(t *testing.T) {
 			desc:     "unassign groups from a channel successfully",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				GroupIDs: []string{testsutil.GenerateUUID(t), testsutil.GenerateUUID(t)},
@@ -2857,7 +2853,7 @@ func TestUnassignGroupsFromChannel(t *testing.T) {
 			desc:     "unassign groups from a channel with empty group id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  "",
 			reqBody: groupReqBody{
 				GroupIDs: []string{testsutil.GenerateUUID(t), testsutil.GenerateUUID(t)},
@@ -2871,7 +2867,7 @@ func TestUnassignGroupsFromChannel(t *testing.T) {
 			desc:     "unassign groups from a channel with empty group ids",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				GroupIDs: []string{},
@@ -2885,7 +2881,7 @@ func TestUnassignGroupsFromChannel(t *testing.T) {
 			desc:     "unassign groups from a channel with invalid request body",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: map[string]interface{}{
 				"group_ids": make(chan int),
@@ -2899,7 +2895,7 @@ func TestUnassignGroupsFromChannel(t *testing.T) {
 			desc:     "unassign groups from a channel with invalid content type",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			groupID:  validID,
 			reqBody: groupReqBody{
 				GroupIDs: []string{testsutil.GenerateUUID(t), testsutil.GenerateUUID(t)},
@@ -2953,7 +2949,7 @@ func TestConnectThingToChannel(t *testing.T) {
 			desc:        "connect thing to a channel successfully",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			channelID:   validID,
 			thingID:     validID,
 			contentType: contentType,
@@ -2986,7 +2982,7 @@ func TestConnectThingToChannel(t *testing.T) {
 			desc:        "connect thing to a channel with empty thing id",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			channelID:   validID,
 			thingID:     "",
 			contentType: contentType,
@@ -3035,7 +3031,7 @@ func TestDisconnectThingFromChannel(t *testing.T) {
 			desc:        "disconnect thing from a channel successfully",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			channelID:   validID,
 			thingID:     validID,
 			contentType: contentType,
@@ -3058,7 +3054,7 @@ func TestDisconnectThingFromChannel(t *testing.T) {
 			desc:        "disconnect thing from a channel with empty channel id",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			channelID:   "",
 			thingID:     validID,
 			contentType: contentType,
@@ -3070,7 +3066,7 @@ func TestDisconnectThingFromChannel(t *testing.T) {
 			desc:        "disconnect thing from a channel with empty thing id",
 			domainID:    domainID,
 			token:       validToken,
-			authnRes:    mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes:    mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			channelID:   validID,
 			thingID:     "",
 			contentType: contentType,
@@ -3119,7 +3115,7 @@ func TestConnect(t *testing.T) {
 			desc:     "connect thing to a channel successfully",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: validID,
 				ThingID:   validID,
@@ -3146,7 +3142,7 @@ func TestConnect(t *testing.T) {
 			desc:     "connect thing to a channel with empty channel id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: "",
 				ThingID:   validID,
@@ -3160,7 +3156,7 @@ func TestConnect(t *testing.T) {
 			desc:     "connect thing to a channel with empty thing id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: validID,
 				ThingID:   "",
@@ -3174,7 +3170,7 @@ func TestConnect(t *testing.T) {
 			desc:     "connect thing to a channel with invalid request body",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: map[string]interface{}{
 				"channel_id": make(chan int),
 			},
@@ -3187,7 +3183,7 @@ func TestConnect(t *testing.T) {
 			desc:     "connect thing to a channel with invalid content type",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: validID,
 				ThingID:   validID,
@@ -3240,7 +3236,7 @@ func TestDisconnect(t *testing.T) {
 			desc:     "Disconnect thing from a channel successfully",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: validID,
 				ThingID:   validID,
@@ -3268,7 +3264,7 @@ func TestDisconnect(t *testing.T) {
 			desc:     "Disconnect thing from a channel with empty channel id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: "",
 				ThingID:   validID,
@@ -3282,7 +3278,7 @@ func TestDisconnect(t *testing.T) {
 			desc:     "Disconnect thing from a channel with empty thing id",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: validID,
 				ThingID:   "",
@@ -3295,7 +3291,7 @@ func TestDisconnect(t *testing.T) {
 			desc:     "Disconnect thing from a channel with invalid request body",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: map[string]interface{}{
 				"channel_id": make(chan int),
 			},
@@ -3307,7 +3303,7 @@ func TestDisconnect(t *testing.T) {
 			desc:     "Disconnect thing from a channel with invalid content type",
 			domainID: domainID,
 			token:    validToken,
-			authnRes: mgauthn.Session{DomainUserID: validID, UserID: validID, DomainID: domainID},
+			authnRes: mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID},
 			reqBody: groupReqBody{
 				ChannelID: validID,
 				ThingID:   validID,
