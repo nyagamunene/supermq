@@ -5,7 +5,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/absmach/magistrala/pkg/authn"
 	mgauthz "github.com/absmach/magistrala/pkg/authz"
@@ -31,11 +30,9 @@ func AuthorizationMiddleware(svc things.Service, authz mgauthz.Authorization) th
 }
 
 func (am *authorizationMiddleware) CreateThings(ctx context.Context, session authn.Session, client ...clients.Client) ([]clients.Client, error) {
-	fmt.Println("am here 1")
 	if err := am.authorize(ctx, "", policies.UserType, policies.UsersKind, session.DomainUserID, policies.CreatePermission, policies.DomainType, session.DomainID); err != nil {
 		return nil, err
 	}
-	fmt.Println("am here 2")
 
 	return am.svc.CreateThings(ctx, session, client...)
 }

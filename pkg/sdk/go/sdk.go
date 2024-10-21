@@ -293,7 +293,6 @@ type SDK interface {
 	// RefreshToken receives credentials and returns user token.
 	//
 	// example:
-	// example:
 	//  token, _ := sdk.RefreshToken("refresh_token")
 	//  fmt.Println(token)
 	RefreshToken(token string) (Token, errors.SDKError)
