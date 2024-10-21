@@ -369,7 +369,7 @@ func (ite issueTokenEvent) Encode() (map[string]interface{}, error) {
 	}, nil
 }
 
-type refreshTokenEvent struct {}
+type refreshTokenEvent struct{}
 
 func (rte refreshTokenEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
