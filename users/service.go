@@ -110,12 +110,7 @@ func (svc service) IssueToken(ctx context.Context, identity, secret string) (*ma
 	return token, err
 }
 
-func (svc service) RefreshToken(ctx context.Context, session authn.Session, refreshToken, domainID string) (*magistrala.Token, error) {
-	var d string
-	if domainID != "" {
-		d = domainID
-	}
-
+func (svc service) RefreshToken(ctx context.Context, session authn.Session, refreshToken string) (*magistrala.Token, error) {
 	dbUser, err := svc.clients.RetrieveByID(ctx, session.UserID)
 	if err != nil {
 		return &magistrala.Token{}, errors.Wrap(svcerr.ErrAuthentication, err)
@@ -124,7 +119,7 @@ func (svc service) RefreshToken(ctx context.Context, session authn.Session, refr
 		return &magistrala.Token{}, errors.Wrap(svcerr.ErrAuthentication, errLoginDisableUser)
 	}
 
-	return svc.token.Refresh(ctx, &magistrala.RefreshReq{RefreshToken: refreshToken, DomainId: &d})
+	return svc.token.Refresh(ctx, &magistrala.RefreshReq{RefreshToken: refreshToken})
 }
 
 func (svc service) ViewClient(ctx context.Context, session authn.Session, id string) (mgclients.Client, error) {

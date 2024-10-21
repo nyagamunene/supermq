@@ -26,7 +26,6 @@ func (req issueReq) validate() error {
 
 type refreshReq struct {
 	refreshToken string
-	domainID     string // optional
 }
 
 func (req refreshReq) validate() error {

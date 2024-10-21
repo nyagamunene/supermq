@@ -175,8 +175,8 @@ func (am *authorizationMiddleware) IssueToken(ctx context.Context, identity, sec
 	return am.svc.IssueToken(ctx, identity, secret)
 }
 
-func (am *authorizationMiddleware) RefreshToken(ctx context.Context, session authn.Session, refreshToken, domainID string) (*magistrala.Token, error) {
-	return am.svc.RefreshToken(ctx, session, refreshToken, domainID)
+func (am *authorizationMiddleware) RefreshToken(ctx context.Context, session authn.Session, refreshToken string) (*magistrala.Token, error) {
+	return am.svc.RefreshToken(ctx, session, refreshToken)
 }
 
 func (am *authorizationMiddleware) OAuthCallback(ctx context.Context, client clients.Client) (clients.Client, error) {

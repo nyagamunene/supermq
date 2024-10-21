@@ -78,7 +78,7 @@ func (client tokenGrpcClient) Refresh(ctx context.Context, req *magistrala.Refre
 	ctx, cancel := context.WithTimeout(ctx, client.timeout)
 	defer cancel()
 
-	res, err := client.refresh(ctx, refreshReq{refreshToken: req.GetRefreshToken(), domainID: req.GetDomainId()})
+	res, err := client.refresh(ctx, refreshReq{refreshToken: req.GetRefreshToken()})
 	if err != nil {
 		return &magistrala.Token{}, grpcapi.DecodeError(err)
 	}
@@ -87,7 +87,7 @@ func (client tokenGrpcClient) Refresh(ctx context.Context, req *magistrala.Refre
 
 func encodeRefreshRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(refreshReq)
-	return &magistrala.RefreshReq{RefreshToken: req.refreshToken, DomainId: &req.domainID}, nil
+	return &magistrala.RefreshReq{RefreshToken: req.refreshToken}, nil
 }
 
 func decodeRefreshResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {

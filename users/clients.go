@@ -79,7 +79,7 @@ type Service interface {
 	// RefreshToken refreshes expired access tokens.
 	// After an access token expires, the refresh token is used to get
 	// a new pair of access and refresh tokens.
-	RefreshToken(ctx context.Context, session authn.Session, refreshToken, domainID string) (*magistrala.Token, error)
+	RefreshToken(ctx context.Context, session authn.Session, refreshToken string) (*magistrala.Token, error)
 
 	// OAuthCallback handles the callback from any supported OAuth provider.
 	// It processes the OAuth tokens and either signs in or signs up the user based on the provided state.

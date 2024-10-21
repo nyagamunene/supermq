@@ -449,7 +449,7 @@ func refreshTokenEndpoint(svc users.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthorization
 		}
 
-		token, err := svc.RefreshToken(ctx, session, req.RefreshToken, req.DomainID)
+		token, err := svc.RefreshToken(ctx, session, req.RefreshToken)
 		if err != nil {
 			return nil, err
 		}

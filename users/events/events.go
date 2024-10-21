@@ -369,14 +369,11 @@ func (ite issueTokenEvent) Encode() (map[string]interface{}, error) {
 	}, nil
 }
 
-type refreshTokenEvent struct {
-	domainID string
-}
+type refreshTokenEvent struct {}
 
 func (rte refreshTokenEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"operation": refreshToken,
-		"domain_id": rte.domainID,
 	}, nil
 }
 

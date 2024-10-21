@@ -50,12 +50,12 @@ func (ms *metricsMiddleware) IssueToken(ctx context.Context, identity, secret st
 }
 
 // RefreshToken instruments RefreshToken method with metrics.
-func (ms *metricsMiddleware) RefreshToken(ctx context.Context, session authn.Session, refreshToken, domainID string) (token *magistrala.Token, err error) {
+func (ms *metricsMiddleware) RefreshToken(ctx context.Context, session authn.Session, refreshToken string) (token *magistrala.Token, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "refresh_token").Add(1)
 		ms.latency.With("method", "refresh_token").Observe(time.Since(begin).Seconds())
 	}(time.Now())
-	return ms.svc.RefreshToken(ctx, session, refreshToken, domainID)
+	return ms.svc.RefreshToken(ctx, session, refreshToken)
 }
 
 // ViewClient instruments ViewClient method with metrics.
