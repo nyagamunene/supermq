@@ -70,7 +70,6 @@ func TestIssue(t *testing.T) {
 	cases := []struct {
 		desc          string
 		userId        string
-		domainID      string
 		kind          auth.KeyType
 		issueResponse auth.Token
 		err           error
@@ -78,7 +77,6 @@ func TestIssue(t *testing.T) {
 		{
 			desc:     "issue for user with valid token",
 			userId:   validID,
-			domainID: domainID,
 			kind:     auth.AccessKey,
 			issueResponse: auth.Token{
 				AccessToken:  validToken,
@@ -89,7 +87,6 @@ func TestIssue(t *testing.T) {
 		{
 			desc:     "issue recovery key",
 			userId:   validID,
-			domainID: domainID,
 			kind:     auth.RecoveryKey,
 			issueResponse: auth.Token{
 				AccessToken:  validToken,
@@ -100,7 +97,6 @@ func TestIssue(t *testing.T) {
 		{
 			desc:          "issue API key unauthenticated",
 			userId:        validID,
-			domainID:      domainID,
 			kind:          auth.APIKey,
 			issueResponse: auth.Token{},
 			err:           svcerr.ErrAuthentication,
@@ -108,7 +104,6 @@ func TestIssue(t *testing.T) {
 		{
 			desc:          "issue for invalid key type",
 			userId:        validID,
-			domainID:      domainID,
 			kind:          32,
 			issueResponse: auth.Token{},
 			err:           errors.ErrMalformedEntity,
@@ -116,7 +111,6 @@ func TestIssue(t *testing.T) {
 		{
 			desc:          "issue for user that does notexist",
 			userId:        "",
-			domainID:      "",
 			kind:          auth.APIKey,
 			issueResponse: auth.Token{},
 			err:           svcerr.ErrAuthentication,
@@ -125,7 +119,7 @@ func TestIssue(t *testing.T) {
 
 	for _, tc := range cases {
 		svcCall := svc.On("Issue", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.issueResponse, tc.err)
-		_, err := grpcClient.Issue(context.Background(), &magistrala.IssueReq{UserId: tc.userId, DomainId: &tc.domainID, Type: uint32(tc.kind)})
+		_, err := grpcClient.Issue(context.Background(), &magistrala.IssueReq{UserId: tc.userId, Type: uint32(tc.kind)})
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		svcCall.Unset()
 	}

@@ -10,7 +10,6 @@ import (
 
 type issueReq struct {
 	userID   string
-	domainID string // optional
 	keyType  auth.KeyType
 }
 

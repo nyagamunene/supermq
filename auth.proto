@@ -53,8 +53,7 @@ message AuthNRes {
 
 message IssueReq {
   string user_id = 1;
-  optional string domain_id = 2;
-  uint32 type = 3;
+  uint32 type = 2;
 }
 
 message RefreshReq {

@@ -53,9 +53,8 @@ func (client tokenGrpcClient) Issue(ctx context.Context, req *magistrala.IssueRe
 	defer cancel()
 
 	res, err := client.issue(ctx, issueReq{
-		userID:   req.GetUserId(),
-		domainID: req.GetDomainId(),
-		keyType:  auth.KeyType(req.GetType()),
+		userID:  req.GetUserId(),
+		keyType: auth.KeyType(req.GetType()),
 	})
 	if err != nil {
 		return &magistrala.Token{}, grpcapi.DecodeError(err)
@@ -66,9 +65,8 @@ func (client tokenGrpcClient) Issue(ctx context.Context, req *magistrala.IssueRe
 func encodeIssueRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(issueReq)
 	return &magistrala.IssueReq{
-		UserId:   req.userID,
-		DomainId: &req.domainID,
-		Type:     uint32(req.keyType),
+		UserId: req.userID,
+		Type:   uint32(req.keyType),
 	}, nil
 }
 

@@ -35,11 +35,11 @@ func (tm *tracingMiddleware) RegisterClient(ctx context.Context, session authn.S
 }
 
 // IssueToken traces the "IssueToken" operation of the wrapped clients.Service.
-func (tm *tracingMiddleware) IssueToken(ctx context.Context, identity, secret, domainID string) (*magistrala.Token, error) {
+func (tm *tracingMiddleware) IssueToken(ctx context.Context, identity, secret string) (*magistrala.Token, error) {
 	ctx, span := tm.tracer.Start(ctx, "svc_issue_token", trace.WithAttributes(attribute.String("identity", identity)))
 	defer span.End()
 
-	return tm.svc.IssueToken(ctx, identity, secret, domainID)
+	return tm.svc.IssueToken(ctx, identity, secret)
 }
 
 // RefreshToken traces the "RefreshToken" operation of the wrapped clients.Service.

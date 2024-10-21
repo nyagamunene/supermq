@@ -93,7 +93,7 @@ func (svc service) RegisterClient(ctx context.Context, session authn.Session, cl
 	return client, nil
 }
 
-func (svc service) IssueToken(ctx context.Context, identity, secret, domainID string) (*magistrala.Token, error) {
+func (svc service) IssueToken(ctx context.Context, identity, secret string) (*magistrala.Token, error) {
 	dbUser, err := svc.clients.RetrieveByIdentity(ctx, identity)
 	if err != nil {
 		return &magistrala.Token{}, errors.Wrap(svcerr.ErrAuthentication, err)
@@ -102,12 +102,7 @@ func (svc service) IssueToken(ctx context.Context, identity, secret, domainID st
 		return &magistrala.Token{}, errors.Wrap(svcerr.ErrLogin, err)
 	}
 
-	var d string
-	if domainID != "" {
-		d = domainID
-	}
-
-	token, err := svc.token.Issue(ctx, &magistrala.IssueReq{UserId: dbUser.ID, DomainId: &d, Type: uint32(mgauth.AccessKey)})
+	token, err := svc.token.Issue(ctx, &magistrala.IssueReq{UserId: dbUser.ID, Type: uint32(mgauth.AccessKey)})
 	if err != nil {
 		return &magistrala.Token{}, errors.Wrap(errIssueToken, err)
 	}
@@ -301,7 +296,7 @@ func (svc service) UpdateClientSecret(ctx context.Context, session authn.Session
 	if err != nil {
 		return mgclients.Client{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
-	if _, err := svc.IssueToken(ctx, dbClient.Credentials.Identity, oldSecret, ""); err != nil {
+	if _, err := svc.IssueToken(ctx, dbClient.Credentials.Identity, oldSecret); err != nil {
 		return mgclients.Client{}, err
 	}
 	newSecret, err = svc.hasher.Hash(newSecret)

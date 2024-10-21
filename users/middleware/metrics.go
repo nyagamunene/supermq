@@ -41,12 +41,12 @@ func (ms *metricsMiddleware) RegisterClient(ctx context.Context, session authn.S
 }
 
 // IssueToken instruments IssueToken method with metrics.
-func (ms *metricsMiddleware) IssueToken(ctx context.Context, identity, secret, domainID string) (*magistrala.Token, error) {
+func (ms *metricsMiddleware) IssueToken(ctx context.Context, identity, secret string) (*magistrala.Token, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "issue_token").Add(1)
 		ms.latency.With("method", "issue_token").Observe(time.Since(begin).Seconds())
 	}(time.Now())
-	return ms.svc.IssueToken(ctx, identity, secret, domainID)
+	return ms.svc.IssueToken(ctx, identity, secret)
 }
 
 // RefreshToken instruments RefreshToken method with metrics.

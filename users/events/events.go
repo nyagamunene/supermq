@@ -360,14 +360,12 @@ func (grte generateResetTokenEvent) Encode() (map[string]interface{}, error) {
 
 type issueTokenEvent struct {
 	identity string
-	domainID string
 }
 
 func (ite issueTokenEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"operation": issueToken,
 		"identity":  ite.identity,
-		"domain_id": ite.domainID,
 	}, nil
 }
 

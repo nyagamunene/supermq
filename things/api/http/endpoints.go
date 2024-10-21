@@ -29,7 +29,7 @@ func createClientEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		client, err := svc.CreateThings(ctx, session, req.client)
 		if err != nil {
 			return nil, err
@@ -54,6 +54,7 @@ func createClientsEndpoint(svc things.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthorization
 		}
 
+		session.UpdateSession(req.domainID)
 		page, err := svc.CreateThings(ctx, session, req.Clients...)
 		if err != nil {
 			return nil, err
@@ -85,6 +86,7 @@ func viewClientEndpoint(svc things.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthorization
 		}
 
+		session.UpdateSession(req.domainID)
 		c, err := svc.ViewClient(ctx, session, req.id)
 		if err != nil {
 			return nil, err
@@ -106,6 +108,7 @@ func viewClientPermsEndpoint(svc things.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthorization
 		}
 
+		session.UpdateSession(req.domainID)
 		p, err := svc.ViewClientPerms(ctx, session, req.id)
 		if err != nil {
 			return nil, err
@@ -126,7 +129,7 @@ func listClientsEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		pm := mgclients.Page{
 			Status:     req.status,
 			Offset:     req.offset,
@@ -171,7 +174,7 @@ func listMembersEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		req.Page.Role = mgclients.AllRole // retrieve all things since things don't have roles
 		page, err := svc.ListClientsByGroup(ctx, session, req.groupID, req.Page)
 		if err != nil {
@@ -193,7 +196,7 @@ func updateClientEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		cli := mgclients.Client{
 			ID:       req.id,
 			Name:     req.Name,
@@ -219,7 +222,7 @@ func updateClientTagsEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		cli := mgclients.Client{
 			ID:   req.id,
 			Tags: req.Tags,
@@ -244,7 +247,7 @@ func updateClientSecretEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		client, err := svc.UpdateClientSecret(ctx, session, req.id, req.Secret)
 		if err != nil {
 			return nil, err
@@ -265,7 +268,7 @@ func enableClientEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		client, err := svc.EnableClient(ctx, session, req.id)
 		if err != nil {
 			return nil, err
@@ -286,7 +289,7 @@ func disableClientEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		client, err := svc.DisableClient(ctx, session, req.id)
 		if err != nil {
 			return nil, err
@@ -323,7 +326,7 @@ func assignUsersEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Assign(ctx, session, req.groupID, req.Relation, policies.UsersKind, req.UserIDs...); err != nil {
 			return nil, err
 		}
@@ -343,7 +346,7 @@ func unassignUsersEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Unassign(ctx, session, req.groupID, req.Relation, policies.UsersKind, req.UserIDs...); err != nil {
 			return nil, err
 		}
@@ -363,7 +366,7 @@ func assignUserGroupsEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Assign(ctx, session, req.groupID, policies.ParentGroupRelation, policies.ChannelsKind, req.UserGroupIDs...); err != nil {
 			return nil, err
 		}
@@ -383,7 +386,7 @@ func unassignUserGroupsEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Unassign(ctx, session, req.groupID, policies.ParentGroupRelation, policies.ChannelsKind, req.UserGroupIDs...); err != nil {
 			return nil, err
 		}
@@ -403,7 +406,7 @@ func connectChannelThingEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Assign(ctx, session, req.ChannelID, policies.GroupRelation, policies.ThingsKind, req.ThingID); err != nil {
 			return nil, err
 		}
@@ -423,7 +426,7 @@ func disconnectChannelThingEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Unassign(ctx, session, req.ChannelID, policies.GroupRelation, policies.ThingsKind, req.ThingID); err != nil {
 			return nil, err
 		}
@@ -443,7 +446,7 @@ func connectEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Assign(ctx, session, req.ChannelID, policies.GroupRelation, policies.ThingsKind, req.ThingID); err != nil {
 			return nil, err
 		}
@@ -463,7 +466,7 @@ func disconnectEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Unassign(ctx, session, req.ChannelID, policies.GroupRelation, policies.ThingsKind, req.ThingID); err != nil {
 			return nil, err
 		}
@@ -483,7 +486,7 @@ func thingShareEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Share(ctx, session, req.thingID, req.Relation, req.UserIDs...); err != nil {
 			return nil, err
 		}
@@ -503,7 +506,7 @@ func thingUnshareEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Unshare(ctx, session, req.thingID, req.Relation, req.UserIDs...); err != nil {
 			return nil, err
 		}
@@ -523,6 +526,7 @@ func deleteClientEndpoint(svc things.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
+		session.UpdateSession(req.domainID)
 		if err := svc.DeleteClient(ctx, session, req.id); err != nil {
 			return nil, err
 		}

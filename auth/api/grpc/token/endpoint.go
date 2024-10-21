@@ -18,9 +18,8 @@ func issueEndpoint(svc auth.Service) endpoint.Endpoint {
 		}
 
 		key := auth.Key{
-			Type:   req.keyType,
-			User:   req.userID,
-			Domain: req.domainID,
+			Type: req.keyType,
+			User: req.userID,
 		}
 		tkn, err := svc.Issue(ctx, "", key)
 		if err != nil {

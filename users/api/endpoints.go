@@ -173,7 +173,7 @@ func listMembersByGroupEndpoint(svc users.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		page, err := svc.ListMembers(ctx, session, req.objectKind, req.objectID, req.Page)
 		if err != nil {
 			return nil, err
@@ -196,7 +196,7 @@ func listMembersByChannelEndpoint(svc users.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		page, err := svc.ListMembers(ctx, session, req.objectKind, req.objectID, req.Page)
 		if err != nil {
 			return nil, err
@@ -218,7 +218,7 @@ func listMembersByThingEndpoint(svc users.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		page, err := svc.ListMembers(ctx, session, req.objectKind, req.objectID, req.Page)
 		if err != nil {
 			return nil, err
@@ -240,7 +240,7 @@ func listMembersByDomainEndpoint(svc users.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		page, err := svc.ListMembers(ctx, session, req.objectKind, req.objectID, req.Page)
 		if err != nil {
 			return nil, err
@@ -424,7 +424,7 @@ func issueTokenEndpoint(svc users.Service) endpoint.Endpoint {
 			return nil, errors.Wrap(apiutil.ErrValidation, err)
 		}
 
-		token, err := svc.IssueToken(ctx, req.Identity, req.Secret, req.DomainID)
+		token, err := svc.IssueToken(ctx, req.Identity, req.Secret)
 		if err != nil {
 			return nil, err
 		}

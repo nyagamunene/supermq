@@ -1489,7 +1489,6 @@ func TestIssueToken(t *testing.T) {
 
 	cases := []struct {
 		desc                       string
-		domainID                   string
 		client                     mgclients.Client
 		retrieveByIdentityResponse mgclients.Client
 		issueResponse              *magistrala.Token
@@ -1506,7 +1505,6 @@ func TestIssueToken(t *testing.T) {
 		},
 		{
 			desc:                       "issue token for non-empty domain id",
-			domainID:                   validID,
 			client:                     client,
 			retrieveByIdentityResponse: rClient,
 			issueResponse:              &magistrala.Token{AccessToken: validToken, RefreshToken: &validToken, AccessType: "3"},
@@ -1545,15 +1543,15 @@ func TestIssueToken(t *testing.T) {
 
 	for _, tc := range cases {
 		repoCall := cRepo.On("RetrieveByIdentity", context.Background(), tc.client.Credentials.Identity).Return(tc.retrieveByIdentityResponse, tc.retrieveByIdentityErr)
-		authCall := auth.On("Issue", context.Background(), &magistrala.IssueReq{UserId: tc.client.ID, DomainId: &tc.domainID, Type: uint32(mgauth.AccessKey)}).Return(tc.issueResponse, tc.issueErr)
-		token, err := svc.IssueToken(context.Background(), tc.client.Credentials.Identity, tc.client.Credentials.Secret, tc.domainID)
+		authCall := auth.On("Issue", context.Background(), &magistrala.IssueReq{UserId: tc.client.ID, Type: uint32(mgauth.AccessKey)}).Return(tc.issueResponse, tc.issueErr)
+		token, err := svc.IssueToken(context.Background(), tc.client.Credentials.Identity, tc.client.Credentials.Secret)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		if err == nil {
 			assert.NotEmpty(t, token.GetAccessToken(), fmt.Sprintf("%s: expected %s not to be empty\n", tc.desc, token.GetAccessToken()))
 			assert.NotEmpty(t, token.GetRefreshToken(), fmt.Sprintf("%s: expected %s not to be empty\n", tc.desc, token.GetRefreshToken()))
 			ok := repoCall.Parent.AssertCalled(t, "RetrieveByIdentity", context.Background(), tc.client.Credentials.Identity)
 			assert.True(t, ok, fmt.Sprintf("RetrieveByIdentity was not called on %s", tc.desc))
-			ok = authCall.Parent.AssertCalled(t, "Issue", context.Background(), &magistrala.IssueReq{UserId: tc.client.ID, DomainId: &tc.domainID, Type: uint32(mgauth.AccessKey)})
+			ok = authCall.Parent.AssertCalled(t, "Issue", context.Background(), &magistrala.IssueReq{UserId: tc.client.ID, Type: uint32(mgauth.AccessKey)})
 			assert.True(t, ok, fmt.Sprintf("Issue was not called on %s", tc.desc))
 		}
 		authCall.Unset()

@@ -187,7 +187,6 @@ func (req changeClientStatusReq) validate() error {
 type loginClientReq struct {
 	Identity string `json:"identity,omitempty"`
 	Secret   string `json:"secret,omitempty"`
-	DomainID string `json:"domain_id,omitempty"`
 }
 
 func (req loginClientReq) validate() error {

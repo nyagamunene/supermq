@@ -26,7 +26,7 @@ func addEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		channels := []bootstrap.Channel{}
 		for _, c := range req.Channels {
 			channels = append(channels, bootstrap.Channel{ID: c})
@@ -69,7 +69,7 @@ func updateCertEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		cfg, err := svc.UpdateCert(ctx, session, req.thingID, req.ClientCert, req.ClientKey, req.CACert)
 		if err != nil {
 			return nil, err
@@ -97,7 +97,7 @@ func viewEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		config, err := svc.View(ctx, session, req.id)
 		if err != nil {
 			return nil, err
@@ -138,7 +138,7 @@ func updateEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		config := bootstrap.Config{
 			ThingID: req.id,
 			Name:    req.Name,
@@ -169,7 +169,7 @@ func updateConnEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.UpdateConnections(ctx, session, req.token, req.id, req.Channels); err != nil {
 			return nil, err
 		}
@@ -194,7 +194,7 @@ func listEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		page, err := svc.List(ctx, session, req.filter, req.offset, req.limit)
 		if err != nil {
 			return nil, err
@@ -244,7 +244,7 @@ func removeEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.Remove(ctx, session, req.id); err != nil {
 			return nil, err
 		}
@@ -280,7 +280,7 @@ func stateEndpoint(svc bootstrap.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.UpdateSession(req.domainID)
 		if err := svc.ChangeState(ctx, session, req.token, req.id, req.State); err != nil {
 			return nil, err
 		}
