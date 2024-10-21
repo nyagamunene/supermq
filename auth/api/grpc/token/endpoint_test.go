@@ -46,7 +46,6 @@ const (
 
 var (
 	validID  = testsutil.GenerateUUID(&testing.T{})
-	domainID = testsutil.GenerateUUID(&testing.T{})
 	authAddr = fmt.Sprintf("localhost:%d", port)
 )
 
