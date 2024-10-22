@@ -60,6 +60,7 @@ func AuthenticateMiddlewareDomain(authn mgauthn.Authentication) func(http.Handle
 
 			if domain != resp.DomainID {
 				resp = mgauthn.Session{}
+				EncodeError(r.Context(), apiutil.ErrValidation, w)
 				return
 			}
 
