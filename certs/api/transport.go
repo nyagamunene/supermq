@@ -91,8 +91,7 @@ func decodeListCerts(_ context.Context, r *http.Request) (interface{}, error) {
 	}
 
 	req := listReq{
-		thingID:  chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		thingID: chi.URLParam(r, "thingID"),
 		pm: certs.PageMetadata{
 			Offset:  o,
 			Limit:   l,
@@ -105,7 +104,6 @@ func decodeListCerts(_ context.Context, r *http.Request) (interface{}, error) {
 func decodeViewCert(_ context.Context, r *http.Request) (interface{}, error) {
 	req := viewReq{
 		serialID: chi.URLParam(r, "certID"),
-		domainID: chi.URLParam(r, "domainID"),
 	}
 
 	return req, nil

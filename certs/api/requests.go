@@ -44,30 +44,23 @@ func (req addCertsReq) validate() error {
 }
 
 type listReq struct {
-	thingID  string
-	domainID string
-	pm       certs.PageMetadata
+	thingID string
+	pm      certs.PageMetadata
 }
 
 func (req *listReq) validate() error {
 	if req.pm.Limit > maxLimitSize {
 		return apiutil.ErrLimitSize
 	}
-	if req.domainID == "" {
-		return apiutil.ErrMissingDomainID
-	}
+
 	return nil
 }
 
 type viewReq struct {
 	serialID string
-	domainID string
 }
 
 func (req *viewReq) validate() error {
-	if req.domainID == "" {
-		return apiutil.ErrMissingDomainID
-	}
 	if req.serialID == "" {
 		return apiutil.ErrMissingID
 	}
@@ -85,9 +78,11 @@ func (req *revokeReq) validate() error {
 	if req.token == "" {
 		return apiutil.ErrBearerToken
 	}
+
 	if req.domainID == "" {
 		return apiutil.ErrMissingDomainID
 	}
+
 	if req.certID == "" {
 		return apiutil.ErrMissingID
 	}

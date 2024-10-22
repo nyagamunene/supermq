@@ -28,7 +28,7 @@ func groupsHandler(svc groups.Service, authn mgauthn.Authentication, r *chi.Mux,
 	}
 
 	r.Group(func(r chi.Router) {
-		r.Use(api.AuthenticateMiddleware(authn))
+		r.Use(api.AuthenticateMiddlewareDomain(authn))
 
 		r.Route("/domains/{domainID}/channels", func(r chi.Router) {
 			r.Post("/", otelhttp.NewHandler(kithttp.NewServer(

@@ -133,8 +133,7 @@ func decodeAddRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	}
 
 	req := addReq{
-		token:    apiutil.ExtractBearerToken(r),
-		domainID: chi.URLParam(r, "domainID"),
+		token: apiutil.ExtractBearerToken(r),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -149,8 +148,7 @@ func decodeUpdateRequest(_ context.Context, r *http.Request) (interface{}, error
 	}
 
 	req := updateReq{
-		id:       chi.URLParam(r, "configID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "configID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -165,8 +163,7 @@ func decodeUpdateCertRequest(_ context.Context, r *http.Request) (interface{}, e
 	}
 
 	req := updateCertReq{
-		thingID:  chi.URLParam(r, "certID"),
-		domainID: chi.URLParam(r, "domainID"),
+		thingID: chi.URLParam(r, "certID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -181,9 +178,8 @@ func decodeUpdateConnRequest(_ context.Context, r *http.Request) (interface{}, e
 	}
 
 	req := updateConnReq{
-		token:    apiutil.ExtractBearerToken(r),
-		id:       chi.URLParam(r, "connID"),
-		domainID: chi.URLParam(r, "domainID"),
+		token: apiutil.ExtractBearerToken(r),
+		id:    chi.URLParam(r, "connID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -209,10 +205,9 @@ func decodeListRequest(_ context.Context, r *http.Request) (interface{}, error) 
 	}
 
 	req := listReq{
-		domainID: chi.URLParam(r, "domainID"),
-		filter:   parseFilter(q),
-		offset:   o,
-		limit:    l,
+		filter: parseFilter(q),
+		offset: o,
+		limit:  l,
 	}
 
 	return req, nil
@@ -233,9 +228,8 @@ func decodeStateRequest(_ context.Context, r *http.Request) (interface{}, error)
 	}
 
 	req := changeStateReq{
-		token:    apiutil.ExtractBearerToken(r),
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		token: apiutil.ExtractBearerToken(r),
+		id:    chi.URLParam(r, "thingID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -246,8 +240,7 @@ func decodeStateRequest(_ context.Context, r *http.Request) (interface{}, error)
 
 func decodeEntityRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	req := entityReq{
-		id:       chi.URLParam(r, "configID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "configID"),
 	}
 
 	return req, nil
