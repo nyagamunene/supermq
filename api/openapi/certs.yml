@@ -93,6 +93,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/RevokeRes"
+        "400":
+          description: Failed due to malformed query parameters.
         "401":
           description: Missing or invalid access token provided.
         "403":
