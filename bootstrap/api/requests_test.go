@@ -133,11 +133,6 @@ func TestUpdateReqValidation(t *testing.T) {
 			err:  nil,
 		},
 		{
-			desc: "empty domain-id",
-			id:   "id",
-			err:  apiutil.ErrMissingDomainID,
-		},
-		{
 			desc: "empty id",
 			id:   "",
 			err:  apiutil.ErrMissingID,
@@ -160,11 +155,6 @@ func TestUpdateCertReqValidation(t *testing.T) {
 		thingID string
 		err     error
 	}{
-		{
-			desc:    "empty domain id",
-			thingID: "thingID",
-			err:     apiutil.ErrMissingDomainID,
-		},
 		{
 			desc:    "empty thing id",
 			thingID: "",
