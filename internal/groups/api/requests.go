@@ -66,7 +66,7 @@ func (req listGroupsReq) validate() error {
 }
 
 type groupReq struct {
-	id       string
+	id string
 }
 
 func (req groupReq) validate() error {
@@ -78,7 +78,7 @@ func (req groupReq) validate() error {
 }
 
 type groupPermsReq struct {
-	id       string
+	id string
 }
 
 func (req groupPermsReq) validate() error {
@@ -90,7 +90,7 @@ func (req groupPermsReq) validate() error {
 }
 
 type changeGroupStatusReq struct {
-	id       string
+	id string
 }
 
 func (req changeGroupStatusReq) validate() error {

@@ -199,7 +199,7 @@ func decodeAssignUsersRequest(_ context.Context, r *http.Request) (interface{}, 
 	}
 
 	req := assignUsersRequest{
-		groupID:  chi.URLParam(r, "groupID"),
+		groupID: chi.URLParam(r, "groupID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -214,7 +214,7 @@ func decodeUnassignUsersRequest(_ context.Context, r *http.Request) (interface{}
 	}
 
 	req := assignUsersRequest{
-		groupID:  chi.URLParam(r, "groupID"),
+		groupID: chi.URLParam(r, "groupID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -229,7 +229,7 @@ func decodeAssignUserGroupsRequest(_ context.Context, r *http.Request) (interfac
 	}
 
 	req := assignUserGroupsRequest{
-		groupID:  chi.URLParam(r, "groupID"),
+		groupID: chi.URLParam(r, "groupID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -244,7 +244,7 @@ func decodeUnassignUserGroupsRequest(_ context.Context, r *http.Request) (interf
 	}
 
 	req := assignUserGroupsRequest{
-		groupID:  chi.URLParam(r, "groupID"),
+		groupID: chi.URLParam(r, "groupID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
