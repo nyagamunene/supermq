@@ -26,7 +26,6 @@ func TestCreateGroupReqValidation(t *testing.T) {
 		{
 			desc: "valid request",
 			req: createGroupReq{
-				domainID: valid,
 				Group: groups.Group{
 					Name: valid,
 				},
@@ -34,19 +33,8 @@ func TestCreateGroupReqValidation(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc: "empty domain id",
-			req: createGroupReq{
-				domainID: "",
-				Group: groups.Group{
-					Name: valid,
-				},
-			},
-			err: apiutil.ErrMissingDomainID,
-		},
-		{
 			desc: "long name",
 			req: createGroupReq{
-				domainID: valid,
 				Group: groups.Group{
 					Name: strings.Repeat("a", api.MaxNameSize+1),
 				},
@@ -56,8 +44,7 @@ func TestCreateGroupReqValidation(t *testing.T) {
 		{
 			desc: "empty name",
 			req: createGroupReq{
-				domainID: valid,
-				Group:    groups.Group{},
+				Group: groups.Group{},
 			},
 			err: apiutil.ErrNameSize,
 		},
@@ -78,37 +65,25 @@ func TestUpdateGroupReqValidation(t *testing.T) {
 		{
 			desc: "valid request",
 			req: updateGroupReq{
-				id:       valid,
-				domainID: valid,
-				Name:     valid,
+				id:   valid,
+				Name: valid,
 			},
 			err: nil,
 		},
 		{
 			desc: "long name",
 			req: updateGroupReq{
-				id:       valid,
-				domainID: valid,
-				Name:     strings.Repeat("a", api.MaxNameSize+1),
+				id:   valid,
+				Name: strings.Repeat("a", api.MaxNameSize+1),
 			},
 			err: apiutil.ErrNameSize,
 		},
 		{
 			desc: "empty id",
 			req: updateGroupReq{
-				domainID: valid,
-				Name:     valid,
+				Name: valid,
 			},
 			err: apiutil.ErrMissingID,
-		},
-		{
-			desc: "empty domain id",
-			req: updateGroupReq{
-				id:       valid,
-				domainID: "",
-				Name:     valid,
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 
@@ -129,7 +104,6 @@ func TestListGroupReqValidation(t *testing.T) {
 			req: listGroupsReq{
 				memberKind: policies.ThingsKind,
 				memberID:   valid,
-				domainID:   valid,
 				Page: groups.Page{
 					PageMeta: groups.PageMeta{
 						Limit: 10,
@@ -139,24 +113,9 @@ func TestListGroupReqValidation(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc: "empty domain id",
-			req: listGroupsReq{
-				memberKind: policies.ThingsKind,
-				memberID:   valid,
-				domainID:   "",
-				Page: groups.Page{
-					PageMeta: groups.PageMeta{
-						Limit: 10,
-					},
-				},
-			},
-			err: apiutil.ErrMissingDomainID,
-		},
-		{
 			desc: "empty memberkind",
 			req: listGroupsReq{
 				memberID: valid,
-				domainID: valid,
 				Page: groups.Page{
 					PageMeta: groups.PageMeta{
 						Limit: 10,
@@ -169,7 +128,6 @@ func TestListGroupReqValidation(t *testing.T) {
 			desc: "empty member id",
 			req: listGroupsReq{
 				memberKind: policies.ThingsKind,
-				domainID:   valid,
 				Page: groups.Page{
 					PageMeta: groups.PageMeta{
 						Limit: 10,
@@ -183,7 +141,6 @@ func TestListGroupReqValidation(t *testing.T) {
 			req: listGroupsReq{
 				memberKind: policies.ThingsKind,
 				memberID:   valid,
-				domainID:   valid,
 				Page: groups.Page{
 					PageMeta: groups.PageMeta{
 						Limit: 10,
@@ -198,7 +155,6 @@ func TestListGroupReqValidation(t *testing.T) {
 			req: listGroupsReq{
 				memberKind: policies.ThingsKind,
 				memberID:   valid,
-				domainID:   valid,
 				Page: groups.Page{
 					PageMeta: groups.PageMeta{
 						Limit: 0,
@@ -212,7 +168,6 @@ func TestListGroupReqValidation(t *testing.T) {
 			req: listGroupsReq{
 				memberKind: policies.ThingsKind,
 				memberID:   valid,
-				domainID:   valid,
 				Page: groups.Page{
 					PageMeta: groups.PageMeta{
 						Limit: api.MaxLimitSize + 1,
@@ -238,25 +193,14 @@ func TestGroupReqValidation(t *testing.T) {
 		{
 			desc: "valid request",
 			req: groupReq{
-				id:       valid,
-				domainID: valid,
+				id: valid,
 			},
 			err: nil,
 		},
 		{
 			desc: "empty id",
-			req: groupReq{
-				domainID: valid,
-			},
-			err: apiutil.ErrMissingID,
-		},
-		{
-			desc: "empty domain id",
-			req: groupReq{
-				id:       valid,
-				domainID: "",
-			},
-			err: apiutil.ErrMissingDomainID,
+			req:  groupReq{},
+			err:  apiutil.ErrMissingID,
 		},
 	}
 
@@ -275,25 +219,14 @@ func TestGroupPermsReqValidation(t *testing.T) {
 		{
 			desc: "valid request",
 			req: groupPermsReq{
-				id:       valid,
-				domainID: valid,
+				id: valid,
 			},
 			err: nil,
 		},
 		{
 			desc: "empty id",
-			req: groupPermsReq{
-				domainID: valid,
-			},
-			err: apiutil.ErrMissingID,
-		},
-		{
-			desc: "empty domain id",
-			req: groupPermsReq{
-				id:       valid,
-				domainID: "",
-			},
-			err: apiutil.ErrMissingDomainID,
+			req:  groupPermsReq{},
+			err:  apiutil.ErrMissingID,
 		},
 	}
 
@@ -312,25 +245,14 @@ func TestChangeGroupStatusReqValidation(t *testing.T) {
 		{
 			desc: "valid request",
 			req: changeGroupStatusReq{
-				id:       valid,
-				domainID: valid,
+				id: valid,
 			},
 			err: nil,
 		},
 		{
 			desc: "empty id",
-			req: changeGroupStatusReq{
-				domainID: valid,
-			},
-			err: apiutil.ErrMissingID,
-		},
-		{
-			desc: "empty domain id",
-			req: changeGroupStatusReq{
-				id:       valid,
-				domainID: "",
-			},
-			err: apiutil.ErrMissingDomainID,
+			req:  changeGroupStatusReq{},
+			err:  apiutil.ErrMissingID,
 		},
 	}
 
@@ -350,7 +272,6 @@ func TestAssignReqValidation(t *testing.T) {
 			desc: "valid request",
 			req: assignReq{
 				groupID:    valid,
-				domainID:   valid,
 				Relation:   policies.ContributorRelation,
 				MemberKind: policies.ThingsKind,
 				Members:    []string{valid},
@@ -361,7 +282,6 @@ func TestAssignReqValidation(t *testing.T) {
 			desc: "empty member kind",
 			req: assignReq{
 				groupID:  valid,
-				domainID: valid,
 				Relation: policies.ContributorRelation,
 				Members:  []string{valid},
 			},
@@ -370,7 +290,6 @@ func TestAssignReqValidation(t *testing.T) {
 		{
 			desc: "empty groupID",
 			req: assignReq{
-				domainID:   valid,
 				Relation:   policies.ContributorRelation,
 				MemberKind: policies.ThingsKind,
 				Members:    []string{valid},
@@ -381,22 +300,10 @@ func TestAssignReqValidation(t *testing.T) {
 			desc: "empty Members",
 			req: assignReq{
 				groupID:    valid,
-				domainID:   valid,
 				Relation:   policies.ContributorRelation,
 				MemberKind: policies.ThingsKind,
 			},
 			err: apiutil.ErrEmptyList,
-		},
-		{
-			desc: "empty domain id",
-			req: assignReq{
-				groupID:    valid,
-				domainID:   "",
-				Relation:   policies.ContributorRelation,
-				MemberKind: policies.ThingsKind,
-				Members:    []string{valid},
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 
@@ -416,7 +323,6 @@ func TestUnAssignReqValidation(t *testing.T) {
 			desc: "valid request",
 			req: unassignReq{
 				groupID:    valid,
-				domainID:   valid,
 				Relation:   policies.ContributorRelation,
 				MemberKind: policies.ThingsKind,
 				Members:    []string{valid},
@@ -427,7 +333,6 @@ func TestUnAssignReqValidation(t *testing.T) {
 			desc: "empty member kind",
 			req: unassignReq{
 				groupID:  valid,
-				domainID: valid,
 				Relation: policies.ContributorRelation,
 				Members:  []string{valid},
 			},
@@ -436,7 +341,6 @@ func TestUnAssignReqValidation(t *testing.T) {
 		{
 			desc: "empty groupID",
 			req: unassignReq{
-				domainID:   valid,
 				Relation:   policies.ContributorRelation,
 				MemberKind: policies.ThingsKind,
 				Members:    []string{valid},
@@ -447,22 +351,10 @@ func TestUnAssignReqValidation(t *testing.T) {
 			desc: "empty Members",
 			req: unassignReq{
 				groupID:    valid,
-				domainID:   valid,
 				Relation:   policies.ContributorRelation,
 				MemberKind: policies.ThingsKind,
 			},
 			err: apiutil.ErrEmptyList,
-		},
-		{
-			desc: "empty domain id",
-			req: unassignReq{
-				groupID:    valid,
-				domainID:   "",
-				Relation:   policies.ContributorRelation,
-				MemberKind: policies.ThingsKind,
-				Members:    []string{valid},
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 
@@ -482,7 +374,6 @@ func TestListMembersReqValidation(t *testing.T) {
 			desc: "valid request",
 			req: listMembersReq{
 				groupID:    valid,
-				domainID:   valid,
 				permission: policies.ViewPermission,
 				memberKind: policies.ThingsKind,
 			},
@@ -492,7 +383,6 @@ func TestListMembersReqValidation(t *testing.T) {
 			desc: "empty member kind",
 			req: listMembersReq{
 				groupID:    valid,
-				domainID:   valid,
 				permission: policies.ViewPermission,
 			},
 			err: apiutil.ErrMissingMemberKind,
@@ -500,21 +390,10 @@ func TestListMembersReqValidation(t *testing.T) {
 		{
 			desc: "empty groupID",
 			req: listMembersReq{
-				domainID:   valid,
 				permission: policies.ViewPermission,
 				memberKind: policies.ThingsKind,
 			},
 			err: apiutil.ErrMissingID,
-		},
-		{
-			desc: "empty domain id",
-			req: listMembersReq{
-				groupID:    valid,
-				domainID:   "",
-				permission: policies.ViewPermission,
-				memberKind: policies.ThingsKind,
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 

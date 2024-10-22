@@ -145,8 +145,7 @@ func clientsHandler(svc things.Service, r *chi.Mux, authn mgauthn.Authentication
 
 func decodeViewClient(_ context.Context, r *http.Request) (interface{}, error) {
 	req := viewClientReq{
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "thingID"),
 	}
 
 	return req, nil
@@ -154,8 +153,7 @@ func decodeViewClient(_ context.Context, r *http.Request) (interface{}, error) {
 
 func decodeViewClientPerms(_ context.Context, r *http.Request) (interface{}, error) {
 	req := viewClientPermsReq{
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "thingID"),
 	}
 
 	return req, nil
@@ -214,7 +212,6 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 		listPerms:  lp,
 		userID:     chi.URLParam(r, "userID"),
 		id:         id,
-		domainID:   chi.URLParam(r, "domainID"),
 	}
 	return req, nil
 }
@@ -225,8 +222,7 @@ func decodeUpdateClient(_ context.Context, r *http.Request) (interface{}, error)
 	}
 
 	req := updateClientReq{
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "thingID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
@@ -241,8 +237,7 @@ func decodeUpdateClientTags(_ context.Context, r *http.Request) (interface{}, er
 	}
 
 	req := updateClientTagsReq{
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "thingID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
@@ -257,8 +252,7 @@ func decodeUpdateClientCredentials(_ context.Context, r *http.Request) (interfac
 	}
 
 	req := updateClientCredentialsReq{
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "thingID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
@@ -277,8 +271,7 @@ func decodeCreateClientReq(_ context.Context, r *http.Request) (interface{}, err
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
 	}
 	req := createClientReq{
-		client:   c,
-		domainID: chi.URLParam(r, "domainID"),
+		client: c,
 	}
 
 	return req, nil
@@ -289,7 +282,7 @@ func decodeCreateClientsReq(_ context.Context, r *http.Request) (interface{}, er
 		return nil, errors.Wrap(apiutil.ErrValidation, apiutil.ErrUnsupportedContentType)
 	}
 
-	c := createClientsReq{domainID: chi.URLParam(r, "domainID")}
+	c := createClientsReq{}
 	if err := json.NewDecoder(r.Body).Decode(&c.Clients); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
 	}
@@ -299,8 +292,7 @@ func decodeCreateClientsReq(_ context.Context, r *http.Request) (interface{}, er
 
 func decodeChangeClientStatus(_ context.Context, r *http.Request) (interface{}, error) {
 	req := changeClientStatusReq{
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "thingID"),
 	}
 
 	return req, nil
@@ -345,8 +337,7 @@ func decodeListMembersRequest(_ context.Context, r *http.Request) (interface{}, 
 			Metadata:   m,
 			ListPerms:  lp,
 		},
-		groupID:  chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
+		groupID: chi.URLParam(r, "groupID"),
 	}
 	return req, nil
 }
@@ -357,8 +348,7 @@ func decodeThingShareRequest(_ context.Context, r *http.Request) (interface{}, e
 	}
 
 	req := thingShareRequest{
-		thingID:  chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		thingID: chi.URLParam(r, "thingID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
@@ -373,8 +363,7 @@ func decodeThingUnshareRequest(_ context.Context, r *http.Request) (interface{},
 	}
 
 	req := thingShareRequest{
-		thingID:  chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		thingID: chi.URLParam(r, "thingID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
@@ -385,8 +374,7 @@ func decodeThingUnshareRequest(_ context.Context, r *http.Request) (interface{},
 
 func decodeDeleteClientReq(_ context.Context, r *http.Request) (interface{}, error) {
 	req := deleteClientReq{
-		id:       chi.URLParam(r, "thingID"),
-		domainID: chi.URLParam(r, "domainID"),
+		id: chi.URLParam(r, "thingID"),
 	}
 
 	return req, nil

@@ -9,6 +9,7 @@ import (
 
 	"github.com/absmach/magistrala/pkg/apiutil"
 	mgauthn "github.com/absmach/magistrala/pkg/authn"
+	"github.com/go-chi/chi"
 )
 
 type sessionKeyType string
@@ -28,6 +29,11 @@ func AuthenticateMiddleware(authn mgauthn.Authentication) func(http.Handler) htt
 			if err != nil {
 				EncodeError(r.Context(), err, w)
 				return
+			}
+
+			domainID := chi.URLParam(r, "domainID")
+			if domainID != "" {
+				resp.UpdateSession(domainID)
 			}
 
 			ctx := context.WithValue(r.Context(), SessionKey, resp)

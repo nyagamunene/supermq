@@ -155,8 +155,7 @@ func groupsHandler(svc groups.Service, authn mgauthn.Authentication, r *chi.Mux,
 
 func decodeAssignUsersRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	req := assignUsersReq{
-		groupID:  chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
+		groupID: chi.URLParam(r, "groupID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -166,8 +165,7 @@ func decodeAssignUsersRequest(_ context.Context, r *http.Request) (interface{}, 
 
 func decodeUnassignUsersRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	req := unassignUsersReq{
-		groupID:  chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
+		groupID: chi.URLParam(r, "groupID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))

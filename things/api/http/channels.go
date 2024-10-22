@@ -200,7 +200,6 @@ func decodeAssignUsersRequest(_ context.Context, r *http.Request) (interface{}, 
 
 	req := assignUsersRequest{
 		groupID:  chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -216,7 +215,6 @@ func decodeUnassignUsersRequest(_ context.Context, r *http.Request) (interface{}
 
 	req := assignUsersRequest{
 		groupID:  chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -232,7 +230,6 @@ func decodeAssignUserGroupsRequest(_ context.Context, r *http.Request) (interfac
 
 	req := assignUserGroupsRequest{
 		groupID:  chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -248,7 +245,6 @@ func decodeUnassignUserGroupsRequest(_ context.Context, r *http.Request) (interf
 
 	req := assignUserGroupsRequest{
 		groupID:  chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
@@ -261,7 +257,6 @@ func decodeConnectChannelThingRequest(_ context.Context, r *http.Request) (inter
 	req := connectChannelThingRequest{
 		ThingID:   chi.URLParam(r, "thingID"),
 		ChannelID: chi.URLParam(r, "groupID"),
-		domainID:  chi.URLParam(r, "domainID"),
 	}
 
 	return req, nil
@@ -271,7 +266,6 @@ func decodeDisconnectChannelThingRequest(_ context.Context, r *http.Request) (in
 	req := connectChannelThingRequest{
 		ThingID:   chi.URLParam(r, "thingID"),
 		ChannelID: chi.URLParam(r, "groupID"),
-		domainID:  chi.URLParam(r, "domainID"),
 	}
 
 	return req, nil
@@ -282,9 +276,7 @@ func decodeConnectRequest(_ context.Context, r *http.Request) (interface{}, erro
 		return nil, errors.Wrap(apiutil.ErrValidation, apiutil.ErrUnsupportedContentType)
 	}
 
-	req := connectChannelThingRequest{
-		domainID: chi.URLParam(r, "domainID"),
-	}
+	req := connectChannelThingRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
 	}
@@ -297,9 +289,7 @@ func decodeDisconnectRequest(_ context.Context, r *http.Request) (interface{}, e
 		return nil, errors.Wrap(apiutil.ErrValidation, apiutil.ErrUnsupportedContentType)
 	}
 
-	req := connectChannelThingRequest{
-		domainID: chi.URLParam(r, "domainID"),
-	}
+	req := connectChannelThingRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))
 	}

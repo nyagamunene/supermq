@@ -503,7 +503,6 @@ func decodeListMembersByGroup(_ context.Context, r *http.Request) (interface{}, 
 	req := listMembersByObjectReq{
 		Page:     page,
 		objectID: chi.URLParam(r, "groupID"),
-		domainID: chi.URLParam(r, "domainID"),
 	}
 
 	return req, nil
@@ -517,7 +516,6 @@ func decodeListMembersByChannel(_ context.Context, r *http.Request) (interface{}
 	req := listMembersByObjectReq{
 		Page:     page,
 		objectID: chi.URLParam(r, "channelID"),
-		domainID: chi.URLParam(r, "domainID"),
 	}
 
 	return req, nil
@@ -530,7 +528,6 @@ func decodeListMembersByThing(_ context.Context, r *http.Request) (interface{}, 
 	}
 	req := listMembersByObjectReq{
 		Page:     page,
-		domainID: chi.URLParam(r, "domainID"),
 		objectID: chi.URLParam(r, "thingID"),
 	}
 
@@ -545,7 +542,6 @@ func decodeListMembersByDomain(_ context.Context, r *http.Request) (interface{},
 
 	req := listMembersByObjectReq{
 		Page:     page,
-		domainID: chi.URLParam(r, "domainID"),
 		objectID: chi.URLParam(r, "domainID"),
 	}
 

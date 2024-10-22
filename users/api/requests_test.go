@@ -208,7 +208,6 @@ func TestListMembersByObjectReqValidate(t *testing.T) {
 			req: listMembersByObjectReq{
 				objectKind: "group",
 				objectID:   validID,
-				domainID:   domain,
 			},
 			err: nil,
 		},
@@ -216,7 +215,6 @@ func TestListMembersByObjectReqValidate(t *testing.T) {
 			desc: "empty object kind",
 			req: listMembersByObjectReq{
 				objectKind: "",
-				domainID:   domain,
 				objectID:   validID,
 			},
 			err: apiutil.ErrMissingMemberKind,
@@ -225,19 +223,9 @@ func TestListMembersByObjectReqValidate(t *testing.T) {
 			desc: "empty object id",
 			req: listMembersByObjectReq{
 				objectKind: "group",
-				domainID:   domain,
 				objectID:   "",
 			},
 			err: apiutil.ErrMissingID,
-		},
-		{
-			desc: "empty domain id",
-			req: listMembersByObjectReq{
-				objectKind: "group",
-				domainID:   "",
-				objectID:   validID,
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 	for _, c := range cases {
@@ -602,7 +590,6 @@ func TestAssignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "valid request",
 			req: assignUsersReq{
-				domainID: domain,
 				groupID:  validID,
 				UserIDs:  []string{validID},
 				Relation: valid,
@@ -612,7 +599,6 @@ func TestAssignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "empty id",
 			req: assignUsersReq{
-				domainID: domain,
 				groupID:  "",
 				UserIDs:  []string{validID},
 				Relation: valid,
@@ -622,7 +608,6 @@ func TestAssignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "empty users",
 			req: assignUsersReq{
-				domainID: domain,
 				groupID:  validID,
 				UserIDs:  []string{},
 				Relation: valid,
@@ -632,22 +617,11 @@ func TestAssignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "empty relation",
 			req: assignUsersReq{
-				domainID: domain,
 				groupID:  validID,
 				UserIDs:  []string{validID},
 				Relation: "",
 			},
 			err: apiutil.ErrMissingRelation,
-		},
-		{
-			desc: "empty domain id",
-			req: assignUsersReq{
-				domainID: "",
-				groupID:  validID,
-				UserIDs:  []string{validID},
-				Relation: valid,
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 	for _, c := range cases {
@@ -665,7 +639,6 @@ func TestUnassignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "valid request",
 			req: unassignUsersReq{
-				domainID: domain,
 				groupID:  validID,
 				UserIDs:  []string{validID},
 				Relation: valid,
@@ -675,7 +648,6 @@ func TestUnassignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "empty id",
 			req: unassignUsersReq{
-				domainID: domain,
 				groupID:  "",
 				UserIDs:  []string{validID},
 				Relation: valid,
@@ -685,7 +657,6 @@ func TestUnassignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "empty users",
 			req: unassignUsersReq{
-				domainID: domain,
 				groupID:  validID,
 				UserIDs:  []string{},
 				Relation: valid,
@@ -695,22 +666,11 @@ func TestUnassignUsersRequestValidate(t *testing.T) {
 		{
 			desc: "empty relation",
 			req: unassignUsersReq{
-				domainID: domain,
 				groupID:  validID,
 				UserIDs:  []string{validID},
 				Relation: "",
 			},
 			err: nil,
-		},
-		{
-			desc: "empty domain id",
-			req: unassignUsersReq{
-				domainID: "",
-				groupID:  validID,
-				UserIDs:  []string{validID},
-				Relation: valid,
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 	for _, c := range cases {

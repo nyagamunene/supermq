@@ -14,6 +14,11 @@ type Session struct {
 	SuperAdmin   bool
 }
 
+func (s *Session) UpdateSession(DomainID string) {
+	s.DomainID = DomainID
+	s.DomainUserID = DomainID + "_" + s.UserID
+}
+
 // Authn is magistrala authentication library.
 //
 //go:generate mockery --name Authentication --output=./mocks --filename authn.go --quiet --note "Copyright (c) Abstract Machines"
