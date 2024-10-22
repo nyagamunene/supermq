@@ -357,7 +357,7 @@ func TestListChannels(t *testing.T) {
 		},
 		{
 			desc:     "list channels with zero limit",
-			token:    token,
+			token:    validToken,
 			domainID: domainID,
 			offset:   offset,
 			limit:    0,
@@ -386,8 +386,8 @@ func TestListChannels(t *testing.T) {
 		},
 		{
 			desc:           "list channels with limit greater than max",
-			token:          token,
-			domainID:       validID,
+			token:          validToken,
+			domainID:       domainID,
 			offset:         offset,
 			limit:          110,
 			groupsPageMeta: groups.Page{},
@@ -398,7 +398,7 @@ func TestListChannels(t *testing.T) {
 		},
 		{
 			desc:     "list channels with level",
-			token:    token,
+			token:    validToken,
 			domainID: domainID,
 			offset:   0,
 			limit:    1,
@@ -429,7 +429,7 @@ func TestListChannels(t *testing.T) {
 		},
 		{
 			desc:     "list channels with metadata",
-			token:    token,
+			token:    validToken,
 			domainID: domainID,
 			offset:   0,
 			limit:    10,
@@ -460,7 +460,7 @@ func TestListChannels(t *testing.T) {
 		},
 		{
 			desc:     "list channels with invalid metadata",
-			token:    token,
+			token:    validToken,
 			domainID: domainID,
 			offset:   0,
 			limit:    10,
@@ -475,7 +475,7 @@ func TestListChannels(t *testing.T) {
 		},
 		{
 			desc:     "list channels with service response that can't be unmarshalled",
-			token:    token,
+			token:    validToken,
 			domainID: domainID,
 			offset:   0,
 			limit:    10,

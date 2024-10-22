@@ -154,6 +154,8 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/ThingRes"
+        "400":
+          description: Failed due to malformed domain ID.
         "401":
           description: Missing or invalid access token provided.
         "403":
@@ -215,6 +217,8 @@ paths:
       responses:
         "204":
           description: Thing deleted.
+        "400":
+          description: Failed due to malformed domain ID.
         "401":
           description: Missing or invalid access token provided.
         "403":
@@ -532,7 +536,7 @@ paths:
         "200":
           $ref: "#/components/responses/ChannelRes"
         "400":
-          description: Failed due to malformed channel's ID.
+          description: Failed due to malformed channel's or domain ID.
         "401":
           description: Missing or invalid access token provided.
         "403":
@@ -594,6 +598,8 @@ paths:
       responses:
         "204":
           description: Channel deleted.
+        "400":
+          description: Failed due to malformed domain ID.
         "401":
           description: Missing or invalid access token provided.
         "403":
