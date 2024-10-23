@@ -144,7 +144,7 @@ func TestProvision(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodPost,
-				url:         is.URL + fmt.Sprintf("/domains/%s/mapping", tc.domainID),
+				url:         is.URL + fmt.Sprintf("/%s/mapping", tc.domainID),
 				token:       tc.token,
 				contentType: tc.contentType,
 				body:        strings.NewReader(tc.data),
@@ -209,7 +209,7 @@ func TestMapping(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodGet,
-				url:         is.URL + fmt.Sprintf("/domains/%s/mapping", tc.domainID),
+				url:         is.URL + fmt.Sprintf("/%s/mapping", tc.domainID),
 				token:       tc.token,
 				contentType: tc.contentType,
 			}
