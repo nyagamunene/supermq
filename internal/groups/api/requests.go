@@ -160,6 +160,5 @@ func (req listMembersReq) validate() error {
 	if req.groupID == "" {
 		return apiutil.ErrMissingID
 	}
-
 	return nil
 }
