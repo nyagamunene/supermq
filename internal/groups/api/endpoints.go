@@ -28,7 +28,7 @@ func CreateGroupEndpoint(svc groups.Service, kind string) endpoint.Endpoint {
 		if !ok {
 			return createGroupRes{created: false}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		group, err := svc.CreateGroup(ctx, session, kind, req.Group)
 		if err != nil {
 			return createGroupRes{created: false}, err
@@ -49,7 +49,7 @@ func ViewGroupEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return viewGroupRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		group, err := svc.ViewGroup(ctx, session, req.id)
 		if err != nil {
 			return viewGroupRes{}, err
@@ -70,7 +70,7 @@ func ViewGroupPermsEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return viewGroupPermsRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		p, err := svc.ViewGroupPerms(ctx, session, req.id)
 		if err != nil {
 			return viewGroupPermsRes{}, err
@@ -91,7 +91,7 @@ func UpdateGroupEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return updateGroupRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		group := groups.Group{
 			ID:          req.id,
 			Name:        req.Name,
@@ -119,7 +119,7 @@ func EnableGroupEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return changeStatusRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		group, err := svc.EnableGroup(ctx, session, req.id)
 		if err != nil {
 			return changeStatusRes{}, err
@@ -139,7 +139,7 @@ func DisableGroupEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return changeStatusRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		group, err := svc.DisableGroup(ctx, session, req.id)
 		if err != nil {
 			return changeStatusRes{}, err
@@ -168,7 +168,7 @@ func ListGroupsEndpoint(svc groups.Service, groupType, memberKind string) endpoi
 			}
 			return groupPageRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		page, err := svc.ListGroups(ctx, session, req.memberKind, req.memberID, req.Page)
 		if err != nil {
 			if groupType == groupTypeChannels {
@@ -203,7 +203,7 @@ func ListMembersEndpoint(svc groups.Service, memberKind string) endpoint.Endpoin
 		if !ok {
 			return listMembersRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		page, err := svc.ListMembers(ctx, session, req.groupID, req.permission, req.memberKind)
 		if err != nil {
 			return listMembersRes{}, err
@@ -236,7 +236,7 @@ func AssignMembersEndpoint(svc groups.Service, relation, memberKind string) endp
 		if !ok {
 			return assignRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		if err := svc.Assign(ctx, session, req.groupID, req.Relation, req.MemberKind, req.Members...); err != nil {
 			return assignRes{}, err
 		}
@@ -260,7 +260,7 @@ func UnassignMembersEndpoint(svc groups.Service, relation, memberKind string) en
 		if !ok {
 			return unassignRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		if err := svc.Unassign(ctx, session, req.groupID, req.Relation, req.MemberKind, req.Members...); err != nil {
 			return unassignRes{}, err
 		}
@@ -279,7 +279,7 @@ func DeleteGroupEndpoint(svc groups.Service) endpoint.Endpoint {
 		if !ok {
 			return deleteGroupRes{}, svcerr.ErrAuthorization
 		}
-		session.UpdateSession(req.domainID)
+
 		if err := svc.DeleteGroup(ctx, session, req.id); err != nil {
 			return deleteGroupRes{}, err
 		}
