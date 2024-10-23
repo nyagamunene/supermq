@@ -143,7 +143,7 @@ func TestSendInvitation(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodPost,
-				url:         is.URL + "/domains/" + tc.domainID + "/invitations",
+				url:         is.URL + "/" + tc.domainID + "/invitations",
 				token:       tc.token,
 				contentType: tc.contentType,
 				body:        strings.NewReader(tc.data),
@@ -330,7 +330,7 @@ func TestListInvitation(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodGet,
-				url:         is.URL + "/domains/" + tc.domainID + "/invitations?" + tc.query,
+				url:         is.URL + "/" + tc.domainID + "/invitations?" + tc.query,
 				token:       tc.token,
 				contentType: tc.contentType,
 			}
@@ -420,7 +420,7 @@ func TestViewInvitation(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodGet,
-				url:         is.URL + "/domains/" + tc.domainID + "/invitations/users/" + tc.userID,
+				url:         is.URL + "/" + tc.domainID + "/invitations/users/" + tc.userID,
 				token:       tc.token,
 				contentType: tc.contentType,
 			}
@@ -512,7 +512,7 @@ func TestDeleteInvitation(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodDelete,
-				url:         is.URL + "/domains/" + tc.domainID + "/invitations/users/" + tc.userID,
+				url:         is.URL + "/" + tc.domainID + "/invitations/users/" + tc.userID,
 				token:       tc.token,
 				contentType: tc.contentType,
 			}
@@ -589,7 +589,7 @@ func TestAcceptInvitation(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodPost,
-				url:         is.URL + "/domains/" + tc.domainID + "/invitations/accept",
+				url:         is.URL + "/" + tc.domainID + "/invitations/accept",
 				token:       tc.token,
 				contentType: tc.contentType,
 			}
@@ -666,7 +666,7 @@ func TestRejectInvitation(t *testing.T) {
 			req := testRequest{
 				client:      is.Client(),
 				method:      http.MethodPost,
-				url:         is.URL + "/domains/" + tc.domainID + "/invitations/reject",
+				url:         is.URL + "/" + tc.domainID + "/invitations/reject",
 				token:       tc.token,
 				contentType: tc.contentType,
 			}

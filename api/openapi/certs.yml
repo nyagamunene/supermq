@@ -27,7 +27,7 @@ tags:
       url: https://docs.magistrala.abstractmachines.fr/
 
 paths:
-  /domains/{domainID}/certs:
+  /{domainID}/certs:
     post:
       operationId: createCert
       summary: Creates a certificate for thing
@@ -53,7 +53,7 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
-  /domains/{domainID}/certs/{certID}:
+  /{domainID}/certs/{certID}:
     get:
       operationId: getCert
       summary: Retrieves a certificate
@@ -106,7 +106,7 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
-  /domains/{domainID}/serials/{thingID}:
+  /{domainID}/serials/{thingID}:
     get:
       operationId: getSerials
       summary: Retrieves certificates' serial IDs

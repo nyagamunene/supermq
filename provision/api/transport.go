@@ -31,7 +31,7 @@ func MakeHandler(svc provision.Service, logger *slog.Logger, instanceID string) 
 
 	r := chi.NewRouter()
 
-	r.Route("/domains/{domainID}", func(r chi.Router) {
+	r.Route("/{domainID}", func(r chi.Router) {
 		r.Route("/mapping", func(r chi.Router) {
 			r.Post("/", kithttp.NewServer(
 				doProvision(svc),

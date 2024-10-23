@@ -37,7 +37,7 @@ tags:
       url: https://docs.magistrala.abstractmachines.fr/
 
 paths:
-  /domains/{domainID}/things:
+  /{domainID}/things:
     post:
       operationId: createThing
       tags:
@@ -107,7 +107,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/bulk:
+  /{domainID}/things/bulk:
     post:
       operationId: bulkCreateThings
       summary: Bulk provisions new things
@@ -138,7 +138,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}:
+  /{domainID}/things/{thingID}:
     get:
       operationId: getThing
       summary: Retrieves thing info
@@ -228,7 +228,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}/tags:
+  /{domainID}/things/{thingID}/tags:
     patch:
       operationId: updateThingTags
       summary: Updates tags the thing.
@@ -260,7 +260,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}/secret:
+  /{domainID}/things/{thingID}/secret:
     patch:
       operationId: updateThingSecret
       summary: Updates Secret of the identified thing.
@@ -296,7 +296,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}/disable:
+  /{domainID}/things/{thingID}/disable:
     post:
       operationId: disableThing
       summary: Disables a thing
@@ -327,7 +327,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}/enable:
+  /{domainID}/things/{thingID}/enable:
     post:
       operationId: enableThing
       summary: Enables a thing
@@ -358,7 +358,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}/share:
+  /{domainID}/things/{thingID}/share:
     post:
       operationId: shareThing
       summary: Shares a thing
@@ -389,7 +389,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}/unshare:
+  /{domainID}/things/{thingID}/unshare:
     post:
       operationId: unshareThing
       summary: Unshares a thing
@@ -420,7 +420,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/things:
+  /{domainID}/channels/{chanID}/things:
     get:
       operationId: listThingsInaChannel
       summary: List of things connected to specified channel
@@ -451,7 +451,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels:
+  /{domainID}/channels:
     post:
       operationId: createChannel
       tags:
@@ -519,7 +519,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}:
+  /{domainID}/channels/{chanID}:
     get:
       operationId: getChannel
       summary: Retrieves channel info.
@@ -609,7 +609,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/enable:
+  /{domainID}/channels/{chanID}/enable:
     post:
       operationId: enableChannel
       summary: Enables a channel
@@ -640,7 +640,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/disable:
+  /{domainID}/channels/{chanID}/disable:
     post:
       operationId: disableChannel
       summary: Disables a channel
@@ -671,7 +671,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/users/assign:
+  /{domainID}/channels/{chanID}/users/assign:
     post:
       operationId: assignUsersToChannel
       summary: Assigns a member to a channel
@@ -702,7 +702,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/users/unassign:
+  /{domainID}/channels/{chanID}/users/unassign:
     post:
       operationId: unassignUsersFromChannel
       summary: Unassigns a member from a channel
@@ -733,7 +733,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/groups/assign:
+  /{domainID}/channels/{chanID}/groups/assign:
     post:
       operationId: assignGroupsToChannel
       summary: Assigns a member to a channel
@@ -764,7 +764,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/groups/unassign:
+  /{domainID}/channels/{chanID}/groups/unassign:
     post:
       operationId: unassignGroupsFromChannel
       summary: Unassigns a member from a channel
@@ -795,7 +795,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/things/{thingID}/channels:
+  /{domainID}/things/{thingID}/channels:
     get:
       operationId: listChannelsConnectedToThing
       summary: List of channels connected to specified thing
@@ -825,7 +825,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/users/{memberID}/channels:
+  /{domainID}/users/{memberID}/channels:
     get:
       operationId: listChannelsConnectedToUser
       summary: List of channels connected to specified user
@@ -855,7 +855,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/groups/{memberID}/channels:
+  /{domainID}/groups/{memberID}/channels:
     get:
       operationId: listChannelsConnectedToGroup
       summary: List of channels connected to specified group
@@ -885,7 +885,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/connect:
+  /{domainID}/connect:
     post:
       operationId: connectThingsAndChannels
       summary: Connects thing and channel.
@@ -918,7 +918,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/disconnect:
+  /{domainID}/disconnect:
     post:
       operationId: disconnectThingsAndChannels
       summary: Disconnect things and channels using lists of IDs.
@@ -949,7 +949,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/things/{thingID}/connect:
+  /{domainID}/channels/{chanID}/things/{thingID}/connect:
     post:
       operationId: connectThingToChannel
       summary: Connects a thing to a channel
@@ -977,7 +977,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/channels/{chanID}/things/{thingID}/disconnect:
+  /{domainID}/channels/{chanID}/things/{thingID}/disconnect:
     post:
       operationId: disconnectThingFromChannel
       summary: Disconnects a thing to a channel

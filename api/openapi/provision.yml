@@ -27,7 +27,7 @@ tags:
       url: https://docs.magistrala.abstractmachines.fr/
 
 paths:
-  /domains/{domainID}/mapping:
+  /{domainID}/mapping:
     post:
       summary: Adds new device to proxy
       description: Adds new device to proxy

@@ -33,7 +33,7 @@ func groupsHandler(svc groups.Service, authn mgauthn.Authentication, r *chi.Mux,
 	r.Group(func(r chi.Router) {
 		r.Use(api.AuthenticateMiddlewareDomain(authn))
 
-		r.Route("/domains/{domainID}/groups", func(r chi.Router) {
+		r.Route("/{domainID}/groups", func(r chi.Router) {
 			r.Post("/", otelhttp.NewHandler(kithttp.NewServer(
 				gapi.CreateGroupEndpoint(svc, policies.NewGroupKind),
 				gapi.DecodeGroupCreate,
@@ -135,14 +135,14 @@ func groupsHandler(svc groups.Service, authn mgauthn.Authentication, r *chi.Mux,
 
 		// The ideal placeholder name should be {channelID}, but gapi.DecodeListGroupsRequest uses {memberID} as a placeholder for the ID.
 		// So here, we are using {memberID} as the placeholder.
-		r.Get("/domains/{domainID}/channels/{memberID}/groups", otelhttp.NewHandler(kithttp.NewServer(
+		r.Get("/{domainID}/channels/{memberID}/groups", otelhttp.NewHandler(kithttp.NewServer(
 			gapi.ListGroupsEndpoint(svc, "groups", "channels"),
 			gapi.DecodeListGroupsRequest,
 			api.EncodeResponse,
 			opts...,
 		), "list_groups_by_channel_id").ServeHTTP)
 
-		r.Get("/domains/{domainID}/users/{memberID}/groups", otelhttp.NewHandler(kithttp.NewServer(
+		r.Get("/{domainID}/users/{memberID}/groups", otelhttp.NewHandler(kithttp.NewServer(
 			gapi.ListGroupsEndpoint(svc, "groups", "users"),
 			gapi.DecodeListGroupsRequest,
 			api.EncodeResponse,

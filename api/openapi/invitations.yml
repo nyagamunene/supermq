@@ -27,7 +27,7 @@ tags:
       url: https://docs.magistrala.abstractmachines.fr/
 
 paths:
-  /domains/{domainID}/invitations:
+  /{domainID}/invitations:
     post:
       operationId: sendInvitation
       tags:
@@ -93,7 +93,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/invitations/accept:
+  /{domainID}/invitations/accept:
     post:
       operationId: acceptInvitation
       summary: Accept invitation
@@ -119,7 +119,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/invitations/reject:
+  /{domainID}/invitations/reject:
     post:
       operationId: rejectInvitation
       summary: Reject invitation
@@ -145,7 +145,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /domains/{domainID}/invitations/users/{user_id}:
+  /{domainID}/invitations/users/{user_id}:
     get:
       operationId: getInvitation
       summary: Retrieves a specific invitation

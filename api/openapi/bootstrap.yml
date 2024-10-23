@@ -27,7 +27,7 @@ tags:
       url: https://docs.magistrala.abstractmachines.fr/
 
 paths:
-  /domains/{domainID}/things/configs:
+  /{domainID}/things/configs:
     post:
       operationId: createConfig
       summary: Adds new config
@@ -88,7 +88,7 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
-  /domains/{domainID}/things/configs/{configId}:
+  /{domainID}/things/configs/{configId}:
     get:
       operationId: getConfig
       summary: Retrieves config info (with channels).
@@ -167,7 +167,7 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
-  /domains/{domainID}/things/configs/certs/{configId}:
+  /{domainID}/things/configs/certs/{configId}:
     patch:
       operationId: updateConfigCerts
       summary: Updates certs
@@ -199,7 +199,7 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
-  /domains/{domainID}/things/configs/connections/{configId}:
+  /{domainID}/things/configs/connections/{configId}:
     put:
       operationId: updateConfigConnections
       summary: Updates channels the thing is connected to
@@ -281,7 +281,7 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
-  /domains/{domainID}/things/state/{configId}:
+  /{domainID}/things/state/{configId}:
     put:
       operationId: updateConfigState
       summary: Updates Config state.

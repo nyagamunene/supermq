@@ -47,7 +47,7 @@ func MakeHandler(svc bootstrap.Service, authn mgauthn.Authentication, reader boo
 
 	r := chi.NewRouter()
 
-	r.Route("/domains/{domainID}/things", func(r chi.Router) {
+	r.Route("/{domainID}/things", func(r chi.Router) {
 		r.Group(func(r chi.Router) {
 			r.Use(api.AuthenticateMiddleware(authn))
 

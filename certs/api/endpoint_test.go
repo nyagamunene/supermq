@@ -218,7 +218,7 @@ func TestIssueCert(t *testing.T) {
 			req := testRequest{
 				client:      cs.Client(),
 				method:      http.MethodPost,
-				url:         fmt.Sprintf("%s/domains/%s/certs", cs.URL, tc.domainID),
+				url:         fmt.Sprintf("%s/%s/certs", cs.URL, tc.domainID),
 				contentType: tc.contentType,
 				token:       tc.token,
 				body:        strings.NewReader(tc.request),
@@ -306,7 +306,7 @@ func TestViewCert(t *testing.T) {
 			req := testRequest{
 				client: cs.Client(),
 				method: http.MethodGet,
-				url:    fmt.Sprintf("%s/domains/%s/certs/%s", cs.URL, tc.domainID, tc.serialID),
+				url:    fmt.Sprintf("%s/%s/certs/%s", cs.URL, tc.domainID, tc.serialID),
 				token:  tc.token,
 			}
 			if tc.token == valid {
@@ -399,7 +399,7 @@ func TestRevokeCert(t *testing.T) {
 			req := testRequest{
 				client: cs.Client(),
 				method: http.MethodDelete,
-				url:    fmt.Sprintf("%s/domains/%s/certs/%s", cs.URL, tc.domainID, tc.serialID),
+				url:    fmt.Sprintf("%s/%s/certs/%s", cs.URL, tc.domainID, tc.serialID),
 				token:  tc.token,
 			}
 			if tc.token == valid {
@@ -642,7 +642,7 @@ func TestListSerials(t *testing.T) {
 			req := testRequest{
 				client: cs.Client(),
 				method: http.MethodGet,
-				url:    fmt.Sprintf("%s/domains/%s/serials/%s", cs.URL, tc.domainID, tc.thingID) + tc.query,
+				url:    fmt.Sprintf("%s/%s/serials/%s", cs.URL, tc.domainID, tc.thingID) + tc.query,
 				token:  tc.token,
 			}
 			if tc.token == valid {
