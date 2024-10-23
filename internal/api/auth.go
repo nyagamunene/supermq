@@ -5,8 +5,8 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/absmach/magistrala/pkg/apiutil"
 	mgauthn "github.com/absmach/magistrala/pkg/authn"
@@ -25,13 +25,6 @@ func AuthenticateMiddleware(authn mgauthn.Authentication) func(http.Handler) htt
 				EncodeError(r.Context(), apiutil.ErrBearerToken, w)
 				return
 			}
-			fmt.Println(r.Pattern)
-
-			domain := chi.URLParam(r, "domainID")
-			if domain == "" {
-				EncodeError(r.Context(), apiutil.ErrMissingDomainID, w)
-				return
-			}
 
 			resp, err := authn.Authenticate(r.Context(), token)
 			if err != nil {
@@ -39,8 +32,15 @@ func AuthenticateMiddleware(authn mgauthn.Authentication) func(http.Handler) htt
 				return
 			}
 
-			resp.DomainID = domain
-			resp.DomainUserID = domain + "_" + resp.UserID
+			if strings.Contains(r.Pattern, "domains") {
+				domain := chi.URLParam(r, "domainID")
+				if domain == "" {
+					EncodeError(r.Context(), apiutil.ErrMissingDomainID, w)
+					return
+				}
+				resp.DomainID = domain
+				resp.DomainUserID = domain + "_" + resp.UserID
+			}
 
 			ctx := context.WithValue(r.Context(), SessionKey, resp)
 
