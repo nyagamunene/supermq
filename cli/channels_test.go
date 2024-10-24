@@ -665,7 +665,7 @@ func TestUsersChannelCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("ListChannelUsers", tc.args[0], mock.Anything, tc.args[1],tc.args[2]).Return(tc.page, tc.sdkErr)
+			sdkCall := sdkMock.On("ListChannelUsers", tc.args[0], mock.Anything, tc.args[1], tc.args[2]).Return(tc.page, tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{usrCmd}, tc.args...)...)
 
 			switch tc.logType {
@@ -741,7 +741,7 @@ func TestListGroupCmd(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("ListChannelUserGroups", tc.args[0], mock.Anything,tc.args[1], tc.args[2]).Return(tc.page, tc.sdkErr)
+			sdkCall := sdkMock.On("ListChannelUserGroups", tc.args[0], mock.Anything, tc.args[1], tc.args[2]).Return(tc.page, tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{grpCmd}, tc.args...)...)
 			switch tc.logType {
 			case entityLog:

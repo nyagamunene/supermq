@@ -48,10 +48,10 @@ var cmdBootstrap = []cobra.Command{
 				return
 			}
 			pageMetadata := mgxsdk.PageMetadata{
-				Offset:   Offset,
-				Limit:    Limit,
-				State:    State,
-				Name:     Name,
+				Offset: Offset,
+				Limit:  Limit,
+				State:  State,
+				Name:   Name,
 			}
 			if args[0] == "all" {
 				l, err := sdk.Bootstraps(pageMetadata, args[1], args[2])

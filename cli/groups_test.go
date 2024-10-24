@@ -610,7 +610,7 @@ func TestListChannelsCmd(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("ListGroupChannels", tc.args[0], mock.Anything,tc.args[1], tc.args[2]).Return(tc.page, tc.sdkErr)
+			sdkCall := sdkMock.On("ListGroupChannels", tc.args[0], mock.Anything, tc.args[1], tc.args[2]).Return(tc.page, tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{chansCmd}, tc.args...)...)
 			switch tc.logType {
 			case entityLog:
