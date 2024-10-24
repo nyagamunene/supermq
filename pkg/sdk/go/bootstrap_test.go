@@ -295,6 +295,7 @@ func TestListBootstraps(t *testing.T) {
 
 	cases := []struct {
 		desc            string
+		domainID        string
 		token           string
 		session         mgauthn.Session
 		pageMeta        sdk.PageMetadata
@@ -305,12 +306,12 @@ func TestListBootstraps(t *testing.T) {
 		err             errors.SDKError
 	}{
 		{
-			desc:  "list successfully",
-			token: validToken,
+			desc:     "list successfully",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    10,
-				DomainID: domainID,
+				Offset: 0,
+				Limit:  10,
 			},
 			svcResp: bootstrap.ConfigsPage{
 				Total:   1,
@@ -326,12 +327,12 @@ func TestListBootstraps(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:  "list with invalid token",
-			token: invalidToken,
+			desc:     "list with invalid token",
+			domainID: domainID,
+			token:    invalidToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    10,
-				DomainID: domainID,
+				Offset: 0,
+				Limit:  10,
 			},
 			svcResp:         bootstrap.ConfigsPage{},
 			authenticateErr: svcerr.ErrAuthentication,
@@ -339,12 +340,12 @@ func TestListBootstraps(t *testing.T) {
 			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
 		},
 		{
-			desc:  "list with empty token",
-			token: "",
+			desc:     "list with empty token",
+			domainID: domainID,
+			token:    "",
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    10,
-				DomainID: domainID,
+				Offset: 0,
+				Limit:  10,
 			},
 			svcResp:  bootstrap.ConfigsPage{},
 			svcErr:   nil,
@@ -352,12 +353,12 @@ func TestListBootstraps(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:  "list with invalid query params",
-			token: validToken,
+			desc:     "list with invalid query params",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   1,
-				Limit:    10,
-				DomainID: domainID,
+				Offset: 1,
+				Limit:  10,
 				Metadata: map[string]interface{}{
 					"test": make(chan int),
 				},
@@ -368,12 +369,12 @@ func TestListBootstraps(t *testing.T) {
 			err:      errors.NewSDKError(errMarshalChan),
 		},
 		{
-			desc:  "list with response that cannot be unmarshalled",
-			token: validToken,
+			desc:     "list with response that cannot be unmarshalled",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    10,
-				DomainID: domainID,
+				Offset: 0,
+				Limit:  10,
 			},
 			svcResp: bootstrap.ConfigsPage{
 				Total:   1,
@@ -392,7 +393,7 @@ func TestListBootstraps(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := bsvc.On("List", mock.Anything, tc.session, mock.Anything, tc.pageMeta.Offset, tc.pageMeta.Limit).Return(tc.svcResp, tc.svcErr)
-			resp, err := mgsdk.Bootstraps(tc.pageMeta, tc.token)
+			resp, err := mgsdk.Bootstraps(tc.pageMeta, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if err == nil {

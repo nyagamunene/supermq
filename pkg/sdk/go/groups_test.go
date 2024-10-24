@@ -305,6 +305,7 @@ func TestListGroups(t *testing.T) {
 	cases := []struct {
 		desc            string
 		token           string
+		domainID        string
 		session         mgauthn.Session
 		pageMeta        sdk.PageMetadata
 		svcReq          groups.Page
@@ -315,12 +316,12 @@ func TestListGroups(t *testing.T) {
 		err             errors.SDKError
 	}{
 		{
-			desc:  "list groups successfully",
-			token: validToken,
+			desc:     "list groups successfully",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    100,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  100,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -345,12 +346,12 @@ func TestListGroups(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:  "list groups with invalid token",
-			token: invalidToken,
+			desc:     "list groups with invalid token",
+			token:    invalidToken,
+			domainID: domainID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    100,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  100,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -365,12 +366,12 @@ func TestListGroups(t *testing.T) {
 			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
 		},
 		{
-			desc:  "list groups with empty token",
-			token: "",
+			desc:     "list groups with empty token",
+			domainID: domainID,
+			token:    "",
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    100,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  100,
 			},
 			svcReq:          groups.Page{},
 			svcRes:          groups.Page{},
@@ -383,9 +384,8 @@ func TestListGroups(t *testing.T) {
 			desc:  "list groups with zero limit",
 			token: validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    0,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  0,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -411,12 +411,12 @@ func TestListGroups(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:  "list groups with limit greater than max",
-			token: validToken,
+			desc:     "list groups with limit greater than max",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    110,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  110,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -425,12 +425,12 @@ func TestListGroups(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrLimitSize), http.StatusBadRequest),
 		},
 		{
-			desc:  "list groups with given name",
-			token: validToken,
+			desc:     "list groups with given name",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    10,
-				DomainID: domainID,
+				Offset: 0,
+				Limit:  10,
 				Metadata: sdk.Metadata{
 					"name": "user_89",
 				},
@@ -462,13 +462,13 @@ func TestListGroups(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:  "list groups with invalid level",
-			token: validToken,
+			desc:     "list groups with invalid level",
+			token:    validToken,
+			domainID: domainID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    100,
-				Level:    6,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  100,
+				Level:  6,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -477,15 +477,15 @@ func TestListGroups(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrInvalidLevel), http.StatusBadRequest),
 		},
 		{
-			desc:  "list groups with invalid page metadata",
-			token: validToken,
+			desc:     "list groups with invalid page metadata",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
 				Offset: offset,
 				Limit:  limit,
 				Metadata: sdk.Metadata{
 					"key": make(chan int),
 				},
-				DomainID: domainID,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -494,12 +494,12 @@ func TestListGroups(t *testing.T) {
 			err:      errors.NewSDKError(errors.New("json: unsupported type: chan int")),
 		},
 		{
-			desc:  "list groups with service response that cannot be unmarshalled",
-			token: validToken,
+			desc:     "list groups with service response that cannot be unmarshalled",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -533,7 +533,7 @@ func TestListGroups(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ListGroups", mock.Anything, tc.session, policies.UsersKind, "", tc.svcReq).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Groups(tc.pageMeta, tc.token)
+			resp, err := mgsdk.Groups(tc.pageMeta, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {
@@ -573,6 +573,7 @@ func TestListParentGroups(t *testing.T) {
 	cases := []struct {
 		desc            string
 		token           string
+		domainID        string
 		session         mgauthn.Session
 		pageMeta        sdk.PageMetadata
 		parentID        string
@@ -585,12 +586,12 @@ func TestListParentGroups(t *testing.T) {
 	}{
 		{
 			desc:     "list parent groups successfully",
+			domainID: domainID,
 			token:    validToken,
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -618,12 +619,12 @@ func TestListParentGroups(t *testing.T) {
 		},
 		{
 			desc:     "list parent groups with invalid token",
+			domainID: domainID,
 			token:    invalidToken,
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -642,12 +643,12 @@ func TestListParentGroups(t *testing.T) {
 		},
 		{
 			desc:     "list parent groups with empty token",
+			domainID: domainID,
 			token:    "",
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -657,12 +658,12 @@ func TestListParentGroups(t *testing.T) {
 		},
 		{
 			desc:     "list parent groups with zero limit",
+			domainID: domainID,
 			token:    validToken,
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    0,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  0,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -690,12 +691,12 @@ func TestListParentGroups(t *testing.T) {
 		},
 		{
 			desc:     "list parent groups with limit greater than max",
+			domainID: domainID,
 			token:    validToken,
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    110,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  110,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -705,12 +706,12 @@ func TestListParentGroups(t *testing.T) {
 		},
 		{
 			desc:     "list parent groups with given metadata",
+			domainID: domainID,
 			token:    validToken,
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 				Metadata: sdk.Metadata{
 					"name": "user_89",
 				},
@@ -744,12 +745,12 @@ func TestListParentGroups(t *testing.T) {
 		},
 		{
 			desc:     "list parent groups with invalid page metadata",
+			domainID: domainID,
 			token:    validToken,
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 				Metadata: sdk.Metadata{
 					"key": make(chan int),
 				},
@@ -762,6 +763,7 @@ func TestListParentGroups(t *testing.T) {
 		},
 		{
 			desc:     "list parent groups with service response that cannot be unmarshalled",
+			domainID: domainID,
 			token:    validToken,
 			parentID: parentID,
 			pageMeta: sdk.PageMetadata{
@@ -804,7 +806,7 @@ func TestListParentGroups(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ListGroups", mock.Anything, tc.session, policies.UsersKind, "", tc.svcReq).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Parents(tc.parentID, tc.pageMeta, tc.token)
+			resp, err := mgsdk.Parents(tc.parentID, tc.pageMeta, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {
@@ -845,6 +847,7 @@ func TestListChildrenGroups(t *testing.T) {
 	cases := []struct {
 		desc            string
 		token           string
+		domainID        string
 		session         mgauthn.Session
 		childID         string
 		pageMeta        sdk.PageMetadata
@@ -856,13 +859,13 @@ func TestListChildrenGroups(t *testing.T) {
 		err             errors.SDKError
 	}{
 		{
-			desc:    "list children groups successfully",
-			token:   validToken,
-			childID: childID,
+			desc:     "list children groups successfully",
+			domainID: domainID,
+			token:    validToken,
+			childID:  childID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -889,13 +892,13 @@ func TestListChildrenGroups(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:    "list children groups with invalid token",
-			token:   invalidToken,
-			childID: childID,
+			desc:     "list children groups with invalid token",
+			domainID: domainID,
+			token:    invalidToken,
+			childID:  childID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -913,13 +916,13 @@ func TestListChildrenGroups(t *testing.T) {
 			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
 		},
 		{
-			desc:    "list children groups with empty token",
-			token:   "",
-			childID: childID,
+			desc:     "list children groups with empty token",
+			domainID: domainID,
+			token:    "",
+			childID:  childID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -928,13 +931,13 @@ func TestListChildrenGroups(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:    "list children groups with zero limit",
-			token:   validToken,
-			childID: childID,
+			desc:     "list children groups with zero limit",
+			domainID: domainID,
+			token:    validToken,
+			childID:  childID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    0,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  0,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -961,12 +964,12 @@ func TestListChildrenGroups(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:  "list children groups with limit greater than max",
-			token: validToken,
+			desc:     "list children groups with limit greater than max",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    110,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  110,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -975,13 +978,13 @@ func TestListChildrenGroups(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrLimitSize), http.StatusBadRequest),
 		},
 		{
-			desc:    "list children groups with given metadata",
-			token:   validToken,
-			childID: childID,
+			desc:     "list children groups with given metadata",
+			domainID: domainID,
+			token:    validToken,
+			childID:  childID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 				Metadata: sdk.Metadata{
 					"name": "user_89",
 				},
@@ -1014,13 +1017,13 @@ func TestListChildrenGroups(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:    "list children groups with invalid page metadata",
-			token:   validToken,
-			childID: childID,
+			desc:     "list children groups with invalid page metadata",
+			domainID: domainID,
+			token:    validToken,
+			childID:  childID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 				Metadata: sdk.Metadata{
 					"key": make(chan int),
 				},
@@ -1032,13 +1035,13 @@ func TestListChildrenGroups(t *testing.T) {
 			err:      errors.NewSDKError(errors.New("json: unsupported type: chan int")),
 		},
 		{
-			desc:    "list children groups with service response that cannot be unmarshalled",
-			token:   validToken,
-			childID: childID,
+			desc:     "list children groups with service response that cannot be unmarshalled",
+			domainID: domainID,
+			token:    validToken,
+			childID:  childID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   offset,
-				Limit:    limit,
-				DomainID: domainID,
+				Offset: offset,
+				Limit:  limit,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -1075,7 +1078,7 @@ func TestListChildrenGroups(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ListGroups", mock.Anything, tc.session, policies.UsersKind, "", tc.svcReq).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Children(tc.childID, tc.pageMeta, tc.token)
+			resp, err := mgsdk.Children(tc.childID, tc.pageMeta, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {

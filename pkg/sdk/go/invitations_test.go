@@ -248,6 +248,7 @@ func TestListInvitation(t *testing.T) {
 	cases := []struct {
 		desc            string
 		token           string
+		domainID        string
 		session         mgauthn.Session
 		pageMeta        sdk.PageMetadata
 		svcReq          invitations.Page
@@ -258,17 +259,16 @@ func TestListInvitation(t *testing.T) {
 		err             error
 	}{
 		{
-			desc:  "list invitations successfully",
-			token: validToken,
+			desc:     "list invitations successfully",
+			domainID: invitation.DomainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    10,
-				DomainID: invitation.DomainID,
+				Offset: 0,
+				Limit:  10,
 			},
 			svcReq: invitations.Page{
-				Offset:   0,
-				Limit:    10,
-				DomainID: invitation.DomainID,
+				Offset: 0,
+				Limit:  10,
 			},
 			svcRes: invitations.InvitationPage{
 				Total:       1,
@@ -282,12 +282,12 @@ func TestListInvitation(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc:  "list invitations with invalid token",
-			token: invalidToken,
+			desc:     "list invitations with invalid token",
+			domainID: invitation.DomainID,
+			token:    invalidToken,
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    10,
-				DomainID: invitation.DomainID,
+				Offset: 0,
+				Limit:  10,
 			},
 			svcReq: invitations.Page{
 				Offset: 0,
@@ -299,11 +299,10 @@ func TestListInvitation(t *testing.T) {
 			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
 		},
 		{
-			desc:  "list invitations with empty token",
-			token: "",
-			pageMeta: sdk.PageMetadata{
-				DomainID: invitation.DomainID,
-			},
+			desc:     "list invitations with empty token",
+			domainID: invitation.DomainID,
+			token:    "",
+			pageMeta: sdk.PageMetadata{},
 			svcRes:   invitations.InvitationPage{},
 			svcErr:   nil,
 			response: sdk.InvitationPage{},
@@ -319,12 +318,12 @@ func TestListInvitation(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrMissingDomainID, http.StatusBadRequest),
 		},
 		{
-			desc:  "list invitations with limit greater than max limit",
-			token: validToken,
+			desc:     "list invitations with limit greater than max limit",
+			token:    validToken,
+			domainID: invitation.DomainID,
 			pageMeta: sdk.PageMetadata{
-				Offset:   0,
-				Limit:    101,
-				DomainID: invitation.DomainID,
+				Offset: 0,
+				Limit:  101,
 			},
 			svcReq:   invitations.Page{},
 			svcRes:   invitations.InvitationPage{},
@@ -340,7 +339,7 @@ func TestListInvitation(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("ListInvitations", mock.Anything, tc.session, tc.svcReq).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Invitations(tc.pageMeta, tc.token)
+			resp, err := mgsdk.Invitations(tc.pageMeta, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {

@@ -511,14 +511,13 @@ func TestListChannels(t *testing.T) {
 				Limit:    tc.limit,
 				Level:    uint64(tc.level),
 				Metadata: tc.metadata,
-				DomainID: tc.domainID,
 			}
 			if tc.token == validToken {
 				tc.session = mgauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ListGroups", mock.Anything, tc.session, policies.UsersKind, "", tc.groupsPageMeta).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Channels(pm, tc.token)
+			resp, err := mgsdk.Channels(pm, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {
@@ -2060,6 +2059,7 @@ func TestListChannelUserGroups(t *testing.T) {
 	cases := []struct {
 		desc            string
 		token           string
+		domainID string
 		session         mgauthn.Session
 		channelID       string
 		pageMeta        sdk.PageMetadata
@@ -2072,11 +2072,10 @@ func TestListChannelUserGroups(t *testing.T) {
 	}{
 		{
 			desc:      "list user groups successfully",
-			token:     validToken,
+				domainID: domainID,
+				token:     validToken,
 			channelID: channel.ID,
-			pageMeta: sdk.PageMetadata{
-				DomainID: domainID,
-			},
+			pageMeta: sdk.PageMetadata{},
 			listGroupsReq: groups.Page{
 				PageMeta: groups.PageMeta{
 					Offset: 0,
@@ -2102,12 +2101,12 @@ func TestListChannelUserGroups(t *testing.T) {
 		},
 		{
 			desc:      "list user groups with offset and limit",
-			token:     validToken,
+				domainID: domainID,
+				token:     validToken,
 			channelID: channel.ID,
 			pageMeta: sdk.PageMetadata{
 				Offset:   6,
 				Limit:    nGroups,
-				DomainID: domainID,
 			},
 			listGroupsReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -2134,11 +2133,10 @@ func TestListChannelUserGroups(t *testing.T) {
 		},
 		{
 			desc:      "list user groups with invalid token",
-			token:     invalidToken,
+				domainID: domainID,
+				token:     invalidToken,
 			channelID: channel.ID,
-			pageMeta: sdk.PageMetadata{
-				DomainID: domainID,
-			},
+			pageMeta: sdk.PageMetadata{},
 			listGroupsReq: groups.Page{
 				PageMeta: groups.PageMeta{
 					Offset: 0,
@@ -2154,11 +2152,10 @@ func TestListChannelUserGroups(t *testing.T) {
 		},
 		{
 			desc:      "list user groups with empty token",
-			token:     "",
+				domainID: domainID,
+				token:     "",
 			channelID: channel.ID,
-			pageMeta: sdk.PageMetadata{
-				DomainID: domainID,
-			},
+			pageMeta: sdk.PageMetadata{},
 			listGroupsReq: groups.Page{
 				PageMeta: groups.PageMeta{
 					Offset: 0,
@@ -2174,11 +2171,11 @@ func TestListChannelUserGroups(t *testing.T) {
 		},
 		{
 			desc:      "list user groups with limit greater than max",
-			token:     validToken,
+				domainID: domainID,
+				token:     validToken,
 			channelID: channel.ID,
 			pageMeta: sdk.PageMetadata{
 				Limit:    110,
-				DomainID: domainID,
 			},
 			listGroupsReq: groups.Page{},
 			svcRes:        groups.Page{},
@@ -2188,7 +2185,8 @@ func TestListChannelUserGroups(t *testing.T) {
 		},
 		{
 			desc:      "list user groups with invalid channel id",
-			token:     validToken,
+				domainID: domainID,
+				token:     validToken,
 			channelID: wrongID,
 			pageMeta: sdk.PageMetadata{
 				DomainID: domainID,
@@ -2208,11 +2206,11 @@ func TestListChannelUserGroups(t *testing.T) {
 		},
 		{
 			desc:      "list users groups with level exceeding max",
-			token:     validToken,
+				domainID: domainID,
+				token:     validToken,
 			channelID: channel.ID,
 			pageMeta: sdk.PageMetadata{
 				Level:    10,
-				DomainID: domainID,
 			},
 			listGroupsReq: groups.Page{},
 			svcRes:        groups.Page{},
@@ -2240,11 +2238,10 @@ func TestListChannelUserGroups(t *testing.T) {
 		},
 		{
 			desc:      "list user groups with service response that can't be unmarshalled",
-			token:     validToken,
+				domainID: domainID,
+				token:     validToken,
 			channelID: channel.ID,
-			pageMeta: sdk.PageMetadata{
-				DomainID: domainID,
-			},
+			pageMeta: sdk.PageMetadata{},
 			listGroupsReq: groups.Page{
 				PageMeta: groups.PageMeta{
 					Offset: 0,
@@ -2276,7 +2273,7 @@ func TestListChannelUserGroups(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ListGroups", mock.Anything, tc.session, policies.ChannelsKind, tc.channelID, tc.listGroupsReq).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.ListChannelUserGroups(tc.channelID, tc.pageMeta, tc.token)
+			resp, err := mgsdk.ListChannelUserGroups(tc.channelID, tc.pageMeta,tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {
@@ -2712,6 +2709,7 @@ func TestListGroupChannels(t *testing.T) {
 
 	cases := []struct {
 		desc            string
+		domainID string
 		token           string
 		session         mgauthn.Session
 		groupID         string
@@ -2725,12 +2723,12 @@ func TestListGroupChannels(t *testing.T) {
 	}{
 		{
 			desc:    "list group channels successfully",
-			token:   validToken,
+				domainID: domainID,
+				token:   validToken,
 			groupID: group.ID,
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -2757,12 +2755,12 @@ func TestListGroupChannels(t *testing.T) {
 		},
 		{
 			desc:    "list group channels with invalid token",
-			token:   invalidToken,
+				domainID: domainID,
+				token:   invalidToken,
 			groupID: group.ID,
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -2779,12 +2777,12 @@ func TestListGroupChannels(t *testing.T) {
 		},
 		{
 			desc:    "list group channels with empty token",
-			token:   "",
+				domainID: domainID,
+				token:   "",
 			groupID: group.ID,
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
 			},
 			svcReq:   groups.Page{},
 			svcRes:   groups.Page{},
@@ -2794,12 +2792,12 @@ func TestListGroupChannels(t *testing.T) {
 		},
 		{
 			desc:    "list group channels with invalid group id",
-			token:   validToken,
+				domainID: domainID,
+				token:   validToken,
 			groupID: wrongID,
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -2816,12 +2814,12 @@ func TestListGroupChannels(t *testing.T) {
 		},
 		{
 			desc:    "list group channels with invalid page metadata",
-			token:   validToken,
+				domainID: domainID,
+				token:   validToken,
 			groupID: group.ID,
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
 				Metadata: sdk.Metadata{
 					"test": make(chan int),
 				},
@@ -2834,12 +2832,12 @@ func TestListGroupChannels(t *testing.T) {
 		},
 		{
 			desc:    "list group channels with service response that can't be unmarshalled",
-			token:   validToken,
+				domainID: domainID,
+				token:   validToken,
 			groupID: group.ID,
 			pageMeta: sdk.PageMetadata{
 				Offset:   0,
 				Limit:    10,
-				DomainID: domainID,
 			},
 			svcReq: groups.Page{
 				PageMeta: groups.PageMeta{
@@ -2872,7 +2870,7 @@ func TestListGroupChannels(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ListGroups", mock.Anything, tc.session, policies.GroupsKind, tc.groupID, tc.svcReq).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.ListGroupChannels(tc.groupID, tc.pageMeta, tc.token)
+			resp, err := mgsdk.ListGroupChannels(tc.groupID, tc.pageMeta, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {
