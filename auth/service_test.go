@@ -308,18 +308,20 @@ func TestIssue(t *testing.T) {
 		},
 	}
 	for _, tc := range cases2 {
-		repoCall := krepo.On("Save", mock.Anything, mock.Anything).Return(mock.Anything, tc.saveErr)
-		repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyRequest).Return(tc.checkPolicyErr)
-		repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPlatformPolicyReq).Return(tc.checkPolicyErr1)
-		repoCall3 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(tc.retrieveByIDResponse, tc.retreiveByIDErr)
-		repoCall4 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr)
-		_, err := svc.Issue(context.Background(), tc.token, tc.key)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
-		repoCall3.Unset()
-		repoCall4.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := krepo.On("Save", mock.Anything, mock.Anything).Return(mock.Anything, tc.saveErr)
+			repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyRequest).Return(tc.checkPolicyErr)
+			repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPlatformPolicyReq).Return(tc.checkPolicyErr1)
+			repoCall3 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(tc.retrieveByIDResponse, tc.retreiveByIDErr)
+			repoCall4 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr)
+			_, err := svc.Issue(context.Background(), tc.token, tc.key)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+			repoCall3.Unset()
+			repoCall4.Unset()
+		})
 	}
 
 	cases3 := []struct {
@@ -405,6 +407,7 @@ func TestIssue(t *testing.T) {
 			key: auth.Key{
 				Type:     auth.RefreshKey,
 				IssuedAt: time.Now(),
+				Domain:   groupName,
 			},
 			checkPolicyRequest: policies.Policy{
 				Subject:     email,
@@ -554,10 +557,12 @@ func TestRevoke(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repocall := krepo.On("Remove", mock.Anything, mock.Anything, mock.Anything).Return(tc.err)
-		err := svc.Revoke(context.Background(), tc.token, tc.id)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repocall.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repocall := krepo.On("Remove", mock.Anything, mock.Anything, mock.Anything).Return(tc.err)
+			err := svc.Revoke(context.Background(), tc.token, tc.id)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repocall.Unset()
+		})
 	}
 }
 
@@ -624,10 +629,12 @@ func TestRetrieve(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repocall := krepo.On("Retrieve", mock.Anything, mock.Anything, mock.Anything).Return(auth.Key{}, tc.err)
-		_, err := svc.RetrieveKey(context.Background(), tc.token, tc.id)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repocall.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repocall := krepo.On("Retrieve", mock.Anything, mock.Anything, mock.Anything).Return(auth.Key{}, tc.err)
+			_, err := svc.RetrieveKey(context.Background(), tc.token, tc.id)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repocall.Unset()
+		})
 	}
 }
 
@@ -726,13 +733,15 @@ func TestIdentify(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repocall := krepo.On("Retrieve", mock.Anything, mock.Anything, mock.Anything).Return(auth.Key{}, tc.err)
-		repocall1 := krepo.On("Remove", mock.Anything, mock.Anything, mock.Anything).Return(tc.err)
-		idt, err := svc.Identify(context.Background(), tc.key)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		assert.Equal(t, tc.idt, idt.Subject, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.idt, idt))
-		repocall.Unset()
-		repocall1.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repocall := krepo.On("Retrieve", mock.Anything, mock.Anything, mock.Anything).Return(auth.Key{}, tc.err)
+			repocall1 := krepo.On("Remove", mock.Anything, mock.Anything, mock.Anything).Return(tc.err)
+			idt, err := svc.Identify(context.Background(), tc.key)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			assert.Equal(t, tc.idt, idt.Subject, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.idt, idt))
+			repocall.Unset()
+			repocall1.Unset()
+		})
 	}
 }
 
@@ -1164,18 +1173,20 @@ func TestAuthorize(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		repoCall := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq3).Return(tc.checkPolicyErr)
-		repoCall1 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(tc.retrieveDomainRes, nil)
-		repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkAdminPolicyReq).Return(tc.checkPolicyErr1)
-		repoCall3 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr1)
-		repoCall4 := krepo.On("Remove", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		err := svc.Authorize(context.Background(), tc.policyReq)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
-		repoCall3.Unset()
-		repoCall4.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq3).Return(tc.checkPolicyErr)
+			repoCall1 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(tc.retrieveDomainRes, nil)
+			repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkAdminPolicyReq).Return(tc.checkPolicyErr1)
+			repoCall3 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr1)
+			repoCall4 := krepo.On("Remove", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+			err := svc.Authorize(context.Background(), tc.policyReq)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+			repoCall3.Unset()
+			repoCall4.Unset()
+		})
 	}
 	cases2 := []struct {
 		desc      string
@@ -1195,8 +1206,10 @@ func TestAuthorize(t *testing.T) {
 		},
 	}
 	for _, tc := range cases2 {
-		err := svc.Authorize(context.Background(), tc.policyReq)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+		t.Run(tc.desc, func(t *testing.T) {
+			err := svc.Authorize(context.Background(), tc.policyReq)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+		})
 	}
 }
 
@@ -1238,8 +1251,10 @@ func TestSwitchToPermission(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		result := auth.SwitchToPermission(tc.relation)
-		assert.Equal(t, tc.result, result, fmt.Sprintf("switching to permission expected to succeed: %s", result))
+		t.Run(tc.desc, func(t *testing.T) {
+			result := auth.SwitchToPermission(tc.relation)
+			assert.Equal(t, tc.result, result, fmt.Sprintf("switching to permission expected to succeed: %s", result))
+		})
 	}
 }
 
@@ -1353,18 +1368,20 @@ func TestCreateDomain(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := pService.On("AddPolicies", mock.Anything, mock.Anything).Return(tc.addPolicyErr)
-		repoCall1 := drepo.On("SavePolicies", mock.Anything, mock.Anything).Return(tc.savePolicyErr)
-		repoCall2 := pService.On("DeletePolicies", mock.Anything, mock.Anything).Return(tc.deletePoliciesErr)
-		repoCall3 := drepo.On("DeletePolicies", mock.Anything, mock.Anything).Return(tc.deleteDomainErr)
-		repoCall4 := drepo.On("Save", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.saveDomainErr)
-		_, err := svc.CreateDomain(context.Background(), tc.token, tc.d)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
-		repoCall3.Unset()
-		repoCall4.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := pService.On("AddPolicies", mock.Anything, mock.Anything).Return(tc.addPolicyErr)
+			repoCall1 := drepo.On("SavePolicies", mock.Anything, mock.Anything).Return(tc.savePolicyErr)
+			repoCall2 := pService.On("DeletePolicies", mock.Anything, mock.Anything).Return(tc.deletePoliciesErr)
+			repoCall3 := drepo.On("DeletePolicies", mock.Anything, mock.Anything).Return(tc.deleteDomainErr)
+			repoCall4 := drepo.On("Save", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.saveDomainErr)
+			_, err := svc.CreateDomain(context.Background(), tc.token, tc.d)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+			repoCall3.Unset()
+			repoCall4.Unset()
+		})
 	}
 }
 
@@ -1417,14 +1434,16 @@ func TestRetrieveDomain(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := drepo.On("RetrieveByID", mock.Anything, groupName).Return(auth.Domain{}, tc.domainRepoErr)
-		repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
-		repoCall2 := drepo.On("RetrieveByID", mock.Anything, tc.domainID).Return(auth.Domain{}, tc.domainRepoErr1)
-		_, err := svc.RetrieveDomain(context.Background(), tc.token, tc.domainID)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := drepo.On("RetrieveByID", mock.Anything, groupName).Return(auth.Domain{}, tc.domainRepoErr)
+			repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
+			repoCall2 := drepo.On("RetrieveByID", mock.Anything, tc.domainID).Return(auth.Domain{}, tc.domainRepoErr1)
+			_, err := svc.RetrieveDomain(context.Background(), tc.token, tc.domainID)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+		})
 	}
 }
 
@@ -1476,14 +1495,16 @@ func TestRetrieveDomainPermissions(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := pService.On("ListPermissions", mock.Anything, mock.Anything, mock.Anything).Return(policies.Permissions{}, tc.retreivePermissionsErr)
-		repoCall1 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.retreiveByIDErr)
-		repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
-		_, err := svc.RetrieveDomainPermissions(context.Background(), tc.token, tc.domainID)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := pService.On("ListPermissions", mock.Anything, mock.Anything, mock.Anything).Return(policies.Permissions{}, tc.retreivePermissionsErr)
+			repoCall1 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.retreiveByIDErr)
+			repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
+			_, err := svc.RetrieveDomainPermissions(context.Background(), tc.token, tc.domainID)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+		})
 	}
 }
 
@@ -1556,14 +1577,16 @@ func TestUpdateDomain(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
-		repoCall1 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.retrieveByIDErr)
-		repoCall2 := drepo.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(auth.Domain{}, tc.updateErr)
-		_, err := svc.UpdateDomain(context.Background(), tc.token, tc.domainID, tc.domReq)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
+			repoCall1 := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.retrieveByIDErr)
+			repoCall2 := drepo.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(auth.Domain{}, tc.updateErr)
+			_, err := svc.UpdateDomain(context.Background(), tc.token, tc.domainID, tc.domReq)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+		})
 	}
 }
 
@@ -1633,14 +1656,16 @@ func TestChangeDomainStatus(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.retreieveByIDErr)
-		repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
-		repoCall2 := drepo.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(auth.Domain{}, tc.updateErr)
-		_, err := svc.ChangeDomainStatus(context.Background(), tc.token, tc.domainID, tc.domainReq)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, tc.retreieveByIDErr)
+			repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
+			repoCall2 := drepo.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(auth.Domain{}, tc.updateErr)
+			_, err := svc.ChangeDomainStatus(context.Background(), tc.token, tc.domainID, tc.domainReq)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+		})
 	}
 }
 
@@ -1701,12 +1726,14 @@ func TestListDomains(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
-		repoCall1 := drepo.On("ListDomains", mock.Anything, mock.Anything).Return(tc.listDomainsRes, tc.listDomainErr)
-		_, err := svc.ListDomains(context.Background(), tc.token, auth.Page{})
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
+			repoCall1 := drepo.On("ListDomains", mock.Anything, mock.Anything).Return(tc.listDomainsRes, tc.listDomainErr)
+			_, err := svc.ListDomains(context.Background(), tc.token, auth.Page{})
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+		})
 	}
 }
 
@@ -1738,7 +1765,6 @@ func TestAssignUsers(t *testing.T) {
 			userIDs:  []string{validID},
 			relation: policies.ContributorRelation,
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1747,7 +1773,6 @@ func TestAssignUsers(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1765,11 +1790,10 @@ func TestAssignUsers(t *testing.T) {
 			checkPolicyReq33: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
-
 			err: nil,
 		},
 		{
@@ -1779,10 +1803,9 @@ func TestAssignUsers(t *testing.T) {
 			userIDs:  []string{validID},
 			relation: policies.ContributorRelation,
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
-				SubjectKind: policies.TokenKind,
+				SubjectKind: policies.UsersKind,
 				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.SharePermission,
@@ -1791,7 +1814,7 @@ func TestAssignUsers(t *testing.T) {
 				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
-				SubjectKind: policies.TokenKind,
+				SubjectKind: policies.UsersKind,
 				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.ViewPermission,
@@ -1811,7 +1834,6 @@ func TestAssignUsers(t *testing.T) {
 			domainID: inValid,
 			relation: policies.ContributorRelation,
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1820,7 +1842,6 @@ func TestAssignUsers(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1831,7 +1852,7 @@ func TestAssignUsers(t *testing.T) {
 			checkPolicyReq33: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      inValid,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -1845,7 +1866,6 @@ func TestAssignUsers(t *testing.T) {
 			domainID: validID,
 			relation: policies.ContributorRelation,
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1854,7 +1874,6 @@ func TestAssignUsers(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1872,7 +1891,7 @@ func TestAssignUsers(t *testing.T) {
 			checkPolicyReq33: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -1886,7 +1905,6 @@ func TestAssignUsers(t *testing.T) {
 			userIDs:  []string{validID},
 			relation: policies.ContributorRelation,
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1895,7 +1913,6 @@ func TestAssignUsers(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1913,7 +1930,7 @@ func TestAssignUsers(t *testing.T) {
 			checkPolicyReq33: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -1927,7 +1944,6 @@ func TestAssignUsers(t *testing.T) {
 			userIDs:  []string{validID},
 			relation: policies.ContributorRelation,
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1936,7 +1952,6 @@ func TestAssignUsers(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1954,7 +1969,7 @@ func TestAssignUsers(t *testing.T) {
 			checkPolicyReq33: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -1968,7 +1983,6 @@ func TestAssignUsers(t *testing.T) {
 			userIDs:  []string{validID},
 			relation: policies.ContributorRelation,
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1977,7 +1991,6 @@ func TestAssignUsers(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -1995,7 +2008,7 @@ func TestAssignUsers(t *testing.T) {
 			checkPolicyReq33: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -2006,24 +2019,26 @@ func TestAssignUsers(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := drepo.On("RetrieveByID", mock.Anything, groupName).Return(auth.Domain{}, nil)
-		repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq3).Return(tc.checkpolicyErr)
-		repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkAdminPolicyReq).Return(tc.checkPolicyErr1)
-		repoCall3 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr2)
-		repoCall4 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq33).Return(tc.checkPolicyErr2)
-		repoCall5 := pService.On("AddPolicies", mock.Anything, mock.Anything).Return(tc.addPoliciesErr)
-		repoCall6 := drepo.On("SavePolicies", mock.Anything, mock.Anything, mock.Anything).Return(tc.savePoliciesErr)
-		repoCall7 := pService.On("DeletePolicies", mock.Anything, mock.Anything).Return(tc.deletePoliciesErr)
-		err := svc.AssignUsers(context.Background(), tc.token, tc.domainID, tc.userIDs, tc.relation)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
-		repoCall3.Unset()
-		repoCall4.Unset()
-		repoCall5.Unset()
-		repoCall6.Unset()
-		repoCall7.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, nil)
+			repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq3).Return(tc.checkpolicyErr)
+			repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkAdminPolicyReq).Return(tc.checkPolicyErr1)
+			repoCall3 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr2)
+			repoCall4 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq33).Return(tc.checkPolicyErr2)
+			repoCall5 := pService.On("AddPolicies", mock.Anything, mock.Anything).Return(tc.addPoliciesErr)
+			repoCall6 := drepo.On("SavePolicies", mock.Anything, mock.Anything, mock.Anything).Return(tc.savePoliciesErr)
+			repoCall7 := pService.On("DeletePolicies", mock.Anything, mock.Anything).Return(tc.deletePoliciesErr)
+			err := svc.AssignUsers(context.Background(), tc.token, tc.domainID, tc.userIDs, tc.relation)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+			repoCall3.Unset()
+			repoCall4.Unset()
+			repoCall5.Unset()
+			repoCall6.Unset()
+			repoCall7.Unset()
+		})
 	}
 }
 
@@ -2052,12 +2067,11 @@ func TestUnassignUser(t *testing.T) {
 			checkPolicyReq: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2066,7 +2080,6 @@ func TestUnassignUser(t *testing.T) {
 				Permission:  policies.AdminPermission,
 			},
 			checkDomainPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2082,7 +2095,6 @@ func TestUnassignUser(t *testing.T) {
 			domainID: validID,
 			userID:   validID,
 			checkPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2091,7 +2103,6 @@ func TestUnassignUser(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2107,7 +2118,6 @@ func TestUnassignUser(t *testing.T) {
 			domainID: inValid,
 			userID:   validID,
 			checkPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2116,7 +2126,6 @@ func TestUnassignUser(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2127,7 +2136,7 @@ func TestUnassignUser(t *testing.T) {
 			checkDomainPolicyReq: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      inValid,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -2140,7 +2149,6 @@ func TestUnassignUser(t *testing.T) {
 			domainID: validID,
 			userID:   validID,
 			checkPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2149,7 +2157,6 @@ func TestUnassignUser(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2160,7 +2167,7 @@ func TestUnassignUser(t *testing.T) {
 			checkDomainPolicyReq: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -2173,7 +2180,6 @@ func TestUnassignUser(t *testing.T) {
 			domainID: validID,
 			userID:   validID,
 			checkPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2182,7 +2188,6 @@ func TestUnassignUser(t *testing.T) {
 				Permission:  policies.SharePermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2193,7 +2198,7 @@ func TestUnassignUser(t *testing.T) {
 			checkDomainPolicyReq: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
@@ -2209,12 +2214,11 @@ func TestUnassignUser(t *testing.T) {
 			checkPolicyReq: policies.Policy{
 				Subject:     id,
 				SubjectType: policies.UserType,
-				Object:      groupName,
+				Object:      validID,
 				ObjectType:  policies.DomainType,
 				Permission:  policies.MembershipPermission,
 			},
 			checkAdminPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2223,7 +2227,6 @@ func TestUnassignUser(t *testing.T) {
 				Permission:  policies.AdminPermission,
 			},
 			checkDomainPolicyReq: policies.Policy{
-				Domain:      groupName,
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
@@ -2237,20 +2240,22 @@ func TestUnassignUser(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, nil)
-		repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq).Return(tc.checkPolicyErr)
-		repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkAdminPolicyReq).Return(tc.checkPolicyErr1)
-		repoCall3 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr1)
-		repoCall4 := pService.On("DeletePolicyFilter", mock.Anything, mock.Anything).Return(tc.deletePolicyFilterErr)
-		repoCall5 := drepo.On("DeletePolicies", mock.Anything, mock.Anything, mock.Anything).Return(tc.deletePoliciesErr)
-		err := svc.UnassignUser(context.Background(), tc.token, tc.domainID, tc.userID)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
-		repoCall2.Unset()
-		repoCall3.Unset()
-		repoCall4.Unset()
-		repoCall5.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := drepo.On("RetrieveByID", mock.Anything, mock.Anything).Return(auth.Domain{}, nil)
+			repoCall1 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkPolicyReq).Return(tc.checkPolicyErr)
+			repoCall2 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkAdminPolicyReq).Return(tc.checkPolicyErr1)
+			repoCall3 := pEvaluator.On("CheckPolicy", mock.Anything, tc.checkDomainPolicyReq).Return(tc.checkPolicyErr1)
+			repoCall4 := pService.On("DeletePolicyFilter", mock.Anything, mock.Anything).Return(tc.deletePolicyFilterErr)
+			repoCall5 := drepo.On("DeletePolicies", mock.Anything, mock.Anything, mock.Anything).Return(tc.deletePoliciesErr)
+			err := svc.UnassignUser(context.Background(), tc.token, tc.domainID, tc.userID)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+			repoCall2.Unset()
+			repoCall3.Unset()
+			repoCall4.Unset()
+			repoCall5.Unset()
+		})
 	}
 }
 
@@ -2327,12 +2332,14 @@ func TestListUsersDomains(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		repoCall := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
-		repoCall1 := drepo.On("ListDomains", mock.Anything, mock.Anything).Return(auth.DomainsPage{}, tc.listDomainErr)
-		_, err := svc.ListUserDomains(context.Background(), tc.token, tc.userID, tc.page)
-		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
-		repoCall.Unset()
-		repoCall1.Unset()
+		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := pEvaluator.On("CheckPolicy", mock.Anything, mock.Anything).Return(tc.checkPolicyErr)
+			repoCall1 := drepo.On("ListDomains", mock.Anything, mock.Anything).Return(auth.DomainsPage{}, tc.listDomainErr)
+			_, err := svc.ListUserDomains(context.Background(), tc.token, tc.userID, tc.page)
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
+			repoCall1.Unset()
+		})
 	}
 }
 
@@ -2370,8 +2377,10 @@ func TestEncodeDomainUserID(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		ar := auth.EncodeDomainUserID(tc.domainID, tc.userID)
-		assert.Equal(t, tc.response, ar, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.response, ar))
+		t.Run(tc.desc, func(t *testing.T) {
+			ar := auth.EncodeDomainUserID(tc.domainID, tc.userID)
+			assert.Equal(t, tc.response, ar, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.response, ar))
+		})
 	}
 }
 
@@ -2409,8 +2418,10 @@ func TestDecodeDomainUserID(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		ar, er := auth.DecodeDomainUserID(tc.domainUserID)
-		assert.Equal(t, tc.respUserID, er, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.respUserID, er))
-		assert.Equal(t, tc.respDomainID, ar, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.respDomainID, ar))
+		t.Run(tc.desc, func(t *testing.T) {
+			ar, er := auth.DecodeDomainUserID(tc.domainUserID)
+			assert.Equal(t, tc.respUserID, er, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.respUserID, er))
+			assert.Equal(t, tc.respDomainID, ar, fmt.Sprintf("%s expected %s got %s\n", tc.desc, tc.respDomainID, ar))
+		})
 	}
 }
