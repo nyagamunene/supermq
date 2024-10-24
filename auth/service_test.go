@@ -791,7 +791,7 @@ func TestAuthorize(t *testing.T) {
 				Permission:  policies.AdminPermission,
 			},
 			checkPolicyReq3: policies.Policy{
-				Domain:      groupName,
+				Domain:      "",
 				Subject:     id,
 				SubjectType: policies.UserType,
 				SubjectKind: policies.TokenKind,
