@@ -396,9 +396,9 @@ func TestViewInvitation(t *testing.T) {
 			token:       validToken,
 			userID:      validID,
 			domainID:    domainID,
-			status:      http.StatusForbidden,
+			status:      http.StatusBadRequest,
 			contentType: validContenType,
-			svcErr:      svcerr.ErrAuthorization,
+			svcErr:      svcerr.ErrViewEntity,
 		},
 		{
 			desc:        "with empty user_id",

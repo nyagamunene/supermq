@@ -267,8 +267,9 @@ func TestListInvitation(t *testing.T) {
 				Limit:  10,
 			},
 			svcReq: invitations.Page{
-				Offset: 0,
-				Limit:  10,
+				Offset:   0,
+				Limit:    10,
+				DomainID: invitation.DomainID,
 			},
 			svcRes: invitations.InvitationPage{
 				Total:       1,
@@ -290,8 +291,9 @@ func TestListInvitation(t *testing.T) {
 				Limit:  10,
 			},
 			svcReq: invitations.Page{
-				Offset: 0,
-				Limit:  10,
+				Offset:   0,
+				Limit:    10,
+				DomainID: invitation.DomainID,
 			},
 			svcRes:          invitations.InvitationPage{},
 			authenticateErr: svcerr.ErrAuthentication,

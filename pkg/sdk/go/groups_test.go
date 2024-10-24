@@ -381,8 +381,9 @@ func TestListGroups(t *testing.T) {
 			err:             errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:  "list groups with zero limit",
-			token: validToken,
+			desc:     "list groups with zero limit",
+			domainID: domainID,
+			token:    validToken,
 			pageMeta: sdk.PageMetadata{
 				Offset: offset,
 				Limit:  0,
