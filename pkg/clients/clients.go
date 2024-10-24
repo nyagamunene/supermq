@@ -43,6 +43,7 @@ type Client struct {
 	Name        string      `json:"name,omitempty"`
 	Tags        []string    `json:"tags,omitempty"`
 	Domain      string      `json:"domain_id,omitempty"`
+	ParentGroup string      `json:"parent_group_id,omitempty"`
 	Credentials Credentials `json:"credentials,omitempty"`
 	Metadata    Metadata    `json:"metadata,omitempty"`
 	CreatedAt   time.Time   `json:"created_at,omitempty"`
@@ -97,7 +98,7 @@ type Repository interface {
 	UpdateSecret(ctx context.Context, client Client) (Client, error)
 
 	// UpdateRole updates role for client with given id.
-	UpdateRole(ctx context.Context, client Client) (Client, error)
+	UpdateClientRole(ctx context.Context, client Client) (Client, error)
 
 	// ChangeStatus changes client status to enabled or disabled
 	ChangeStatus(ctx context.Context, client Client) (Client, error)

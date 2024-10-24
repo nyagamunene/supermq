@@ -142,8 +142,9 @@ func (ps *policyService) AddPolicies(ctx context.Context, prs []policies.Policy)
 func (ps *policyService) DeletePolicyFilter(ctx context.Context, pr policies.Policy) error {
 	req := &v1.DeleteRelationshipsRequest{
 		RelationshipFilter: &v1.RelationshipFilter{
-			ResourceType:       pr.ObjectType,
-			OptionalResourceId: pr.Object,
+			ResourceType:             pr.ObjectType,
+			OptionalResourceId:       pr.Object,
+			OptionalResourceIdPrefix: pr.ObjectPrefix,
 		},
 	}
 
@@ -359,8 +360,8 @@ func (ps *policyService) addPolicyPreCondition(ctx context.Context, pr policies.
 	// - GROUP (channel) with DOMAIN RELATION to DOMAIN
 	// - NO GROUP should not have PARENT_GROUP RELATION with GROUP (channel)
 	// - THING with DOMAIN RELATION to DOMAIN
-	case pr.SubjectType == policies.GroupType && pr.ObjectType == policies.ThingType:
-		return channelThingPreCondition(pr)
+	// case pr.SubjectType == policies.GroupType && pr.ObjectType == policies.ThingType:
+	// 	return channelThingPreCondition(pr)
 
 	// 5.) user -> domain
 	// Checks :

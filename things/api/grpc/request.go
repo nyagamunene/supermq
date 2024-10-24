@@ -3,9 +3,23 @@
 
 package grpc
 
-type authorizeReq struct {
-	ThingID    string
-	ThingKey   string
-	ChannelID  string
-	Permission string
+type authenticateReq struct {
+	ThingID  string
+	ThingKey string
+}
+
+type retrieveEntitiesReq struct {
+	Ids []string
+}
+
+type retrieveEntityReq struct {
+	Id string
+}
+
+type removeChannelConnectionsReq struct {
+	channelID string
+}
+
+type unsetParentGroupFromThingsReq struct {
+	parentGroupID string
 }

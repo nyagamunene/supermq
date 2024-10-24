@@ -175,69 +175,28 @@ func (req changeClientStatusReq) validate() error {
 	return nil
 }
 
-type assignUsersRequest struct {
-	groupID  string
-	Relation string   `json:"relation"`
-	UserIDs  []string `json:"user_ids"`
+type setThingParentGroupReq struct {
+	id            string
+	ParentGroupID string `json:"parent_group_id"`
 }
 
-func (req assignUsersRequest) validate() error {
-	if req.Relation == "" {
-		return apiutil.ErrMissingRelation
-	}
-
-	if req.groupID == "" {
+func (req setThingParentGroupReq) validate() error {
+	if req.id == "" {
 		return apiutil.ErrMissingID
 	}
-
-	if len(req.UserIDs) == 0 {
-		return apiutil.ErrEmptyList
-	}
-
-	return nil
-}
-
-type assignUserGroupsRequest struct {
-	groupID      string
-	UserGroupIDs []string `json:"group_ids"`
-}
-
-func (req assignUserGroupsRequest) validate() error {
-	if req.groupID == "" {
-		return apiutil.ErrMissingID
-	}
-
-	if len(req.UserGroupIDs) == 0 {
-		return apiutil.ErrEmptyList
-	}
-
-	return nil
-}
-
-type connectChannelThingRequest struct {
-	ThingID   string `json:"thing_id,omitempty"`
-	ChannelID string `json:"channel_id,omitempty"`
-}
-
-func (req *connectChannelThingRequest) validate() error {
-	if req.ThingID == "" || req.ChannelID == "" {
-		return apiutil.ErrMissingID
+	if req.ParentGroupID == "" {
+		return apiutil.ErrMissingParentGroupID
 	}
 	return nil
 }
 
-type thingShareRequest struct {
-	thingID  string
-	Relation string   `json:"relation,omitempty"`
-	UserIDs  []string `json:"user_ids,omitempty"`
+type removeThingParentGroupReq struct {
+	id string
 }
 
-func (req *thingShareRequest) validate() error {
-	if req.thingID == "" {
+func (req removeThingParentGroupReq) validate() error {
+	if req.id == "" {
 		return apiutil.ErrMissingID
-	}
-	if req.Relation == "" || len(req.UserIDs) == 0 {
-		return apiutil.ErrMalformedPolicy
 	}
 	return nil
 }

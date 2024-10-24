@@ -9,6 +9,7 @@ import (
 
 	"github.com/absmach/magistrala/pkg/authn"
 	mgclients "github.com/absmach/magistrala/pkg/clients"
+	rmMW "github.com/absmach/magistrala/pkg/roles/rolemanager/middleware"
 	"github.com/absmach/magistrala/things"
 	"github.com/go-kit/kit/metrics"
 )
@@ -19,14 +20,16 @@ type metricsMiddleware struct {
 	counter metrics.Counter
 	latency metrics.Histogram
 	svc     things.Service
+	rmMW.RoleManagerMetricsMiddleware
 }
 
 // MetricsMiddleware returns a new metrics middleware wrapper.
 func MetricsMiddleware(svc things.Service, counter metrics.Counter, latency metrics.Histogram) things.Service {
 	return &metricsMiddleware{
-		counter: counter,
-		latency: latency,
-		svc:     svc,
+		counter:                      counter,
+		latency:                      latency,
+		svc:                          svc,
+		RoleManagerMetricsMiddleware: rmMW.NewRoleManagerMetricsMiddleware("things", svc, counter, latency),
 	}
 }
 
@@ -44,14 +47,6 @@ func (ms *metricsMiddleware) ViewClient(ctx context.Context, session authn.Sessi
 		ms.latency.With("method", "view_thing").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 	return ms.svc.ViewClient(ctx, session, id)
-}
-
-func (ms *metricsMiddleware) ViewClientPerms(ctx context.Context, session authn.Session, id string) ([]string, error) {
-	defer func(begin time.Time) {
-		ms.counter.With("method", "view_thing_permissions").Add(1)
-		ms.latency.With("method", "view_thing_permissions").Observe(time.Since(begin).Seconds())
-	}(time.Now())
-	return ms.svc.ViewClientPerms(ctx, session, id)
 }
 
 func (ms *metricsMiddleware) ListClients(ctx context.Context, session authn.Session, reqUserID string, pm mgclients.Page) (mgclients.ClientsPage, error) {
@@ -102,50 +97,26 @@ func (ms *metricsMiddleware) DisableClient(ctx context.Context, session authn.Se
 	return ms.svc.DisableClient(ctx, session, id)
 }
 
-func (ms *metricsMiddleware) ListClientsByGroup(ctx context.Context, session authn.Session, groupID string, pm mgclients.Page) (mp mgclients.MembersPage, err error) {
-	defer func(begin time.Time) {
-		ms.counter.With("method", "list_things_by_channel").Add(1)
-		ms.latency.With("method", "list_things_by_channel").Observe(time.Since(begin).Seconds())
-	}(time.Now())
-	return ms.svc.ListClientsByGroup(ctx, session, groupID, pm)
-}
-
-func (ms *metricsMiddleware) Identify(ctx context.Context, key string) (string, error) {
-	defer func(begin time.Time) {
-		ms.counter.With("method", "identify_thing").Add(1)
-		ms.latency.With("method", "identify_thing").Observe(time.Since(begin).Seconds())
-	}(time.Now())
-	return ms.svc.Identify(ctx, key)
-}
-
-func (ms *metricsMiddleware) Authorize(ctx context.Context, req things.AuthzReq) (id string, err error) {
-	defer func(begin time.Time) {
-		ms.counter.With("method", "authorize").Add(1)
-		ms.latency.With("method", "authorize").Observe(time.Since(begin).Seconds())
-	}(time.Now())
-	return ms.svc.Authorize(ctx, req)
-}
-
-func (ms *metricsMiddleware) Share(ctx context.Context, session authn.Session, id, relation string, userids ...string) error {
-	defer func(begin time.Time) {
-		ms.counter.With("method", "share").Add(1)
-		ms.latency.With("method", "share").Observe(time.Since(begin).Seconds())
-	}(time.Now())
-	return ms.svc.Share(ctx, session, id, relation, userids...)
-}
-
-func (ms *metricsMiddleware) Unshare(ctx context.Context, session authn.Session, id, relation string, userids ...string) error {
-	defer func(begin time.Time) {
-		ms.counter.With("method", "unshare").Add(1)
-		ms.latency.With("method", "unshare").Observe(time.Since(begin).Seconds())
-	}(time.Now())
-	return ms.svc.Unshare(ctx, session, id, relation, userids...)
-}
-
 func (ms *metricsMiddleware) DeleteClient(ctx context.Context, session authn.Session, id string) error {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "delete_client").Add(1)
 		ms.latency.With("method", "delete_client").Observe(time.Since(begin).Seconds())
 	}(time.Now())
 	return ms.svc.DeleteClient(ctx, session, id)
+}
+
+func (ms *metricsMiddleware) SetParentGroup(ctx context.Context, session authn.Session, parentGroupID string, id string) (err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "set_parent_group").Add(1)
+		ms.latency.With("method", "set_parent_group").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+	return ms.svc.SetParentGroup(ctx, session, parentGroupID, id)
+}
+
+func (ms *metricsMiddleware) RemoveParentGroup(ctx context.Context, session authn.Session, id string) (err error) {
+	defer func(begin time.Time) {
+		ms.counter.With("method", "remove_parent_group").Add(1)
+		ms.latency.With("method", "remove_parent_group").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+	return ms.svc.RemoveParentGroup(ctx, session, id)
 }
