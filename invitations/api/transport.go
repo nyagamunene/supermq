@@ -38,7 +38,7 @@ func MakeHandler(svc invitations.Service, logger *slog.Logger, authn mgauthn.Aut
 	mux := chi.NewRouter()
 
 	mux.Group(func(r chi.Router) {
-		r.Use(api.AuthenticateMiddleware(authn))
+		r.Use(api.AuthenticateMiddleware(authn, true))
 
 		r.Route("/{domainID}/invitations", func(r chi.Router) {
 			r.Post("/", otelhttp.NewHandler(kithttp.NewServer(

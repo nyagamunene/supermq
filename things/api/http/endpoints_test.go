@@ -527,6 +527,7 @@ func TestListThings(t *testing.T) {
 		{
 			desc:     "list things with limit greater than max",
 			token:    validToken,
+			domainID: domainID,
 			authnRes: mgauthn.Session{UserID: validID, DomainID: domainID, DomainUserID: domainID + "_" + validID, SuperAdmin: false},
 			query:    fmt.Sprintf("limit=%d", api.MaxLimitSize+1),
 			status:   http.StatusBadRequest,

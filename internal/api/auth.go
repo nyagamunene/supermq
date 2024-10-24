@@ -6,7 +6,6 @@ package api
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"github.com/absmach/magistrala/pkg/apiutil"
 	mgauthn "github.com/absmach/magistrala/pkg/authn"
@@ -17,7 +16,7 @@ type sessionKeyType string
 
 const SessionKey = sessionKeyType("session")
 
-func AuthenticateMiddleware(authn mgauthn.Authentication) func(http.Handler) http.Handler {
+func AuthenticateMiddleware(authn mgauthn.Authentication, domainCheck bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := apiutil.ExtractBearerToken(r)
@@ -32,7 +31,7 @@ func AuthenticateMiddleware(authn mgauthn.Authentication) func(http.Handler) htt
 				return
 			}
 
-			if strings.Contains(r.Pattern, "domains") {
+			if domainCheck {
 				domain := chi.URLParam(r, "domainID")
 				if domain == "" {
 					EncodeError(r.Context(), apiutil.ErrMissingDomainID, w)
