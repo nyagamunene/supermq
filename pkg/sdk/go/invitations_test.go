@@ -316,7 +316,7 @@ func TestListInvitation(t *testing.T) {
 			svcRes:   invitations.InvitationPage{},
 			svcErr:   nil,
 			response: sdk.InvitationPage{},
-			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingDomainID), http.StatusBadRequest),
+			err:      errors.NewSDKErrorWithStatus(apiutil.ErrMissingDomainID, http.StatusBadRequest),
 		},
 		{
 			desc:  "list invitations with limit greater than max limit",
