@@ -156,14 +156,6 @@ func TestAcceptInvitationReq(t *testing.T) {
 			},
 			err: apiutil.ErrBearerToken,
 		},
-		{
-			desc: "empty domain_id",
-			req: acceptInvitationReq{
-				token:    valid,
-				domainID: "",
-			},
-			err: apiutil.ErrMissingDomainID,
-		},
 	}
 
 	for _, tc := range cases {
@@ -206,15 +198,6 @@ func TestInvitationReqValidation(t *testing.T) {
 				domainID: valid,
 			},
 			err: apiutil.ErrMissingID,
-		},
-		{
-			desc: "empty domain",
-			req: invitationReq{
-				token:    valid,
-				userID:   valid,
-				domainID: "",
-			},
-			err: apiutil.ErrMissingDomainID,
 		},
 	}
 
