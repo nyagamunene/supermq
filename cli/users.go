@@ -91,7 +91,7 @@ var cmdUsers = []cobra.Command{
 		},
 	},
 	{
-		Use:   "token <username> <password>]",
+		Use:   "token <username> <password>",
 		Short: "Get token",
 		Long: "Generate new token from username and password\n" +
 			"For example:\n" +
@@ -117,7 +117,7 @@ var cmdUsers = []cobra.Command{
 		},
 	},
 	{
-		Use:   "refreshtoken <token>]",
+		Use:   "refreshtoken <token>",
 		Short: "Get token",
 		Long: "Generate new token from refresh token\n" +
 			"For example:\n" +
