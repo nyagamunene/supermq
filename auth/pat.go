@@ -727,7 +727,7 @@ type PATS interface {
 	UpdatePATDescription(ctx context.Context, token, patID, description string) (PAT, error)
 
 	// Retrieve function retrieves the PAT for given ID.
-	RetrievePAT(ctx context.Context, userID string, patID string) (PAT, error)
+	RetrievePAT(ctx context.Context, userID, patID string) (PAT, error)
 
 	// List function lists all the PATs for the user.
 	ListPATS(ctx context.Context, token string, pm PATSPageMeta) (PATSPage, error)

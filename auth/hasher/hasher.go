@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/pkg/errors"
 	"golang.org/x/crypto/scrypt"
 )
@@ -24,12 +23,12 @@ var (
 	errDecode           = errors.New("failed to decode")
 )
 
-var _ auth.Hasher = (*bcryptHasher)(nil)
+var _ pat.Hasher = (*bcryptHasher)(nil)
 
 type bcryptHasher struct{}
 
 // New instantiates a bcrypt-based hasher implementation.
-func New() auth.Hasher {
+func New() pat.Hasher {
 	return &bcryptHasher{}
 }
 
