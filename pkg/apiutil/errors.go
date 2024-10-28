@@ -212,4 +212,7 @@ var (
 
 	// ErrMissingDomainID indicates missing domainID.
 	ErrMissingDomainID = errors.New("missing domainID")
+
+	// ErrMissingDescription indicates missing description.
+	ErrMissingDescription = errors.New("missing description")
 )
