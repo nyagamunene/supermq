@@ -239,4 +239,7 @@ var (
 
 	// ErrInvalidProfilePictureURL indicates that the profile picture url is invalid.
 	ErrInvalidProfilePictureURL = errors.New("invalid profile picture url")
+
+	// ErrMissingDescription indicates missing description.
+	ErrMissingDescription = errors.New("missing description")
 )
