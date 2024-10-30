@@ -19,6 +19,8 @@ import (
 	authgrpcapi "github.com/absmach/magistrala/auth/api/grpc/auth"
 	tokengrpcapi "github.com/absmach/magistrala/auth/api/grpc/token"
 	httpapi "github.com/absmach/magistrala/auth/api/http"
+	"github.com/absmach/magistrala/auth/bolt"
+	"github.com/absmach/magistrala/auth/hasher"
 	"github.com/absmach/magistrala/auth/jwt"
 	apostgres "github.com/absmach/magistrala/auth/postgres"
 	"github.com/absmach/magistrala/auth/tracing"
@@ -26,8 +28,6 @@ import (
 	grpcAuthV1 "github.com/absmach/magistrala/internal/grpc/auth/v1"
 	grpcTokenV1 "github.com/absmach/magistrala/internal/grpc/token/v1"
 	mglog "github.com/absmach/magistrala/logger"
-	"github.com/absmach/magistrala/auth/bolt"
-	"github.com/absmach/magistrala/auth/hasher"
 	"github.com/absmach/magistrala/pkg/jaeger"
 	"github.com/absmach/magistrala/pkg/policies/spicedb"
 	"github.com/absmach/magistrala/pkg/postgres"
@@ -244,7 +244,7 @@ func newService(_ context.Context, db *sqlx.DB, tracer trace.Tracer, cfg config,
 
 	t := jwt.New([]byte(cfg.SecretKey))
 
-	svc := auth.New(keysRepo,patsRepo, hasher, idProvider, t, pEvaluator, pService, cfg.AccessDuration, cfg.RefreshDuration, cfg.InvitationDuration)
+	svc := auth.New(keysRepo, patsRepo, hasher, idProvider, t, pEvaluator, pService, cfg.AccessDuration, cfg.RefreshDuration, cfg.InvitationDuration)
 	svc = api.LoggingMiddleware(svc, logger)
 	counter, latency := prometheus.MakeMetrics("auth", "api")
 	svc = api.MetricsMiddleware(svc, counter, latency)

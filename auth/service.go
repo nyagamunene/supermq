@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/absmach/magistrala"
+	"github.com/absmach/magistrala/pat"
 	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	"github.com/absmach/magistrala/pkg/policies"
@@ -167,6 +168,21 @@ func (svc service) RetrieveKey(ctx context.Context, token, id string) (Key, erro
 }
 
 func (svc service) Identify(ctx context.Context, token string) (Key, error) {
+	if strings.HasPrefix(token, "pat"+"_") {
+		pat, err := svc.IdentifyPAT(ctx, token)
+		if err != nil {
+			return Key{}, err
+		}
+		return Key{
+			ID:        pat.ID,
+			Type:      PersonalAccessToken,
+			Subject:   pat.User,
+			User:      pat.User,
+			IssuedAt:  pat.IssuedAt,
+			ExpiresAt: pat.ExpiresAt,
+		}, nil
+	}
+
 	key, err := svc.tokenizer.Parse(token)
 	if errors.Contains(err, ErrExpiry) {
 		err = svc.keys.Remove(ctx, key.Issuer, key.ID)
