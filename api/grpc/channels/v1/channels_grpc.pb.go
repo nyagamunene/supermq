@@ -19,8 +19,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.64.0 or later.
-const _ = grpc.SupportPackageIsVersion9
+// Requires gRPC-Go v1.62.0 or later.
+const _ = grpc.SupportPackageIsVersion8
 
 const (
 	ChannelsService_Authorize_FullMethodName                    = "/channels.v1.ChannelsService/Authorize"
@@ -89,7 +89,7 @@ func (c *channelsServiceClient) RetrieveEntity(ctx context.Context, in *v1.Retri
 
 // ChannelsServiceServer is the server API for ChannelsService service.
 // All implementations must embed UnimplementedChannelsServiceServer
-// for forward compatibility.
+// for forward compatibility
 type ChannelsServiceServer interface {
 	Authorize(context.Context, *AuthzReq) (*AuthzRes, error)
 	RemoveClientConnections(context.Context, *RemoveClientConnectionsReq) (*RemoveClientConnectionsRes, error)
@@ -98,12 +98,9 @@ type ChannelsServiceServer interface {
 	mustEmbedUnimplementedChannelsServiceServer()
 }
 
-// UnimplementedChannelsServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedChannelsServiceServer struct{}
+// UnimplementedChannelsServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedChannelsServiceServer struct {
+}
 
 func (UnimplementedChannelsServiceServer) Authorize(context.Context, *AuthzReq) (*AuthzRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
@@ -118,7 +115,6 @@ func (UnimplementedChannelsServiceServer) RetrieveEntity(context.Context, *v1.Re
 	return nil, status.Errorf(codes.Unimplemented, "method RetrieveEntity not implemented")
 }
 func (UnimplementedChannelsServiceServer) mustEmbedUnimplementedChannelsServiceServer() {}
-func (UnimplementedChannelsServiceServer) testEmbeddedByValue()                         {}
 
 // UnsafeChannelsServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to ChannelsServiceServer will
@@ -128,13 +124,6 @@ type UnsafeChannelsServiceServer interface {
 }
 
 func RegisterChannelsServiceServer(s grpc.ServiceRegistrar, srv ChannelsServiceServer) {
-	// If the following call pancis, it indicates UnimplementedChannelsServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
 	s.RegisterService(&ChannelsService_ServiceDesc, srv)
 }
 
