@@ -28,6 +28,8 @@ import (
 	"github.com/absmach/supermq/auth/tracing"
 	boltclient "github.com/absmach/supermq/internal/clients/bolt"
 	smqlog "github.com/absmach/supermq/logger"
+	"github.com/absmach/supermq/pat/bolt"
+	"github.com/absmach/supermq/pat/hasher"
 	"github.com/absmach/supermq/pkg/jaeger"
 	"github.com/absmach/supermq/pkg/policies/spicedb"
 	pgclient "github.com/absmach/supermq/pkg/postgres"
