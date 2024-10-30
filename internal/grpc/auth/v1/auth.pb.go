@@ -38,6 +38,11 @@ func (x *AuthNReq) Reset() {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_auth_v1_auth_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthNReq) String() string {
@@ -48,6 +53,7 @@ func (*AuthNReq) ProtoMessage() {}
 
 func (x *AuthNReq) ProtoReflect() protoreflect.Message {
 	mi := &file_auth_v1_auth_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -87,6 +93,11 @@ func (x *AuthNRes) Reset() {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_auth_v1_auth_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthNRes) String() string {
@@ -97,6 +108,7 @@ func (*AuthNRes) ProtoMessage() {}
 
 func (x *AuthNRes) ProtoReflect() protoreflect.Message {
 	mi := &file_auth_v1_auth_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -540,6 +552,18 @@ func file_auth_v1_auth_proto_init() {
 			}
 		}
 		file_auth_v1_auth_proto_msgTypes[3].Exporter = func(v any, i int) any {
+			switch v := v.(*AuthZpatReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_auth_v1_auth_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*AuthZRes); i {
 			case 0:
 				return &v.state
