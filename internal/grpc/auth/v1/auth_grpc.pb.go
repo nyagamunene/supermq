@@ -18,8 +18,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.64.0 or later.
-const _ = grpc.SupportPackageIsVersion9
+// Requires gRPC-Go v1.62.0 or later.
+const _ = grpc.SupportPackageIsVersion8
 
 const (
 	AuthService_Authorize_FullMethodName       = "/auth.v1.AuthService/Authorize"
@@ -36,6 +36,7 @@ const (
 // and authorization functionalities for SuperMQ services.
 type AuthServiceClient interface {
 	Authorize(ctx context.Context, in *AuthZReq, opts ...grpc.CallOption) (*AuthZRes, error)
+	AuthorizePAT(ctx context.Context, in *AuthZpatReq, opts ...grpc.CallOption) (*AuthZRes, error)
 	Authenticate(ctx context.Context, in *AuthNReq, opts ...grpc.CallOption) (*AuthNRes, error)
 	AuthenticatePAT(ctx context.Context, in *AuthNReq, opts ...grpc.CallOption) (*AuthNPATRes, error)
 }
@@ -52,6 +53,16 @@ func (c *authServiceClient) Authorize(ctx context.Context, in *AuthZReq, opts ..
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AuthZRes)
 	err := c.cc.Invoke(ctx, AuthService_Authorize_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) AuthorizePAT(ctx context.Context, in *AuthZpatReq, opts ...grpc.CallOption) (*AuthZRes, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuthZRes)
+	err := c.cc.Invoke(ctx, AuthService_AuthorizePAT_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,26 +91,27 @@ func (c *authServiceClient) AuthenticatePAT(ctx context.Context, in *AuthNReq, o
 
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
-// for forward compatibility.
+// for forward compatibility
 //
 // AuthService is a service that provides authentication
 // and authorization functionalities for SuperMQ services.
 type AuthServiceServer interface {
 	Authorize(context.Context, *AuthZReq) (*AuthZRes, error)
+	AuthorizePAT(context.Context, *AuthZpatReq) (*AuthZRes, error)
 	Authenticate(context.Context, *AuthNReq) (*AuthNRes, error)
 	AuthenticatePAT(context.Context, *AuthNReq) (*AuthNPATRes, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
-// UnimplementedAuthServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedAuthServiceServer struct{}
+// UnimplementedAuthServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAuthServiceServer struct {
+}
 
 func (UnimplementedAuthServiceServer) Authorize(context.Context, *AuthZReq) (*AuthZRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
+}
+func (UnimplementedAuthServiceServer) AuthorizePAT(context.Context, *AuthZpatReq) (*AuthZRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AuthorizePAT not implemented")
 }
 func (UnimplementedAuthServiceServer) Authenticate(context.Context, *AuthNReq) (*AuthNRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
@@ -108,7 +120,6 @@ func (UnimplementedAuthServiceServer) AuthenticatePAT(context.Context, *AuthNReq
 	return nil, status.Errorf(codes.Unimplemented, "method AuthenticatePAT not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
-func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
 
 // UnsafeAuthServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to AuthServiceServer will
@@ -118,13 +129,6 @@ type UnsafeAuthServiceServer interface {
 }
 
 func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
-	// If the following call pancis, it indicates UnimplementedAuthServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
 	s.RegisterService(&AuthService_ServiceDesc, srv)
 }
 
@@ -142,6 +146,24 @@ func _AuthService_Authorize_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).Authorize(ctx, req.(*AuthZReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_AuthorizePAT_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthZpatReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).AuthorizePAT(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_AuthorizePAT_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).AuthorizePAT(ctx, req.(*AuthZpatReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -192,6 +214,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Authorize",
 			Handler:    _AuthService_Authorize_Handler,
+		},
+		{
+			MethodName: "AuthorizePAT",
+			Handler:    _AuthService_AuthorizePAT_Handler,
 		},
 		{
 			MethodName: "Authenticate",
