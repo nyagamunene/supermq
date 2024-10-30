@@ -46,7 +46,7 @@ func (*RemoveClientConnectionsReq) ProtoMessage() {}
 
 func (x *RemoveClientConnectionsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[0]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -89,7 +89,7 @@ func (*RemoveClientConnectionsRes) ProtoMessage() {}
 
 func (x *RemoveClientConnectionsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[1]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -113,9 +113,11 @@ type UnsetParentGroupFromChannelsReq struct {
 
 func (x *UnsetParentGroupFromChannelsReq) Reset() {
 	*x = UnsetParentGroupFromChannelsReq{}
-	mi := &file_channels_v1_channels_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *UnsetParentGroupFromChannelsReq) String() string {
@@ -126,7 +128,7 @@ func (*UnsetParentGroupFromChannelsReq) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromChannelsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[2]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -156,9 +158,11 @@ type UnsetParentGroupFromChannelsRes struct {
 
 func (x *UnsetParentGroupFromChannelsRes) Reset() {
 	*x = UnsetParentGroupFromChannelsRes{}
-	mi := &file_channels_v1_channels_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *UnsetParentGroupFromChannelsRes) String() string {
@@ -169,7 +173,7 @@ func (*UnsetParentGroupFromChannelsRes) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromChannelsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[3]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
