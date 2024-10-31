@@ -5,9 +5,6 @@
 package mocks
 
 import (
-	auth "github.com/absmach/magistrala/auth"
-	authn "github.com/absmach/magistrala/pkg/authn"
-
 	context "context"
 
 	auth "github.com/absmach/supermq/auth"
