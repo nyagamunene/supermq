@@ -10,7 +10,6 @@ option go_package = "github.com/absmach/supermq/internal/grpc/auth/v1";
 // and authorization functionalities for SuperMQ services.
 service AuthService {
   rpc Authorize(AuthZReq) returns (AuthZRes) {}
-  rpc AuthorizePAT(AuthZpatReq) returns (AuthZRes) {}
   rpc Authenticate(AuthNReq) returns (AuthNRes) {}
   rpc AuthenticatePAT(AuthNReq) returns (AuthNPATRes) {}
 }
