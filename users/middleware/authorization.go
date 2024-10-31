@@ -372,6 +372,10 @@ func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
+		return users.User{}, err
+	}
 	session.SuperAdmin = true
 	if err := am.authorize(ctx, "", policies.UserType, policies.UsersKind, user.ID, policies.MembershipPermission, policies.PlatformType, policies.SuperMQObject); err != nil {
 		return users.User{}, err
