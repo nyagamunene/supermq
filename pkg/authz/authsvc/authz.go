@@ -124,11 +124,12 @@ func (a authorization) checkDomain(ctx context.Context, subjectType, subject, do
 
 func (a authorization) AuthorizePAT(ctx context.Context, pr authz.PatReq) error {
 	req := grpcAuthV1.AuthZpatReq{
-		PaToken:                  pr.PaToken,
-		PlatformEntityType:       pr.PlatformEntityType,
+		UserID:                   pr.UserID,
+		PatID:                    pr.PatID,
+		PlatformEntityType:       uint32(pr.PlatformEntityType),
 		OptionalDomainID:         pr.OptionalDomainID,
-		OptionalDomainEntityType: pr.OptionalDomainEntityType,
-		Operation:                pr.Operation,
+		OptionalDomainEntityType: uint32(pr.OptionalDomainEntityType),
+		Operation:                uint32(pr.Operation),
 		EntityIDs:                pr.EntityIDs,
 	}
 	res, err := a.authSvcClient.AuthorizePAT(ctx, &req)

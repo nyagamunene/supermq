@@ -3,7 +3,11 @@
 
 package authz
 
-import "context"
+import (
+	"context"
+
+	"github.com/absmach/magistrala/auth"
+)
 
 type PolicyReq struct {
 	// Domain contains the domain ID.
