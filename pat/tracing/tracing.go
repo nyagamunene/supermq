@@ -163,3 +163,4 @@ func (tm *tracingMiddleware) CheckPAT(ctx context.Context, userID, patID string,
 	return tm.svc.CheckPAT(ctx, userID, patID, platformEntityType, optionalDomainID, optionalDomainEntityType, operation, entityIDs...)
 }
 
+
