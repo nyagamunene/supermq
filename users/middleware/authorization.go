@@ -172,6 +172,19 @@ func (am *authorizationMiddleware) SearchUsers(ctx context.Context, pm users.Pag
 }
 
 func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{user.ID},
+		}); err != nil {
+			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+		}
+	}
+
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
@@ -305,9 +318,6 @@ func (am *authorizationMiddleware) SendPasswordReset(ctx context.Context, host, 
 }
 
 func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
-	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
-		return users.User{}, err
-	}
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -319,6 +329,10 @@ func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
+		return users.User{}, err
 	}
 	session.SuperAdmin = true
 	if err := am.authorize(ctx, "", policies.UserType, policies.UsersKind, user.ID, policies.MembershipPermission, policies.PlatformType, policies.SuperMQObject); err != nil {
