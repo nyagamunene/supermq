@@ -35,9 +35,11 @@ type AuthnReq struct {
 
 func (x *AuthnReq) Reset() {
 	*x = AuthnReq{}
-	mi := &file_things_v1_things_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_things_v1_things_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthnReq) String() string {
@@ -88,9 +90,11 @@ type AuthnRes struct {
 
 func (x *AuthnRes) Reset() {
 	*x = AuthnRes{}
-	mi := &file_things_v1_things_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_things_v1_things_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthnRes) String() string {
@@ -432,7 +436,7 @@ func file_things_v1_things_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_things_v1_things_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthzReq); i {
+			switch v := v.(*AuthnReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -444,7 +448,7 @@ func file_things_v1_things_proto_init() {
 			}
 		}
 		file_things_v1_things_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthzRes); i {
+			switch v := v.(*AuthnRes); i {
 			case 0:
 				return &v.state
 			case 1:
