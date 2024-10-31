@@ -49,8 +49,8 @@ func (es *eventStore) UpdatePATDescription(ctx context.Context, session authn.Se
 	return es.svc.UpdatePATDescription(ctx, session, patID, description)
 }
 
-func (es *eventStore) RetrievePAT(ctx context.Context, session authn.Session, patID string) (pat.PAT, error) {
-	return es.svc.RetrievePAT(ctx, session, patID)
+func (es *eventStore) RetrievePAT(ctx context.Context, userID string, patID string) (pat.PAT, error) {
+	return es.svc.RetrievePAT(ctx, userID, patID)
 }
 
 func (es *eventStore) ListPATS(ctx context.Context, session authn.Session, pm pat.PATSPageMeta) (pat.PATSPage, error) {
@@ -85,8 +85,8 @@ func (es *eventStore) IdentifyPAT(ctx context.Context, paToken string) (pat.PAT,
 	return es.svc.IdentifyPAT(ctx, paToken)
 }
 
-func (es *eventStore) AuthorizePAT(ctx context.Context, paToken string, platformEntityType pat.PlatformEntityType, optionalDomainID string, optionalDomainEntityType pat.DomainEntityType, operation pat.OperationType, entityIDs ...string) error {
-	return es.svc.AuthorizePAT(ctx, paToken, platformEntityType, optionalDomainID, optionalDomainEntityType, operation, entityIDs...)
+func (es *eventStore) AuthorizePAT(ctx context.Context, userID, patID string, platformEntityType pat.PlatformEntityType, optionalDomainID string, optionalDomainEntityType pat.DomainEntityType, operation pat.OperationType, entityIDs ...string) error {
+	return es.svc.AuthorizePAT(ctx, userID, patID, platformEntityType, optionalDomainID, optionalDomainEntityType, operation, entityIDs...)
 }
 
 func (es *eventStore) CheckPAT(ctx context.Context, userID, patID string, platformEntityType pat.PlatformEntityType, optionalDomainID string, optionalDomainEntityType pat.DomainEntityType, operation pat.OperationType, entityIDs ...string) error {
