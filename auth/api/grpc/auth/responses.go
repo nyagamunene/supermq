@@ -13,3 +13,7 @@ type authorizeRes struct {
 	id         string
 	authorized bool
 }
+
+type retrievePATRes struct {
+	pat string
+}
