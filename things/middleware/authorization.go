@@ -6,6 +6,7 @@ package middleware
 import (
 	"context"
 
+	"github.com/absmach/magistrala/pat"
 	"github.com/absmach/magistrala/pkg/authn"
 	"github.com/absmach/magistrala/pkg/authz"
 	mgauthz "github.com/absmach/magistrala/pkg/authz"
@@ -75,6 +76,19 @@ func AuthorizationMiddleware(entityType string, svc things.Service, authz mgauth
 }
 
 func (am *authorizationMiddleware) CreateThings(ctx context.Context, session authn.Session, client ...clients.Client) ([]clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.CreateOp.String(),
+		}); err != nil {
+			return []clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.extAuthorize(ctx, things.DomainOpCreateThing, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -89,6 +103,19 @@ func (am *authorizationMiddleware) CreateThings(ctx context.Context, session aut
 }
 
 func (am *authorizationMiddleware) ViewClient(ctx context.Context, session authn.Session, id string) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.ListOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpViewThing, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -106,10 +133,36 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 		session.SuperAdmin = true
 	}
 
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.ListOp.String(),
+		}); err != nil {
+			return clients.ClientsPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	return am.svc.ListClients(ctx, session, reqUserID, pm)
 }
 
 func (am *authorizationMiddleware) UpdateClient(ctx context.Context, session authn.Session, client clients.Client) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpUpdateThing, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -124,6 +177,19 @@ func (am *authorizationMiddleware) UpdateClient(ctx context.Context, session aut
 }
 
 func (am *authorizationMiddleware) UpdateClientTags(ctx context.Context, session authn.Session, client clients.Client) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpUpdateThingTags, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -138,6 +204,19 @@ func (am *authorizationMiddleware) UpdateClientTags(ctx context.Context, session
 }
 
 func (am *authorizationMiddleware) UpdateClientSecret(ctx context.Context, session authn.Session, id, key string) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpUpdateThingSecret, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -151,6 +230,19 @@ func (am *authorizationMiddleware) UpdateClientSecret(ctx context.Context, sessi
 }
 
 func (am *authorizationMiddleware) EnableClient(ctx context.Context, session authn.Session, id string) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpEnableThing, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -165,6 +257,19 @@ func (am *authorizationMiddleware) EnableClient(ctx context.Context, session aut
 }
 
 func (am *authorizationMiddleware) DisableClient(ctx context.Context, session authn.Session, id string) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpDisableThing, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -178,6 +283,18 @@ func (am *authorizationMiddleware) DisableClient(ctx context.Context, session au
 }
 
 func (am *authorizationMiddleware) DeleteClient(ctx context.Context, session authn.Session, id string) error {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainThingsScope.String(),
+			Operation:                pat.DeleteOp.String(),
+		}); err != nil {
+			return  errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
 	if err := am.authorize(ctx, things.OpDeleteThing, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -192,6 +309,19 @@ func (am *authorizationMiddleware) DeleteClient(ctx context.Context, session aut
 }
 
 func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session authn.Session, parentGroupID string, id string) error {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainGroupsScope.String(),
+			Operation:                pat.CreateOp.String(),
+		}); err != nil {
+			return  errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpSetParentGroup, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -215,6 +345,19 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 }
 
 func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, session authn.Session, id string) error {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformDomainsScope.String(),
+			OptionalDomainID:         session.DomainID,
+			OptionalDomainEntityType: pat.DomainGroupsScope.String(),
+			Operation:                pat.DeleteOp.String(),
+		}); err != nil {
+			return  errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.authorize(ctx, things.OpRemoveParentGroup, authz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,

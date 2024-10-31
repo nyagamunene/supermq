@@ -8,10 +8,12 @@ import (
 
 	mgauth "github.com/absmach/magistrala/auth"
 	grpcTokenV1 "github.com/absmach/magistrala/internal/grpc/token/v1"
+	"github.com/absmach/magistrala/pat"
 	"github.com/absmach/magistrala/pkg/authn"
 	"github.com/absmach/magistrala/pkg/authz"
 	mgauthz "github.com/absmach/magistrala/pkg/authz"
 	"github.com/absmach/magistrala/pkg/clients"
+	"github.com/absmach/magistrala/pkg/errors"
 	svcerr "github.com/absmach/magistrala/pkg/errors/service"
 	"github.com/absmach/magistrala/pkg/policies"
 	"github.com/absmach/magistrala/users"
@@ -45,6 +47,18 @@ func (am *authorizationMiddleware) RegisterClient(ctx context.Context, session a
 }
 
 func (am *authorizationMiddleware) ViewClient(ctx context.Context, session authn.Session, id string) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.ReadOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
@@ -53,10 +67,32 @@ func (am *authorizationMiddleware) ViewClient(ctx context.Context, session authn
 }
 
 func (am *authorizationMiddleware) ViewProfile(ctx context.Context, session authn.Session) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.ReadOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
 	return am.svc.ViewProfile(ctx, session)
 }
 
 func (am *authorizationMiddleware) ListClients(ctx context.Context, session authn.Session, pm clients.Page) (clients.ClientsPage, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.ListOp.String(),
+		}); err != nil {
+			return clients.ClientsPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
@@ -65,6 +101,18 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 }
 
 func (am *authorizationMiddleware) ListMembers(ctx context.Context, session authn.Session, objectKind, objectID string, pm clients.Page) (clients.MembersPage, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.ListOp.String(),
+		}); err != nil {
+			return clients.MembersPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	if session.DomainUserID == "" {
 		return clients.MembersPage{}, svcerr.ErrDomainAuthorization
 	}
@@ -97,10 +145,33 @@ func (am *authorizationMiddleware) UpdateClient(ctx context.Context, session aut
 		session.SuperAdmin = true
 	}
 
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	return am.svc.UpdateClient(ctx, session, client)
 }
 
 func (am *authorizationMiddleware) UpdateClientTags(ctx context.Context, session authn.Session, client clients.Client) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
@@ -113,6 +184,18 @@ func (am *authorizationMiddleware) UpdateClientIdentity(ctx context.Context, ses
 		session.SuperAdmin = true
 	}
 
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	return am.svc.UpdateClientIdentity(ctx, session, id, identity)
 }
 
@@ -121,6 +204,18 @@ func (am *authorizationMiddleware) GenerateResetToken(ctx context.Context, email
 }
 
 func (am *authorizationMiddleware) UpdateClientSecret(ctx context.Context, session authn.Session, oldSecret, newSecret string) (clients.Client, error) {
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	return am.svc.UpdateClientSecret(ctx, session, oldSecret, newSecret)
 }
 
@@ -136,6 +231,17 @@ func (am *authorizationMiddleware) UpdateClientRole(ctx context.Context, session
 	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
 		return clients.Client{}, err
 	}
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
 	session.SuperAdmin = true
 	if err := am.authorize(ctx, "", policies.UserType, policies.UsersKind, client.ID, policies.MembershipPermission, policies.PlatformType, policies.MagistralaObject); err != nil {
 		return clients.Client{}, err
@@ -148,6 +254,17 @@ func (am *authorizationMiddleware) EnableClient(ctx context.Context, session aut
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
 
 	return am.svc.EnableClient(ctx, session, id)
 }
@@ -157,12 +274,36 @@ func (am *authorizationMiddleware) DisableClient(ctx context.Context, session au
 		session.SuperAdmin = true
 	}
 
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.UpdateOp.String(),
+		}); err != nil {
+			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
+	}
+
 	return am.svc.DisableClient(ctx, session, id)
 }
 
 func (am *authorizationMiddleware) DeleteClient(ctx context.Context, session authn.Session, id string) error {
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
+	}
+
+	if session.Type == authn.PersonalAccessToken {
+		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+			UserID:                   session.UserID,
+			PatID:                    session.ID,
+			PlatformEntityType:       pat.PlatformUsersScope.String(),
+			OptionalDomainEntityType: pat.DomainNullScope.String(),
+			Operation:                pat.DeleteOp.String(),
+		}); err != nil {
+			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+		}
 	}
 
 	return am.svc.DeleteClient(ctx, session, id)

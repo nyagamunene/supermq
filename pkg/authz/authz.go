@@ -42,9 +42,20 @@ type PolicyReq struct {
 	Permission string `json:"permission,omitempty"`
 }
 
+type PatReq struct {
+	UserID                   string   `json:"user_id,omitempty"`                     // UserID
+	PatID                    string   `json:"pat_id,omitempty"`                      // UserID
+	PlatformEntityType       string   `json:"platform_entity_type,omitempty"`        // Platform entity type
+	OptionalDomainID         string   `json:"optional_domainID,omitempty"`           // Optional domain id
+	OptionalDomainEntityType string   `json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
+	Operation                string   `json:"operation,omitempty"`                   // Operation
+	EntityIDs                []string `json:"entityIDs,omitempty"`                   // EntityIDs
+}
+
 // Authz is magistrala authorization library.
 //
 //go:generate mockery --name Authorization --output=./mocks --filename authz.go --quiet --note "Copyright (c) Abstract Machines"
 type Authorization interface {
 	Authorize(ctx context.Context, pr PolicyReq) error
+	AuthorizePAT(ctx context.Context, pr PatReq) error
 }

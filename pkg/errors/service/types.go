@@ -72,4 +72,7 @@ var (
 
 	// ErrParentGroupAuthorization indicates failure occurred while authorizing the parent group.
 	ErrParentGroupAuthorization = errors.New("failed to authorize parent group")
+
+	// ErrUnauthorizedPAT indicates failure occurred while authorizing PAT.
+	ErrUnauthorizedPAT = errors.New("failed to authorize PAT")
 )

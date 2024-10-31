@@ -51,7 +51,8 @@ func (req authReq) validate() error {
 }
 
 type authPATReq struct {
-	paToken                  string
+	userID                   string
+	patID                    string
 	platformEntityType       string
 	optionalDomainID         string
 	optionalDomainEntityType string
@@ -60,8 +61,26 @@ type authPATReq struct {
 }
 
 func (req authPATReq) validate() error {
-	if req.paToken == "" {
+	if req.userID == "" {
 		return apiutil.ErrBearerToken
+	}
+	if req.patID == "" {
+		return apiutil.ErrBearerToken
+	}
+	return nil
+}
+
+type retrievePATReq struct {
+	userID string
+	patID  string
+}
+
+func (req retrievePATReq) validate() error {
+	if req.userID == "" {
+		return apiutil.ErrMissingID
+	}
+	if req.patID == "" {
+		return apiutil.ErrMissingID
 	}
 	return nil
 }
