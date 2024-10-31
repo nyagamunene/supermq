@@ -12,11 +12,12 @@ import (
 	"github.com/absmach/supermq/auth/api/http/pats"
 	"github.com/go-chi/chi/v5"
 	"github.com/absmach/magistrala/auth/api/http/pats"
+	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // MakeHandler returns a HTTP handler for API endpoints.
-func MakeHandler(svc auth.Service, authn mgauthn.Authentication, logger *slog.Logger, instanceID string) http.Handler {
+func MakeHandler(svc auth.Service, logger *slog.Logger, instanceID string) http.Handler {
 	mux := chi.NewRouter()
 
 	mux = keys.MakeHandler(svc, mux, logger)
