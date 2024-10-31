@@ -295,93 +295,6 @@ func (x *AuthZReq) GetObjectType() string {
 	return ""
 }
 
-type AuthZpatReq struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	PaToken                  string   `protobuf:"bytes,1,opt,name=paToken,proto3" json:"paToken,omitempty"`                                                                       // PaToken
-	PlatformEntityType       string   `protobuf:"bytes,2,opt,name=platform_entity_type,json=platformEntityType,proto3" json:"platform_entity_type,omitempty"`                     // Platform entity type
-	OptionalDomainID         string   `protobuf:"bytes,3,opt,name=optional_domainID,json=optionalDomainID,proto3" json:"optional_domainID,omitempty"`                             // Optional domain id
-	OptionalDomainEntityType string   `protobuf:"bytes,4,opt,name=optional_domain_entity_type,json=optionalDomainEntityType,proto3" json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
-	Operation                string   `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                                                                   // Operation
-	EntityIDs                []string `protobuf:"bytes,6,rep,name=entityIDs,proto3" json:"entityIDs,omitempty"`                                                                   // EntityIDs
-}
-
-func (x *AuthZpatReq) Reset() {
-	*x = AuthZpatReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_auth_v1_auth_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *AuthZpatReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AuthZpatReq) ProtoMessage() {}
-
-func (x *AuthZpatReq) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_v1_auth_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AuthZpatReq.ProtoReflect.Descriptor instead.
-func (*AuthZpatReq) Descriptor() ([]byte, []int) {
-	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *AuthZpatReq) GetPaToken() string {
-	if x != nil {
-		return x.PaToken
-	}
-	return ""
-}
-
-func (x *AuthZpatReq) GetPlatformEntityType() string {
-	if x != nil {
-		return x.PlatformEntityType
-	}
-	return ""
-}
-
-func (x *AuthZpatReq) GetOptionalDomainID() string {
-	if x != nil {
-		return x.OptionalDomainID
-	}
-	return ""
-}
-
-func (x *AuthZpatReq) GetOptionalDomainEntityType() string {
-	if x != nil {
-		return x.OptionalDomainEntityType
-	}
-	return ""
-}
-
-func (x *AuthZpatReq) GetOperation() string {
-	if x != nil {
-		return x.Operation
-	}
-	return ""
-}
-
-func (x *AuthZpatReq) GetEntityIDs() []string {
-	if x != nil {
-		return x.EntityIDs
-	}
-	return nil
-}
-
 type AuthZRes struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -418,7 +331,7 @@ func (x *AuthZRes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthZRes.ProtoReflect.Descriptor instead.
 func (*AuthZRes) Descriptor() ([]byte, []int) {
-	return file_auth_v1_auth_proto_rawDescGZIP(), []int{4}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AuthZRes) GetAuthorized() bool {
@@ -503,7 +416,7 @@ func file_auth_v1_auth_proto_rawDescGZIP() []byte {
 	return file_auth_v1_auth_proto_rawDescData
 }
 
-var file_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_auth_v1_auth_proto_goTypes = []any{
 	(*AuthNReq)(nil),    // 0: auth.v1.AuthNReq
 	(*AuthNRes)(nil),    // 1: auth.v1.AuthNRes
@@ -568,18 +481,6 @@ func file_auth_v1_auth_proto_init() {
 			}
 		}
 		file_auth_v1_auth_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthZpatReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_auth_v1_auth_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*AuthZRes); i {
 			case 0:
 				return &v.state
@@ -598,7 +499,7 @@ func file_auth_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_auth_v1_auth_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

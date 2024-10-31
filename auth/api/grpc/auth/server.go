@@ -108,15 +108,3 @@ func encodeAuthorizeResponse(_ context.Context, grpcRes interface{}) (interface{
 	res := grpcRes.(authorizeRes)
 	return &grpcAuthV1.AuthZRes{Authorized: res.authorized, Id: res.id}, nil
 }
-
-func decodeAuthorizePATRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*grpcAuthV1.AuthZpatReq)
-	return authPATReq{
-		paToken:                  req.GetPaToken(),
-		platformEntityType:       req.GetPlatformEntityType(),
-		optionalDomainID:         req.GetOptionalDomainID(),
-		optionalDomainEntityType: req.GetOptionalDomainEntityType(),
-		operation:                req.GetOperation(),
-		entityIDs:                req.GetEntityIDs(),
-	}, nil
-}

@@ -207,9 +207,11 @@ type AuthzReq struct {
 
 func (x *AuthzReq) Reset() {
 	*x = AuthzReq{}
-	mi := &file_channels_v1_channels_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthzReq) String() string {
@@ -220,7 +222,7 @@ func (*AuthzReq) ProtoMessage() {}
 
 func (x *AuthzReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[4]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -280,9 +282,11 @@ type AuthzRes struct {
 
 func (x *AuthzRes) Reset() {
 	*x = AuthzRes{}
-	mi := &file_channels_v1_channels_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthzRes) String() string {
@@ -293,7 +297,7 @@ func (*AuthzRes) ProtoMessage() {}
 
 func (x *AuthzRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[5]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
