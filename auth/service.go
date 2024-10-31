@@ -167,7 +167,7 @@ func (svc service) RetrieveKey(ctx context.Context, token, id string) (Key, erro
 }
 
 func (svc service) Identify(ctx context.Context, token string) (Key, error) {
-	if strings.HasPrefix(token, "pat"+"_") {
+	if strings.HasPrefix(token, patPrefix+patSecretSeparator) {
 		pat, err := svc.IdentifyPAT(ctx, token)
 		if err != nil {
 			return Key{}, err
