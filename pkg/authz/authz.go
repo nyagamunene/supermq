@@ -47,4 +47,5 @@ type PolicyReq struct {
 //go:generate mockery --name Authorization --output=./mocks --filename authz.go --quiet --note "Copyright (c) Abstract Machines"
 type Authorization interface {
 	Authorize(ctx context.Context, pr PolicyReq) error
+	AuthorizePAT(ctx context.Context, pr PatReq) error
 }
