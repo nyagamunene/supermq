@@ -8,7 +8,6 @@ import (
 
 	mgauth "github.com/absmach/magistrala/auth"
 	grpcTokenV1 "github.com/absmach/magistrala/internal/grpc/token/v1"
-	"github.com/absmach/magistrala/pat"
 	"github.com/absmach/magistrala/pkg/authn"
 	"github.com/absmach/magistrala/pkg/authz"
 	mgauthz "github.com/absmach/magistrala/pkg/authz"
@@ -51,9 +50,9 @@ func (am *authorizationMiddleware) ViewClient(ctx context.Context, session authn
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.ReadOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.ReadOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -71,9 +70,9 @@ func (am *authorizationMiddleware) ViewProfile(ctx context.Context, session auth
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.ReadOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.ReadOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -86,9 +85,9 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.ListOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.ListOp,
 		}); err != nil {
 			return clients.ClientsPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -105,9 +104,9 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.ListOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.ListOp,
 		}); err != nil {
 			return clients.MembersPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -149,9 +148,9 @@ func (am *authorizationMiddleware) UpdateClient(ctx context.Context, session aut
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.UpdateOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -165,9 +164,9 @@ func (am *authorizationMiddleware) UpdateClientTags(ctx context.Context, session
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.UpdateOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -188,9 +187,9 @@ func (am *authorizationMiddleware) UpdateClientIdentity(ctx context.Context, ses
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.UpdateOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -208,9 +207,9 @@ func (am *authorizationMiddleware) UpdateClientSecret(ctx context.Context, sessi
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.UpdateOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -235,9 +234,9 @@ func (am *authorizationMiddleware) UpdateClientRole(ctx context.Context, session
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.UpdateOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -258,9 +257,9 @@ func (am *authorizationMiddleware) EnableClient(ctx context.Context, session aut
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.UpdateOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -278,9 +277,9 @@ func (am *authorizationMiddleware) DisableClient(ctx context.Context, session au
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.UpdateOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.UpdateOp,
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -298,9 +297,9 @@ func (am *authorizationMiddleware) DeleteClient(ctx context.Context, session aut
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       pat.PlatformUsersScope.String(),
-			OptionalDomainEntityType: pat.DomainNullScope.String(),
-			Operation:                pat.DeleteOp.String(),
+			PlatformEntityType:       mgauth.PlatformUsersScope,
+			OptionalDomainEntityType: mgauth.DomainNullScope,
+			Operation:                mgauth.DeleteOp,
 		}); err != nil {
 			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}

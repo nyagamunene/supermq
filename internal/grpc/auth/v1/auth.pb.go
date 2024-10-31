@@ -249,13 +249,13 @@ type AuthZpatReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserID                   string   `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`                                                                         // User id
-	PatID                    string   `protobuf:"bytes,2,opt,name=patID,proto3" json:"patID,omitempty"`                                                                           // Pat id
-	PlatformEntityType       string   `protobuf:"bytes,3,opt,name=platform_entity_type,json=platformEntityType,proto3" json:"platform_entity_type,omitempty"`                     // Platform entity type
-	OptionalDomainID         string   `protobuf:"bytes,4,opt,name=optional_domainID,json=optionalDomainID,proto3" json:"optional_domainID,omitempty"`                             // Optional domain id
-	OptionalDomainEntityType string   `protobuf:"bytes,5,opt,name=optional_domain_entity_type,json=optionalDomainEntityType,proto3" json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
-	Operation                string   `protobuf:"bytes,6,opt,name=operation,proto3" json:"operation,omitempty"`                                                                   // Operation
-	EntityIDs                []string `protobuf:"bytes,7,rep,name=entityIDs,proto3" json:"entityIDs,omitempty"`                                                                   // EntityIDs
+	UserID                   string   `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`                                                                          // User id
+	PatID                    string   `protobuf:"bytes,2,opt,name=patID,proto3" json:"patID,omitempty"`                                                                            // Pat id
+	PlatformEntityType       uint32   `protobuf:"varint,3,opt,name=platform_entity_type,json=platformEntityType,proto3" json:"platform_entity_type,omitempty"`                     // Platform entity type
+	OptionalDomainID         string   `protobuf:"bytes,4,opt,name=optional_domainID,json=optionalDomainID,proto3" json:"optional_domainID,omitempty"`                              // Optional domain id
+	OptionalDomainEntityType uint32   `protobuf:"varint,5,opt,name=optional_domain_entity_type,json=optionalDomainEntityType,proto3" json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
+	Operation                uint32   `protobuf:"varint,6,opt,name=operation,proto3" json:"operation,omitempty"`                                                                   // Operation
+	EntityIDs                []string `protobuf:"bytes,7,rep,name=entityIDs,proto3" json:"entityIDs,omitempty"`                                                                    // EntityIDs
 }
 
 func (x *AuthZpatReq) Reset() {
@@ -304,11 +304,11 @@ func (x *AuthZpatReq) GetPatID() string {
 	return ""
 }
 
-func (x *AuthZpatReq) GetPlatformEntityType() string {
+func (x *AuthZpatReq) GetPlatformEntityType() uint32 {
 	if x != nil {
 		return x.PlatformEntityType
 	}
-	return ""
+	return 0
 }
 
 func (x *AuthZpatReq) GetOptionalDomainID() string {
@@ -318,18 +318,18 @@ func (x *AuthZpatReq) GetOptionalDomainID() string {
 	return ""
 }
 
-func (x *AuthZpatReq) GetOptionalDomainEntityType() string {
+func (x *AuthZpatReq) GetOptionalDomainEntityType() uint32 {
 	if x != nil {
 		return x.OptionalDomainEntityType
 	}
-	return ""
+	return 0
 }
 
-func (x *AuthZpatReq) GetOperation() string {
+func (x *AuthZpatReq) GetOperation() uint32 {
 	if x != nil {
 		return x.Operation
 	}
-	return ""
+	return 0
 }
 
 func (x *AuthZpatReq) GetEntityIDs() []string {
@@ -351,7 +351,7 @@ type AuthZRes struct {
 func (x *AuthZRes) Reset() {
 	*x = AuthZRes{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_auth_v1_auth_proto_msgTypes[3]
+		mi := &file_auth_v1_auth_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -364,7 +364,7 @@ func (x *AuthZRes) String() string {
 func (*AuthZRes) ProtoMessage() {}
 
 func (x *AuthZRes) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_v1_auth_proto_msgTypes[3]
+	mi := &file_auth_v1_auth_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -430,16 +430,16 @@ var file_auth_v1_auth_proto_rawDesc = []byte{
 	0x0a, 0x05, 0x70, 0x61, 0x74, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x70,
 	0x61, 0x74, 0x49, 0x44, 0x12, 0x30, 0x0a, 0x14, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d,
 	0x5f, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x03, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x12, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x45, 0x6e, 0x74, 0x69,
+	0x28, 0x0d, 0x52, 0x12, 0x70, 0x6c, 0x61, 0x74, 0x66, 0x6f, 0x72, 0x6d, 0x45, 0x6e, 0x74, 0x69,
 	0x74, 0x79, 0x54, 0x79, 0x70, 0x65, 0x12, 0x2b, 0x0a, 0x11, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e,
 	0x61, 0x6c, 0x5f, 0x64, 0x6f, 0x6d, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x18, 0x04, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x10, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x61, 0x6c, 0x44, 0x6f, 0x6d, 0x61, 0x69,
 	0x6e, 0x49, 0x44, 0x12, 0x3d, 0x0a, 0x1b, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x61, 0x6c, 0x5f,
 	0x64, 0x6f, 0x6d, 0x61, 0x69, 0x6e, 0x5f, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x5f, 0x74, 0x79,
-	0x70, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x18, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e,
+	0x70, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x18, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e,
 	0x61, 0x6c, 0x44, 0x6f, 0x6d, 0x61, 0x69, 0x6e, 0x45, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x54, 0x79,
 	0x70, 0x65, 0x12, 0x1c, 0x0a, 0x09, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18,
-	0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x06, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x09, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
 	0x12, 0x1c, 0x0a, 0x09, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x49, 0x44, 0x73, 0x18, 0x07, 0x20,
 	0x03, 0x28, 0x09, 0x52, 0x09, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x49, 0x44, 0x73, 0x22, 0x3a,
 	0x0a, 0x08, 0x41, 0x75, 0x74, 0x68, 0x5a, 0x52, 0x65, 0x73, 0x12, 0x1e, 0x0a, 0x0a, 0x61, 0x75,
@@ -541,6 +541,18 @@ func file_auth_v1_auth_proto_init() {
 			}
 		}
 		file_auth_v1_auth_proto_msgTypes[3].Exporter = func(v any, i int) any {
+			switch v := v.(*AuthZpatReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_auth_v1_auth_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*AuthZRes); i {
 			case 0:
 				return &v.state

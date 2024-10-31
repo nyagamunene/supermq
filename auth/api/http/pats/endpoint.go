@@ -193,7 +193,12 @@ func authorizePATEndpoint(svc auth.Service) endpoint.Endpoint {
 			return nil, err
 		}
 
-		if err := svc.AuthorizePAT(ctx, req.token, req.PlatformEntityType, req.OptionalDomainID, req.OptionalDomainEntityType, req.Operation, req.EntityIDs...); err != nil {
+		pat, err := svc.IdentifyPAT(ctx, req.token)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := svc.AuthorizePAT(ctx, pat.User, pat.ID, req.PlatformEntityType, req.OptionalDomainID, req.OptionalDomainEntityType, req.Operation, req.EntityIDs...); err != nil {
 			return nil, err
 		}
 
