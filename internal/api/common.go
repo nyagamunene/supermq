@@ -185,6 +185,8 @@ func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 		errors.Contains(err, apiutil.ErrLenSearchQuery),
 		errors.Contains(err, apiutil.ErrMissingDomainID),
 		errors.Contains(err, certs.ErrFailedReadFromPKI),
+		errors.Contains(err, apiutil.ErrMissingUserID),
+		errors.Contains(err, apiutil.ErrMissingPATID),
 		errors.Contains(err, apiutil.ErrMissingUsername),
 		errors.Contains(err, apiutil.ErrMissingFirstName),
 		errors.Contains(err, apiutil.ErrMissingLastName),
