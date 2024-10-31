@@ -242,4 +242,10 @@ var (
 
 	// ErrMissingDescription indicates missing description.
 	ErrMissingDescription = errors.New("missing description")
+
+	// ErrMissingUserID indicates missing user ID.
+	ErrMissingUserID = errors.New("missing user id")
+
+	// ErrMissingPATID indicates missing pat ID.
+	ErrMissingPATID = errors.New("missing pat id")
 )

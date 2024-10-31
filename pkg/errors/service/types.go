@@ -81,4 +81,7 @@ var (
 
 	// ErrDisableUser indicates error in disabling user.
 	ErrDisableUser = errors.New("failed to disable user")
+
+	// ErrUnauthorizedPAT indicates failure occurred while authorizing PAT.
+	ErrUnauthorizedPAT = errors.New("failed to authorize PAT")
 )

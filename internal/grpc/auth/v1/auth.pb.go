@@ -300,12 +300,13 @@ type AuthZpatReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	PaToken                  string   `protobuf:"bytes,1,opt,name=paToken,proto3" json:"paToken,omitempty"`                                                                       // PaToken
-	PlatformEntityType       string   `protobuf:"bytes,2,opt,name=platform_entity_type,json=platformEntityType,proto3" json:"platform_entity_type,omitempty"`                     // Platform entity type
-	OptionalDomainID         string   `protobuf:"bytes,3,opt,name=optional_domainID,json=optionalDomainID,proto3" json:"optional_domainID,omitempty"`                             // Optional domain id
-	OptionalDomainEntityType string   `protobuf:"bytes,4,opt,name=optional_domain_entity_type,json=optionalDomainEntityType,proto3" json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
-	Operation                string   `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                                                                   // Operation
-	EntityIDs                []string `protobuf:"bytes,6,rep,name=entityIDs,proto3" json:"entityIDs,omitempty"`                                                                   // EntityIDs
+	UserID                   string   `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`                                                                         // User id
+	PatID                    string   `protobuf:"bytes,2,opt,name=patID,proto3" json:"patID,omitempty"`                                                                           // Pat id
+	PlatformEntityType       string   `protobuf:"bytes,3,opt,name=platform_entity_type,json=platformEntityType,proto3" json:"platform_entity_type,omitempty"`                     // Platform entity type
+	OptionalDomainID         string   `protobuf:"bytes,4,opt,name=optional_domainID,json=optionalDomainID,proto3" json:"optional_domainID,omitempty"`                             // Optional domain id
+	OptionalDomainEntityType string   `protobuf:"bytes,5,opt,name=optional_domain_entity_type,json=optionalDomainEntityType,proto3" json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
+	Operation                string   `protobuf:"bytes,6,opt,name=operation,proto3" json:"operation,omitempty"`                                                                   // Operation
+	EntityIDs                []string `protobuf:"bytes,7,rep,name=entityIDs,proto3" json:"entityIDs,omitempty"`                                                                   // EntityIDs
 }
 
 func (x *AuthZpatReq) Reset() {
@@ -340,9 +341,16 @@ func (*AuthZpatReq) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *AuthZpatReq) GetPaToken() string {
+func (x *AuthZpatReq) GetUserID() string {
 	if x != nil {
-		return x.PaToken
+		return x.UserID
+	}
+	return ""
+}
+
+func (x *AuthZpatReq) GetPatID() string {
+	if x != nil {
+		return x.PatID
 	}
 	return ""
 }
