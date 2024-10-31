@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/absmach/supermq/auth"
-	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/policies"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
