@@ -141,3 +141,4 @@ func (ms *metricsMiddleware) CheckPAT(ctx context.Context, userID, patID string,
 	return ms.svc.CheckPAT(ctx, userID, patID, platformEntityType, optionalDomainID, optionalDomainEntityType, operation, entityIDs...)
 }
 
+
