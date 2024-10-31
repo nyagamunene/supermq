@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/absmach/supermq"
-	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/policies"
