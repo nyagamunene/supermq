@@ -386,7 +386,7 @@ func (x *AuthZRes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthZRes.ProtoReflect.Descriptor instead.
 func (*AuthZRes) Descriptor() ([]byte, []int) {
-	return file_auth_v1_auth_proto_rawDescGZIP(), []int{4}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AuthZRes) GetAuthorized() bool {
@@ -488,7 +488,7 @@ func file_auth_v1_auth_proto_rawDescGZIP() []byte {
 	return file_auth_v1_auth_proto_rawDescData
 }
 
-var file_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_auth_v1_auth_proto_goTypes = []any{
 	(*AuthNReq)(nil),    // 0: auth.v1.AuthNReq
 	(*AuthNRes)(nil),    // 1: auth.v1.AuthNRes
@@ -555,18 +555,6 @@ func file_auth_v1_auth_proto_init() {
 			}
 		}
 		file_auth_v1_auth_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthZpatReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_auth_v1_auth_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*AuthZRes); i {
 			case 0:
 				return &v.state
@@ -585,7 +573,7 @@ func file_auth_v1_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_auth_v1_auth_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
