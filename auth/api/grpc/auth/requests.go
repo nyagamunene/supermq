@@ -4,6 +4,7 @@
 package auth
 
 import (
+	"github.com/absmach/magistrala/auth"
 	"github.com/absmach/magistrala/pkg/apiutil"
 )
 
@@ -53,10 +54,10 @@ func (req authReq) validate() error {
 type authPATReq struct {
 	userID                   string
 	patID                    string
-	platformEntityType       string
+	platformEntityType       auth.PlatformEntityType
 	optionalDomainID         string
-	optionalDomainEntityType string
-	operation                string
+	optionalDomainEntityType auth.DomainEntityType
+	operation                auth.OperationType
 	entityIDs                []string
 }
 

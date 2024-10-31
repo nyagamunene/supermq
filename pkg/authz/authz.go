@@ -3,7 +3,11 @@
 
 package authz
 
-import "context"
+import (
+	"context"
+
+	"github.com/absmach/magistrala/auth"
+)
 
 type PolicyReq struct {
 	// Domain contains the domain ID.
@@ -43,13 +47,13 @@ type PolicyReq struct {
 }
 
 type PatReq struct {
-	UserID                   string   `json:"user_id,omitempty"`                     // UserID
-	PatID                    string   `json:"pat_id,omitempty"`                      // UserID
-	PlatformEntityType       string   `json:"platform_entity_type,omitempty"`        // Platform entity type
-	OptionalDomainID         string   `json:"optional_domainID,omitempty"`           // Optional domain id
-	OptionalDomainEntityType string   `json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
-	Operation                string   `json:"operation,omitempty"`                   // Operation
-	EntityIDs                []string `json:"entityIDs,omitempty"`                   // EntityIDs
+	UserID                   string                  `json:"user_id,omitempty"`                     // UserID
+	PatID                    string                  `json:"pat_id,omitempty"`                      // UserID
+	PlatformEntityType       auth.PlatformEntityType `json:"platform_entity_type,omitempty"`        // Platform entity type
+	OptionalDomainID         string                  `json:"optional_domainID,omitempty"`           // Optional domain id
+	OptionalDomainEntityType auth.DomainEntityType   `json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
+	Operation                auth.OperationType      `json:"operation,omitempty"`                   // Operation
+	EntityIDs                []string                `json:"entityIDs,omitempty"`                   // EntityIDs
 }
 
 // Authz is magistrala authorization library.

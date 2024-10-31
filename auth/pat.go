@@ -727,7 +727,7 @@ type PATS interface {
 	UpdatePATDescription(ctx context.Context, token, patID, description string) (PAT, error)
 
 	// Retrieve function retrieves the PAT for given ID.
-	RetrievePAT(ctx context.Context, token, patID string) (PAT, error)
+	RetrievePAT(ctx context.Context, userID string, patID string) (PAT, error)
 
 	// List function lists all the PATs for the user.
 	ListPATS(ctx context.Context, token string, pm PATSPageMeta) (PATSPage, error)
@@ -754,7 +754,7 @@ type PATS interface {
 	IdentifyPAT(ctx context.Context, paToken string) (PAT, error)
 
 	// AuthorizePAT function will valid the secret and check the given scope exists.
-	AuthorizePAT(ctx context.Context, paToken string, platformEntityType PlatformEntityType, optionalDomainID string, optionalDomainEntityType DomainEntityType, operation OperationType, entityIDs ...string) error
+	AuthorizePAT(ctx context.Context, userID, patID string, platformEntityType PlatformEntityType, optionalDomainID string, optionalDomainEntityType DomainEntityType, operation OperationType, entityIDs ...string) error
 
 	// CheckPAT function will check the given scope exists.
 	CheckPAT(ctx context.Context, userID, patID string, platformEntityType PlatformEntityType, optionalDomainID string, optionalDomainEntityType DomainEntityType, operation OperationType, entityIDs ...string) error

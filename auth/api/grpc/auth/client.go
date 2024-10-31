@@ -7,6 +7,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/absmach/magistrala/auth"
 	grpcapi "github.com/absmach/magistrala/auth/api/grpc"
 	grpcAuthV1 "github.com/absmach/magistrala/internal/grpc/auth/v1"
 	"github.com/go-kit/kit/endpoint"
@@ -152,10 +153,10 @@ func (client authGrpcClient) AuthorizePAT(ctx context.Context, req *grpcAuthV1.A
 	res, err := client.authorizePAT(ctx, authPATReq{
 		userID:                   req.GetUserID(),
 		patID:                    req.GetPatID(),
-		platformEntityType:       req.GetPlatformEntityType(),
+		platformEntityType:       auth.PlatformEntityType(req.GetPlatformEntityType()),
 		optionalDomainID:         req.GetOptionalDomainID(),
-		optionalDomainEntityType: req.GetOptionalDomainEntityType(),
-		operation:                req.GetOperation(),
+		optionalDomainEntityType: auth.DomainEntityType(req.GetOptionalDomainEntityType()),
+		operation:                auth.OperationType(req.GetOperation()),
 		entityIDs:                req.GetEntityIDs(),
 	})
 	if err != nil {
@@ -171,10 +172,10 @@ func encodeAuthorizePATRequest(_ context.Context, grpcReq interface{}) (interfac
 	return &grpcAuthV1.AuthZpatReq{
 		UserID:                   req.userID,
 		PatID:                    req.patID,
-		PlatformEntityType:       req.platformEntityType,
+		PlatformEntityType:       uint32(req.platformEntityType),
 		OptionalDomainID:         req.optionalDomainID,
-		OptionalDomainEntityType: req.optionalDomainEntityType,
-		Operation:                req.operation,
+		OptionalDomainEntityType: uint32(req.optionalDomainEntityType),
+		Operation:                uint32(req.operation),
 		EntityIDs:                req.entityIDs,
 	}, nil
 }

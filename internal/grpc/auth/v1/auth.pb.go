@@ -300,13 +300,13 @@ type AuthZpatReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserID                   string   `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`                                                                         // User id
-	PatID                    string   `protobuf:"bytes,2,opt,name=patID,proto3" json:"patID,omitempty"`                                                                           // Pat id
-	PlatformEntityType       string   `protobuf:"bytes,3,opt,name=platform_entity_type,json=platformEntityType,proto3" json:"platform_entity_type,omitempty"`                     // Platform entity type
-	OptionalDomainID         string   `protobuf:"bytes,4,opt,name=optional_domainID,json=optionalDomainID,proto3" json:"optional_domainID,omitempty"`                             // Optional domain id
-	OptionalDomainEntityType string   `protobuf:"bytes,5,opt,name=optional_domain_entity_type,json=optionalDomainEntityType,proto3" json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
-	Operation                string   `protobuf:"bytes,6,opt,name=operation,proto3" json:"operation,omitempty"`                                                                   // Operation
-	EntityIDs                []string `protobuf:"bytes,7,rep,name=entityIDs,proto3" json:"entityIDs,omitempty"`                                                                   // EntityIDs
+	UserID                   string   `protobuf:"bytes,1,opt,name=userID,proto3" json:"userID,omitempty"`                                                                          // User id
+	PatID                    string   `protobuf:"bytes,2,opt,name=patID,proto3" json:"patID,omitempty"`                                                                            // Pat id
+	PlatformEntityType       uint32   `protobuf:"varint,3,opt,name=platform_entity_type,json=platformEntityType,proto3" json:"platform_entity_type,omitempty"`                     // Platform entity type
+	OptionalDomainID         string   `protobuf:"bytes,4,opt,name=optional_domainID,json=optionalDomainID,proto3" json:"optional_domainID,omitempty"`                              // Optional domain id
+	OptionalDomainEntityType uint32   `protobuf:"varint,5,opt,name=optional_domain_entity_type,json=optionalDomainEntityType,proto3" json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
+	Operation                uint32   `protobuf:"varint,6,opt,name=operation,proto3" json:"operation,omitempty"`                                                                   // Operation
+	EntityIDs                []string `protobuf:"bytes,7,rep,name=entityIDs,proto3" json:"entityIDs,omitempty"`                                                                    // EntityIDs
 }
 
 func (x *AuthZpatReq) Reset() {
@@ -355,11 +355,11 @@ func (x *AuthZpatReq) GetPatID() string {
 	return ""
 }
 
-func (x *AuthZpatReq) GetPlatformEntityType() string {
+func (x *AuthZpatReq) GetPlatformEntityType() uint32 {
 	if x != nil {
 		return x.PlatformEntityType
 	}
-	return ""
+	return 0
 }
 
 func (x *AuthZpatReq) GetOptionalDomainID() string {
@@ -369,18 +369,18 @@ func (x *AuthZpatReq) GetOptionalDomainID() string {
 	return ""
 }
 
-func (x *AuthZpatReq) GetOptionalDomainEntityType() string {
+func (x *AuthZpatReq) GetOptionalDomainEntityType() uint32 {
 	if x != nil {
 		return x.OptionalDomainEntityType
 	}
-	return ""
+	return 0
 }
 
-func (x *AuthZpatReq) GetOperation() string {
+func (x *AuthZpatReq) GetOperation() uint32 {
 	if x != nil {
 		return x.Operation
 	}
-	return ""
+	return 0
 }
 
 func (x *AuthZpatReq) GetEntityIDs() []string {
@@ -576,6 +576,18 @@ func file_auth_v1_auth_proto_init() {
 			}
 		}
 		file_auth_v1_auth_proto_msgTypes[3].Exporter = func(v any, i int) any {
+			switch v := v.(*AuthZpatReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_auth_v1_auth_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*AuthZRes); i {
 			case 0:
 				return &v.state
