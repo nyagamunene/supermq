@@ -83,3 +83,4 @@ func (am *authorizationMiddleware) CheckPAT(ctx context.Context, userID, patID s
 	return am.svc.CheckPAT(ctx, userID, patID, platformEntityType, optionalDomainID, optionalDomainEntityType, operation, entityIDs...)
 }
 
+
