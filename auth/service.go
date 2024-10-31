@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/absmach/supermq"
-	"github.com/absmach/supermq/pat"
+	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/policies"
@@ -168,7 +168,7 @@ func (svc service) RetrieveKey(ctx context.Context, token, id string) (Key, erro
 }
 
 func (svc service) Identify(ctx context.Context, token string) (Key, error) {
-	if strings.HasPrefix(token, "pat"+"_") {
+	if strings.HasPrefix(token, patPrefix+patSecretSeparator) {
 		pat, err := svc.IdentifyPAT(ctx, token)
 		if err != nil {
 			return Key{}, err
