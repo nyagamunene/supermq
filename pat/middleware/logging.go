@@ -274,3 +274,4 @@ func (lm *loggingMiddleware) CheckPAT(ctx context.Context, userID, patID string,
 	return lm.svc.CheckPAT(ctx, userID, patID, platformEntityType, optionalDomainID, optionalDomainEntityType, operation, entityIDs...)
 }
 
+
