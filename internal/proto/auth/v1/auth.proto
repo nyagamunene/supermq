@@ -53,15 +53,6 @@ message AuthZPatReq {
   repeated string entity_ids = 7;          // EntityIDs
 }
 
-message AuthZpatReq {
-  string paToken = 1;                     // PaToken
-  string platform_entity_type = 2;        // Platform entity type
-  string optional_domainID = 3;           // Optional domain id
-  string optional_domain_entity_type = 4; // Optional domain entity type 
-  string operation = 5;                   // Operation
-  repeated string entityIDs = 6;          // EntityIDs
-}
-
 message AuthZRes {
   bool authorized = 1;
   string id = 2;
