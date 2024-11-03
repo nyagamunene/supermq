@@ -19,8 +19,6 @@ import (
 	"github.com/absmach/magistrala/things"
 )
 
-var anyEntity = []string{"*"}
-
 var (
 	errView                   = errors.New("not authorized to view thing")
 	errUpdate                 = errors.New("not authorized to update thing")
@@ -86,7 +84,7 @@ func (am *authorizationMiddleware) CreateThings(ctx context.Context, session aut
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.CreateOp,
-			EntityIDs:                anyEntity,
+			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
 			return []clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
@@ -145,7 +143,7 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.ListOp,
-			EntityIDs:                anyEntity,
+			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
 			return clients.ClientsPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
