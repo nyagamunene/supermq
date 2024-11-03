@@ -16,9 +16,7 @@ import (
 	"github.com/absmach/supermq/users"
 )
 
-var (
-	anyEntity = []string{"*"}
-)
+var anyEntity = []string{"*"}
 
 var _ users.Service = (*authorizationMiddleware)(nil)
 
