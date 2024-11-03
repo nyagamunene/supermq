@@ -17,6 +17,10 @@ import (
 	"github.com/absmach/magistrala/users"
 )
 
+var (
+	anyEntity = []string{"*"}
+)
+
 var _ users.Service = (*authorizationMiddleware)(nil)
 
 type authorizationMiddleware struct {
@@ -52,6 +56,7 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ReadOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -72,6 +77,7 @@ func (am *authorizationMiddleware) ViewProfile(ctx context.Context, session auth
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ReadOp,
+			EntityIDs:                []string{session.UserID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -87,6 +93,7 @@ func (am *authorizationMiddleware) ListUsers(ctx context.Context, session authn.
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ListOp,
+			EntityIDs:                anyEntity,
 		}); err != nil {
 			return users.UsersPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -106,6 +113,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ListOp,
+			EntityIDs:                anyEntity,
 		}); err != nil {
 			return users.MembersPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -150,6 +158,7 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{user.ID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -170,6 +179,7 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{user.ID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -186,6 +196,7 @@ func (am *authorizationMiddleware) UpdateEmail(ctx context.Context, session auth
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -209,6 +220,7 @@ func (am *authorizationMiddleware) UpdateUsername(ctx context.Context, session a
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -229,6 +241,7 @@ func (am *authorizationMiddleware) UpdateProfilePicture(ctx context.Context, ses
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{user.ID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -249,6 +262,7 @@ func (am *authorizationMiddleware) UpdateSecret(ctx context.Context, session aut
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{session.UserID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -276,6 +290,7 @@ func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{user.ID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -300,6 +315,7 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -320,6 +336,7 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -340,6 +357,7 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.DeleteOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
