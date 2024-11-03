@@ -6,6 +6,7 @@ package middleware
 import (
 	"context"
 
+	"github.com/absmach/magistrala/auth"
 	mgauth "github.com/absmach/magistrala/auth"
 	grpcTokenV1 "github.com/absmach/magistrala/internal/grpc/token/v1"
 	"github.com/absmach/magistrala/pkg/authn"
@@ -16,8 +17,6 @@ import (
 	"github.com/absmach/magistrala/pkg/policies"
 	"github.com/absmach/magistrala/users"
 )
-
-var anyEntity = []string{"*"}
 
 var _ users.Service = (*authorizationMiddleware)(nil)
 
@@ -91,7 +90,7 @@ func (am *authorizationMiddleware) ListUsers(ctx context.Context, session authn.
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ListOp,
-			EntityIDs:                anyEntity,
+			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
 			return users.UsersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
@@ -111,7 +110,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ListOp,
-			EntityIDs:                anyEntity,
+			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
 			return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
