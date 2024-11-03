@@ -59,7 +59,7 @@ func (am *authorizationMiddleware) ViewClient(ctx context.Context, session authn
 			Operation:                mgauth.ReadOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -80,7 +80,7 @@ func (am *authorizationMiddleware) ViewProfile(ctx context.Context, session auth
 			Operation:                mgauth.ReadOp,
 			EntityIDs:                []string{session.UserID},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 	return am.svc.ViewProfile(ctx, session)
@@ -96,7 +96,7 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 			Operation:                mgauth.ListOp,
 			EntityIDs:                anyEntity,
 		}); err != nil {
-			return clients.ClientsPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.ClientsPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
@@ -116,7 +116,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 			Operation:                mgauth.ListOp,
 			EntityIDs:                anyEntity,
 		}); err != nil {
-			return clients.MembersPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -161,7 +161,7 @@ func (am *authorizationMiddleware) UpdateClient(ctx context.Context, session aut
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{client.ID},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -178,7 +178,7 @@ func (am *authorizationMiddleware) UpdateClientTags(ctx context.Context, session
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{client.ID},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
@@ -202,7 +202,7 @@ func (am *authorizationMiddleware) UpdateClientIdentity(ctx context.Context, ses
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -223,7 +223,7 @@ func (am *authorizationMiddleware) UpdateClientSecret(ctx context.Context, sessi
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{session.UserID},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -251,7 +251,7 @@ func (am *authorizationMiddleware) UpdateClientRole(ctx context.Context, session
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{client.ID},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 	session.SuperAdmin = true
@@ -275,7 +275,7 @@ func (am *authorizationMiddleware) EnableClient(ctx context.Context, session aut
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -296,7 +296,7 @@ func (am *authorizationMiddleware) DisableClient(ctx context.Context, session au
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -317,7 +317,7 @@ func (am *authorizationMiddleware) DeleteClient(ctx context.Context, session aut
 			Operation:                mgauth.DeleteOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
