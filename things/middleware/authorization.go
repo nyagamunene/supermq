@@ -20,6 +20,10 @@ import (
 )
 
 var (
+	anyEntity = []string{"*"}
+)
+
+var (
 	errView                   = errors.New("not authorized to view thing")
 	errUpdate                 = errors.New("not authorized to update thing")
 	errUpdateTags             = errors.New("not authorized to update thing tags")
@@ -84,6 +88,7 @@ func (am *authorizationMiddleware) CreateThings(ctx context.Context, session aut
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.CreateOp,
+			EntityIDs:                anyEntity,
 		}); err != nil {
 			return []clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -110,7 +115,8 @@ func (am *authorizationMiddleware) ViewClient(ctx context.Context, session authn
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
-			Operation:                auth.ListOp,
+			Operation:                auth.ReadOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -141,6 +147,7 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.ListOp,
+			EntityIDs:                anyEntity,
 		}); err != nil {
 			return clients.ClientsPage{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -158,6 +165,7 @@ func (am *authorizationMiddleware) UpdateClient(ctx context.Context, session aut
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.UpdateOp,
+			EntityIDs:                []string{client.ID},
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -185,6 +193,7 @@ func (am *authorizationMiddleware) UpdateClientTags(ctx context.Context, session
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.UpdateOp,
+			EntityIDs:                []string{client.ID},
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -212,6 +221,7 @@ func (am *authorizationMiddleware) UpdateClientSecret(ctx context.Context, sessi
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -238,6 +248,7 @@ func (am *authorizationMiddleware) EnableClient(ctx context.Context, session aut
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -265,6 +276,7 @@ func (am *authorizationMiddleware) DisableClient(ctx context.Context, session au
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return clients.Client{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -291,6 +303,7 @@ func (am *authorizationMiddleware) DeleteClient(ctx context.Context, session aut
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainThingsScope,
 			Operation:                auth.DeleteOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -316,7 +329,8 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
-			Operation:                auth.CreateOp,
+			Operation:                auth.UpdateOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
@@ -353,6 +367,7 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
 			Operation:                auth.DeleteOp,
+			EntityIDs:                []string{id},
 		}); err != nil {
 			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
 		}
