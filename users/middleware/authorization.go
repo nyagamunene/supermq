@@ -18,9 +18,7 @@ import (
 	"github.com/absmach/magistrala/users"
 )
 
-var (
-	anyEntity = []string{"*"}
-)
+var anyEntity = []string{"*"}
 
 var _ users.Service = (*authorizationMiddleware)(nil)
 

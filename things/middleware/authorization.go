@@ -19,9 +19,7 @@ import (
 	"github.com/absmach/magistrala/things"
 )
 
-var (
-	anyEntity = []string{"*"}
-)
+var anyEntity = []string{"*"}
 
 var (
 	errView                   = errors.New("not authorized to view thing")
