@@ -202,7 +202,7 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{user.ID},
 		}); err != nil {
-			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -236,7 +236,7 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{user.ID},
 		}); err != nil {
-			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -290,7 +290,7 @@ func (am *authorizationMiddleware) UpdateUsername(ctx context.Context, session a
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -373,7 +373,7 @@ func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{user.ID},
 		}); err != nil {
-			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 	session.SuperAdmin = true
@@ -411,7 +411,7 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -445,7 +445,7 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 			Operation:                mgauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return users.User{}, errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -479,7 +479,7 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 			Operation:                mgauth.DeleteOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
-			return errors.Wrap(err, svcerr.ErrUnauthorizedPAT)
+			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
