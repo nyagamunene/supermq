@@ -16,8 +16,6 @@ import (
 	"github.com/absmach/supermq/users"
 )
 
-var anyEntity = []string{"*"}
-
 var _ users.Service = (*authorizationMiddleware)(nil)
 
 type authorizationMiddleware struct {
@@ -90,7 +88,7 @@ func (am *authorizationMiddleware) ListUsers(ctx context.Context, session authn.
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ListOp,
-			EntityIDs:                anyEntity,
+			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
 			return users.UsersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
@@ -110,7 +108,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ListOp,
-			EntityIDs:                anyEntity,
+			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
 			return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
