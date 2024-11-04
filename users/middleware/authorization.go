@@ -102,15 +102,45 @@ func (am *authorizationMiddleware) ListUsers(ctx context.Context, session authn.
 
 func (am *authorizationMiddleware) ListMembers(ctx context.Context, session authn.Session, objectKind, objectID string, pm users.Page) (users.MembersPage, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
-			UserID:                   session.UserID,
-			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.ListOp,
-			EntityIDs:                auth.AnyIDs{}.Values(),
-		}); err != nil {
-			return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+		switch objectKind {
+		case policies.GroupsKind:
+			if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+				UserID:                   session.UserID,
+				PatID:                    session.ID,
+				OptionalDomainID:         session.DomainID,
+				PlatformEntityType:       mgauth.PlatformUsersScope,
+				OptionalDomainEntityType: mgauth.DomainGroupsScope,
+				Operation:                mgauth.ListOp,
+				EntityIDs:                auth.AnyIDs{}.Values(),
+			}); err != nil {
+				return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			}
+		case policies.DomainsKind:
+			if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+				UserID:                   session.UserID,
+				PatID:                    session.ID,
+				OptionalDomainID:         session.DomainID,
+				PlatformEntityType:       mgauth.PlatformUsersScope,
+				OptionalDomainEntityType: mgauth.DomainManagementScope,
+				Operation:                mgauth.ListOp,
+				EntityIDs:                auth.AnyIDs{}.Values(),
+			}); err != nil {
+				return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			}
+		case policies.ClientsKind:
+			if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+				UserID:                   session.UserID,
+				PatID:                    session.ID,
+				OptionalDomainID:         session.DomainID,
+				PlatformEntityType:       mgauth.PlatformUsersScope,
+				OptionalDomainEntityType: mgauth.DomainThingsScope,
+				Operation:                mgauth.ListOp,
+				EntityIDs:                auth.AnyIDs{}.Values(),
+			}); err != nil {
+				return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			}
+		default:
+			return users.MembersPage{}, svcerr.ErrAuthorization
 		}
 	}
 
