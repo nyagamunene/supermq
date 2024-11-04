@@ -6,7 +6,6 @@ package middleware
 import (
 	"context"
 
-	"github.com/absmach/magistrala/auth"
 	mgauth "github.com/absmach/magistrala/auth"
 	grpcTokenV1 "github.com/absmach/magistrala/internal/grpc/token/v1"
 	"github.com/absmach/magistrala/pkg/authn"
