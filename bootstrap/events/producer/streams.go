@@ -34,7 +34,9 @@ func (es *eventStore) Add(ctx context.Context, session mgauthn.Session, token st
 	}
 
 	ev := configEvent{
-		saved, configCreate,
+		Config:    saved,
+		operation: configCreate,
+		domainID:  session.DomainID,
 	}
 
 	if err := es.Publish(ctx, ev); err != nil {
@@ -50,7 +52,9 @@ func (es *eventStore) View(ctx context.Context, session mgauthn.Session, id stri
 		return cfg, err
 	}
 	ev := configEvent{
-		cfg, configView,
+		Config:    cfg,
+		operation: configView,
+		domainID:  session.DomainID,
 	}
 
 	if err := es.Publish(ctx, ev); err != nil {
@@ -66,7 +70,9 @@ func (es *eventStore) Update(ctx context.Context, session mgauthn.Session, cfg b
 	}
 
 	ev := configEvent{
-		cfg, configUpdate,
+		Config:    cfg,
+		operation: configUpdate,
+		domainID:  session.DomainID,
 	}
 
 	return es.Publish(ctx, ev)
@@ -83,6 +89,7 @@ func (es eventStore) UpdateCert(ctx context.Context, session mgauthn.Session, th
 		clientCert: clientCert,
 		clientKey:  clientKey,
 		caCert:     caCert,
+		domainID:   session.DomainID,
 	}
 
 	if err := es.Publish(ctx, ev); err != nil {
@@ -98,6 +105,7 @@ func (es *eventStore) UpdateConnections(ctx context.Context, session mgauthn.Ses
 	}
 
 	ev := updateConnectionsEvent{
+		domainID:   session.DomainID,
 		mgThing:    id,
 		mgChannels: connections,
 	}
@@ -114,6 +122,7 @@ func (es *eventStore) List(ctx context.Context, session mgauthn.Session, filter 
 	ev := listConfigsEvent{
 		offset:       offset,
 		limit:        limit,
+		domainID:     session.DomainID,
 		fullMatch:    filter.FullMatch,
 		partialMatch: filter.PartialMatch,
 	}
@@ -131,7 +140,8 @@ func (es *eventStore) Remove(ctx context.Context, session mgauthn.Session, id st
 	}
 
 	ev := removeConfigEvent{
-		mgThing: id,
+		mgThing:  id,
+		domainID: session.DomainID,
 	}
 
 	return es.Publish(ctx, ev)
@@ -163,8 +173,9 @@ func (es *eventStore) ChangeState(ctx context.Context, session mgauthn.Session, 
 	}
 
 	ev := changeStateEvent{
-		mgThing: id,
-		state:   state,
+		mgThing:  id,
+		domainID: session.DomainID,
+		state:    state,
 	}
 
 	return es.Publish(ctx, ev)

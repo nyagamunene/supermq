@@ -45,21 +45,20 @@ var (
 type configEvent struct {
 	bootstrap.Config
 	operation string
+	domainID  string
 }
 
 func (ce configEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
 		"state":     ce.State.String(),
 		"operation": ce.operation,
+		"domain":    ce.domainID,
 	}
 	if ce.ThingID != "" {
 		val["thing_id"] = ce.ThingID
 	}
 	if ce.Content != "" {
 		val["content"] = ce.Content
-	}
-	if ce.DomainID != "" {
-		val["domain_id "] = ce.DomainID
 	}
 	if ce.Name != "" {
 		val["name"] = ce.Name
@@ -91,12 +90,14 @@ func (ce configEvent) Encode() (map[string]interface{}, error) {
 }
 
 type removeConfigEvent struct {
-	mgThing string
+	mgThing  string
+	domainID string
 }
 
 func (rce removeConfigEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"thing_id":  rce.mgThing,
+		"domain":    rce.domainID,
 		"operation": configRemove,
 	}, nil
 }
@@ -104,6 +105,7 @@ func (rce removeConfigEvent) Encode() (map[string]interface{}, error) {
 type listConfigsEvent struct {
 	offset       uint64
 	limit        uint64
+	domainID     string
 	fullMatch    map[string]string
 	partialMatch map[string]string
 }
@@ -112,6 +114,7 @@ func (rce listConfigsEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
 		"offset":    rce.offset,
 		"limit":     rce.limit,
+		"domain":    rce.domainID,
 		"operation": configList,
 	}
 	if len(rce.fullMatch) > 0 {
@@ -175,25 +178,29 @@ func (be bootstrapEvent) Encode() (map[string]interface{}, error) {
 }
 
 type changeStateEvent struct {
-	mgThing string
-	state   bootstrap.State
+	mgThing  string
+	domainID string
+	state    bootstrap.State
 }
 
 func (cse changeStateEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"thing_id":  cse.mgThing,
 		"state":     cse.state.String(),
+		"domain":    cse.domainID,
 		"operation": thingStateChange,
 	}, nil
 }
 
 type updateConnectionsEvent struct {
+	domainID   string
 	mgThing    string
 	mgChannels []string
 }
 
 func (uce updateConnectionsEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
+		"domain":    uce.domainID,
 		"thing_id":  uce.mgThing,
 		"channels":  uce.mgChannels,
 		"operation": thingUpdateConnections,
@@ -201,7 +208,7 @@ func (uce updateConnectionsEvent) Encode() (map[string]interface{}, error) {
 }
 
 type updateCertEvent struct {
-	thingKey, clientCert, clientKey, caCert string
+	thingKey, clientCert, clientKey, caCert, domainID string
 }
 
 func (uce updateCertEvent) Encode() (map[string]interface{}, error) {
@@ -210,6 +217,7 @@ func (uce updateCertEvent) Encode() (map[string]interface{}, error) {
 		"client_cert": uce.clientCert,
 		"client_key":  uce.clientKey,
 		"ca_cert":     uce.caCert,
+		"domain":      uce.domainID,
 		"operation":   certUpdate,
 	}, nil
 }
