@@ -307,11 +307,9 @@ type AuthZpatReq struct {
 
 func (x *AuthZpatReq) Reset() {
 	*x = AuthZpatReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_auth_v1_auth_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_auth_v1_auth_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *AuthZpatReq) String() string {
@@ -322,7 +320,7 @@ func (*AuthZpatReq) ProtoMessage() {}
 
 func (x *AuthZpatReq) ProtoReflect() protoreflect.Message {
 	mi := &file_auth_v1_auth_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
