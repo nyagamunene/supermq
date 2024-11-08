@@ -24,15 +24,13 @@ func sendInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return nil, errors.Wrap(apiutil.ErrValidation, err)
 		}
-
 		session, ok := ctx.Value(api.SessionKey).(authn.Session)
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
 		invitation := invitations.Invitation{
 			UserID:   req.UserID,
-			DomainID: session.DomainID,
+			DomainID: req.DomainID,
 			Relation: req.Relation,
 			Resend:   req.Resend,
 		}
@@ -57,7 +55,6 @@ func viewInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-		req.domainID = session.DomainID
 
 		invitation, err := svc.ViewInvitation(ctx, session, req.userID, req.domainID)
 		if err != nil {
@@ -82,7 +79,6 @@ func listInvitationsEndpoint(svc invitations.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthorization
 		}
 
-		req.Page.DomainID = session.DomainID
 		page, err := svc.ListInvitations(ctx, session, req.Page)
 		if err != nil {
 			return nil, err
@@ -105,8 +101,8 @@ func acceptInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-		req.domainID = session.DomainID
-		if err := svc.AcceptInvitation(ctx, session, req.domainID); err != nil {
+
+		if err := svc.AcceptInvitation(ctx, session, req.DomainID); err != nil {
 			return nil, err
 		}
 
@@ -125,8 +121,8 @@ func rejectInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-		req.domainID = session.DomainID
-		if err := svc.RejectInvitation(ctx, session, req.domainID); err != nil {
+
+		if err := svc.RejectInvitation(ctx, session, req.DomainID); err != nil {
 			return nil, err
 		}
 
@@ -145,7 +141,7 @@ func deleteInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-		req.domainID = session.DomainID
+
 		if err := svc.DeleteInvitation(ctx, session, req.userID, req.domainID); err != nil {
 			return nil, err
 		}
