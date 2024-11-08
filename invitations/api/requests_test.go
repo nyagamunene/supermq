@@ -95,13 +95,6 @@ func TestListInvitationsReq(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc: "empty token",
-			req: listInvitationsReq{
-				Page: invitations.Page{Limit: 1},
-			},
-			err: apiutil.ErrBearerToken,
-		},
-		{
 			desc: "invalid limit",
 			req: listInvitationsReq{
 				Page: invitations.Page{Limit: 1000},
