@@ -28,6 +28,7 @@ func sendInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
+		session.DomainID = req.DomainID
 		invitation := invitations.Invitation{
 			UserID:   req.UserID,
 			DomainID: req.DomainID,
@@ -55,7 +56,7 @@ func viewInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
-
+		session.DomainID = req.domainID
 		invitation, err := svc.ViewInvitation(ctx, session, req.userID, req.domainID)
 		if err != nil {
 			return nil, err
@@ -78,6 +79,7 @@ func listInvitationsEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
+		session.DomainID = req.DomainID
 
 		page, err := svc.ListInvitations(ctx, session, req.Page)
 		if err != nil {
@@ -141,6 +143,7 @@ func deleteInvitationEndpoint(svc invitations.Service) endpoint.Endpoint {
 		if !ok {
 			return nil, svcerr.ErrAuthorization
 		}
+		session.DomainID = req.domainID
 
 		if err := svc.DeleteInvitation(ctx, session, req.userID, req.domainID); err != nil {
 			return nil, err
