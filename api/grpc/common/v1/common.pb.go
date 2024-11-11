@@ -32,11 +32,9 @@ type RetrieveEntitiesReq struct {
 
 func (x *RetrieveEntitiesReq) Reset() {
 	*x = RetrieveEntitiesReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *RetrieveEntitiesReq) String() string {
@@ -47,7 +45,7 @@ func (*RetrieveEntitiesReq) ProtoMessage() {}
 
 func (x *RetrieveEntitiesReq) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -81,11 +79,9 @@ type RetrieveEntitiesRes struct {
 
 func (x *RetrieveEntitiesRes) Reset() {
 	*x = RetrieveEntitiesRes{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *RetrieveEntitiesRes) String() string {
@@ -96,7 +92,7 @@ func (*RetrieveEntitiesRes) ProtoMessage() {}
 
 func (x *RetrieveEntitiesRes) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -148,11 +144,9 @@ type RetrieveEntityReq struct {
 
 func (x *RetrieveEntityReq) Reset() {
 	*x = RetrieveEntityReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *RetrieveEntityReq) String() string {
@@ -163,7 +157,7 @@ func (*RetrieveEntityReq) ProtoMessage() {}
 
 func (x *RetrieveEntityReq) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -194,11 +188,9 @@ type RetrieveEntityRes struct {
 
 func (x *RetrieveEntityRes) Reset() {
 	*x = RetrieveEntityRes{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *RetrieveEntityRes) String() string {
@@ -209,7 +201,7 @@ func (*RetrieveEntityRes) ProtoMessage() {}
 
 func (x *RetrieveEntityRes) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -243,11 +235,9 @@ type EntityBasic struct {
 
 func (x *EntityBasic) Reset() {
 	*x = EntityBasic{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *EntityBasic) String() string {
@@ -258,7 +248,7 @@ func (*EntityBasic) ProtoMessage() {}
 
 func (x *EntityBasic) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -310,11 +300,9 @@ type AddConnectionsReq struct {
 
 func (x *AddConnectionsReq) Reset() {
 	*x = AddConnectionsReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *AddConnectionsReq) String() string {
@@ -325,7 +313,7 @@ func (*AddConnectionsReq) ProtoMessage() {}
 
 func (x *AddConnectionsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -356,11 +344,9 @@ type AddConnectionsRes struct {
 
 func (x *AddConnectionsRes) Reset() {
 	*x = AddConnectionsRes{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *AddConnectionsRes) String() string {
@@ -371,7 +357,7 @@ func (*AddConnectionsRes) ProtoMessage() {}
 
 func (x *AddConnectionsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -402,11 +388,9 @@ type RemoveConnectionsReq struct {
 
 func (x *RemoveConnectionsReq) Reset() {
 	*x = RemoveConnectionsReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *RemoveConnectionsReq) String() string {
@@ -417,7 +401,7 @@ func (*RemoveConnectionsReq) ProtoMessage() {}
 
 func (x *RemoveConnectionsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -448,11 +432,9 @@ type RemoveConnectionsRes struct {
 
 func (x *RemoveConnectionsRes) Reset() {
 	*x = RemoveConnectionsRes{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[8]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *RemoveConnectionsRes) String() string {
@@ -463,7 +445,7 @@ func (*RemoveConnectionsRes) ProtoMessage() {}
 
 func (x *RemoveConnectionsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[8]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -497,11 +479,9 @@ type Connection struct {
 
 func (x *Connection) Reset() {
 	*x = Connection{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_common_v1_common_proto_msgTypes[9]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_common_v1_common_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *Connection) String() string {
@@ -512,7 +492,7 @@ func (*Connection) ProtoMessage() {}
 
 func (x *Connection) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[9]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -656,128 +636,6 @@ func init() { file_common_v1_common_proto_init() }
 func file_common_v1_common_proto_init() {
 	if File_common_v1_common_proto != nil {
 		return
-	}
-	if !protoimpl.UnsafeEnabled {
-		file_common_v1_common_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*RetrieveEntitiesReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*RetrieveEntitiesRes); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*RetrieveEntityReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*RetrieveEntityRes); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*EntityBasic); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*AddConnectionsReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*AddConnectionsRes); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*RemoveConnectionsReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[8].Exporter = func(v any, i int) any {
-			switch v := v.(*RemoveConnectionsRes); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_common_v1_common_proto_msgTypes[9].Exporter = func(v any, i int) any {
-			switch v := v.(*Connection); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

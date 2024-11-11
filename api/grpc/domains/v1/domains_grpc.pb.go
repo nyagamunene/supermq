@@ -19,8 +19,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.62.0 or later.
-const _ = grpc.SupportPackageIsVersion8
+// Requires gRPC-Go v1.64.0 or later.
+const _ = grpc.SupportPackageIsVersion9
 
 const (
 	DomainsService_DeleteUserFromDomains_FullMethodName = "/domains.v1.DomainsService/DeleteUserFromDomains"
@@ -68,7 +68,7 @@ func (c *domainsServiceClient) RetrieveEntity(ctx context.Context, in *v1.Retrie
 
 // DomainsServiceServer is the server API for DomainsService service.
 // All implementations must embed UnimplementedDomainsServiceServer
-// for forward compatibility
+// for forward compatibility.
 //
 // DomainsService is a service that provides access to
 // domains functionalities for SuperMQ services.
@@ -78,9 +78,12 @@ type DomainsServiceServer interface {
 	mustEmbedUnimplementedDomainsServiceServer()
 }
 
-// UnimplementedDomainsServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedDomainsServiceServer struct {
-}
+// UnimplementedDomainsServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedDomainsServiceServer struct{}
 
 func (UnimplementedDomainsServiceServer) DeleteUserFromDomains(context.Context, *DeleteUserReq) (*DeleteUserRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserFromDomains not implemented")
@@ -89,6 +92,7 @@ func (UnimplementedDomainsServiceServer) RetrieveEntity(context.Context, *v1.Ret
 	return nil, status.Errorf(codes.Unimplemented, "method RetrieveEntity not implemented")
 }
 func (UnimplementedDomainsServiceServer) mustEmbedUnimplementedDomainsServiceServer() {}
+func (UnimplementedDomainsServiceServer) testEmbeddedByValue()                        {}
 
 // UnsafeDomainsServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to DomainsServiceServer will
@@ -98,6 +102,13 @@ type UnsafeDomainsServiceServer interface {
 }
 
 func RegisterDomainsServiceServer(s grpc.ServiceRegistrar, srv DomainsServiceServer) {
+	// If the following call pancis, it indicates UnimplementedDomainsServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
 	s.RegisterService(&DomainsService_ServiceDesc, srv)
 }
 
