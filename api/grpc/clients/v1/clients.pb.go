@@ -34,9 +34,11 @@ type AuthnReq struct {
 
 func (x *AuthnReq) Reset() {
 	*x = AuthnReq{}
-	mi := &file_clients_v1_clients_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_clients_v1_clients_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthnReq) String() string {
@@ -47,7 +49,7 @@ func (*AuthnReq) ProtoMessage() {}
 
 func (x *AuthnReq) ProtoReflect() protoreflect.Message {
 	mi := &file_clients_v1_clients_proto_msgTypes[0]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -86,9 +88,11 @@ type AuthnRes struct {
 
 func (x *AuthnRes) Reset() {
 	*x = AuthnRes{}
-	mi := &file_clients_v1_clients_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_clients_v1_clients_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthnRes) String() string {
@@ -99,7 +103,7 @@ func (*AuthnRes) ProtoMessage() {}
 
 func (x *AuthnRes) ProtoReflect() protoreflect.Message {
 	mi := &file_clients_v1_clients_proto_msgTypes[1]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -137,9 +141,11 @@ type RemoveChannelConnectionsReq struct {
 
 func (x *RemoveChannelConnectionsReq) Reset() {
 	*x = RemoveChannelConnectionsReq{}
-	mi := &file_clients_v1_clients_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_clients_v1_clients_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *RemoveChannelConnectionsReq) String() string {
@@ -150,7 +156,7 @@ func (*RemoveChannelConnectionsReq) ProtoMessage() {}
 
 func (x *RemoveChannelConnectionsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_clients_v1_clients_proto_msgTypes[2]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -180,9 +186,11 @@ type RemoveChannelConnectionsRes struct {
 
 func (x *RemoveChannelConnectionsRes) Reset() {
 	*x = RemoveChannelConnectionsRes{}
-	mi := &file_clients_v1_clients_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_clients_v1_clients_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *RemoveChannelConnectionsRes) String() string {
@@ -193,7 +201,7 @@ func (*RemoveChannelConnectionsRes) ProtoMessage() {}
 
 func (x *RemoveChannelConnectionsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_clients_v1_clients_proto_msgTypes[3]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -217,9 +225,11 @@ type UnsetParentGroupFromClientReq struct {
 
 func (x *UnsetParentGroupFromClientReq) Reset() {
 	*x = UnsetParentGroupFromClientReq{}
-	mi := &file_clients_v1_clients_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_clients_v1_clients_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *UnsetParentGroupFromClientReq) String() string {
@@ -230,7 +240,7 @@ func (*UnsetParentGroupFromClientReq) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromClientReq) ProtoReflect() protoreflect.Message {
 	mi := &file_clients_v1_clients_proto_msgTypes[4]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -260,9 +270,11 @@ type UnsetParentGroupFromClientRes struct {
 
 func (x *UnsetParentGroupFromClientRes) Reset() {
 	*x = UnsetParentGroupFromClientRes{}
-	mi := &file_clients_v1_clients_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_clients_v1_clients_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *UnsetParentGroupFromClientRes) String() string {
@@ -273,7 +285,7 @@ func (*UnsetParentGroupFromClientRes) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromClientRes) ProtoReflect() protoreflect.Message {
 	mi := &file_clients_v1_clients_proto_msgTypes[5]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -418,6 +430,80 @@ func init() { file_clients_v1_clients_proto_init() }
 func file_clients_v1_clients_proto_init() {
 	if File_clients_v1_clients_proto != nil {
 		return
+	}
+	if !protoimpl.UnsafeEnabled {
+		file_clients_v1_clients_proto_msgTypes[0].Exporter = func(v any, i int) any {
+			switch v := v.(*AuthnReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_clients_v1_clients_proto_msgTypes[1].Exporter = func(v any, i int) any {
+			switch v := v.(*AuthnRes); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_clients_v1_clients_proto_msgTypes[2].Exporter = func(v any, i int) any {
+			switch v := v.(*RemoveChannelConnectionsReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_clients_v1_clients_proto_msgTypes[3].Exporter = func(v any, i int) any {
+			switch v := v.(*RemoveChannelConnectionsRes); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_clients_v1_clients_proto_msgTypes[4].Exporter = func(v any, i int) any {
+			switch v := v.(*UnsetParentGroupFromClientReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_clients_v1_clients_proto_msgTypes[5].Exporter = func(v any, i int) any {
+			switch v := v.(*UnsetParentGroupFromClientRes); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

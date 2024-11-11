@@ -18,8 +18,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.64.0 or later.
-const _ = grpc.SupportPackageIsVersion9
+// Requires gRPC-Go v1.62.0 or later.
+const _ = grpc.SupportPackageIsVersion8
 
 const (
 	AuthService_Authorize_FullMethodName       = "/auth.v1.AuthService/Authorize"
@@ -91,7 +91,7 @@ func (c *authServiceClient) AuthenticatePAT(ctx context.Context, in *AuthNReq, o
 
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
-// for forward compatibility.
+// for forward compatibility
 //
 // AuthService is a service that provides authentication
 // and authorization functionalities for SuperMQ services.
@@ -103,12 +103,9 @@ type AuthServiceServer interface {
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
-// UnimplementedAuthServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedAuthServiceServer struct{}
+// UnimplementedAuthServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAuthServiceServer struct {
+}
 
 func (UnimplementedAuthServiceServer) Authorize(context.Context, *AuthZReq) (*AuthZRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
@@ -123,7 +120,6 @@ func (UnimplementedAuthServiceServer) AuthenticatePAT(context.Context, *AuthNReq
 	return nil, status.Errorf(codes.Unimplemented, "method AuthenticatePAT not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
-func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
 
 // UnsafeAuthServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to AuthServiceServer will
@@ -133,13 +129,6 @@ type UnsafeAuthServiceServer interface {
 }
 
 func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
-	// If the following call pancis, it indicates UnimplementedAuthServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
 	s.RegisterService(&AuthService_ServiceDesc, srv)
 }
 

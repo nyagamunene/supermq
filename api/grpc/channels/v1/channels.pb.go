@@ -46,7 +46,7 @@ func (*RemoveClientConnectionsReq) ProtoMessage() {}
 
 func (x *RemoveClientConnectionsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[0]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -89,7 +89,7 @@ func (*RemoveClientConnectionsRes) ProtoMessage() {}
 
 func (x *RemoveClientConnectionsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[1]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -113,9 +113,11 @@ type UnsetParentGroupFromChannelsReq struct {
 
 func (x *UnsetParentGroupFromChannelsReq) Reset() {
 	*x = UnsetParentGroupFromChannelsReq{}
-	mi := &file_channels_v1_channels_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *UnsetParentGroupFromChannelsReq) String() string {
@@ -126,7 +128,7 @@ func (*UnsetParentGroupFromChannelsReq) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromChannelsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[2]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -156,9 +158,11 @@ type UnsetParentGroupFromChannelsRes struct {
 
 func (x *UnsetParentGroupFromChannelsRes) Reset() {
 	*x = UnsetParentGroupFromChannelsRes{}
-	mi := &file_channels_v1_channels_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *UnsetParentGroupFromChannelsRes) String() string {
@@ -169,7 +173,7 @@ func (*UnsetParentGroupFromChannelsRes) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromChannelsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[3]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -197,9 +201,11 @@ type AuthzReq struct {
 
 func (x *AuthzReq) Reset() {
 	*x = AuthzReq{}
-	mi := &file_channels_v1_channels_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthzReq) String() string {
@@ -210,7 +216,7 @@ func (*AuthzReq) ProtoMessage() {}
 
 func (x *AuthzReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[4]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -269,9 +275,11 @@ type AuthzRes struct {
 
 func (x *AuthzRes) Reset() {
 	*x = AuthzRes{}
-	mi := &file_channels_v1_channels_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
+	if protoimpl.UnsafeEnabled {
+		mi := &file_channels_v1_channels_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
 }
 
 func (x *AuthzRes) String() string {
@@ -282,7 +290,7 @@ func (*AuthzRes) ProtoMessage() {}
 
 func (x *AuthzRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[5]
-	if x != nil {
+	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -410,6 +418,80 @@ func init() { file_channels_v1_channels_proto_init() }
 func file_channels_v1_channels_proto_init() {
 	if File_channels_v1_channels_proto != nil {
 		return
+	}
+	if !protoimpl.UnsafeEnabled {
+		file_channels_v1_channels_proto_msgTypes[0].Exporter = func(v any, i int) any {
+			switch v := v.(*RemoveClientConnectionsReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_channels_v1_channels_proto_msgTypes[1].Exporter = func(v any, i int) any {
+			switch v := v.(*RemoveClientConnectionsRes); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_channels_v1_channels_proto_msgTypes[2].Exporter = func(v any, i int) any {
+			switch v := v.(*UnsetParentGroupFromChannelsReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_channels_v1_channels_proto_msgTypes[3].Exporter = func(v any, i int) any {
+			switch v := v.(*UnsetParentGroupFromChannelsRes); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_channels_v1_channels_proto_msgTypes[4].Exporter = func(v any, i int) any {
+			switch v := v.(*AuthzReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_channels_v1_channels_proto_msgTypes[5].Exporter = func(v any, i int) any {
+			switch v := v.(*AuthzRes); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
