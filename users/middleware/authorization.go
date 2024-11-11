@@ -88,7 +88,7 @@ func (am *authorizationMiddleware) ListUsers(ctx context.Context, session authn.
 			PlatformEntityType:       mgauth.PlatformUsersScope,
 			OptionalDomainEntityType: mgauth.DomainNullScope,
 			Operation:                mgauth.ListOp,
-			EntityIDs:                auth.AnyIDs{}.Values(),
+			EntityIDs:                mgauth.AnyIDs{}.Values(),
 		}); err != nil {
 			return users.UsersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
@@ -111,7 +111,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 				PlatformEntityType:       mgauth.PlatformUsersScope,
 				OptionalDomainEntityType: mgauth.DomainGroupsScope,
 				Operation:                mgauth.ListOp,
-				EntityIDs:                auth.AnyIDs{}.Values(),
+				EntityIDs:                mgauth.AnyIDs{}.Values(),
 			}); err != nil {
 				return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 			}
@@ -123,7 +123,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 				PlatformEntityType:       mgauth.PlatformUsersScope,
 				OptionalDomainEntityType: mgauth.DomainManagementScope,
 				Operation:                mgauth.ListOp,
-				EntityIDs:                auth.AnyIDs{}.Values(),
+				EntityIDs:                mgauth.AnyIDs{}.Values(),
 			}); err != nil {
 				return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 			}
@@ -135,7 +135,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 				PlatformEntityType:       mgauth.PlatformUsersScope,
 				OptionalDomainEntityType: mgauth.DomainThingsScope,
 				Operation:                mgauth.ListOp,
-				EntityIDs:                auth.AnyIDs{}.Values(),
+				EntityIDs:                mgauth.AnyIDs{}.Values(),
 			}); err != nil {
 				return users.MembersPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 			}

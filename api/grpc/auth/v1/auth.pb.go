@@ -493,68 +493,6 @@ func file_auth_v1_auth_proto_init() {
 	if File_auth_v1_auth_proto != nil {
 		return
 	}
-	if !protoimpl.UnsafeEnabled {
-		file_auth_v1_auth_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthNReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_auth_v1_auth_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthNRes); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_auth_v1_auth_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthZReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_auth_v1_auth_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthZpatReq); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_auth_v1_auth_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*AuthZRes); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
