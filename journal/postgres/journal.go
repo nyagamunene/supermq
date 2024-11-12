@@ -117,6 +117,7 @@ func pageQuery(pm journal.Page) string {
 type dbJournal struct {
 	ID         string    `db:"id"`
 	Operation  string    `db:"operation"`
+	Domain     string    `db:"domain"`
 	OccurredAt time.Time `db:"occurred_at"`
 	Attributes []byte    `db:"attributes"`
 	Metadata   []byte    `db:"metadata"`
@@ -148,6 +149,7 @@ func toDBJournal(j journal.Journal) (dbJournal, error) {
 	return dbJournal{
 		ID:         j.ID,
 		Operation:  j.Operation,
+		Domain:     j.Domain,
 		OccurredAt: j.OccurredAt,
 		Attributes: attributes,
 		Metadata:   metadata,
@@ -171,6 +173,7 @@ func toJournal(dbj dbJournal) (journal.Journal, error) {
 
 	return journal.Journal{
 		Operation:  dbj.Operation,
+		Domain:     dbj.Domain,
 		OccurredAt: dbj.OccurredAt,
 		Attributes: attributes,
 		Metadata:   metadata,
