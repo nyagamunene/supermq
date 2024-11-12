@@ -25,8 +25,8 @@ func NewRepository(db postgres.Database) journal.Repository {
 }
 
 func (repo *repository) Save(ctx context.Context, j journal.Journal) (err error) {
-	q := `INSERT INTO journal (id, operation, occurred_at, attributes, metadata)
-		VALUES (:id, :operation, :occurred_at, :attributes, :metadata);`
+	q := `INSERT INTO journal (id, operation, occurred_at, attributes, metadata, domain)
+		VALUES (:id, :operation, :occurred_at, :attributes, :metadata, :domain);`
 
 	dbJournal, err := toDBJournal(j)
 	if err != nil {
