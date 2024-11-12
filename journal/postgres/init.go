@@ -17,6 +17,7 @@ func Migration() *migrate.MemoryMigrationSource {
 					`CREATE TABLE IF NOT EXISTS journal (
 						id          VARCHAR(36) PRIMARY KEY,
 						operation	VARCHAR NOT NULL,
+						domain		VARCHAR,
 						occurred_at	TIMESTAMP NOT NULL,
 						attributes	JSONB NOT NULL,
 						metadata	JSONB,
@@ -26,6 +27,7 @@ func Migration() *migrate.MemoryMigrationSource {
 					`CREATE INDEX idx_journal_default_group_filter ON journal(operation, (attributes->>'id'), (attributes->>'group_id'), occurred_at DESC);`,
 					`CREATE INDEX idx_journal_default_client_filter ON journal(operation, (attributes->>'id'), (attributes->>'client_id'), occurred_at DESC);`,
 					`CREATE INDEX idx_journal_default_channel_filter ON journal(operation, (attributes->>'id'), (attributes->>'channel_id'), occurred_at DESC);`,
+					`CREATE INDEX idx_journal_default_domain_filter ON journal(operation, (attributes->>'id'), (attributes->>'domain'), occurred_at DESC);`,
 				},
 				Down: []string{
 					`DROP TABLE IF EXISTS journal`,
