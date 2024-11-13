@@ -129,10 +129,6 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 }
 
 func (am *authorizationMiddleware) ListClients(ctx context.Context, session authn.Session, reqUserID string, pm clients.Page) (clients.ClientsPage, error) {
-	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
-		session.SuperAdmin = true
-	}
-
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -145,6 +141,10 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 		}); err != nil {
 			return clients.ClientsPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.ListClients(ctx, session, reqUserID, pm)
