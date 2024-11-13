@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/absmach/magistrala/auth"
 	"github.com/absmach/magistrala/pkg/apiutil"
 	mgauthn "github.com/absmach/magistrala/pkg/authn"
 	"github.com/go-chi/chi/v5"
@@ -17,7 +18,7 @@ type sessionKeyType string
 
 const (
 	SessionKey = sessionKeyType("session")
-	seperator  = "_"
+	patPrefix  = "pat_"
 )
 
 func AuthenticateMiddleware(authn mgauthn.Authentication, domainCheck bool) func(http.Handler) http.Handler {
@@ -28,16 +29,20 @@ func AuthenticateMiddleware(authn mgauthn.Authentication, domainCheck bool) func
 				EncodeError(r.Context(), apiutil.ErrBearerToken, w)
 				return
 			}
-
-			resp, err := authn.Authenticate(r.Context(), token)
-			if err != nil {
-				EncodeError(r.Context(), err, w)
-				return
-			}
-
-			resp.Type = mgauthn.AccessToken
-			if strings.HasPrefix(token, "pat"+seperator) {
-				resp.Type = mgauthn.PersonalAccessToken
+			var resp mgauthn.Session
+			var err error
+			if strings.HasPrefix(token, patPrefix) {
+				resp, err = authn.AuthenticatePAT(r.Context(), token)
+				if err != nil {
+					EncodeError(r.Context(), err, w)
+					return
+				}
+			} else {
+				resp, err = authn.Authenticate(r.Context(), token)
+				if err != nil {
+					EncodeError(r.Context(), err, w)
+					return
+				}
 			}
 
 			if domainCheck {
@@ -47,7 +52,7 @@ func AuthenticateMiddleware(authn mgauthn.Authentication, domainCheck bool) func
 					return
 				}
 				resp.DomainID = domain
-				resp.DomainUserID = domain + seperator + resp.UserID
+				resp.DomainUserID = auth.EncodeDomainUserID(domain, resp.UserID)
 			}
 
 			ctx := context.WithValue(r.Context(), SessionKey, resp)
