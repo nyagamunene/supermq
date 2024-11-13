@@ -189,19 +189,6 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 		session.SuperAdmin = true
 	}
 
-	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
-			UserID:                   session.UserID,
-			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.UpdateOp,
-			EntityIDs:                []string{user.ID},
-		}); err != nil {
-			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
-		}
-	}
-
 	return am.svc.Update(ctx, session, user)
 }
 
