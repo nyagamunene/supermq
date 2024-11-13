@@ -162,6 +162,10 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 		}
 	}
 
+	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
+		session.SuperAdmin = true
+	}
+
 	return am.svc.ListClients(ctx, session, reqUserID, pm)
 }
 
