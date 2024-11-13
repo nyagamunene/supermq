@@ -17,15 +17,15 @@ import (
 )
 
 var (
-	errView                   = errors.New("not authorized to view thing")
-	errUpdate                 = errors.New("not authorized to update thing")
-	errUpdateTags             = errors.New("not authorized to update thing tags")
-	errUpdateSecret           = errors.New("not authorized to update thing secret")
-	errEnable                 = errors.New("not authorized to enable thing")
-	errDisable                = errors.New("not authorized to disable thing")
-	errDelete                 = errors.New("not authorized to delete thing")
-	errSetParentGroup         = errors.New("not authorized to set parent group to thing")
-	errRemoveParentGroup      = errors.New("not authorized to remove parent group from thing")
+	errView                    = errors.New("not authorized to view thing")
+	errUpdate                  = errors.New("not authorized to update thing")
+	errUpdateTags              = errors.New("not authorized to update thing tags")
+	errUpdateSecret            = errors.New("not authorized to update thing secret")
+	errEnable                  = errors.New("not authorized to enable thing")
+	errDisable                 = errors.New("not authorized to disable thing")
+	errDelete                  = errors.New("not authorized to delete thing")
+	errSetParentGroup          = errors.New("not authorized to set parent group to thing")
+	errRemoveParentGroup       = errors.New("not authorized to remove parent group from thing")
 	errDomainCreateClients     = errors.New("not authorized to create thing in domain")
 	errGroupSetChildClients    = errors.New("not authorized to set child thing for group")
 	errGroupRemoveChildClients = errors.New("not authorized to remove child thing for group")
@@ -128,10 +128,6 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 }
 
 func (am *authorizationMiddleware) ListClients(ctx context.Context, session authn.Session, reqUserID string, pm clients.Page) (clients.ClientsPage, error) {
-	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
-		session.SuperAdmin = true
-	}
-
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -144,6 +140,10 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 		}); err != nil {
 			return clients.ClientsPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.ListClients(ctx, session, reqUserID, pm)
