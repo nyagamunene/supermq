@@ -236,6 +236,10 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 		}
 	}
 
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
+	}
+
 	return am.svc.UpdateTags(ctx, session, user)
 }
 
@@ -288,6 +292,10 @@ func (am *authorizationMiddleware) UpdateUsername(ctx context.Context, session a
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.UpdateUsername(ctx, session, id, username)
@@ -415,6 +423,10 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 		}
 	}
 
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
+	}
+
 	return am.svc.Enable(ctx, session, id)
 }
 
@@ -449,6 +461,10 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 		}
 	}
 
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
+	}
+
 	return am.svc.Disable(ctx, session, id)
 }
 
@@ -481,6 +497,10 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 		}); err != nil {
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.Delete(ctx, session, id)
