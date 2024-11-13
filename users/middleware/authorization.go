@@ -207,10 +207,6 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 }
 
 func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
-	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
-		session.SuperAdmin = true
-	}
-
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -222,6 +218,10 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.UpdateTags(ctx, session, user)
@@ -248,10 +248,6 @@ func (am *authorizationMiddleware) UpdateEmail(ctx context.Context, session auth
 }
 
 func (am *authorizationMiddleware) UpdateUsername(ctx context.Context, session authn.Session, id, username string) (users.User, error) {
-	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
-		session.SuperAdmin = true
-	}
-
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -265,14 +261,14 @@ func (am *authorizationMiddleware) UpdateUsername(ctx context.Context, session a
 		}
 	}
 
-	return am.svc.UpdateUsername(ctx, session, id, username)
-}
-
-func (am *authorizationMiddleware) UpdateProfilePicture(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
 
+	return am.svc.UpdateUsername(ctx, session, id, username)
+}
+
+func (am *authorizationMiddleware) UpdateProfilePicture(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -284,6 +280,10 @@ func (am *authorizationMiddleware) UpdateProfilePicture(ctx context.Context, ses
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.UpdateProfilePicture(ctx, session, user)
@@ -344,10 +344,6 @@ func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn
 }
 
 func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Session, id string) (users.User, error) {
-	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
-		session.SuperAdmin = true
-	}
-
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -359,16 +355,16 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.Enable(ctx, session, id)
 }
 
 func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Session, id string) (users.User, error) {
-	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
-		session.SuperAdmin = true
-	}
-
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -382,14 +378,14 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 		}
 	}
 
-	return am.svc.Disable(ctx, session, id)
-}
-
-func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Session, id string) error {
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
 
+	return am.svc.Disable(ctx, session, id)
+}
+
+func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Session, id string) error {
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
@@ -401,6 +397,10 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 		}); err != nil {
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
+		session.SuperAdmin = true
 	}
 
 	return am.svc.Delete(ctx, session, id)
