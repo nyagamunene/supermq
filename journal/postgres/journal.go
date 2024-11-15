@@ -25,6 +25,11 @@ func NewRepository(db postgres.Database) journal.Repository {
 }
 
 func (repo *repository) Save(ctx context.Context, j journal.Journal) (err error) {
+	domain, ok := j.Attributes["domain"].(string)
+	if ok {
+		j.Domain = domain
+	}
+
 	q := `INSERT INTO journal (id, operation, occurred_at, attributes, metadata, domain)
 		VALUES (:id, :operation, :occurred_at, :attributes, :metadata, :domain);`
 
@@ -43,7 +48,7 @@ func (repo *repository) Save(ctx context.Context, j journal.Journal) (err error)
 func (repo *repository) RetrieveAll(ctx context.Context, page journal.Page) (journal.JournalsPage, error) {
 	query := pageQuery(page)
 
-	sq := "operation, occurred_at"
+	sq := "operation, occurred_at, domain"
 	if page.WithAttributes {
 		sq += ", attributes"
 	}
