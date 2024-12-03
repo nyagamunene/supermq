@@ -24,12 +24,12 @@ var (
 	errDecode           = errors.New("failed to decode")
 )
 
-var _ pat.Hasher = (*bcryptHasher)(nil)
+var _ auth.Hasher = (*bcryptHasher)(nil)
 
 type bcryptHasher struct{}
 
 // New instantiates a bcrypt-based hasher implementation.
-func New() pat.Hasher {
+func New() auth.Hasher {
 	return &bcryptHasher{}
 }
 
