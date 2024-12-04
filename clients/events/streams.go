@@ -48,6 +48,7 @@ func (es *eventStore) CreateClients(ctx context.Context, session authn.Session, 
 
 	for _, cli := range clis {
 		event := createClientEvent{
+			domainID:         session.DomainID,
 			Client:           cli,
 			rolesProvisioned: rps,
 		}
@@ -65,7 +66,7 @@ func (es *eventStore) Update(ctx context.Context, session authn.Session, client 
 		return cli, err
 	}
 
-	return es.update(ctx, "", cli)
+	return es.update(ctx, session, "", cli)
 }
 
 func (es *eventStore) UpdateTags(ctx context.Context, session authn.Session, client clients.Client) (clients.Client, error) {
@@ -74,7 +75,7 @@ func (es *eventStore) UpdateTags(ctx context.Context, session authn.Session, cli
 		return cli, err
 	}
 
-	return es.update(ctx, "tags", cli)
+	return es.update(ctx, session, "tags", cli)
 }
 
 func (es *eventStore) UpdateSecret(ctx context.Context, session authn.Session, id, key string) (clients.Client, error) {
@@ -83,12 +84,12 @@ func (es *eventStore) UpdateSecret(ctx context.Context, session authn.Session, i
 		return cli, err
 	}
 
-	return es.update(ctx, "secret", cli)
+	return es.update(ctx, session, "secret", cli)
 }
 
-func (es *eventStore) update(ctx context.Context, operation string, client clients.Client) (clients.Client, error) {
+func (es *eventStore) update(ctx context.Context, session authn.Session, operation string, client clients.Client) (clients.Client, error) {
 	event := updateClientEvent{
-		client, operation,
+		client, operation, session.DomainID,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -105,7 +106,7 @@ func (es *eventStore) View(ctx context.Context, session authn.Session, id string
 	}
 
 	event := viewClientEvent{
-		cli,
+		session.DomainID, cli,
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cli, err
@@ -120,6 +121,7 @@ func (es *eventStore) ListClients(ctx context.Context, session authn.Session, re
 		return cp, err
 	}
 	event := listClientEvent{
+		session.DomainID,
 		reqUserID,
 		pm,
 	}
@@ -167,7 +169,7 @@ func (es *eventStore) Delete(ctx context.Context, session authn.Session, id stri
 		return err
 	}
 
-	event := removeClientEvent{id}
+	event := removeClientEvent{session.DomainID, id}
 
 	if err := es.Publish(ctx, event); err != nil {
 		return err
@@ -181,7 +183,7 @@ func (es *eventStore) SetParentGroup(ctx context.Context, session authn.Session,
 		return err
 	}
 
-	event := setParentGroupEvent{parentGroupID: parentGroupID, id: id}
+	event := setParentGroupEvent{parentGroupID: parentGroupID, id: id, domainID: session.DomainID}
 
 	if err := es.Publish(ctx, event); err != nil {
 		return err
@@ -195,7 +197,7 @@ func (es *eventStore) RemoveParentGroup(ctx context.Context, session authn.Sessi
 		return err
 	}
 
-	event := removeParentGroupEvent{id: id}
+	event := removeParentGroupEvent{id: id, domainID: session.DomainID}
 
 	if err := es.Publish(ctx, event); err != nil {
 		return err

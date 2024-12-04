@@ -229,9 +229,6 @@ func (luge listUserGroupEvent) Encode() (map[string]interface{}, error) {
 	if luge.Name != "" {
 		val["name"] = luge.Name
 	}
-	if luge.DomainID != "" {
-		val["domain_id"] = luge.DomainID
-	}
 	if luge.Tag != "" {
 		val["tag"] = luge.Tag
 	}
