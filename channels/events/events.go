@@ -39,6 +39,7 @@ var (
 
 type createChannelEvent struct {
 	channels.Channel
+	domainID         string
 	rolesProvisioned []roles.RoleProvision
 }
 
@@ -49,6 +50,7 @@ func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
 		"roles_provisioned": cce.rolesProvisioned,
 		"status":            cce.Status.String(),
 		"created_at":        cce.CreatedAt,
+		"domain":            cce.domainID,
 	}
 
 	if cce.Name != "" {
@@ -56,9 +58,6 @@ func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
 	}
 	if len(cce.Tags) > 0 {
 		val["tags"] = cce.Tags
-	}
-	if cce.Domain != "" {
-		val["domain"] = cce.Domain
 	}
 	if cce.Metadata != nil {
 		val["metadata"] = cce.Metadata
@@ -70,6 +69,7 @@ func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
 type updateChannelEvent struct {
 	channels.Channel
 	operation string
+	domainID  string
 }
 
 func (uce updateChannelEvent) Encode() (map[string]interface{}, error) {
@@ -77,6 +77,7 @@ func (uce updateChannelEvent) Encode() (map[string]interface{}, error) {
 		"operation":  channelUpdate,
 		"updated_at": uce.UpdatedAt,
 		"updated_by": uce.UpdatedBy,
+		"domain":     uce.domainID,
 	}
 	if uce.operation != "" {
 		val["operation"] = channelUpdate + "_" + uce.operation
@@ -90,9 +91,6 @@ func (uce updateChannelEvent) Encode() (map[string]interface{}, error) {
 	}
 	if len(uce.Tags) > 0 {
 		val["tags"] = uce.Tags
-	}
-	if uce.Domain != "" {
-		val["domain"] = uce.Domain
 	}
 	if uce.Metadata != nil {
 		val["metadata"] = uce.Metadata
@@ -112,6 +110,7 @@ type changeStatusChannelEvent struct {
 	status    string
 	updatedAt time.Time
 	updatedBy string
+	domainID  string
 }
 
 func (rce changeStatusChannelEvent) Encode() (map[string]interface{}, error) {
@@ -121,17 +120,20 @@ func (rce changeStatusChannelEvent) Encode() (map[string]interface{}, error) {
 		"status":     rce.status,
 		"updated_at": rce.updatedAt,
 		"updated_by": rce.updatedBy,
+		"domain":     rce.domainID,
 	}, nil
 }
 
 type viewChannelEvent struct {
 	channels.Channel
+	domainID string
 }
 
 func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
 		"operation": channelView,
 		"id":        vce.ID,
+		"domain":    vce.domainID,
 	}
 
 	if vce.Name != "" {
@@ -139,9 +141,6 @@ func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 	}
 	if len(vce.Tags) > 0 {
 		val["tags"] = vce.Tags
-	}
-	if vce.Domain != "" {
-		val["domain"] = vce.Domain
 	}
 	if vce.Metadata != nil {
 		val["metadata"] = vce.Metadata
@@ -164,6 +163,7 @@ func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 
 type listChannelEvent struct {
 	channels.PageMetadata
+	domainID string
 }
 
 func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
@@ -172,6 +172,7 @@ func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
 		"total":     lce.Total,
 		"offset":    lce.Offset,
 		"limit":     lce.Limit,
+		"domain":    lce.domainID,
 	}
 
 	if lce.Name != "" {
@@ -185,9 +186,6 @@ func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
 	}
 	if lce.Metadata != nil {
 		val["metadata"] = lce.Metadata
-	}
-	if lce.Domain != "" {
-		val["domain"] = lce.Domain
 	}
 	if lce.Tag != "" {
 		val["tag"] = lce.Tag
@@ -206,6 +204,7 @@ func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
 }
 
 type listChannelByClientEvent struct {
+	domainID string
 	clientID string
 	channels.PageMetadata
 }
@@ -217,6 +216,7 @@ func (lcte listChannelByClientEvent) Encode() (map[string]interface{}, error) {
 		"total":     lcte.Total,
 		"offset":    lcte.Offset,
 		"limit":     lcte.Limit,
+		"domain":    lcte.domainID,
 	}
 
 	if lcte.Name != "" {
@@ -230,9 +230,6 @@ func (lcte listChannelByClientEvent) Encode() (map[string]interface{}, error) {
 	}
 	if lcte.Metadata != nil {
 		val["metadata"] = lcte.Metadata
-	}
-	if lcte.Domain != "" {
-		val["domain"] = lcte.Domain
 	}
 	if lcte.Tag != "" {
 		val["tag"] = lcte.Tag
@@ -251,20 +248,23 @@ func (lcte listChannelByClientEvent) Encode() (map[string]interface{}, error) {
 }
 
 type removeChannelEvent struct {
-	id string
+	id       string
+	domainID string
 }
 
 func (dce removeChannelEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"operation": channelRemove,
 		"id":        dce.id,
+		"domain":    dce.domainID,
 	}, nil
 }
 
 type connectEvent struct {
-	chIDs []string
-	thIDs []string
-	types []connections.ConnType
+	domainID string
+	chIDs    []string
+	thIDs    []string
+	types    []connections.ConnType
 }
 
 func (ce connectEvent) Encode() (map[string]interface{}, error) {
@@ -273,13 +273,15 @@ func (ce connectEvent) Encode() (map[string]interface{}, error) {
 		"client_ids":  ce.thIDs,
 		"channel_ids": ce.chIDs,
 		"types":       ce.types,
+		"domain":      ce.domainID,
 	}, nil
 }
 
 type disconnectEvent struct {
-	chIDs []string
-	thIDs []string
-	types []connections.ConnType
+	domainID string
+	chIDs    []string
+	thIDs    []string
+	types    []connections.ConnType
 }
 
 func (de disconnectEvent) Encode() (map[string]interface{}, error) {
@@ -288,12 +290,14 @@ func (de disconnectEvent) Encode() (map[string]interface{}, error) {
 		"client_ids":  de.thIDs,
 		"channel_ids": de.chIDs,
 		"types":       de.types,
+		"domain":      de.domainID,
 	}, nil
 }
 
 type setParentGroupEvent struct {
 	id            string
 	parentGroupID string
+	domainID      string
 }
 
 func (spge setParentGroupEvent) Encode() (map[string]interface{}, error) {
@@ -301,16 +305,19 @@ func (spge setParentGroupEvent) Encode() (map[string]interface{}, error) {
 		"operation":       channelSetParent,
 		"id":              spge.id,
 		"parent_group_id": spge.parentGroupID,
+		"domain":          spge.domainID,
 	}, nil
 }
 
 type removeParentGroupEvent struct {
-	id string
+	id       string
+	domainID string
 }
 
 func (rpge removeParentGroupEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
 		"operation": channelRemoveParent,
 		"id":        rpge.id,
+		"domain":    rpge.domainID,
 	}, nil
 }
