@@ -28,8 +28,6 @@ import (
 	grpcAuthV1 "github.com/absmach/supermq/internal/grpc/auth/v1"
 	grpcTokenV1 "github.com/absmach/supermq/internal/grpc/token/v1"
 	smqlog "github.com/absmach/supermq/logger"
-	"github.com/absmach/supermq/auth/bolt"
-	"github.com/absmach/supermq/auth/hasher"
 	"github.com/absmach/supermq/pkg/jaeger"
 	"github.com/absmach/supermq/pkg/policies/spicedb"
 	pgclient "github.com/absmach/supermq/pkg/postgres"
