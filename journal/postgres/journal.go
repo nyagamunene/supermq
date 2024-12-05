@@ -29,6 +29,12 @@ func (repo *repository) Save(ctx context.Context, j journal.Journal) (err error)
 	if ok {
 		j.Domain = domain
 	}
+	if strings.HasPrefix(j.Operation, "domain.") {
+		domain, ok := j.Attributes["id"].(string)
+		if ok {
+			j.Domain = domain
+		}
+	}
 
 	q := `INSERT INTO journal (id, operation, occurred_at, attributes, metadata, domain)
 		VALUES (:id, :operation, :occurred_at, :attributes, :metadata, :domain);`
