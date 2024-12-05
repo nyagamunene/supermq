@@ -1215,7 +1215,7 @@ services:
       - supermq-base-net
 
   ui:
-    image: supermq/ui:${SMQ_RELEASE_TAG}
+    image: magistrala/ui:${SMQ_RELEASE_TAG}
     container_name: supermq-ui
     restart: on-failure
     environment:
