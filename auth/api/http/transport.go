@@ -11,8 +11,6 @@ import (
 	"github.com/absmach/supermq/auth/api/http/keys"
 	"github.com/absmach/supermq/auth/api/http/pats"
 	"github.com/go-chi/chi/v5"
-	"github.com/absmach/magistrala/auth/api/http/pats"
-	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

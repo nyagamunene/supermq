@@ -6,7 +6,7 @@ package authz
 import (
 	"context"
 
-	"github.com/absmach/magistrala/auth"
+	"github.com/absmach/supermq/auth"
 )
 
 type PolicyReq struct {
@@ -44,6 +44,16 @@ type PolicyReq struct {
 	// Permission contains the permission. Supported permissions are admin, delete, edit, share, view,
 	// membership, create, admin_only, edit_only, view_only, membership_only, ext_admin, ext_edit, ext_view.
 	Permission string `json:"permission,omitempty"`
+}
+
+type PatReq struct {
+	UserID                   string                  `json:"user_id,omitempty"`                     // UserID
+	PatID                    string                  `json:"pat_id,omitempty"`                      // UserID
+	PlatformEntityType       auth.PlatformEntityType `json:"platform_entity_type,omitempty"`        // Platform entity type
+	OptionalDomainID         string                  `json:"optional_domainID,omitempty"`           // Optional domain id
+	OptionalDomainEntityType auth.DomainEntityType   `json:"optional_domain_entity_type,omitempty"` // Optional domain entity type
+	Operation                auth.OperationType      `json:"operation,omitempty"`                   // Operation
+	EntityIDs                []string                `json:"entityIDs,omitempty"`                   // EntityIDs
 }
 
 // Authz is supermq authorization library.
