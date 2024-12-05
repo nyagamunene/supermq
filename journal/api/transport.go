@@ -82,7 +82,6 @@ func decodeRetrieveEntityJournalReq(_ context.Context, r *http.Request) (interfa
 		token: apiutil.ExtractBearerToken(r),
 		page:  page,
 	}
-	fmt.Printf("req is %+v\n", req)
 
 	return req, nil
 }
