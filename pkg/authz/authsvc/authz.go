@@ -61,13 +61,13 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 
 func (a authorization) AuthorizePAT(ctx context.Context, pr authz.PatReq) error {
 	req := grpcAuthV1.AuthZpatReq{
-		UserID:                   pr.UserID,
-		PatID:                    pr.PatID,
+		UserId:                   pr.UserID,
+		PatId:                    pr.PatID,
 		PlatformEntityType:       uint32(pr.PlatformEntityType),
-		OptionalDomainID:         pr.OptionalDomainID,
+		OptionalDomainId:         pr.OptionalDomainID,
 		OptionalDomainEntityType: uint32(pr.OptionalDomainEntityType),
 		Operation:                uint32(pr.Operation),
-		EntityIDs:                pr.EntityIDs,
+		EntityIds:                pr.EntityIDs,
 	}
 	res, err := a.authSvcClient.AuthorizePAT(ctx, &req)
 	if err != nil {

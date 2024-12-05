@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/pkg/errors"
 	"golang.org/x/crypto/scrypt"
 )
