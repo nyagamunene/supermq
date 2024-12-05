@@ -214,9 +214,9 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.UpdateOp,
+			PlatformEntityType:       smqauth.PlatformUsersScope,
+			OptionalDomainEntityType: smqauth.DomainNullScope,
+			Operation:                smqauth.UpdateOp,
 			EntityIDs:                []string{user.ID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
@@ -272,9 +272,9 @@ func (am *authorizationMiddleware) UpdateUsername(ctx context.Context, session a
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.UpdateOp,
+			PlatformEntityType:       smqauth.PlatformUsersScope,
+			OptionalDomainEntityType: smqauth.DomainNullScope,
+			Operation:                smqauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
@@ -359,9 +359,9 @@ func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.UpdateOp,
+			PlatformEntityType:       smqauth.PlatformUsersScope,
+			OptionalDomainEntityType: smqauth.DomainNullScope,
+			Operation:                smqauth.UpdateOp,
 			EntityIDs:                []string{user.ID},
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
@@ -401,9 +401,9 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.UpdateOp,
+			PlatformEntityType:       smqauth.PlatformUsersScope,
+			OptionalDomainEntityType: smqauth.DomainNullScope,
+			Operation:                smqauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
@@ -439,9 +439,9 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.UpdateOp,
+			PlatformEntityType:       smqauth.PlatformUsersScope,
+			OptionalDomainEntityType: smqauth.DomainNullScope,
+			Operation:                smqauth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
 			return users.User{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
@@ -477,9 +477,9 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
-			PlatformEntityType:       mgauth.PlatformUsersScope,
-			OptionalDomainEntityType: mgauth.DomainNullScope,
-			Operation:                mgauth.DeleteOp,
+			PlatformEntityType:       smqauth.PlatformUsersScope,
+			OptionalDomainEntityType: smqauth.DomainNullScope,
+			Operation:                smqauth.DeleteOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
