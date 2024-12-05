@@ -40,7 +40,6 @@ require (
 	github.com/rubenv/sql-migrate v1.7.1
 	github.com/spf13/cobra v1.8.1
 	github.com/sqids/sqids-go v0.4.1
-	github.com/sqids/sqids-go v0.4.1
 	github.com/stretchr/testify v1.10.0
 	go.etcd.io/bbolt v1.3.11
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.58.0

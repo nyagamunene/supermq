@@ -19,8 +19,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-// Requires gRPC-Go v1.62.0 or later.
-const _ = grpc.SupportPackageIsVersion8
+// Requires gRPC-Go v1.64.0 or later.
+const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ClientsService_Authenticate_FullMethodName               = "/clients.v1.ClientsService/Authenticate"
@@ -129,7 +129,7 @@ func (c *clientsServiceClient) UnsetParentGroupFromClient(ctx context.Context, i
 
 // ClientsServiceServer is the server API for ClientsService service.
 // All implementations must embed UnimplementedClientsServiceServer
-// for forward compatibility
+// for forward compatibility.
 //
 // ClientsService is a service that provides clients
 // authorization functionalities for SuperMQ services.
@@ -145,9 +145,12 @@ type ClientsServiceServer interface {
 	mustEmbedUnimplementedClientsServiceServer()
 }
 
-// UnimplementedClientsServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedClientsServiceServer struct {
-}
+// UnimplementedClientsServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedClientsServiceServer struct{}
 
 func (UnimplementedClientsServiceServer) Authenticate(context.Context, *AuthnReq) (*AuthnRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
@@ -171,6 +174,7 @@ func (UnimplementedClientsServiceServer) UnsetParentGroupFromClient(context.Cont
 	return nil, status.Errorf(codes.Unimplemented, "method UnsetParentGroupFromClient not implemented")
 }
 func (UnimplementedClientsServiceServer) mustEmbedUnimplementedClientsServiceServer() {}
+func (UnimplementedClientsServiceServer) testEmbeddedByValue()                        {}
 
 // UnsafeClientsServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to ClientsServiceServer will
@@ -180,6 +184,13 @@ type UnsafeClientsServiceServer interface {
 }
 
 func RegisterClientsServiceServer(s grpc.ServiceRegistrar, srv ClientsServiceServer) {
+	// If the following call pancis, it indicates UnimplementedClientsServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
 	s.RegisterService(&ClientsService_ServiceDesc, srv)
 }
 
