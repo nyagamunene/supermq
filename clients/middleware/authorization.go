@@ -148,24 +148,6 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 		session.SuperAdmin = true
 	}
 
-	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
-			UserID:                   session.UserID,
-			PatID:                    session.ID,
-			PlatformEntityType:       auth.PlatformDomainsScope,
-			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
-			Operation:                auth.ListOp,
-			EntityIDs:                auth.AnyIDs{}.Values(),
-		}); err != nil {
-			return clients.ClientsPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
-		}
-	}
-
-	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
-		session.SuperAdmin = true
-	}
-
 	return am.svc.ListClients(ctx, session, reqUserID, pm)
 }
 
