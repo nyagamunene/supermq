@@ -129,7 +129,8 @@ func EncodeError(_ context.Context, err error, w http.ResponseWriter) {
 		errors.Contains(err, svcerr.ErrDomainAuthorization),
 		errors.Contains(err, svcerr.ErrUnauthorizedPAT),
 		errors.Contains(err, bootstrap.ErrExternalKey),
-		errors.Contains(err, bootstrap.ErrExternalKeySecure):
+		errors.Contains(err, bootstrap.ErrExternalKeySecure),
+		errors.Contains(err, apiutil.ErrUnsupportedTokenType):
 		err = unwrap(err)
 		w.WriteHeader(http.StatusForbidden)
 
