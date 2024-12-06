@@ -341,7 +341,7 @@ func (am *authorizationMiddleware) Connect(ctx context.Context, session authn.Se
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.CreateOp,
 			EntityIDs:                thIDs,
 		}); err != nil {
@@ -393,7 +393,7 @@ func (am *authorizationMiddleware) Disconnect(ctx context.Context, session authn
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.DeleteOp,
 			EntityIDs:                thIDs,
 		}); err != nil {
