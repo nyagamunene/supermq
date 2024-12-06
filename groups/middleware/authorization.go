@@ -7,9 +7,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/groups"
 	"github.com/absmach/supermq/pkg/authn"
-	"github.com/absmach/supermq/pkg/authz"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
@@ -82,7 +82,7 @@ func AuthorizationMiddleware(entityType string, svc groups.Service, repo groups.
 
 func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session authn.Session, g groups.Group) (groups.Group, []roles.RoleProvision, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -123,7 +123,7 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 
 func (am *authorizationMiddleware) UpdateGroup(ctx context.Context, session authn.Session, g groups.Group) (groups.Group, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -152,7 +152,7 @@ func (am *authorizationMiddleware) UpdateGroup(ctx context.Context, session auth
 
 func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string) (groups.Group, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -181,7 +181,7 @@ func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.
 
 func (am *authorizationMiddleware) ListGroups(ctx context.Context, session authn.Session, gm groups.PageMeta) (groups.Page, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -233,7 +233,7 @@ func (am *authorizationMiddleware) ListUserGroups(ctx context.Context, session a
 
 func (am *authorizationMiddleware) EnableGroup(ctx context.Context, session authn.Session, id string) (groups.Group, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -261,7 +261,7 @@ func (am *authorizationMiddleware) EnableGroup(ctx context.Context, session auth
 
 func (am *authorizationMiddleware) DisableGroup(ctx context.Context, session authn.Session, id string) (groups.Group, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -289,7 +289,7 @@ func (am *authorizationMiddleware) DisableGroup(ctx context.Context, session aut
 
 func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session authn.Session, id string) error {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -317,7 +317,7 @@ func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session auth
 
 func (am *authorizationMiddleware) RetrieveGroupHierarchy(ctx context.Context, session authn.Session, id string, hm groups.HierarchyPageMeta) (groups.HierarchyPage, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -344,7 +344,7 @@ func (am *authorizationMiddleware) RetrieveGroupHierarchy(ctx context.Context, s
 
 func (am *authorizationMiddleware) AddParentGroup(ctx context.Context, session authn.Session, id, parentID string) error {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -381,7 +381,7 @@ func (am *authorizationMiddleware) AddParentGroup(ctx context.Context, session a
 
 func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, session authn.Session, id string) error {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -425,7 +425,7 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 
 func (am *authorizationMiddleware) AddChildrenGroups(ctx context.Context, session authn.Session, id string, childrenGroupIDs []string) error {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -465,7 +465,7 @@ func (am *authorizationMiddleware) AddChildrenGroups(ctx context.Context, sessio
 
 func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, session authn.Session, id string, childrenGroupIDs []string) error {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -493,7 +493,7 @@ func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, ses
 
 func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, session authn.Session, id string) error {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -521,7 +521,7 @@ func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, 
 
 func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, session authn.Session, id string, startLevel, endLevel int64, pm groups.PageMeta) (groups.Page, error) {
 	if session.Type == authn.PersonalAccessToken {
-		if err := am.authz.AuthorizePAT(ctx, mgauthz.PatReq{
+		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
@@ -548,7 +548,7 @@ func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, sessi
 }
 
 func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, adminID string) error {
-	if err := am.authz.Authorize(ctx, authz.PolicyReq{
+	if err := am.authz.Authorize(ctx, smqauthz.PolicyReq{
 		SubjectType: policies.UserType,
 		Subject:     adminID,
 		Permission:  policies.AdminPermission,
@@ -560,7 +560,7 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, adminID 
 	return nil
 }
 
-func (am *authorizationMiddleware) authorize(ctx context.Context, op svcutil.Operation, pr authz.PolicyReq) error {
+func (am *authorizationMiddleware) authorize(ctx context.Context, op svcutil.Operation, pr smqauthz.PolicyReq) error {
 	perm, err := am.opp.GetPermission(op)
 	if err != nil {
 		return err
@@ -573,7 +573,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, op svcutil.Ope
 	return nil
 }
 
-func (am *authorizationMiddleware) extAuthorize(ctx context.Context, extOp svcutil.ExternalOperation, req authz.PolicyReq) error {
+func (am *authorizationMiddleware) extAuthorize(ctx context.Context, extOp svcutil.ExternalOperation, req smqauthz.PolicyReq) error {
 	perm, err := am.extOpp.GetPermission(extOp)
 	if err != nil {
 		return err

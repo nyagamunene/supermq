@@ -46,7 +46,7 @@ func (*RemoveClientConnectionsReq) ProtoMessage() {}
 
 func (x *RemoveClientConnectionsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -89,7 +89,7 @@ func (*RemoveClientConnectionsRes) ProtoMessage() {}
 
 func (x *RemoveClientConnectionsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -113,11 +113,9 @@ type UnsetParentGroupFromChannelsReq struct {
 
 func (x *UnsetParentGroupFromChannelsReq) Reset() {
 	*x = UnsetParentGroupFromChannelsReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_channels_v1_channels_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_channels_v1_channels_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *UnsetParentGroupFromChannelsReq) String() string {
@@ -128,7 +126,7 @@ func (*UnsetParentGroupFromChannelsReq) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromChannelsReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -158,11 +156,9 @@ type UnsetParentGroupFromChannelsRes struct {
 
 func (x *UnsetParentGroupFromChannelsRes) Reset() {
 	*x = UnsetParentGroupFromChannelsRes{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_channels_v1_channels_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_channels_v1_channels_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *UnsetParentGroupFromChannelsRes) String() string {
@@ -173,7 +169,7 @@ func (*UnsetParentGroupFromChannelsRes) ProtoMessage() {}
 
 func (x *UnsetParentGroupFromChannelsRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -201,11 +197,9 @@ type AuthzReq struct {
 
 func (x *AuthzReq) Reset() {
 	*x = AuthzReq{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_channels_v1_channels_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_channels_v1_channels_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *AuthzReq) String() string {
@@ -216,7 +210,7 @@ func (*AuthzReq) ProtoMessage() {}
 
 func (x *AuthzReq) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
@@ -275,11 +269,9 @@ type AuthzRes struct {
 
 func (x *AuthzRes) Reset() {
 	*x = AuthzRes{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_channels_v1_channels_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
+	mi := &file_channels_v1_channels_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
 }
 
 func (x *AuthzRes) String() string {
@@ -290,7 +282,7 @@ func (*AuthzRes) ProtoMessage() {}
 
 func (x *AuthzRes) ProtoReflect() protoreflect.Message {
 	mi := &file_channels_v1_channels_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
+	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
 			ms.StoreMessageInfo(mi)
