@@ -133,7 +133,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 				PatID:                    session.ID,
 				OptionalDomainID:         session.DomainID,
 				PlatformEntityType:       smqauth.PlatformUsersScope,
-				OptionalDomainEntityType: smqauth.DomainThingsScope,
+				OptionalDomainEntityType: smqauth.DomainClientsScope,
 				Operation:                smqauth.ListOp,
 				EntityIDs:                smqauth.AnyIDs{}.Values(),
 			}); err != nil {
