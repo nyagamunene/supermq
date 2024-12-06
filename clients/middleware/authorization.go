@@ -81,7 +81,7 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.CreateOp,
 			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
@@ -109,7 +109,7 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.ReadOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
@@ -136,7 +136,7 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.ListOp,
 			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
@@ -158,7 +158,7 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.UpdateOp,
 			EntityIDs:                []string{client.ID},
 		}); err != nil {
@@ -186,7 +186,7 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.UpdateOp,
 			EntityIDs:                []string{client.ID},
 		}); err != nil {
@@ -214,7 +214,7 @@ func (am *authorizationMiddleware) UpdateSecret(ctx context.Context, session aut
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
@@ -241,7 +241,7 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
@@ -269,7 +269,7 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.UpdateOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
@@ -296,7 +296,7 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 			PatID:                    session.ID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
-			OptionalDomainEntityType: auth.DomainThingsScope,
+			OptionalDomainEntityType: auth.DomainClientsScope,
 			Operation:                auth.DeleteOp,
 			EntityIDs:                []string{id},
 		}); err != nil {
