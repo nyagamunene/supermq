@@ -63,10 +63,10 @@ type authPATReq struct {
 
 func (req authPATReq) validate() error {
 	if req.userID == "" {
-		return apiutil.ErrBearerToken
+		return apiutil.ErrMissingUserID
 	}
 	if req.patID == "" {
-		return apiutil.ErrBearerToken
+		return apiutil.ErrMissingPATID
 	}
 	return nil
 }

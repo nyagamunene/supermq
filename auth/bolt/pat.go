@@ -284,7 +284,7 @@ func (pr *patRepo) Remove(ctx context.Context, userID, patID string) error {
 
 func (pr *patRepo) AddScopeEntry(ctx context.Context, userID, patID string, platformEntityType auth.PlatformEntityType, optionalDomainID string, optionalDomainEntityType auth.DomainEntityType, operation auth.OperationType, entityIDs ...string) (auth.Scope, error) {
 	prefix := []byte(patID + keySeparator + scopeKey)
-	var rKV map[string][]byte
+	rKV := make(map[string][]byte)
 	if err := pr.db.Update(func(tx *bolt.Tx) error {
 		b, err := pr.retrieveUserBucket(tx, userID, patID, repoerr.ErrCreateEntity)
 		if err != nil {
@@ -300,6 +300,7 @@ func (pr *patRepo) AddScopeEntry(ctx context.Context, userID, patID string, plat
 				return errors.Wrap(repoerr.ErrCreateEntity, err)
 			}
 		}
+
 		c := b.Cursor()
 		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
 			rKV[string(k)] = v
@@ -317,7 +318,7 @@ func (pr *patRepo) RemoveScopeEntry(ctx context.Context, userID, patID string, p
 		return auth.Scope{}, repoerr.ErrMalformedEntity
 	}
 	prefix := []byte(patID + keySeparator + scopeKey)
-	var rKV map[string][]byte
+	rKV := make(map[string][]byte)
 	if err := pr.db.Update(func(tx *bolt.Tx) error {
 		b, err := pr.retrieveUserBucket(tx, userID, patID, repoerr.ErrRemoveEntity)
 		if err != nil {

@@ -152,7 +152,7 @@ type addPatScopeEntryRes struct {
 }
 
 func (res addPatScopeEntryRes) Code() int {
-	return http.StatusAccepted
+	return http.StatusOK
 }
 
 func (res addPatScopeEntryRes) Headers() map[string]string {
@@ -168,7 +168,7 @@ type removePatScopeEntryRes struct {
 }
 
 func (res removePatScopeEntryRes) Code() int {
-	return http.StatusAccepted
+	return http.StatusOK
 }
 
 func (res removePatScopeEntryRes) Headers() map[string]string {
