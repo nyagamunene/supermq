@@ -136,7 +136,7 @@ func (lm *loggingMiddleware) CreatePAT(ctx context.Context, token, name, descrip
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Create PAT failed to complete successfully", args...)
+			lm.logger.Warn("Create PAT failed", args...)
 			return
 		}
 		lm.logger.Info("Create PAT completed successfully", args...)
@@ -153,7 +153,7 @@ func (lm *loggingMiddleware) UpdatePATName(ctx context.Context, token, patID, na
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Update PAT name failed to complete successfully", args...)
+			lm.logger.Warn("Update PAT name failed", args...)
 			return
 		}
 		lm.logger.Info("Update PAT name completed successfully", args...)
@@ -170,7 +170,7 @@ func (lm *loggingMiddleware) UpdatePATDescription(ctx context.Context, token, pa
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Update PAT description failed to complete successfully", args...)
+			lm.logger.Warn("Update PAT description failed", args...)
 			return
 		}
 		lm.logger.Info("Update PAT description completed successfully", args...)
@@ -186,7 +186,7 @@ func (lm *loggingMiddleware) RetrievePAT(ctx context.Context, token, patID strin
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Retrieve PAT  failed to complete successfully", args...)
+			lm.logger.Warn("Retrieve PAT  failed", args...)
 			return
 		}
 		lm.logger.Info("Retrieve PAT completed successfully", args...)
@@ -203,7 +203,7 @@ func (lm *loggingMiddleware) ListPATS(ctx context.Context, token string, pm auth
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("List PATS  failed to complete successfully", args...)
+			lm.logger.Warn("List PATS  failed", args...)
 			return
 		}
 		lm.logger.Info("List PATS completed successfully", args...)
@@ -219,7 +219,7 @@ func (lm *loggingMiddleware) DeletePAT(ctx context.Context, token, patID string)
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Delete PAT  failed to complete successfully", args...)
+			lm.logger.Warn("Delete PAT  failed", args...)
 			return
 		}
 		lm.logger.Info("Delete PAT completed successfully", args...)
@@ -236,7 +236,7 @@ func (lm *loggingMiddleware) ResetPATSecret(ctx context.Context, token, patID st
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Reset PAT secret failed to complete successfully", args...)
+			lm.logger.Warn("Reset PAT secret failed", args...)
 			return
 		}
 		lm.logger.Info("Reset PAT secret completed successfully", args...)
@@ -252,7 +252,7 @@ func (lm *loggingMiddleware) RevokePATSecret(ctx context.Context, token, patID s
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Revoke PAT secret failed to complete successfully", args...)
+			lm.logger.Warn("Revoke PAT secret failed", args...)
 			return
 		}
 		lm.logger.Info("Revoke PAT secret completed successfully", args...)
@@ -273,7 +273,7 @@ func (lm *loggingMiddleware) AddPATScopeEntry(ctx context.Context, token, patID 
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Add entry to PAT scope failed to complete successfully", args...)
+			lm.logger.Warn("Add entry to PAT scope failed", args...)
 			return
 		}
 		lm.logger.Info("Add entry to PAT scope completed successfully", args...)
@@ -294,7 +294,7 @@ func (lm *loggingMiddleware) RemovePATScopeEntry(ctx context.Context, token, pat
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Remove entry from PAT scope failed to complete successfully", args...)
+			lm.logger.Warn("Remove entry from PAT scope failed", args...)
 			return
 		}
 		lm.logger.Info("Remove entry from PAT scope completed successfully", args...)
@@ -310,7 +310,7 @@ func (lm *loggingMiddleware) ClearPATAllScopeEntry(ctx context.Context, token, p
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Clear all entry from PAT scope failed to complete successfully", args...)
+			lm.logger.Warn("Clear all entry from PAT scope failed", args...)
 			return
 		}
 		lm.logger.Info("Clear all entry from PAT scope completed successfully", args...)
@@ -325,7 +325,7 @@ func (lm *loggingMiddleware) IdentifyPAT(ctx context.Context, paToken string) (p
 		}
 		if err != nil {
 			args = append(args, slog.Any("error", err))
-			lm.logger.Warn("Identify PAT failed to complete successfully", args...)
+			lm.logger.Warn("Identify PAT failed", args...)
 			return
 		}
 		lm.logger.Info("Identify PAT completed successfully", args...)

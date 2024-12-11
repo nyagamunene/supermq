@@ -247,4 +247,10 @@ var (
 
 	// ErrUnsupportedTokenType indicates that this type of token is not supported.
 	ErrUnsupportedTokenType = errors.New("unsupported content token type")
+
+	// ErrMissingUserID indicates missing user ID.
+	ErrMissingUserID = errors.New("missing user id")
+
+	// ErrMissingPATID indicates missing pat ID.
+	ErrMissingPATID = errors.New("missing pat id")
 )
