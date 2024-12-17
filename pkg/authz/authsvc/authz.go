@@ -60,7 +60,7 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 }
 
 func (a authorization) AuthorizePAT(ctx context.Context, pr authz.PatReq) error {
-	req := grpcAuthV1.AuthZpatReq{
+	req := grpcAuthV1.AuthZPatReq{
 		UserId:                   pr.UserID,
 		PatId:                    pr.PatID,
 		PlatformEntityType:       uint32(pr.PlatformEntityType),
