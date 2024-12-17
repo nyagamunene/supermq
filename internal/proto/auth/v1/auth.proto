@@ -26,11 +26,6 @@ message AuthNRes {
   string domain_id = 3; // domain id
 }
 
-message AuthNPATRes {
-  string id    = 1; // pat id
-  string user_id = 2; // user id
-}
-
 message AuthZReq {
   string domain = 1;           // Domain
   string subject_type = 2;     // Client or User
