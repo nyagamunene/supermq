@@ -59,12 +59,12 @@ func (s *authGrpcServer) Authenticate(ctx context.Context, req *grpcAuthV1.AuthN
 	return res.(*grpcAuthV1.AuthNRes), nil
 }
 
-func (s *authGrpcServer) AuthenticatePAT(ctx context.Context, req *grpcAuthV1.AuthNReq) (*grpcAuthV1.AuthNPATRes, error) {
+func (s *authGrpcServer) AuthenticatePAT(ctx context.Context, req *grpcAuthV1.AuthNReq) (*grpcAuthV1.AuthNRes, error) {
 	_, res, err := s.authenticatePAT.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, grpcapi.EncodeError(err)
 	}
-	return res.(*grpcAuthV1.AuthNPATRes), nil
+	return res.(*grpcAuthV1.AuthNRes), nil
 }
 
 func (s *authGrpcServer) Authorize(ctx context.Context, req *grpcAuthV1.AuthZReq) (*grpcAuthV1.AuthZRes, error) {
@@ -87,7 +87,7 @@ func encodeAuthenticateResponse(_ context.Context, grpcRes interface{}) (interfa
 
 func encodeAuthenticatePATResponse(_ context.Context, grpcRes interface{}) (interface{}, error) {
 	res := grpcRes.(authenticateRes)
-	return &grpcAuthV1.AuthNPATRes{Id: res.id, UserId: res.userID}, nil
+	return &grpcAuthV1.AuthNRes{Id: res.id, UserId: res.userID}, nil
 }
 
 func decodeAuthorizeRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -110,7 +110,7 @@ func encodeAuthorizeResponse(_ context.Context, grpcRes interface{}) (interface{
 }
 
 func decodeAuthorizePATRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*grpcAuthV1.AuthZpatReq)
+	req := grpcReq.(*grpcAuthV1.AuthZPatReq)
 	return authPATReq{
 		userID:                   req.GetUserId(),
 		patID:                    req.GetPatId(),
@@ -122,7 +122,7 @@ func decodeAuthorizePATRequest(_ context.Context, grpcReq interface{}) (interfac
 	}, nil
 }
 
-func (s *authGrpcServer) AuthorizePAT(ctx context.Context, req *grpcAuthV1.AuthZpatReq) (*grpcAuthV1.AuthZRes, error) {
+func (s *authGrpcServer) AuthorizePAT(ctx context.Context, req *grpcAuthV1.AuthZPatReq) (*grpcAuthV1.AuthZRes, error) {
 	_, res, err := s.authorizePAT.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, grpcapi.EncodeError(err)

@@ -36,9 +36,9 @@ const (
 // and authorization functionalities for SuperMQ services.
 type AuthServiceClient interface {
 	Authorize(ctx context.Context, in *AuthZReq, opts ...grpc.CallOption) (*AuthZRes, error)
-	AuthorizePAT(ctx context.Context, in *AuthZpatReq, opts ...grpc.CallOption) (*AuthZRes, error)
+	AuthorizePAT(ctx context.Context, in *AuthZPatReq, opts ...grpc.CallOption) (*AuthZRes, error)
 	Authenticate(ctx context.Context, in *AuthNReq, opts ...grpc.CallOption) (*AuthNRes, error)
-	AuthenticatePAT(ctx context.Context, in *AuthNReq, opts ...grpc.CallOption) (*AuthNPATRes, error)
+	AuthenticatePAT(ctx context.Context, in *AuthNReq, opts ...grpc.CallOption) (*AuthNRes, error)
 }
 
 type authServiceClient struct {
@@ -59,7 +59,7 @@ func (c *authServiceClient) Authorize(ctx context.Context, in *AuthZReq, opts ..
 	return out, nil
 }
 
-func (c *authServiceClient) AuthorizePAT(ctx context.Context, in *AuthZpatReq, opts ...grpc.CallOption) (*AuthZRes, error) {
+func (c *authServiceClient) AuthorizePAT(ctx context.Context, in *AuthZPatReq, opts ...grpc.CallOption) (*AuthZRes, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AuthZRes)
 	err := c.cc.Invoke(ctx, AuthService_AuthorizePAT_FullMethodName, in, out, cOpts...)
@@ -79,9 +79,9 @@ func (c *authServiceClient) Authenticate(ctx context.Context, in *AuthNReq, opts
 	return out, nil
 }
 
-func (c *authServiceClient) AuthenticatePAT(ctx context.Context, in *AuthNReq, opts ...grpc.CallOption) (*AuthNPATRes, error) {
+func (c *authServiceClient) AuthenticatePAT(ctx context.Context, in *AuthNReq, opts ...grpc.CallOption) (*AuthNRes, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AuthNPATRes)
+	out := new(AuthNRes)
 	err := c.cc.Invoke(ctx, AuthService_AuthenticatePAT_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -97,9 +97,9 @@ func (c *authServiceClient) AuthenticatePAT(ctx context.Context, in *AuthNReq, o
 // and authorization functionalities for SuperMQ services.
 type AuthServiceServer interface {
 	Authorize(context.Context, *AuthZReq) (*AuthZRes, error)
-	AuthorizePAT(context.Context, *AuthZpatReq) (*AuthZRes, error)
+	AuthorizePAT(context.Context, *AuthZPatReq) (*AuthZRes, error)
 	Authenticate(context.Context, *AuthNReq) (*AuthNRes, error)
-	AuthenticatePAT(context.Context, *AuthNReq) (*AuthNPATRes, error)
+	AuthenticatePAT(context.Context, *AuthNReq) (*AuthNRes, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -113,13 +113,13 @@ type UnimplementedAuthServiceServer struct{}
 func (UnimplementedAuthServiceServer) Authorize(context.Context, *AuthZReq) (*AuthZRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
 }
-func (UnimplementedAuthServiceServer) AuthorizePAT(context.Context, *AuthZpatReq) (*AuthZRes, error) {
+func (UnimplementedAuthServiceServer) AuthorizePAT(context.Context, *AuthZPatReq) (*AuthZRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthorizePAT not implemented")
 }
 func (UnimplementedAuthServiceServer) Authenticate(context.Context, *AuthNReq) (*AuthNRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
 }
-func (UnimplementedAuthServiceServer) AuthenticatePAT(context.Context, *AuthNReq) (*AuthNPATRes, error) {
+func (UnimplementedAuthServiceServer) AuthenticatePAT(context.Context, *AuthNReq) (*AuthNRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthenticatePAT not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
@@ -162,7 +162,7 @@ func _AuthService_Authorize_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _AuthService_AuthorizePAT_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthZpatReq)
+	in := new(AuthZPatReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -174,7 +174,7 @@ func _AuthService_AuthorizePAT_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: AuthService_AuthorizePAT_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).AuthorizePAT(ctx, req.(*AuthZpatReq))
+		return srv.(AuthServiceServer).AuthorizePAT(ctx, req.(*AuthZPatReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

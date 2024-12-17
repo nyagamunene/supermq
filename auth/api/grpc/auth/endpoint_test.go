@@ -246,27 +246,27 @@ func TestIdentifyPAT(t *testing.T) {
 	cases := []struct {
 		desc   string
 		token  string
-		idt    *grpcAuthV1.AuthNPATRes
+		idt    *grpcAuthV1.AuthNRes
 		svcErr error
 		err    error
 	}{
 		{
 			desc:  "authenticate user with valid user token",
 			token: validToken,
-			idt:   &grpcAuthV1.AuthNPATRes{Id: id, UserId: clientID},
+			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID},
 			err:   nil,
 		},
 		{
 			desc:   "authenticate user with invalid user token",
 			token:  "invalid",
-			idt:    &grpcAuthV1.AuthNPATRes{},
+			idt:    &grpcAuthV1.AuthNRes{},
 			svcErr: svcerr.ErrAuthentication,
 			err:    svcerr.ErrAuthentication,
 		},
 		{
 			desc:  "authenticate user with empty token",
 			token: "",
-			idt:   &grpcAuthV1.AuthNPATRes{},
+			idt:   &grpcAuthV1.AuthNRes{},
 			err:   apiutil.ErrBearerToken,
 		},
 	}
@@ -293,14 +293,14 @@ func TestAuthorizePAT(t *testing.T) {
 	cases := []struct {
 		desc         string
 		token        string
-		authRequest  *grpcAuthV1.AuthZpatReq
+		authRequest  *grpcAuthV1.AuthZPatReq
 		authResponse *grpcAuthV1.AuthZRes
 		err          error
 	}{
 		{
 			desc:  "authorize user with authorized token",
 			token: validPATToken,
-			authRequest: &grpcAuthV1.AuthZpatReq{
+			authRequest: &grpcAuthV1.AuthZPatReq{
 				UserId:                   id,
 				PatId:                    id,
 				PlatformEntityType:       uint32(auth.PlatformDomainsScope),
@@ -315,7 +315,7 @@ func TestAuthorizePAT(t *testing.T) {
 		{
 			desc:  "authorize user with unauthorized token",
 			token: inValidPATToken,
-			authRequest: &grpcAuthV1.AuthZpatReq{
+			authRequest: &grpcAuthV1.AuthZPatReq{
 				UserId:                   id,
 				PatId:                    id,
 				PlatformEntityType:       uint32(auth.PlatformDomainsScope),
@@ -330,7 +330,7 @@ func TestAuthorizePAT(t *testing.T) {
 		{
 			desc:  "authorize user with missing user id",
 			token: validPATToken,
-			authRequest: &grpcAuthV1.AuthZpatReq{
+			authRequest: &grpcAuthV1.AuthZPatReq{
 				PatId:                    id,
 				PlatformEntityType:       uint32(auth.PlatformDomainsScope),
 				OptionalDomainId:         domainID,
@@ -344,7 +344,7 @@ func TestAuthorizePAT(t *testing.T) {
 		{
 			desc:  "authorize user with missing pat id",
 			token: validPATToken,
-			authRequest: &grpcAuthV1.AuthZpatReq{
+			authRequest: &grpcAuthV1.AuthZPatReq{
 				UserId:                   id,
 				PlatformEntityType:       uint32(auth.PlatformDomainsScope),
 				OptionalDomainId:         domainID,

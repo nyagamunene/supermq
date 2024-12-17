@@ -5,6 +5,7 @@ package authsvc
 
 import (
 	"context"
+	"strings"
 
 	"github.com/absmach/supermq/auth/api/grpc/auth"
 	grpcAuthV1 "github.com/absmach/supermq/internal/grpc/auth/v1"
@@ -13,6 +14,8 @@ import (
 	"github.com/absmach/supermq/pkg/grpcclient"
 	grpchealth "google.golang.org/grpc/health/grpc_health_v1"
 )
+
+const patPrefix = "pat_"
 
 type authentication struct {
 	authSvcClient grpcAuthV1.AuthServiceClient
@@ -38,19 +41,18 @@ func NewAuthentication(ctx context.Context, cfg grpcclient.Config) (authn.Authen
 }
 
 func (a authentication) Authenticate(ctx context.Context, token string) (authn.Session, error) {
+	if strings.HasPrefix(token, patPrefix) {
+		res, err := a.authSvcClient.AuthenticatePAT(ctx, &grpcAuthV1.AuthNReq{Token: token})
+		if err != nil {
+			return authn.Session{}, errors.Wrap(errors.ErrAuthentication, err)
+		}
+
+		return authn.Session{Type: authn.PersonalAccessToken, ID: res.GetId(), UserID: res.GetUserId()}, nil
+	}
 	res, err := a.authSvcClient.Authenticate(ctx, &grpcAuthV1.AuthNReq{Token: token})
 	if err != nil {
 		return authn.Session{}, errors.Wrap(errors.ErrAuthentication, err)
 	}
 
 	return authn.Session{Type: authn.AccessToken, DomainUserID: res.GetId(), UserID: res.GetUserId(), DomainID: res.GetDomainId()}, nil
-}
-
-func (a authentication) AuthenticatePAT(ctx context.Context, token string) (authn.Session, error) {
-	res, err := a.authSvcClient.AuthenticatePAT(ctx, &grpcAuthV1.AuthNReq{Token: token})
-	if err != nil {
-		return authn.Session{}, errors.Wrap(errors.ErrAuthentication, err)
-	}
-
-	return authn.Session{Type: authn.PersonalAccessToken, ID: res.GetId(), UserID: res.GetUserId()}, nil
 }

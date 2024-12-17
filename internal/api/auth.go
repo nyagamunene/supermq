@@ -6,7 +6,6 @@ package api
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/pkg/apiutil"
@@ -18,7 +17,6 @@ type sessionKeyType string
 
 const (
 	SessionKey = sessionKeyType("session")
-	patPrefix  = "pat_"
 )
 
 func AuthenticateMiddleware(authn smqauthn.Authentication, domainCheck bool) func(http.Handler) http.Handler {
@@ -31,18 +29,11 @@ func AuthenticateMiddleware(authn smqauthn.Authentication, domainCheck bool) fun
 			}
 			var resp smqauthn.Session
 			var err error
-			if strings.HasPrefix(token, patPrefix) {
-				resp, err = authn.AuthenticatePAT(r.Context(), token)
-				if err != nil {
-					EncodeError(r.Context(), err, w)
-					return
-				}
-			} else {
-				resp, err = authn.Authenticate(r.Context(), token)
-				if err != nil {
-					EncodeError(r.Context(), err, w)
-					return
-				}
+
+			resp, err = authn.Authenticate(r.Context(), token)
+			if err != nil {
+				EncodeError(r.Context(), err, w)
+				return
 			}
 
 			if domainCheck {
