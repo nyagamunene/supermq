@@ -107,10 +107,12 @@ func (pr *patRepo) Retrieve(ctx context.Context, userID, patID string) (auth.PAT
 	return keyValueToPAT(kv)
 }
 
-func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, error) {
+func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, bool, error) {
 	revoked := true
+	expired := false
 	keySecret := patID + keySeparator + secretKey
 	keyRevoked := patID + keySeparator + revokedKey
+	keyExpiresAt := patID + keySeparator + expiresAtKey
 	var secretHash string
 	if err := pr.db.View(func(tx *bolt.Tx) error {
 		b, err := pr.retrieveUserBucket(tx, userID, patID, repoerr.ErrViewEntity)
@@ -119,11 +121,13 @@ func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, pa
 		}
 		secretHash = string(b.Get([]byte(keySecret)))
 		revoked = bytesToBoolean(b.Get([]byte(keyRevoked)))
+		expiresAt := bytesToTime(b.Get([]byte(keyExpiresAt)))
+		expired = time.Now().After(expiresAt)
 		return nil
 	}); err != nil {
-		return "", true, err
+		return "", true, true, err
 	}
-	return secretHash, revoked, nil
+	return secretHash, revoked, expired, nil
 }
 
 func (pr *patRepo) UpdateName(ctx context.Context, userID, patID, name string) (auth.PAT, error) {

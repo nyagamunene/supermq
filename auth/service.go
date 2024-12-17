@@ -647,12 +647,15 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, errMalformedPAT)
 	}
-	secretHash, revoked, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
+	secretHash, revoked, expired, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
 	if revoked {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, errRevokedPAT)
+	}
+	if expired {
+		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, ErrExpiry)
 	}
 	if err := svc.hasher.Compare(secret, secretHash); err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, err)

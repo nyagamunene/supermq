@@ -771,7 +771,7 @@ type PATSRepository interface {
 	Retrieve(ctx context.Context, userID, patID string) (pat PAT, err error)
 
 	// RetrieveSecretAndRevokeStatus retrieves secret and revoke status of PAT by its unique identifier.
-	RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, error)
+	RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, bool, error)
 
 	// UpdateName updates the name of a PAT.
 	UpdateName(ctx context.Context, userID, patID, name string) (PAT, error)
