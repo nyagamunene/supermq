@@ -18,10 +18,7 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-const (
-	contentType = "application/json"
-	patPrefix   = "pat_"
-)
+const contentType = "application/json"
 
 // MakeHandler returns a HTTP handler for API endpoints.
 func MakeHandler(svc auth.Service, mux *chi.Mux, logger *slog.Logger) *chi.Mux {
