@@ -85,7 +85,7 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 			Operation:                auth.CreateOp,
 			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
-			return []clients.Client{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
