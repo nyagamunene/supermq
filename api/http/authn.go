@@ -15,10 +15,7 @@ import (
 
 type sessionKeyType string
 
-const (
-	SessionKey = sessionKeyType("session")
-	patPrefix  = "pat_"
-)
+const SessionKey = sessionKeyType("session")
 
 func AuthenticateMiddleware(authn smqauthn.Authentication, domainCheck bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
