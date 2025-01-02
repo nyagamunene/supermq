@@ -18,10 +18,7 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-const (
-	contentType = "application/json"
-	patPrefix   = "pat_"
-)
+const contentType = "application/json"
 
 // MakeHandler returns a HTTP handler for API endpoints.
 func MakeHandler(svc auth.Service, mux *chi.Mux, logger *slog.Logger) *chi.Mux {
@@ -58,12 +55,7 @@ func decodeIssue(_ context.Context, r *http.Request) (interface{}, error) {
 		return nil, apiutil.ErrUnsupportedContentType
 	}
 
-	token := apiutil.ExtractBearerToken(r)
-	if strings.HasPrefix(token, patPrefix) {
-		return nil, apiutil.ErrUnsupportedTokenType
-	}
-
-	req := issueKeyReq{token: token}
+	req := issueKeyReq{token: apiutil.ExtractBearerToken(r)}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(errors.ErrMalformedEntity, err)
 	}
@@ -72,13 +64,8 @@ func decodeIssue(_ context.Context, r *http.Request) (interface{}, error) {
 }
 
 func decodeKeyReq(_ context.Context, r *http.Request) (interface{}, error) {
-	token := apiutil.ExtractBearerToken(r)
-	if strings.HasPrefix(token, patPrefix) {
-		return nil, apiutil.ErrUnsupportedTokenType
-	}
-
 	req := keyReq{
-		token: token,
+		token: apiutil.ExtractBearerToken(r),
 		id:    chi.URLParam(r, "id"),
 	}
 	return req, nil

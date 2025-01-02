@@ -26,11 +26,6 @@ message AuthNRes {
   string domain_id = 3; // domain id
 }
 
-message AuthNPATRes {
-  string id    = 1; // pat id
-  string user_id = 2; // user id
-}
-
 message AuthZReq {
   string domain = 1;           // Domain
   string subject_type = 2;     // Client or User
@@ -46,10 +41,10 @@ message AuthZReq {
 message AuthZPatReq {
   string user_id = 1;                      // User id
   string pat_id = 2;                       // Pat id
-  uint32 platform_entity_type = 3;         // Platform entity type
+  uint32 platform_entity_type = 3;        // Platform entity type
   string optional_domain_id = 4;           // Optional domain id
-  uint32 optional_domain_entity_type = 5;  // Optional domain entity type 
-  uint32 operation = 6;                    // Operation
+  uint32 optional_domain_entity_type = 5; // Optional domain entity type 
+  uint32 operation = 6;                   // Operation
   repeated string entity_ids = 7;          // EntityIDs
 }
 
