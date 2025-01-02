@@ -91,7 +91,7 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 			Operation:                auth.CreateOp,
 			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
-			return groups.Group{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 	if err := am.extAuthorize(ctx, groups.DomainOpCreateGroup, smqauthz.PolicyReq{

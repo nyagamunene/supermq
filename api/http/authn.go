@@ -6,9 +6,9 @@ package http
 import (
 	"context"
 	"net/http"
-	"strings"
 
 	apiutil "github.com/absmach/supermq/api/http/util"
+	"github.com/absmach/supermq/auth"
 	smqauthn "github.com/absmach/supermq/pkg/authn"
 	"github.com/go-chi/chi/v5"
 )
@@ -28,20 +28,10 @@ func AuthenticateMiddleware(authn smqauthn.Authentication, domainCheck bool) fun
 				EncodeError(r.Context(), apiutil.ErrBearerToken, w)
 				return
 			}
-			var resp smqauthn.Session
-			var err error
-			if strings.HasPrefix(token, patPrefix) {
-				resp, err = authn.AuthenticatePAT(r.Context(), token)
-				if err != nil {
-					EncodeError(r.Context(), err, w)
-					return
-				}
-			} else {
-				resp, err = authn.Authenticate(r.Context(), token)
-				if err != nil {
-					EncodeError(r.Context(), err, w)
-					return
-				}
+			resp, err := authn.Authenticate(r.Context(), token)
+			if err != nil {
+				EncodeError(r.Context(), err, w)
+				return
 			}
 
 			if domainCheck {
