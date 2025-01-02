@@ -92,11 +92,11 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 			Operation:                auth.CreateOp,
 			EntityIDs:                auth.AnyIDs{}.Values(),
 		}); err != nil {
-			return []channels.Channel{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			return []channels.Channel{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
-	if err := am.extAuthorize(ctx, channels.DomainOpCreateChannel, authz.PolicyReq{
+	if err := am.extAuthorize(ctx, channels.DomainOpCreateChannel, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
