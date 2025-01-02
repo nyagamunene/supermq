@@ -167,21 +167,6 @@ func (svc service) RetrieveKey(ctx context.Context, token, id string) (Key, erro
 }
 
 func (svc service) Identify(ctx context.Context, token string) (Key, error) {
-	if strings.HasPrefix(token, "pat"+"_") {
-		pat, err := svc.IdentifyPAT(ctx, token)
-		if err != nil {
-			return Key{}, err
-		}
-		return Key{
-			ID:        pat.ID,
-			Type:      PersonalAccessToken,
-			Subject:   pat.User,
-			User:      pat.User,
-			IssuedAt:  pat.IssuedAt,
-			ExpiresAt: pat.ExpiresAt,
-		}, nil
-	}
-
 	key, err := svc.tokenizer.Parse(token)
 	if errors.Contains(err, ErrExpiry) {
 		err = svc.keys.Remove(ctx, key.Issuer, key.ID)
@@ -529,8 +514,13 @@ func (svc service) UpdatePATDescription(ctx context.Context, token, patID, descr
 	return pat, nil
 }
 
-func (svc service) RetrievePAT(ctx context.Context, userID, patID string) (PAT, error) {
-	pat, err := svc.pats.Retrieve(ctx, userID, patID)
+func (svc service) RetrievePAT(ctx context.Context, token, patID string) (PAT, error) {
+	key, err := svc.Identify(ctx, token)
+	if err != nil {
+		return PAT{}, err
+	}
+
+	pat, err := svc.pats.Retrieve(ctx, key.User, patID)
 	if err != nil {
 		return PAT{}, errors.Wrap(errRetrievePAT, err)
 	}
