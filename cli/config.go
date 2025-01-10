@@ -21,8 +21,6 @@ const (
 	defURL             string = "http://localhost"
 	defUsersURL        string = defURL + ":9002"
 	defCLientsURL      string = defURL + ":9006"
-	defReaderURL       string = defURL + ":9011"
-	defBootstrapURL    string = defURL + ":9013"
 	defDomainsURL      string = defURL + ":9003"
 	defChannelsURL     string = defURL + ":9005"
 	defGroupsURL       string = defURL + ":9004"
