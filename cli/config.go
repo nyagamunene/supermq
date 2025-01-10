@@ -20,8 +20,12 @@ import (
 const (
 	defURL             string = "http://localhost"
 	defUsersURL        string = defURL + ":9002"
-	defCLientsURL      string = defURL + ":9000"
-	defDomainsURL      string = defURL + ":8189"
+	defCLientsURL      string = defURL + ":9006"
+	defReaderURL       string = defURL + ":9011"
+	defBootstrapURL    string = defURL + ":9013"
+	defDomainsURL      string = defURL + ":9003"
+	defChannelsURL     string = defURL + ":9005"
+	defGroupsURL       string = defURL + ":9004"
 	defCertsURL        string = defURL + ":9019"
 	defInvitationsURL  string = defURL + ":9020"
 	defHTTPURL         string = defURL + ":8008"
@@ -37,6 +41,8 @@ type remotes struct {
 	ClientsURL      string `toml:"clients_url"`
 	UsersURL        string `toml:"users_url"`
 	DomainsURL      string `toml:"domains_url"`
+	ChannelsURL     string `toml:"channels_url"`
+	GroupsURL       string `toml:"groups_url"`
 	HTTPAdapterURL  string `toml:"http_adapter_url"`
 	CertsURL        string `toml:"certs_url"`
 	InvitationsURL  string `toml:"invitations_url"`
@@ -106,6 +112,8 @@ func ParseConfig(sdkConf smqsdk.Config) (smqsdk.Config, error) {
 				ClientsURL:      defCLientsURL,
 				UsersURL:        defUsersURL,
 				DomainsURL:      defDomainsURL,
+				ChannelsURL:     defChannelsURL,
+				GroupsURL:       defGroupsURL,
 				HTTPAdapterURL:  defHTTPURL,
 				CertsURL:        defCertsURL,
 				InvitationsURL:  defInvitationsURL,
@@ -175,6 +183,14 @@ func ParseConfig(sdkConf smqsdk.Config) (smqsdk.Config, error) {
 
 	if sdkConf.DomainsURL == "" && config.Remotes.DomainsURL != "" {
 		sdkConf.DomainsURL = config.Remotes.DomainsURL
+	}
+
+	if sdkConf.ChannelsURL == "" && config.Remotes.ChannelsURL != "" {
+		sdkConf.ChannelsURL = config.Remotes.ChannelsURL
+	}
+
+	if sdkConf.GroupsURL == "" && config.Remotes.GroupsURL != "" {
+		sdkConf.GroupsURL = config.Remotes.GroupsURL
 	}
 
 	if sdkConf.HTTPAdapterURL == "" && config.Remotes.HTTPAdapterURL != "" {

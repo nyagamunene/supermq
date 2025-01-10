@@ -10,12 +10,14 @@ user_token = ""
   topic = ""
 
 [remotes]
-  journal_url = "http://localhost:9021"
   certs_url = "http://localhost:9019"
-  domains_url = "http://localhost:8189"
+  channels_url = "http://localhost:9005"
+  clients_url = "http://localhost:9006"
+  domains_url = "http://localhost:9003"
+  groups_url = "http://localhost:9004"
   host_url = "http://localhost"
   http_adapter_url = "http://localhost:8008"
   invitations_url = "http://localhost:9020"
-  clients_url = "http://localhost:9000"
+  journal_url = "http://localhost:9021"
   tls_verification = false
   users_url = "http://localhost:9002"

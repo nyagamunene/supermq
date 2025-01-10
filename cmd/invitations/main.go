@@ -52,7 +52,7 @@ const (
 type config struct {
 	LogLevel      string  `env:"SMQ_INVITATIONS_LOG_LEVEL"      envDefault:"info"`
 	UsersURL      string  `env:"SMQ_USERS_URL"                  envDefault:"http://localhost:9002"`
-	DomainsURL    string  `env:"SMQ_DOMAINS_URL"                envDefault:"http://localhost:8189"`
+	DomainsURL    string  `env:"SMQ_DOMAINS_URL"                envDefault:"http://localhost:9003"`
 	InstanceID    string  `env:"SMQ_INVITATIONS_INSTANCE_ID"    envDefault:""`
 	JaegerURL     url.URL `env:"SMQ_JAEGER_URL"                 envDefault:"http://localhost:4318/v1/traces"`
 	TraceRatio    float64 `env:"SMQ_JAEGER_TRACE_RATIO"         envDefault:"1.0"`
