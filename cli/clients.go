@@ -198,11 +198,11 @@ var cmdClients = []cobra.Command{
 		},
 	},
 	{
-		Use:   "connect <client_id> <channel_id> <conn_types_json> <domain_id> <user_auth_token>",
+		Use:   "connect <client_id> <channel_id> <conn_types_json_list> <domain_id> <user_auth_token>",
 		Short: "Connect client",
 		Long: "Connect client to the channel\n" +
 			"Usage:\n" +
-			"\tsupermq-cli clients connect <client_id> <channel_id> <conn_types_json> $DOMAINID $USERTOKEN\n",
+			"\tsupermq-cli clients connect <client_id> <channel_id> <conn_types_json_list> $DOMAINID $USERTOKEN\n",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 5 {
 				logUsageCmd(*cmd, cmd.Use)
@@ -229,22 +229,30 @@ var cmdClients = []cobra.Command{
 		},
 	},
 	{
-		Use:   "disconnect <client_id> <channel_id> <domain_id> <user_auth_token>",
+		Use:   "disconnect <client_id> <channel_id> <conn_types_json_list> <domain_id> <user_auth_token>",
 		Short: "Disconnect client",
 		Long: "Disconnect client to the channel\n" +
 			"Usage:\n" +
-			"\tsupermq-cli clients disconnect <client_id> <channel_id> $DOMAINID $USERTOKEN\n",
+			"\tsupermq-cli clients disconnect <client_id> <channel_id> <conn_types_json_list> $DOMAINID $USERTOKEN\n",
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) != 4 {
+			if len(args) != 5 {
 				logUsageCmd(*cmd, cmd.Use)
+				return
+			}
+
+			var conn_types []string
+			err := json.Unmarshal([]byte(args[2]), &conn_types)
+			if err != nil {
+				logErrorCmd(*cmd, err)
 				return
 			}
 
 			connIDs := smqsdk.Connection{
 				ClientIDs:  []string{args[0]},
 				ChannelIDs: []string{args[1]},
+				Types:      conn_types,
 			}
-			if err := sdk.Disconnect(connIDs, args[2], args[3]); err != nil {
+			if err := sdk.Disconnect(connIDs, args[3], args[4]); err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}

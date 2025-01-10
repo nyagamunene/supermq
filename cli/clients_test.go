@@ -28,6 +28,7 @@ var (
 	tokenWithoutDomain = "valid"
 	relation           = "administrator"
 	all                = "all"
+	conntype           = `["publish","subscribe"]`
 )
 
 var client = sdk.Client{
@@ -817,6 +818,7 @@ func TestConnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				channel.ID,
+				conntype,
 				domainID,
 				token,
 			},
@@ -827,6 +829,7 @@ func TestConnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				channel.ID,
+				conntype,
 				domainID,
 				token,
 				extraArg,
@@ -838,6 +841,7 @@ func TestConnectClientCmd(t *testing.T) {
 			args: []string{
 				invalidID,
 				channel.ID,
+				conntype,
 				domainID,
 				token,
 			},
@@ -850,6 +854,7 @@ func TestConnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				invalidID,
+				conntype,
 				domainID,
 				token,
 			},
@@ -862,6 +867,7 @@ func TestConnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				channel.ID,
+				conntype,
 				invalidID,
 				token,
 			},
@@ -873,7 +879,7 @@ func TestConnectClientCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("Connect", mock.Anything, tc.args[2], tc.args[3]).Return(tc.sdkErr)
+			sdkCall := sdkMock.On("Connect", mock.Anything, tc.args[3], tc.args[4]).Return(tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{connCmd}, tc.args...)...)
 
 			switch tc.logType {
@@ -907,6 +913,7 @@ func TestDisconnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				channel.ID,
+				conntype,
 				domainID,
 				token,
 			},
@@ -917,6 +924,7 @@ func TestDisconnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				channel.ID,
+				conntype,
 				domainID,
 				token,
 				extraArg,
@@ -928,6 +936,7 @@ func TestDisconnectClientCmd(t *testing.T) {
 			args: []string{
 				invalidID,
 				channel.ID,
+				conntype,
 				domainID,
 				token,
 			},
@@ -940,6 +949,7 @@ func TestDisconnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				invalidID,
+				conntype,
 				domainID,
 				token,
 			},
@@ -952,6 +962,7 @@ func TestDisconnectClientCmd(t *testing.T) {
 			args: []string{
 				client.ID,
 				channel.ID,
+				conntype,
 				invalidID,
 				token,
 			},
@@ -963,7 +974,7 @@ func TestDisconnectClientCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("Disconnect", mock.Anything, tc.args[2], tc.args[3]).Return(tc.sdkErr)
+			sdkCall := sdkMock.On("Disconnect", mock.Anything, tc.args[3], tc.args[4]).Return(tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{disconnCmd}, tc.args...)...)
 
 			switch tc.logType {
