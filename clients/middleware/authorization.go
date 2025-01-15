@@ -78,7 +78,7 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -106,7 +106,7 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -133,7 +133,7 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -155,7 +155,7 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -183,7 +183,7 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -211,7 +211,7 @@ func (am *authorizationMiddleware) UpdateSecret(ctx context.Context, session aut
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -238,7 +238,7 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -266,7 +266,7 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -293,7 +293,7 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainClientsScope,
@@ -320,7 +320,7 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -357,7 +357,7 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,

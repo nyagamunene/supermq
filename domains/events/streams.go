@@ -50,6 +50,7 @@ func (es *eventStore) CreateDomain(ctx context.Context, session authn.Session, d
 	event := createDomainEvent{
 		Domain:           domain,
 		rolesProvisioned: rps,
+		Session:          session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -67,6 +68,7 @@ func (es *eventStore) RetrieveDomain(ctx context.Context, session authn.Session,
 
 	event := retrieveDomainEvent{
 		domain,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -84,6 +86,7 @@ func (es *eventStore) UpdateDomain(ctx context.Context, session authn.Session, i
 
 	event := updateDomainEvent{
 		domain,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -103,6 +106,7 @@ func (es *eventStore) EnableDomain(ctx context.Context, session authn.Session, i
 		domainID:  id,
 		updatedAt: domain.UpdatedAt,
 		updatedBy: domain.UpdatedBy,
+		Session:   session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -122,6 +126,7 @@ func (es *eventStore) DisableDomain(ctx context.Context, session authn.Session, 
 		domainID:  id,
 		updatedAt: domain.UpdatedAt,
 		updatedBy: domain.UpdatedBy,
+		Session:   session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -141,6 +146,7 @@ func (es *eventStore) FreezeDomain(ctx context.Context, session authn.Session, i
 		domainID:  id,
 		updatedAt: domain.UpdatedAt,
 		updatedBy: domain.UpdatedBy,
+		Session:   session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -157,7 +163,11 @@ func (es *eventStore) ListDomains(ctx context.Context, session authn.Session, p 
 	}
 
 	event := listDomainsEvent{
-		p, dp.Total,
+		Page:       p,
+		total:      dp.Total,
+		userID:     session.UserID,
+		tokenType:  session.Type.String(),
+		superAdmin: session.SuperAdmin,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {

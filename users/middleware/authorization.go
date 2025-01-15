@@ -47,7 +47,7 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.ReadOp,
@@ -68,7 +68,7 @@ func (am *authorizationMiddleware) ViewProfile(ctx context.Context, session auth
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.ReadOp,
@@ -84,7 +84,7 @@ func (am *authorizationMiddleware) ListUsers(ctx context.Context, session authn.
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.ListOp,
@@ -106,7 +106,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 		case policies.GroupsKind:
 			if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 				UserID:                   session.UserID,
-				PatID:                    session.ID,
+				PatID:                    session.PatID,
 				OptionalDomainID:         session.DomainID,
 				PlatformEntityType:       smqauth.PlatformUsersScope,
 				OptionalDomainEntityType: smqauth.DomainGroupsScope,
@@ -118,7 +118,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 		case policies.DomainsKind:
 			if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 				UserID:                   session.UserID,
-				PatID:                    session.ID,
+				PatID:                    session.PatID,
 				OptionalDomainID:         session.DomainID,
 				PlatformEntityType:       smqauth.PlatformUsersScope,
 				OptionalDomainEntityType: smqauth.DomainManagementScope,
@@ -130,7 +130,7 @@ func (am *authorizationMiddleware) ListMembers(ctx context.Context, session auth
 		case policies.ClientsKind:
 			if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 				UserID:                   session.UserID,
-				PatID:                    session.ID,
+				PatID:                    session.PatID,
 				OptionalDomainID:         session.DomainID,
 				PlatformEntityType:       smqauth.PlatformUsersScope,
 				OptionalDomainEntityType: smqauth.DomainClientsScope,
@@ -175,7 +175,7 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -196,7 +196,7 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -217,7 +217,7 @@ func (am *authorizationMiddleware) UpdateEmail(ctx context.Context, session auth
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -237,7 +237,7 @@ func (am *authorizationMiddleware) UpdateUsername(ctx context.Context, session a
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -258,7 +258,7 @@ func (am *authorizationMiddleware) UpdateProfilePicture(ctx context.Context, ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -283,7 +283,7 @@ func (am *authorizationMiddleware) UpdateSecret(ctx context.Context, session aut
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -308,7 +308,7 @@ func (am *authorizationMiddleware) UpdateRole(ctx context.Context, session authn
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -333,7 +333,7 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -354,7 +354,7 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.UpdateOp,
@@ -375,7 +375,7 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       smqauth.PlatformUsersScope,
 			OptionalDomainEntityType: smqauth.DomainNullScope,
 			Operation:                smqauth.DeleteOp,

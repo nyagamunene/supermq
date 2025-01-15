@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/absmach/supermq/channels"
+	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/events"
 	"github.com/absmach/supermq/pkg/roles"
@@ -39,8 +40,8 @@ var (
 
 type createChannelEvent struct {
 	channels.Channel
-	domainID         string
 	rolesProvisioned []roles.RoleProvision
+	authn.Session
 }
 
 func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
@@ -50,7 +51,10 @@ func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
 		"roles_provisioned": cce.rolesProvisioned,
 		"status":            cce.Status.String(),
 		"created_at":        cce.CreatedAt,
-		"domain":            cce.domainID,
+		"domain":            cce.DomainID,
+		"user_id":           cce.UserID,
+		"token_type":        cce.Type.String(),
+		"super_admin":       cce.SuperAdmin,
 	}
 
 	if cce.Name != "" {
@@ -69,15 +73,18 @@ func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
 type updateChannelEvent struct {
 	channels.Channel
 	operation string
-	domainID  string
+	authn.Session
 }
 
 func (uce updateChannelEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation":  channelUpdate,
-		"updated_at": uce.UpdatedAt,
-		"updated_by": uce.UpdatedBy,
-		"domain":     uce.domainID,
+		"operation":   channelUpdate,
+		"updated_at":  uce.UpdatedAt,
+		"updated_by":  uce.UpdatedBy,
+		"domain":      uce.DomainID,
+		"user_id":     uce.UserID,
+		"token_type":  uce.Type.String(),
+		"super_admin": uce.SuperAdmin,
 	}
 	if uce.operation != "" {
 		val["operation"] = channelUpdate + "_" + uce.operation
@@ -110,30 +117,36 @@ type changeStatusChannelEvent struct {
 	status    string
 	updatedAt time.Time
 	updatedBy string
-	domainID  string
+	authn.Session
 }
 
 func (rce changeStatusChannelEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
-		"operation":  channelChangeStatus,
-		"id":         rce.id,
-		"status":     rce.status,
-		"updated_at": rce.updatedAt,
-		"updated_by": rce.updatedBy,
-		"domain":     rce.domainID,
+		"operation":   channelChangeStatus,
+		"id":          rce.id,
+		"status":      rce.status,
+		"updated_at":  rce.updatedAt,
+		"updated_by":  rce.updatedBy,
+		"domain":      rce.DomainID,
+		"user_id":     rce.UserID,
+		"token_type":  rce.Type.String(),
+		"super_admin": rce.SuperAdmin,
 	}, nil
 }
 
 type viewChannelEvent struct {
 	channels.Channel
-	domainID string
+	authn.Session
 }
 
 func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation": channelView,
-		"id":        vce.ID,
-		"domain":    vce.domainID,
+		"operation":   channelView,
+		"id":          vce.ID,
+		"domain":      vce.DomainID,
+		"user_id":     vce.UserID,
+		"token_type":  vce.Type.String(),
+		"super_admin": vce.SuperAdmin,
 	}
 
 	if vce.Name != "" {
@@ -163,16 +176,19 @@ func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 
 type listChannelEvent struct {
 	channels.PageMetadata
-	domainID string
+	authn.Session
 }
 
 func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation": channelList,
-		"total":     lce.Total,
-		"offset":    lce.Offset,
-		"limit":     lce.Limit,
-		"domain":    lce.domainID,
+		"operation":   channelList,
+		"total":       lce.Total,
+		"offset":      lce.Offset,
+		"limit":       lce.Limit,
+		"domain":      lce.DomainID,
+		"user_id":     lce.UserID,
+		"token_type":  lce.Type.String(),
+		"super_admin": lce.SuperAdmin,
 	}
 
 	if lce.Name != "" {
@@ -204,19 +220,22 @@ func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
 }
 
 type listChannelByClientEvent struct {
-	domainID string
 	clientID string
 	channels.PageMetadata
+	authn.Session
 }
 
 func (lcte listChannelByClientEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation": channelList,
-		"client_id": lcte.clientID,
-		"total":     lcte.Total,
-		"offset":    lcte.Offset,
-		"limit":     lcte.Limit,
-		"domain":    lcte.domainID,
+		"operation":   channelList,
+		"client_id":   lcte.clientID,
+		"total":       lcte.Total,
+		"offset":      lcte.Offset,
+		"limit":       lcte.Limit,
+		"domain":      lcte.DomainID,
+		"user_id":     lcte.UserID,
+		"token_type":  lcte.Type.String(),
+		"super_admin": lcte.SuperAdmin,
 	}
 
 	if lcte.Name != "" {
@@ -248,23 +267,26 @@ func (lcte listChannelByClientEvent) Encode() (map[string]interface{}, error) {
 }
 
 type removeChannelEvent struct {
-	id       string
-	domainID string
+	id string
+	authn.Session
 }
 
 func (dce removeChannelEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
-		"operation": channelRemove,
-		"id":        dce.id,
-		"domain":    dce.domainID,
+		"operation":   channelRemove,
+		"id":          dce.id,
+		"domain":      dce.DomainID,
+		"user_id":     dce.UserID,
+		"token_type":  dce.Type.String(),
+		"super_admin": dce.SuperAdmin,
 	}, nil
 }
 
 type connectEvent struct {
-	domainID string
-	chIDs    []string
-	thIDs    []string
-	types    []connections.ConnType
+	chIDs []string
+	thIDs []string
+	types []connections.ConnType
+	authn.Session
 }
 
 func (ce connectEvent) Encode() (map[string]interface{}, error) {
@@ -273,15 +295,18 @@ func (ce connectEvent) Encode() (map[string]interface{}, error) {
 		"client_ids":  ce.thIDs,
 		"channel_ids": ce.chIDs,
 		"types":       ce.types,
-		"domain":      ce.domainID,
+		"domain":      ce.DomainID,
+		"user_id":     ce.UserID,
+		"token_type":  ce.Type.String(),
+		"super_admin": ce.SuperAdmin,
 	}, nil
 }
 
 type disconnectEvent struct {
-	domainID string
-	chIDs    []string
-	thIDs    []string
-	types    []connections.ConnType
+	chIDs []string
+	thIDs []string
+	types []connections.ConnType
+	authn.Session
 }
 
 func (de disconnectEvent) Encode() (map[string]interface{}, error) {
@@ -290,14 +315,17 @@ func (de disconnectEvent) Encode() (map[string]interface{}, error) {
 		"client_ids":  de.thIDs,
 		"channel_ids": de.chIDs,
 		"types":       de.types,
-		"domain":      de.domainID,
+		"domain":      de.DomainID,
+		"user_id":     de.UserID,
+		"token_type":  de.Type.String(),
+		"super_admin": de.SuperAdmin,
 	}, nil
 }
 
 type setParentGroupEvent struct {
 	id            string
 	parentGroupID string
-	domainID      string
+	authn.Session
 }
 
 func (spge setParentGroupEvent) Encode() (map[string]interface{}, error) {
@@ -305,19 +333,25 @@ func (spge setParentGroupEvent) Encode() (map[string]interface{}, error) {
 		"operation":       channelSetParent,
 		"id":              spge.id,
 		"parent_group_id": spge.parentGroupID,
-		"domain":          spge.domainID,
+		"domain":          spge.DomainID,
+		"user_id":         spge.UserID,
+		"token_type":      spge.Type.String(),
+		"super_admin":     spge.SuperAdmin,
 	}, nil
 }
 
 type removeParentGroupEvent struct {
-	id       string
-	domainID string
+	id string
+	authn.Session
 }
 
 func (rpge removeParentGroupEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
-		"operation": channelRemoveParent,
-		"id":        rpge.id,
-		"domain":    rpge.domainID,
+		"operation":   channelRemoveParent,
+		"id":          rpge.id,
+		"domain":      rpge.DomainID,
+		"user_id":     rpge.UserID,
+		"token_type":  rpge.Type.String(),
+		"super_admin": rpge.SuperAdmin,
 	}, nil
 }

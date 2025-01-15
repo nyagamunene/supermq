@@ -84,7 +84,7 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -125,7 +125,7 @@ func (am *authorizationMiddleware) UpdateGroup(ctx context.Context, session auth
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -154,7 +154,7 @@ func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -183,7 +183,7 @@ func (am *authorizationMiddleware) ListGroups(ctx context.Context, session authn
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -235,7 +235,7 @@ func (am *authorizationMiddleware) EnableGroup(ctx context.Context, session auth
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -263,7 +263,7 @@ func (am *authorizationMiddleware) DisableGroup(ctx context.Context, session aut
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -291,7 +291,7 @@ func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session auth
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -319,7 +319,7 @@ func (am *authorizationMiddleware) RetrieveGroupHierarchy(ctx context.Context, s
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -346,7 +346,7 @@ func (am *authorizationMiddleware) AddParentGroup(ctx context.Context, session a
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -383,7 +383,7 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -427,7 +427,7 @@ func (am *authorizationMiddleware) AddChildrenGroups(ctx context.Context, sessio
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -467,7 +467,7 @@ func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, ses
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -495,7 +495,7 @@ func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, 
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,
@@ -523,7 +523,7 @@ func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, sessi
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
-			PatID:                    session.ID,
+			PatID:                    session.PatID,
 			PlatformEntityType:       auth.PlatformDomainsScope,
 			OptionalDomainID:         session.DomainID,
 			OptionalDomainEntityType: auth.DomainGroupsScope,

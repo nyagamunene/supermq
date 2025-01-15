@@ -48,8 +48,8 @@ func (es eventStore) CreateGroup(ctx context.Context, session authn.Session, gro
 
 	event := createGroupEvent{
 		Group:            group,
-		domainID:         session.DomainID,
 		rolesProvisioned: rps,
+		Session:          session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -67,7 +67,7 @@ func (es eventStore) UpdateGroup(ctx context.Context, session authn.Session, gro
 
 	event := updateGroupEvent{
 		group,
-		session.DomainID,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -84,7 +84,7 @@ func (es eventStore) ViewGroup(ctx context.Context, session authn.Session, id st
 	}
 	event := viewGroupEvent{
 		group,
-		session.DomainID,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -100,8 +100,11 @@ func (es eventStore) ListGroups(ctx context.Context, session authn.Session, pm g
 		return gp, err
 	}
 	event := listGroupEvent{
-		pm,
-		session.DomainID,
+		PageMeta:   pm,
+		domainID:   session.DomainID,
+		userID:     session.UserID,
+		tokenType:  session.Type.String(),
+		superAdmin: session.SuperAdmin,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -117,9 +120,11 @@ func (es eventStore) ListUserGroups(ctx context.Context, session authn.Session, 
 		return gp, err
 	}
 	event := listUserGroupEvent{
-		userID:   userID,
-		PageMeta: pm,
-		domainID: session.DomainID,
+		userID:     userID,
+		PageMeta:   pm,
+		domainID:   session.DomainID,
+		tokenType:  session.Type.String(),
+		superAdmin: session.SuperAdmin,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -153,7 +158,7 @@ func (es eventStore) changeStatus(ctx context.Context, session authn.Session, gr
 		updatedAt: group.UpdatedAt,
 		updatedBy: group.UpdatedBy,
 		status:    group.Status.String(),
-		domainID:  session.DomainID,
+		Session:   session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -167,7 +172,10 @@ func (es eventStore) DeleteGroup(ctx context.Context, session authn.Session, id 
 	if err := es.svc.DeleteGroup(ctx, session, id); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, deleteGroupEvent{id: id, domainID: session.DomainID}); err != nil {
+	if err := es.Publish(ctx, deleteGroupEvent{
+		id:      id,
+		Session: session,
+	}); err != nil {
 		return err
 	}
 	return nil
@@ -178,7 +186,7 @@ func (es eventStore) RetrieveGroupHierarchy(ctx context.Context, session authn.S
 	if err != nil {
 		return g, err
 	}
-	if err := es.Publish(ctx, retrieveGroupHierarchyEvent{id: id, domainID: session.DomainID, HierarchyPageMeta: hm}); err != nil {
+	if err := es.Publish(ctx, retrieveGroupHierarchyEvent{id: id, Session: session, HierarchyPageMeta: hm}); err != nil {
 		return g, err
 	}
 	return g, nil
@@ -188,7 +196,7 @@ func (es eventStore) AddParentGroup(ctx context.Context, session authn.Session, 
 	if err := es.svc.AddParentGroup(ctx, session, id, parentID); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, addParentGroupEvent{id: id, parentID: parentID, domainID: session.DomainID}); err != nil {
+	if err := es.Publish(ctx, addParentGroupEvent{id: id, parentID: parentID, Session: session}); err != nil {
 		return err
 	}
 	return nil
@@ -198,7 +206,7 @@ func (es eventStore) RemoveParentGroup(ctx context.Context, session authn.Sessio
 	if err := es.svc.RemoveParentGroup(ctx, session, id); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, removeParentGroupEvent{id: id, domainID: session.DomainID}); err != nil {
+	if err := es.Publish(ctx, removeParentGroupEvent{id: id, Session: session}); err != nil {
 		return err
 	}
 	return nil
@@ -208,7 +216,7 @@ func (es eventStore) AddChildrenGroups(ctx context.Context, session authn.Sessio
 	if err := es.svc.AddChildrenGroups(ctx, session, id, childrenGroupIDs); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, addChildrenGroupsEvent{id: id, domainID: session.DomainID, childrenIDs: childrenGroupIDs}); err != nil {
+	if err := es.Publish(ctx, addChildrenGroupsEvent{id: id, Session: session, childrenIDs: childrenGroupIDs}); err != nil {
 		return err
 	}
 	return nil
@@ -218,7 +226,7 @@ func (es eventStore) RemoveChildrenGroups(ctx context.Context, session authn.Ses
 	if err := es.svc.RemoveChildrenGroups(ctx, session, id, childrenGroupIDs); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, removeChildrenGroupsEvent{id: id, domainID: session.DomainID, childrenIDs: childrenGroupIDs}); err != nil {
+	if err := es.Publish(ctx, removeChildrenGroupsEvent{id: id, Session: session, childrenIDs: childrenGroupIDs}); err != nil {
 		return err
 	}
 
@@ -229,7 +237,7 @@ func (es eventStore) RemoveAllChildrenGroups(ctx context.Context, session authn.
 	if err := es.svc.RemoveAllChildrenGroups(ctx, session, id); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, removeAllChildrenGroupsEvent{id: id, domainID: session.DomainID}); err != nil {
+	if err := es.Publish(ctx, removeAllChildrenGroupsEvent{id: id, Session: session}); err != nil {
 		return err
 	}
 	return nil
@@ -240,7 +248,16 @@ func (es eventStore) ListChildrenGroups(ctx context.Context, session authn.Sessi
 	if err != nil {
 		return g, err
 	}
-	if err := es.Publish(ctx, listChildrenGroupsEvent{id: id, domainID: session.DomainID, startLevel: startLevel, endLevel: endLevel, PageMeta: pm}); err != nil {
+	if err := es.Publish(ctx, listChildrenGroupsEvent{
+		id:         id,
+		domainID:   session.DomainID,
+		startLevel: startLevel,
+		endLevel:   endLevel,
+		PageMeta:   pm,
+		userID:     session.UserID,
+		tokenType:  session.Type.String(),
+		superAdmin: session.SuperAdmin,
+	}); err != nil {
 		return g, err
 	}
 	return g, nil

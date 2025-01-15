@@ -44,6 +44,7 @@ func (es *eventStore) Register(ctx context.Context, session authn.Session, user 
 
 	event := createUserEvent{
 		user,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -59,7 +60,7 @@ func (es *eventStore) Update(ctx context.Context, session authn.Session, user us
 		return user, err
 	}
 
-	return es.update(ctx, "", user)
+	return es.update(ctx, session, "", user)
 }
 
 func (es *eventStore) UpdateRole(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
@@ -68,7 +69,7 @@ func (es *eventStore) UpdateRole(ctx context.Context, session authn.Session, use
 		return user, err
 	}
 
-	return es.update(ctx, "role", user)
+	return es.update(ctx, session, "role", user)
 }
 
 func (es *eventStore) UpdateTags(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
@@ -77,7 +78,7 @@ func (es *eventStore) UpdateTags(ctx context.Context, session authn.Session, use
 		return user, err
 	}
 
-	return es.update(ctx, "tags", user)
+	return es.update(ctx, session, "tags", user)
 }
 
 func (es *eventStore) UpdateSecret(ctx context.Context, session authn.Session, oldSecret, newSecret string) (users.User, error) {
@@ -86,7 +87,7 @@ func (es *eventStore) UpdateSecret(ctx context.Context, session authn.Session, o
 		return user, err
 	}
 
-	return es.update(ctx, "secret", user)
+	return es.update(ctx, session, "secret", user)
 }
 
 func (es *eventStore) UpdateUsername(ctx context.Context, session authn.Session, id, username string) (users.User, error) {
@@ -97,6 +98,7 @@ func (es *eventStore) UpdateUsername(ctx context.Context, session authn.Session,
 
 	event := updateUsernameEvent{
 		user,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -114,6 +116,7 @@ func (es *eventStore) UpdateProfilePicture(ctx context.Context, session authn.Se
 
 	event := updateProfilePictureEvent{
 		user,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -129,12 +132,12 @@ func (es *eventStore) UpdateEmail(ctx context.Context, session authn.Session, id
 		return user, err
 	}
 
-	return es.update(ctx, "email", user)
+	return es.update(ctx, session, "email", user)
 }
 
-func (es *eventStore) update(ctx context.Context, operation string, user users.User) (users.User, error) {
+func (es *eventStore) update(ctx context.Context, session authn.Session, operation string, user users.User) (users.User, error) {
 	event := updateUserEvent{
-		user, operation,
+		user, operation, session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -152,6 +155,7 @@ func (es *eventStore) View(ctx context.Context, session authn.Session, id string
 
 	event := viewUserEvent{
 		user,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -169,6 +173,7 @@ func (es *eventStore) ViewProfile(ctx context.Context, session authn.Session) (u
 
 	event := viewProfileEvent{
 		user,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -185,6 +190,7 @@ func (es *eventStore) ListUsers(ctx context.Context, session authn.Session, pm u
 	}
 	event := listUserEvent{
 		pm,
+		session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -219,7 +225,7 @@ func (es *eventStore) ListMembers(ctx context.Context, session authn.Session, ob
 		Page:       pm,
 		objectKind: objectKind,
 		objectID:   objectID,
-		domainID:   session.DomainID,
+		Session:    session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -235,7 +241,7 @@ func (es *eventStore) Enable(ctx context.Context, session authn.Session, id stri
 		return user, err
 	}
 
-	return es.delete(ctx, user)
+	return es.delete(ctx, session, user)
 }
 
 func (es *eventStore) Disable(ctx context.Context, session authn.Session, id string) (users.User, error) {
@@ -244,15 +250,16 @@ func (es *eventStore) Disable(ctx context.Context, session authn.Session, id str
 		return user, err
 	}
 
-	return es.delete(ctx, user)
+	return es.delete(ctx, session, user)
 }
 
-func (es *eventStore) delete(ctx context.Context, user users.User) (users.User, error) {
+func (es *eventStore) delete(ctx context.Context, session authn.Session, user users.User) (users.User, error) {
 	event := removeUserEvent{
 		id:        user.ID,
 		updatedAt: user.UpdatedAt,
 		updatedBy: user.UpdatedBy,
 		status:    user.Status.String(),
+		Session:   session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -372,7 +379,8 @@ func (es *eventStore) Delete(ctx context.Context, session authn.Session, id stri
 	}
 
 	event := deleteUserEvent{
-		id: id,
+		id:      id,
+		Session: session,
 	}
 
 	return es.Publish(ctx, event)

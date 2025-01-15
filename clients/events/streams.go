@@ -48,9 +48,9 @@ func (es *eventStore) CreateClients(ctx context.Context, session authn.Session, 
 
 	for _, cli := range clis {
 		event := createClientEvent{
-			domainID:         session.DomainID,
 			Client:           cli,
 			rolesProvisioned: rps,
+			Session:          session,
 		}
 		if err := es.Publish(ctx, event); err != nil {
 			return clis, rps, err
@@ -89,7 +89,9 @@ func (es *eventStore) UpdateSecret(ctx context.Context, session authn.Session, i
 
 func (es *eventStore) update(ctx context.Context, session authn.Session, operation string, client clients.Client) (clients.Client, error) {
 	event := updateClientEvent{
-		client, operation, session.DomainID,
+		Client:    client,
+		operation: operation,
+		Session:   session,
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -106,7 +108,8 @@ func (es *eventStore) View(ctx context.Context, session authn.Session, id string
 	}
 
 	event := viewClientEvent{
-		session.DomainID, cli,
+		Client:  cli,
+		Session: session,
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cli, err
@@ -121,9 +124,9 @@ func (es *eventStore) ListClients(ctx context.Context, session authn.Session, re
 		return cp, err
 	}
 	event := listClientEvent{
-		session.DomainID,
-		reqUserID,
-		pm,
+		reqUserID: reqUserID,
+		Page:      pm,
+		Session:   session,
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cp, err
@@ -138,7 +141,7 @@ func (es *eventStore) Enable(ctx context.Context, session authn.Session, id stri
 		return cli, err
 	}
 
-	return es.changeStatus(ctx, cli)
+	return es.changeStatus(ctx, session, cli)
 }
 
 func (es *eventStore) Disable(ctx context.Context, session authn.Session, id string) (clients.Client, error) {
@@ -147,15 +150,16 @@ func (es *eventStore) Disable(ctx context.Context, session authn.Session, id str
 		return cli, err
 	}
 
-	return es.changeStatus(ctx, cli)
+	return es.changeStatus(ctx, session, cli)
 }
 
-func (es *eventStore) changeStatus(ctx context.Context, cli clients.Client) (clients.Client, error) {
+func (es *eventStore) changeStatus(ctx context.Context, session authn.Session, cli clients.Client) (clients.Client, error) {
 	event := changeStatusClientEvent{
 		id:        cli.ID,
 		updatedAt: cli.UpdatedAt,
 		updatedBy: cli.UpdatedBy,
 		status:    cli.Status.String(),
+		Session:   session,
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cli, err
@@ -169,7 +173,10 @@ func (es *eventStore) Delete(ctx context.Context, session authn.Session, id stri
 		return err
 	}
 
-	event := removeClientEvent{session.DomainID, id}
+	event := removeClientEvent{
+		id:      id,
+		Session: session,
+	}
 
 	if err := es.Publish(ctx, event); err != nil {
 		return err
@@ -183,7 +190,11 @@ func (es *eventStore) SetParentGroup(ctx context.Context, session authn.Session,
 		return err
 	}
 
-	event := setParentGroupEvent{parentGroupID: parentGroupID, id: id, domainID: session.DomainID}
+	event := setParentGroupEvent{
+		parentGroupID: parentGroupID,
+		id:            id,
+		Session:       session,
+	}
 
 	if err := es.Publish(ctx, event); err != nil {
 		return err
@@ -197,7 +208,10 @@ func (es *eventStore) RemoveParentGroup(ctx context.Context, session authn.Sessi
 		return err
 	}
 
-	event := removeParentGroupEvent{id: id, domainID: session.DomainID}
+	event := removeParentGroupEvent{
+		id:      id,
+		Session: session,
+	}
 
 	if err := es.Publish(ctx, event); err != nil {
 		return err

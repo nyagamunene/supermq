@@ -6,6 +6,7 @@ package events
 import (
 	"time"
 
+	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/events"
 	"github.com/absmach/supermq/users"
 )
@@ -57,14 +58,17 @@ var (
 
 type createUserEvent struct {
 	users.User
+	authn.Session
 }
 
 func (uce createUserEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation":  userCreate,
-		"id":         uce.ID,
-		"status":     uce.Status.String(),
-		"created_at": uce.CreatedAt,
+		"operation":   userCreate,
+		"id":          uce.ID,
+		"status":      uce.Status.String(),
+		"created_at":  uce.CreatedAt,
+		"token_type":  uce.Type.String(),
+		"super_admin": uce.SuperAdmin,
 	}
 
 	if uce.FirstName != "" {
@@ -92,13 +96,16 @@ func (uce createUserEvent) Encode() (map[string]interface{}, error) {
 type updateUserEvent struct {
 	users.User
 	operation string
+	authn.Session
 }
 
 func (uce updateUserEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation":  userUpdate,
-		"updated_at": uce.UpdatedAt,
-		"updated_by": uce.UpdatedBy,
+		"operation":   userUpdate,
+		"updated_at":  uce.UpdatedAt,
+		"updated_by":  uce.UpdatedBy,
+		"token_type":  uce.Type.String(),
+		"super_admin": uce.SuperAdmin,
 	}
 	if uce.operation != "" {
 		val["operation"] = userUpdate + "_" + uce.operation
@@ -137,13 +144,16 @@ func (uce updateUserEvent) Encode() (map[string]interface{}, error) {
 
 type updateUsernameEvent struct {
 	users.User
+	authn.Session
 }
 
 func (une updateUsernameEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation":  userUpdateUsername,
-		"updated_at": une.UpdatedAt,
-		"updated_by": une.UpdatedBy,
+		"operation":   userUpdateUsername,
+		"updated_at":  une.UpdatedAt,
+		"updated_by":  une.UpdatedBy,
+		"token_type":  une.Type.String(),
+		"super_admin": une.SuperAdmin,
 	}
 
 	if une.ID != "" {
@@ -164,13 +174,16 @@ func (une updateUsernameEvent) Encode() (map[string]interface{}, error) {
 
 type updateProfilePictureEvent struct {
 	users.User
+	authn.Session
 }
 
 func (uppe updateProfilePictureEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation":  userUpdateProfilePicture,
-		"updated_at": uppe.UpdatedAt,
-		"updated_by": uppe.UpdatedBy,
+		"operation":   userUpdateProfilePicture,
+		"updated_at":  uppe.UpdatedAt,
+		"updated_by":  uppe.UpdatedBy,
+		"token_type":  uppe.Type.String(),
+		"super_admin": uppe.SuperAdmin,
 	}
 
 	if uppe.ID != "" {
@@ -188,26 +201,32 @@ type removeUserEvent struct {
 	status    string
 	updatedAt time.Time
 	updatedBy string
+	authn.Session
 }
 
 func (rce removeUserEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
-		"operation":  userRemove,
-		"id":         rce.id,
-		"status":     rce.status,
-		"updated_at": rce.updatedAt,
-		"updated_by": rce.updatedBy,
+		"operation":   userRemove,
+		"id":          rce.id,
+		"status":      rce.status,
+		"updated_at":  rce.updatedAt,
+		"updated_by":  rce.updatedBy,
+		"token_type":  rce.Type.String(),
+		"super_admin": rce.SuperAdmin,
 	}, nil
 }
 
 type viewUserEvent struct {
 	users.User
+	authn.Session
 }
 
 func (vue viewUserEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation": userView,
-		"id":        vue.ID,
+		"operation":   userView,
+		"id":          vue.ID,
+		"token_type":  vue.Type.String(),
+		"super_admin": vue.SuperAdmin,
 	}
 
 	if vue.LastName != "" {
@@ -246,12 +265,15 @@ func (vue viewUserEvent) Encode() (map[string]interface{}, error) {
 
 type viewProfileEvent struct {
 	users.User
+	authn.Session
 }
 
 func (vpe viewProfileEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation": profileView,
-		"id":        vpe.ID,
+		"operation":   profileView,
+		"id":          vpe.ID,
+		"token_type":  vpe.Type.String(),
+		"super_admin": vpe.SuperAdmin,
 	}
 
 	if vpe.FirstName != "" {
@@ -287,14 +309,17 @@ func (vpe viewProfileEvent) Encode() (map[string]interface{}, error) {
 
 type listUserEvent struct {
 	users.Page
+	authn.Session
 }
 
 func (lue listUserEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
-		"operation": userList,
-		"total":     lue.Total,
-		"offset":    lue.Offset,
-		"limit":     lue.Limit,
+		"operation":   userList,
+		"total":       lue.Total,
+		"offset":      lue.Offset,
+		"limit":       lue.Limit,
+		"token_type":  lue.Type.String(),
+		"super_admin": lue.SuperAdmin,
 	}
 
 	if lue.FirstName != "" {
@@ -338,7 +363,7 @@ type listUserByGroupEvent struct {
 	users.Page
 	objectKind string
 	objectID   string
-	domainID   string
+	authn.Session
 }
 
 func (lcge listUserByGroupEvent) Encode() (map[string]interface{}, error) {
@@ -349,7 +374,9 @@ func (lcge listUserByGroupEvent) Encode() (map[string]interface{}, error) {
 		"limit":       lcge.Limit,
 		"object_kind": lcge.objectKind,
 		"object_id":   lcge.objectID,
-		"domain":      lcge.domainID,
+		"domain":      lcge.DomainID,
+		"token_type":  lcge.Type.String(),
+		"super_admin": lcge.SuperAdmin,
 	}
 
 	if lcge.Username != "" {
@@ -498,24 +525,30 @@ func (oce oauthCallbackEvent) Encode() (map[string]interface{}, error) {
 
 type deleteUserEvent struct {
 	id string
+	authn.Session
 }
 
 func (dce deleteUserEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
-		"operation": deleteUser,
-		"id":        dce.id,
+		"operation":   deleteUser,
+		"id":          dce.id,
+		"token_type":  dce.Type.String(),
+		"super_admin": dce.SuperAdmin,
 	}, nil
 }
 
 type addUserPolicyEvent struct {
 	id   string
 	role string
+	authn.Session
 }
 
 func (acpe addUserPolicyEvent) Encode() (map[string]interface{}, error) {
 	return map[string]interface{}{
-		"operation": addClientPolicy,
-		"id":        acpe.id,
-		"role":      acpe.role,
+		"operation":   addClientPolicy,
+		"id":          acpe.id,
+		"role":        acpe.role,
+		"token_type":  acpe.Type.String(),
+		"super_admin": acpe.SuperAdmin,
 	}, nil
 }

@@ -29,7 +29,7 @@ func (t TokenType) String() string {
 
 type Session struct {
 	Type         TokenType
-	ID           string
+	PatID        string
 	DomainUserID string
 	UserID       string
 	DomainID     string
