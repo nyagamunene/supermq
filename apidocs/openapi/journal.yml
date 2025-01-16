@@ -197,7 +197,7 @@ components:
 
     entity_type:
       name: entityType
-      description: Type of entity, e.g. user, group, client, etc.entityType
+      description: Type of entity, e.g. group, client, channel.
       in: path
       schema:
         type: string
@@ -220,7 +220,7 @@ components:
 
     id:
       name: id
-      description: Unique identifier for an entity, e.g. group, channel or client.  Used together with entity_type.
+      description: Unique identifier for an entity, e.g. group, channel or client. Used together with entity_type.
       in: path
       schema:
         type: string
