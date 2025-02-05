@@ -354,5 +354,4 @@ func (ram RoleManagerAuthorizationMiddleware) authorizeMembers(ctx context.Conte
 	default:
 		return errors.Wrap(errors.ErrAuthorization, errors.New("unsupported policies type"))
 	}
-
 }
