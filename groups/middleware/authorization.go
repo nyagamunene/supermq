@@ -94,6 +94,11 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 			return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
+
+	if err := am.RoleManagerAuthorizationMiddleware.AuthorizeMembers(ctx, session, []string{session.UserID}); err != nil {
+		return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrAuthorization, err)
+	}
+
 	if err := am.extAuthorize(ctx, groups.DomainOpCreateGroup, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
