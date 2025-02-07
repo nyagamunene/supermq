@@ -33,7 +33,7 @@ func (lm *loggingMiddleware) CreateGroup(ctx context.Context, session authn.Sess
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("group",
 				slog.String("id", g.ID),
 				slog.String("name", g.Name),
@@ -55,7 +55,7 @@ func (lm *loggingMiddleware) UpdateGroup(ctx context.Context, session authn.Sess
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("group",
 				slog.String("id", group.ID),
 				slog.String("name", group.Name),
@@ -78,7 +78,7 @@ func (lm *loggingMiddleware) ViewGroup(ctx context.Context, session authn.Sessio
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("group",
 				slog.String("id", g.ID),
 				slog.String("name", g.Name),
@@ -100,7 +100,7 @@ func (lm *loggingMiddleware) ListGroups(ctx context.Context, session authn.Sessi
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("page",
 				slog.Uint64("limit", pm.Limit),
 				slog.Uint64("offset", pm.Offset),
@@ -122,7 +122,7 @@ func (lm *loggingMiddleware) ListUserGroups(ctx context.Context, session authn.S
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("user_id", userID),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("page",
 				slog.Uint64("limit", pm.Limit),
 				slog.Uint64("offset", pm.Offset),
@@ -145,7 +145,7 @@ func (lm *loggingMiddleware) EnableGroup(ctx context.Context, session authn.Sess
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("group",
 				slog.String("id", id),
 				slog.String("name", g.Name),
@@ -167,7 +167,7 @@ func (lm *loggingMiddleware) DisableGroup(ctx context.Context, session authn.Ses
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("group",
 				slog.String("id", id),
 				slog.String("name", g.Name),
@@ -187,7 +187,7 @@ func (lm *loggingMiddleware) DeleteGroup(ctx context.Context, session authn.Sess
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.String("group_id", id),
 		}
 		if err != nil {
@@ -205,7 +205,7 @@ func (lm *loggingMiddleware) RetrieveGroupHierarchy(ctx context.Context, session
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("group_id", id),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.Group("page",
 				slog.Uint64("level", hm.Level),
 				slog.Int64("direction", hm.Direction),
@@ -226,7 +226,7 @@ func (lm *loggingMiddleware) AddParentGroup(ctx context.Context, session authn.S
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.String("group_id", id),
 			slog.String("parent_group_id", parentID),
 		}
@@ -244,7 +244,7 @@ func (lm *loggingMiddleware) RemoveParentGroup(ctx context.Context, session auth
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.String("group_id", id),
 		}
 		if err != nil {
@@ -261,7 +261,7 @@ func (lm *loggingMiddleware) AddChildrenGroups(ctx context.Context, session auth
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.String("group_id", id),
 			slog.Any("children_group_ids", childrenGroupIDs),
 		}
@@ -279,7 +279,7 @@ func (lm *loggingMiddleware) RemoveChildrenGroups(ctx context.Context, session a
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.String("group_id", id),
 			slog.Any("children_group_ids", childrenGroupIDs),
 		}
@@ -297,7 +297,7 @@ func (lm *loggingMiddleware) RemoveAllChildrenGroups(ctx context.Context, sessio
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.String("group_id", id),
 		}
 		if err != nil {
@@ -314,7 +314,7 @@ func (lm *loggingMiddleware) ListChildrenGroups(ctx context.Context, session aut
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("domain", session.DomainID),
+			slog.String("domain_id", session.DomainID),
 			slog.String("group_id", id),
 			slog.Group("page",
 				slog.Uint64("limit", pm.Limit),
