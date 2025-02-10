@@ -14,8 +14,12 @@ import (
 )
 
 type sessionKeyType string
+type requestIDKeyType string
 
-const SessionKey = sessionKeyType("session")
+const (
+	SessionKey   = sessionKeyType("session")
+	RequestIDKey = requestIDKeyType("request_id")
+)
 
 func AuthenticateMiddleware(authn smqauthn.Authentication, domainCheck bool) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
