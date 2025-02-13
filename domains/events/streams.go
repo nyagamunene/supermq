@@ -12,6 +12,7 @@ import (
 	"github.com/absmach/supermq/pkg/events/store"
 	"github.com/absmach/supermq/pkg/roles"
 	rmEvents "github.com/absmach/supermq/pkg/roles/rolemanager/events"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const streamID = "supermq.domains"
@@ -51,6 +52,7 @@ func (es *eventStore) CreateDomain(ctx context.Context, session authn.Session, d
 		Domain:           domain,
 		rolesProvisioned: rps,
 		Session:          session,
+		requestID:        middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -69,6 +71,7 @@ func (es *eventStore) RetrieveDomain(ctx context.Context, session authn.Session,
 	event := retrieveDomainEvent{
 		domain,
 		session,
+		middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -85,8 +88,9 @@ func (es *eventStore) UpdateDomain(ctx context.Context, session authn.Session, i
 	}
 
 	event := updateDomainEvent{
-		domain,
-		session,
+		domain:    domain,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -107,6 +111,7 @@ func (es *eventStore) EnableDomain(ctx context.Context, session authn.Session, i
 		updatedAt: domain.UpdatedAt,
 		updatedBy: domain.UpdatedBy,
 		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -127,6 +132,7 @@ func (es *eventStore) DisableDomain(ctx context.Context, session authn.Session, 
 		updatedAt: domain.UpdatedAt,
 		updatedBy: domain.UpdatedBy,
 		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -147,6 +153,7 @@ func (es *eventStore) FreezeDomain(ctx context.Context, session authn.Session, i
 		updatedAt: domain.UpdatedAt,
 		updatedBy: domain.UpdatedBy,
 		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -168,6 +175,7 @@ func (es *eventStore) ListDomains(ctx context.Context, session authn.Session, p 
 		userID:     session.UserID,
 		tokenType:  session.Type.String(),
 		superAdmin: session.SuperAdmin,
+		requestID:  middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {

@@ -27,6 +27,8 @@ func MakeHandler(svc domains.Service, authn authn.Authentication, mux *chi.Mux, 
 
 	d := roleManagerHttp.NewDecoder("domainID")
 	mux.Route("/domains", func(r chi.Router) {
+		r.Use(api.RequestIDMiddleware())
+
 		r.Group(func(r chi.Router) {
 			r.Use(api.AuthenticateMiddleware(authn, false))
 			r.Post("/", otelhttp.NewHandler(kithttp.NewServer(

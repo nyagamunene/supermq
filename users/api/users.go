@@ -35,6 +35,8 @@ func usersHandler(svc users.Service, authn smqauthn.Authentication, tokenClient 
 	}
 
 	r.Route("/users", func(r chi.Router) {
+		r.Use(api.RequestIDMiddleware())
+
 		switch selfRegister {
 		case true:
 			r.Post("/", otelhttp.NewHandler(kithttp.NewServer(

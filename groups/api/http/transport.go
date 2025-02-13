@@ -27,6 +27,8 @@ func MakeHandler(svc groups.Service, authn authn.Authentication, mux *chi.Mux, l
 
 	mux.Route("/{domainID}/groups", func(r chi.Router) {
 		r.Use(api.AuthenticateMiddleware(authn, true))
+		r.Use(api.RequestIDMiddleware())
+
 		r.Post("/", otelhttp.NewHandler(kithttp.NewServer(
 			CreateGroupEndpoint(svc),
 			DecodeGroupCreate,

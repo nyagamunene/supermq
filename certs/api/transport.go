@@ -41,6 +41,8 @@ func MakeHandler(svc certs.Service, authn smqauthn.Authentication, logger *slog.
 
 	r.Group(func(r chi.Router) {
 		r.Use(api.AuthenticateMiddleware(authn, true))
+		r.Use(api.RequestIDMiddleware())
+
 		r.Route("/{domainID}", func(r chi.Router) {
 			r.Route("/certs", func(r chi.Router) {
 				r.Post("/", otelhttp.NewHandler(kithttp.NewServer(

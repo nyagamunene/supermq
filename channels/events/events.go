@@ -42,6 +42,7 @@ type createChannelEvent struct {
 	channels.Channel
 	rolesProvisioned []roles.RoleProvision
 	authn.Session
+	requestID string
 }
 
 func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
@@ -55,6 +56,7 @@ func (cce createChannelEvent) Encode() (map[string]interface{}, error) {
 		"user_id":           cce.UserID,
 		"token_type":        cce.Type.String(),
 		"super_admin":       cce.SuperAdmin,
+		"request_id":        cce.requestID,
 	}
 
 	if cce.Name != "" {
@@ -74,6 +76,7 @@ type updateChannelEvent struct {
 	channels.Channel
 	operation string
 	authn.Session
+	requestID string
 }
 
 func (uce updateChannelEvent) Encode() (map[string]interface{}, error) {
@@ -85,6 +88,7 @@ func (uce updateChannelEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     uce.UserID,
 		"token_type":  uce.Type.String(),
 		"super_admin": uce.SuperAdmin,
+		"request_id":  uce.requestID,
 	}
 	if uce.operation != "" {
 		val["operation"] = channelUpdate + "_" + uce.operation
@@ -118,6 +122,7 @@ type changeStatusChannelEvent struct {
 	updatedAt time.Time
 	updatedBy string
 	authn.Session
+	requestID string
 }
 
 func (rce changeStatusChannelEvent) Encode() (map[string]interface{}, error) {
@@ -131,12 +136,14 @@ func (rce changeStatusChannelEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     rce.UserID,
 		"token_type":  rce.Type.String(),
 		"super_admin": rce.SuperAdmin,
+		"request_id":  rce.requestID,
 	}, nil
 }
 
 type viewChannelEvent struct {
 	channels.Channel
 	authn.Session
+	requestID string
 }
 
 func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
@@ -147,6 +154,7 @@ func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     vce.UserID,
 		"token_type":  vce.Type.String(),
 		"super_admin": vce.SuperAdmin,
+		"request_id":  vce.requestID,
 	}
 
 	if vce.Name != "" {
@@ -177,6 +185,7 @@ func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 type listChannelEvent struct {
 	channels.PageMetadata
 	authn.Session
+	requestID string
 }
 
 func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
@@ -189,6 +198,7 @@ func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     lce.UserID,
 		"token_type":  lce.Type.String(),
 		"super_admin": lce.SuperAdmin,
+		"request_id":  lce.requestID,
 	}
 
 	if lce.Name != "" {
@@ -220,6 +230,7 @@ type listUserChannelsEvent struct {
 	userID string
 	channels.PageMetadata
 	authn.Session
+	requestID string
 }
 
 func (luce listUserChannelsEvent) Encode() (map[string]interface{}, error) {
@@ -233,6 +244,7 @@ func (luce listUserChannelsEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     luce.UserID,
 		"token_type":  luce.Type.String(),
 		"super_admin": luce.SuperAdmin,
+		"request_id":  luce.requestID,
 	}
 
 	if luce.Name != "" {
@@ -266,6 +278,7 @@ func (luce listUserChannelsEvent) Encode() (map[string]interface{}, error) {
 type removeChannelEvent struct {
 	id string
 	authn.Session
+	requestID string
 }
 
 func (dce removeChannelEvent) Encode() (map[string]interface{}, error) {
@@ -276,6 +289,7 @@ func (dce removeChannelEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     dce.UserID,
 		"token_type":  dce.Type.String(),
 		"super_admin": dce.SuperAdmin,
+		"request_id":  dce.requestID,
 	}, nil
 }
 
@@ -284,6 +298,7 @@ type connectEvent struct {
 	thIDs []string
 	types []connections.ConnType
 	authn.Session
+	requestID string
 }
 
 func (ce connectEvent) Encode() (map[string]interface{}, error) {
@@ -296,6 +311,7 @@ func (ce connectEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     ce.UserID,
 		"token_type":  ce.Type.String(),
 		"super_admin": ce.SuperAdmin,
+		"request_id":  ce.requestID,
 	}, nil
 }
 
@@ -304,6 +320,7 @@ type disconnectEvent struct {
 	thIDs []string
 	types []connections.ConnType
 	authn.Session
+	requestID string
 }
 
 func (de disconnectEvent) Encode() (map[string]interface{}, error) {
@@ -316,6 +333,7 @@ func (de disconnectEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     de.UserID,
 		"token_type":  de.Type.String(),
 		"super_admin": de.SuperAdmin,
+		"request_id":  de.requestID,
 	}, nil
 }
 
@@ -323,6 +341,7 @@ type setParentGroupEvent struct {
 	id            string
 	parentGroupID string
 	authn.Session
+	requestID string
 }
 
 func (spge setParentGroupEvent) Encode() (map[string]interface{}, error) {
@@ -334,12 +353,14 @@ func (spge setParentGroupEvent) Encode() (map[string]interface{}, error) {
 		"user_id":         spge.UserID,
 		"token_type":      spge.Type.String(),
 		"super_admin":     spge.SuperAdmin,
+		"request_id":      spge.requestID,
 	}, nil
 }
 
 type removeParentGroupEvent struct {
 	id string
 	authn.Session
+	requestID string
 }
 
 func (rpge removeParentGroupEvent) Encode() (map[string]interface{}, error) {
@@ -350,5 +371,6 @@ func (rpge removeParentGroupEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     rpge.UserID,
 		"token_type":  rpge.Type.String(),
 		"super_admin": rpge.SuperAdmin,
+		"request_id":  rpge.requestID,
 	}, nil
 }

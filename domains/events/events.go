@@ -53,6 +53,7 @@ type createDomainEvent struct {
 	domains.Domain
 	rolesProvisioned []roles.RoleProvision
 	authn.Session
+	requestID string
 }
 
 func (cde createDomainEvent) Encode() (map[string]interface{}, error) {
@@ -67,6 +68,7 @@ func (cde createDomainEvent) Encode() (map[string]interface{}, error) {
 		"user_id":           cde.UserID,
 		"token_type":        cde.Type.String(),
 		"super_admin":       cde.SuperAdmin,
+		"request_id":        cde.requestID,
 	}
 
 	if cde.Name != "" {
@@ -85,6 +87,7 @@ func (cde createDomainEvent) Encode() (map[string]interface{}, error) {
 type retrieveDomainEvent struct {
 	domains.Domain
 	authn.Session
+	requestID string
 }
 
 func (rde retrieveDomainEvent) Encode() (map[string]interface{}, error) {
@@ -97,6 +100,7 @@ func (rde retrieveDomainEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     rde.UserID,
 		"token_type":  rde.Type.String(),
 		"super_admin": rde.SuperAdmin,
+		"request_id":  rde.requestID,
 	}
 
 	if rde.Name != "" {
@@ -122,6 +126,7 @@ type retrieveDomainStatusEvent struct {
 	id     string
 	status domains.Status
 	authn.Session
+	requestID string
 }
 
 func (rdse retrieveDomainStatusEvent) Encode() (map[string]interface{}, error) {
@@ -132,39 +137,42 @@ func (rdse retrieveDomainStatusEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     rdse.UserID,
 		"token_type":  rdse.Type.String(),
 		"super_admin": rdse.SuperAdmin,
+		"request_id":  rdse.requestID,
 	}
 
 	return val, nil
 }
 
 type updateDomainEvent struct {
-	domains.Domain
-	authn.Session
+	domain    domains.Domain
+	Session   authn.Session
+	requestID string
 }
 
 func (ude updateDomainEvent) Encode() (map[string]interface{}, error) {
 	val := map[string]interface{}{
 		"operation":   domainUpdate,
-		"id":          ude.ID,
-		"alias":       ude.Alias,
-		"status":      ude.Status.String(),
-		"created_at":  ude.CreatedAt,
-		"created_by":  ude.CreatedBy,
-		"updated_at":  ude.UpdatedAt,
-		"updated_by":  ude.UpdatedBy,
-		"user_id":     ude.UserID,
-		"token_type":  ude.Type.String(),
-		"super_admin": ude.SuperAdmin,
+		"id":          ude.domain.ID,
+		"alias":       ude.domain.Alias,
+		"status":      ude.domain.Status.String(),
+		"created_at":  ude.domain.CreatedAt,
+		"created_by":  ude.domain.CreatedBy,
+		"updated_at":  ude.domain.UpdatedAt,
+		"updated_by":  ude.domain.UpdatedBy,
+		"user_id":     ude.Session.UserID,
+		"token_type":  ude.Session.Type.String(),
+		"super_admin": ude.Session.SuperAdmin,
+		"request_id":  ude.requestID,
 	}
 
-	if ude.Name != "" {
-		val["name"] = ude.Name
+	if ude.domain.Name != "" {
+		val["name"] = ude.domain.Name
 	}
-	if len(ude.Tags) > 0 {
-		val["tags"] = ude.Tags
+	if len(ude.domain.Tags) > 0 {
+		val["tags"] = ude.domain.Tags
 	}
-	if ude.Metadata != nil {
-		val["metadata"] = ude.Metadata
+	if ude.domain.Metadata != nil {
+		val["metadata"] = ude.domain.Metadata
 	}
 
 	return val, nil
@@ -175,6 +183,7 @@ type enableDomainEvent struct {
 	updatedAt time.Time
 	updatedBy string
 	authn.Session
+	requestID string
 }
 
 func (cdse enableDomainEvent) Encode() (map[string]interface{}, error) {
@@ -186,6 +195,7 @@ func (cdse enableDomainEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     cdse.UserID,
 		"token_type":  cdse.Type.String(),
 		"super_admin": cdse.SuperAdmin,
+		"request_id":  cdse.requestID,
 	}, nil
 }
 
@@ -194,6 +204,7 @@ type disableDomainEvent struct {
 	updatedAt time.Time
 	updatedBy string
 	authn.Session
+	requestID string
 }
 
 func (cdse disableDomainEvent) Encode() (map[string]interface{}, error) {
@@ -205,6 +216,7 @@ func (cdse disableDomainEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     cdse.UserID,
 		"token_type":  cdse.Type.String(),
 		"super_admin": cdse.SuperAdmin,
+		"request_id":  cdse.requestID,
 	}, nil
 }
 
@@ -213,6 +225,7 @@ type freezeDomainEvent struct {
 	updatedAt time.Time
 	updatedBy string
 	authn.Session
+	requestID string
 }
 
 func (cdse freezeDomainEvent) Encode() (map[string]interface{}, error) {
@@ -224,6 +237,7 @@ func (cdse freezeDomainEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     cdse.UserID,
 		"token_type":  cdse.Type.String(),
 		"super_admin": cdse.SuperAdmin,
+		"request_id":  cdse.requestID,
 	}, nil
 }
 
@@ -233,6 +247,7 @@ type listDomainsEvent struct {
 	userID     string
 	tokenType  string
 	superAdmin bool
+	requestID  string
 }
 
 func (lde listDomainsEvent) Encode() (map[string]interface{}, error) {
@@ -244,6 +259,7 @@ func (lde listDomainsEvent) Encode() (map[string]interface{}, error) {
 		"user_id":     lde.userID,
 		"token_type":  lde.tokenType,
 		"super_admin": lde.superAdmin,
+		"request_id":  lde.requestID,
 	}
 
 	if lde.Name != "" {

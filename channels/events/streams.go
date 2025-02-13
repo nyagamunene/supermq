@@ -13,6 +13,7 @@ import (
 	"github.com/absmach/supermq/pkg/events/store"
 	"github.com/absmach/supermq/pkg/roles"
 	rmEvents "github.com/absmach/supermq/pkg/roles/rolemanager/events"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const streamID = "supermq.channels"
@@ -52,6 +53,7 @@ func (es *eventStore) CreateChannels(ctx context.Context, session authn.Session,
 			Channel:          ch,
 			rolesProvisioned: rps,
 			Session:          session,
+			requestID:        middleware.GetReqID(ctx),
 		}
 		if err := es.Publish(ctx, event); err != nil {
 			return chs, rps, err
@@ -84,6 +86,7 @@ func (es *eventStore) update(ctx context.Context, operation string, session auth
 		Channel:   ch,
 		operation: operation,
 		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -100,8 +103,9 @@ func (es *eventStore) ViewChannel(ctx context.Context, session authn.Session, id
 	}
 
 	event := viewChannelEvent{
-		Channel: chann,
-		Session: session,
+		Channel:   chann,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return chann, err
@@ -118,6 +122,7 @@ func (es *eventStore) ListChannels(ctx context.Context, session authn.Session, p
 	event := listChannelEvent{
 		PageMetadata: pm,
 		Session:      session,
+		requestID:    middleware.GetReqID(ctx),
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cp, err
@@ -135,6 +140,7 @@ func (es *eventStore) ListUserChannels(ctx context.Context, session authn.Sessio
 		userID:       userID,
 		PageMetadata: pm,
 		Session:      session,
+		requestID:    middleware.GetReqID(ctx),
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cp, err
@@ -168,6 +174,7 @@ func (es *eventStore) changeStatus(ctx context.Context, session authn.Session, c
 		updatedBy: ch.UpdatedBy,
 		status:    ch.Status.String(),
 		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return ch, err
@@ -182,8 +189,9 @@ func (es *eventStore) RemoveChannel(ctx context.Context, session authn.Session, 
 	}
 
 	event := removeChannelEvent{
-		id:      id,
-		Session: session,
+		id:        id,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -199,10 +207,11 @@ func (es *eventStore) Connect(ctx context.Context, session authn.Session, chIDs,
 	}
 
 	event := connectEvent{
-		chIDs:   chIDs,
-		thIDs:   thIDs,
-		types:   connTypes,
-		Session: session,
+		chIDs:     chIDs,
+		thIDs:     thIDs,
+		types:     connTypes,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -218,10 +227,11 @@ func (es *eventStore) Disconnect(ctx context.Context, session authn.Session, chI
 	}
 
 	event := disconnectEvent{
-		chIDs:   chIDs,
-		thIDs:   thIDs,
-		types:   connTypes,
-		Session: session,
+		chIDs:     chIDs,
+		thIDs:     thIDs,
+		types:     connTypes,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -240,6 +250,7 @@ func (es *eventStore) SetParentGroup(ctx context.Context, session authn.Session,
 		parentGroupID: parentGroupID,
 		id:            id,
 		Session:       session,
+		requestID:     middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -255,8 +266,9 @@ func (es *eventStore) RemoveParentGroup(ctx context.Context, session authn.Sessi
 	}
 
 	event := removeParentGroupEvent{
-		id:      id,
-		Session: session,
+		id:        id,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {

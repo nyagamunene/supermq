@@ -24,6 +24,7 @@ func clientsHandler(svc clients.Service, authn smqauthn.Authentication, r *chi.M
 
 	r.Group(func(r chi.Router) {
 		r.Use(api.AuthenticateMiddleware(authn, true))
+		r.Use(api.RequestIDMiddleware())
 
 		r.Route("/{domainID}/clients", func(r chi.Router) {
 			r.Post("/", otelhttp.NewHandler(kithttp.NewServer(

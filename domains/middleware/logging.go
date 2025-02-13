@@ -14,6 +14,7 @@ import (
 	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/roles"
 	rmMW "github.com/absmach/supermq/pkg/roles/rolemanager/middleware"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 var _ domains.Service = (*loggingMiddleware)(nil)
@@ -38,6 +39,7 @@ func (lm *loggingMiddleware) CreateDomain(ctx context.Context, session authn.Ses
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("domain",
 				slog.String("id", d.ID),
 				slog.String("name", d.Name),
@@ -57,6 +59,7 @@ func (lm *loggingMiddleware) RetrieveDomain(ctx context.Context, session authn.S
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("domain_id", id),
 		}
 		if err != nil {
@@ -73,6 +76,7 @@ func (lm *loggingMiddleware) UpdateDomain(ctx context.Context, session authn.Ses
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("domain",
 				slog.String("id", id),
 				slog.Any("name", d.Name),
@@ -92,6 +96,7 @@ func (lm *loggingMiddleware) EnableDomain(ctx context.Context, session authn.Ses
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("domain",
 				slog.String("id", id),
 				slog.String("name", do.Name),
@@ -111,6 +116,7 @@ func (lm *loggingMiddleware) DisableDomain(ctx context.Context, session authn.Se
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("domain",
 				slog.String("id", id),
 				slog.String("name", do.Name),
@@ -130,6 +136,7 @@ func (lm *loggingMiddleware) FreezeDomain(ctx context.Context, session authn.Ses
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("domain",
 				slog.String("id", id),
 				slog.String("name", do.Name),
@@ -149,6 +156,7 @@ func (lm *loggingMiddleware) ListDomains(ctx context.Context, session authn.Sess
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("page",
 				slog.Uint64("limit", page.Limit),
 				slog.Uint64("offset", page.Offset),

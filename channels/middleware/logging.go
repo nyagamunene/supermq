@@ -14,6 +14,7 @@ import (
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/roles"
 	rmMW "github.com/absmach/supermq/pkg/roles/rolemanager/middleware"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 var _ channels.Service = (*loggingMiddleware)(nil)
@@ -33,6 +34,7 @@ func (lm *loggingMiddleware) CreateChannels(ctx context.Context, session authn.S
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 		}
 		if err != nil {
 			args = append(args, slog.String("error", err.Error()))
@@ -49,6 +51,7 @@ func (lm *loggingMiddleware) ViewChannel(ctx context.Context, session authn.Sess
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("channel",
 				slog.String("id", c.ID),
 				slog.String("name", c.Name),
@@ -69,6 +72,7 @@ func (lm *loggingMiddleware) ListChannels(ctx context.Context, session authn.Ses
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("page",
 				slog.Uint64("limit", pm.Limit),
 				slog.Uint64("offset", pm.Offset),
@@ -90,6 +94,7 @@ func (lm *loggingMiddleware) ListUserChannels(ctx context.Context, session authn
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("user_id", userID),
 			slog.Group("page",
 				slog.Uint64("limit", pm.Limit),
@@ -112,6 +117,7 @@ func (lm *loggingMiddleware) UpdateChannel(ctx context.Context, session authn.Se
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("channel",
 				slog.String("id", client.ID),
 				slog.String("name", client.Name),
@@ -133,6 +139,7 @@ func (lm *loggingMiddleware) UpdateChannelTags(ctx context.Context, session auth
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("channel",
 				slog.String("id", c.ID),
 				slog.String("name", c.Name),
@@ -154,6 +161,7 @@ func (lm *loggingMiddleware) EnableChannel(ctx context.Context, session authn.Se
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("channel",
 				slog.String("id", id),
 				slog.String("name", c.Name),
@@ -174,6 +182,7 @@ func (lm *loggingMiddleware) DisableChannel(ctx context.Context, session authn.S
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("channel",
 				slog.String("id", id),
 				slog.String("name", c.Name),
@@ -194,6 +203,7 @@ func (lm *loggingMiddleware) RemoveChannel(ctx context.Context, session authn.Se
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("channel_id", id),
 		}
 		if err != nil {
@@ -211,6 +221,7 @@ func (lm *loggingMiddleware) Connect(ctx context.Context, session authn.Session,
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Any("channel_ids", chIDs),
 			slog.Any("client_ids", clIDs),
 		}
@@ -229,6 +240,7 @@ func (lm *loggingMiddleware) Disconnect(ctx context.Context, session authn.Sessi
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Any("channel_ids", chIDs),
 			slog.Any("client_ids", clIDs),
 		}
@@ -247,6 +259,7 @@ func (lm *loggingMiddleware) SetParentGroup(ctx context.Context, session authn.S
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("parent_group_id", parentGroupID),
 			slog.String("channel_id", id),
 		}
@@ -265,6 +278,7 @@ func (lm *loggingMiddleware) RemoveParentGroup(ctx context.Context, session auth
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("domain_id", session.DomainID),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("channel_id", id),
 		}
 		if err != nil {

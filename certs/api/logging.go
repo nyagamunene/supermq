@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/absmach/supermq/certs"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 var _ certs.Service = (*loggingMiddleware)(nil)
@@ -31,6 +32,7 @@ func (lm *loggingMiddleware) IssueCert(ctx context.Context, domainID, token, cli
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("client_id", clientID),
 			slog.String("ttl", ttl),
 		}
@@ -50,6 +52,7 @@ func (lm *loggingMiddleware) ListCerts(ctx context.Context, clientID string, pm 
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("client_id", clientID),
 			slog.Group("page",
 				slog.Uint64("offset", cp.Offset),
@@ -74,6 +77,7 @@ func (lm *loggingMiddleware) ListSerials(ctx context.Context, clientID string, p
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("client_id", clientID),
 			slog.String("revoke", pm.Revoked),
 			slog.Group("page",
@@ -99,6 +103,7 @@ func (lm *loggingMiddleware) ViewCert(ctx context.Context, serialID string) (c c
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("serial_id", serialID),
 		}
 		if err != nil {
@@ -118,6 +123,7 @@ func (lm *loggingMiddleware) RevokeCert(ctx context.Context, domainID, token, cl
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("client_id", clientID),
 		}
 		if err != nil {
