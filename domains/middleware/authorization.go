@@ -11,8 +11,6 @@ import (
 	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/authz"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
-	"github.com/absmach/supermq/pkg/errors"
-	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/policies"
 	"github.com/absmach/supermq/pkg/roles"
 	rmMW "github.com/absmach/supermq/pkg/roles/rolemanager/middleware"
@@ -54,9 +52,6 @@ func AuthorizationMiddleware(entityType string, svc domains.Service, authz smqau
 }
 
 func (am *authorizationMiddleware) CreateDomain(ctx context.Context, session authn.Session, d domains.Domain) (domains.Domain, []roles.RoleProvision, error) {
-	if err := am.RoleManagerAuthorizationMiddleware.AuthorizeMembers(ctx, session, []string{session.UserID}); err != nil {
-		return domains.Domain{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrAuthorization, err)
-	}
 	return am.svc.CreateDomain(ctx, session, d)
 }
 

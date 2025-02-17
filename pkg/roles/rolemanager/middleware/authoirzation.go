@@ -211,7 +211,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleAddMembers(ctx context.Context
 		return []string{}, err
 	}
 
-	if err := ram.AuthorizeMembers(ctx, session, members); err != nil {
+	if err := ram.authorizeMembers(ctx, session, members); err != nil {
 		return []string{}, err
 	}
 	return ram.svc.RoleAddMembers(ctx, session, entityID, roleID, members)
@@ -320,7 +320,7 @@ func (ram RoleManagerAuthorizationMiddleware) RemoveMemberFromAllRoles(ctx conte
 	return ram.svc.RemoveMemberFromAllRoles(ctx, session, memberID)
 }
 
-func (ram RoleManagerAuthorizationMiddleware) AuthorizeMembers(ctx context.Context, session authn.Session, members []string) error {
+func (ram RoleManagerAuthorizationMiddleware) authorizeMembers(ctx context.Context, session authn.Session, members []string) error {
 	switch ram.entityType {
 	case policies.DomainType:
 		for _, member := range members {
