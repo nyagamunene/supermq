@@ -96,10 +96,6 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 		}
 	}
 
-	if err := am.RoleManagerAuthorizationMiddleware.AuthorizeMembers(ctx, session, []string{session.UserID}); err != nil {
-		return []channels.Channel{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrAuthorization, err)
-	}
-
 	if err := am.extAuthorize(ctx, channels.DomainOpCreateChannel, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,

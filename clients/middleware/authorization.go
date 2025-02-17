@@ -88,10 +88,6 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 		}
 	}
 
-	if err := am.RoleManagerAuthorizationMiddleware.AuthorizeMembers(ctx, session, []string{session.UserID}); err != nil {
-		return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrAuthorization, err)
-	}
-
 	if err := am.extAuthorize(ctx, clients.DomainOpCreateClient, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
