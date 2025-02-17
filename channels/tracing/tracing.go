@@ -5,6 +5,8 @@ package tracing
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/absmach/supermq/channels"
 	"github.com/absmach/supermq/pkg/authn"
@@ -14,6 +16,11 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+)
+
+const (
+	separator = "-"
+	emptyString = ""
 )
 
 var _ channels.Service = (*tracingMiddleware)(nil)
@@ -32,7 +39,9 @@ func New(svc channels.Service, tracer trace.Tracer) channels.Service {
 func (tm *tracingMiddleware) startSpan(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
 	reqID := middleware.GetReqID(ctx)
 	if reqID != "" {
-		if traceID, err := trace.TraceIDFromHex(reqID); err == nil {
+		cleanID := strings.ReplaceAll(reqID, separator, emptyString)
+        final:= fmt.Sprintf("%032s", cleanID)
+		if traceID, err := trace.TraceIDFromHex(final); err == nil {
 			spanCtx := trace.NewSpanContext(trace.SpanContextConfig{
 				TraceID:    traceID,
 				SpanID:     trace.SpanID{},

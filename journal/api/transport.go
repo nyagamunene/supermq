@@ -40,6 +40,7 @@ func MakeHandler(svc journal.Service, authn smqauthn.Authentication, logger *slo
 	}
 
 	mux := chi.NewRouter()
+	mux.Use(api.RequestIDMiddleware())
 
 	mux.With(api.AuthenticateMiddleware(authn, false)).Get("/journal/user/{userID}", otelhttp.NewHandler(kithttp.NewServer(
 		retrieveJournalsEndpoint(svc),
@@ -50,6 +51,7 @@ func MakeHandler(svc journal.Service, authn smqauthn.Authentication, logger *slo
 
 	mux.Route("/{domainID}/journal", func(r chi.Router) {
 		r.Use(api.AuthenticateMiddleware(authn, true))
+		r.Use(api.RequestIDMiddleware())
 
 		r.Get("/{entityType}/{entityID}", otelhttp.NewHandler(kithttp.NewServer(
 			retrieveJournalsEndpoint(svc),

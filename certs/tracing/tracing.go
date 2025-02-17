@@ -5,10 +5,18 @@ package tracing
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/absmach/supermq/certs"
+	"github.com/go-chi/chi/v5/middleware"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
+)
+
+const (
+	separator   = "-"
+	emptyString = ""
 )
 
 var _ certs.Service = (*tracingMiddleware)(nil)
@@ -23,9 +31,29 @@ func New(svc certs.Service, tracer trace.Tracer) certs.Service {
 	return &tracingMiddleware{tracer, svc}
 }
 
+func (tm *tracingMiddleware) startSpan(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
+	reqID := middleware.GetReqID(ctx)
+	if reqID != "" {
+		cleanID := strings.ReplaceAll(reqID, separator, emptyString)
+		final := fmt.Sprintf("%032s", cleanID)
+		if traceID, err := trace.TraceIDFromHex(final); err == nil {
+			spanCtx := trace.NewSpanContext(trace.SpanContextConfig{
+				TraceID:    traceID,
+				SpanID:     trace.SpanID{},
+				TraceFlags: trace.FlagsSampled,
+			})
+			ctx = trace.ContextWithSpanContext(ctx, spanCtx)
+		}
+	}
+
+	opts = append(opts, trace.WithAttributes(attribute.String("request_id", reqID)))
+	return tm.tracer.Start(ctx, name, opts...)
+}
+
+
 // IssueCert traces the "IssueCert" operation of the wrapped certs.Service.
 func (tm *tracingMiddleware) IssueCert(ctx context.Context, domainID, token, clientID, ttl string) (certs.Cert, error) {
-	ctx, span := tm.tracer.Start(ctx, "svc_create_group", trace.WithAttributes(
+	ctx, span := tm.startSpan(ctx, "svc_create_group", trace.WithAttributes(
 		attribute.String("client_id", clientID),
 		attribute.String("ttl", ttl),
 	))
@@ -36,7 +64,7 @@ func (tm *tracingMiddleware) IssueCert(ctx context.Context, domainID, token, cli
 
 // ListCerts traces the "ListCerts" operation of the wrapped certs.Service.
 func (tm *tracingMiddleware) ListCerts(ctx context.Context, clientID string, pm certs.PageMetadata) (certs.CertPage, error) {
-	ctx, span := tm.tracer.Start(ctx, "svc_list_certs", trace.WithAttributes(
+	ctx, span := tm.startSpan(ctx, "svc_list_certs", trace.WithAttributes(
 		attribute.String("client_id", clientID),
 		attribute.Int64("offset", int64(pm.Offset)),
 		attribute.Int64("limit", int64(pm.Limit)),
@@ -48,7 +76,7 @@ func (tm *tracingMiddleware) ListCerts(ctx context.Context, clientID string, pm 
 
 // ListSerials traces the "ListSerials" operation of the wrapped certs.Service.
 func (tm *tracingMiddleware) ListSerials(ctx context.Context, clientID string, pm certs.PageMetadata) (certs.CertPage, error) {
-	ctx, span := tm.tracer.Start(ctx, "svc_list_serials", trace.WithAttributes(
+	ctx, span := tm.startSpan(ctx, "svc_list_serials", trace.WithAttributes(
 		attribute.String("client_id", clientID),
 		attribute.Int64("offset", int64(pm.Offset)),
 		attribute.Int64("limit", int64(pm.Limit)),
@@ -60,7 +88,7 @@ func (tm *tracingMiddleware) ListSerials(ctx context.Context, clientID string, p
 
 // ViewCert traces the "ViewCert" operation of the wrapped certs.Service.
 func (tm *tracingMiddleware) ViewCert(ctx context.Context, serialID string) (certs.Cert, error) {
-	ctx, span := tm.tracer.Start(ctx, "svc_view_cert", trace.WithAttributes(
+	ctx, span := tm.startSpan(ctx, "svc_view_cert", trace.WithAttributes(
 		attribute.String("serial_id", serialID),
 	))
 	defer span.End()
@@ -70,7 +98,7 @@ func (tm *tracingMiddleware) ViewCert(ctx context.Context, serialID string) (cer
 
 // RevokeCert traces the "RevokeCert" operation of the wrapped certs.Service.
 func (tm *tracingMiddleware) RevokeCert(ctx context.Context, domainID, token, serialID string) (certs.Revoke, error) {
-	ctx, span := tm.tracer.Start(ctx, "svc_revoke_cert", trace.WithAttributes(
+	ctx, span := tm.startSpan(ctx, "svc_revoke_cert", trace.WithAttributes(
 		attribute.String("serial_id", serialID),
 	))
 	defer span.End()

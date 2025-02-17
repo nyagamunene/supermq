@@ -10,6 +10,7 @@ import (
 
 	"github.com/absmach/supermq/journal"
 	smqauthn "github.com/absmach/supermq/pkg/authn"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 var _ journal.Service = (*loggingMiddleware)(nil)
@@ -31,6 +32,7 @@ func (lm *loggingMiddleware) Save(ctx context.Context, j journal.Journal) (err e
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("journal",
 				slog.String("occurred_at", j.OccurredAt.Format(time.RFC3339Nano)),
 				slog.String("operation", j.Operation),
@@ -51,6 +53,7 @@ func (lm *loggingMiddleware) RetrieveAll(ctx context.Context, session smqauthn.S
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.Group("page",
 				slog.String("operation", page.Operation),
 				slog.String("entity_type", page.EntityType.String()),
@@ -74,6 +77,7 @@ func (lm *loggingMiddleware) RetrieveClientTelemetry(ctx context.Context, sessio
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("client_id", clientID),
 			slog.String("domain_id", session.DomainID),
 		}
