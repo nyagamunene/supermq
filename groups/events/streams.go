@@ -109,7 +109,7 @@ func (es eventStore) ListGroups(ctx context.Context, session authn.Session, pm g
 		userID:     session.UserID,
 		tokenType:  session.Type.String(),
 		superAdmin: session.SuperAdmin,
-		requestID:        middleware.GetReqID(ctx),
+		requestID:  middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -130,7 +130,7 @@ func (es eventStore) ListUserGroups(ctx context.Context, session authn.Session, 
 		domainID:   session.DomainID,
 		tokenType:  session.Type.String(),
 		superAdmin: session.SuperAdmin,
-		requestID:        middleware.GetReqID(ctx),
+		requestID:  middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -165,7 +165,7 @@ func (es eventStore) changeStatus(ctx context.Context, session authn.Session, gr
 		updatedBy: group.UpdatedBy,
 		status:    group.Status.String(),
 		Session:   session,
-		requestID:        middleware.GetReqID(ctx),
+		requestID: middleware.GetReqID(ctx),
 	}
 
 	if err := es.Publish(ctx, event); err != nil {
@@ -180,10 +180,10 @@ func (es eventStore) DeleteGroup(ctx context.Context, session authn.Session, id 
 		return err
 	}
 	if err := es.Publish(ctx, deleteGroupEvent{
-		id:      id,
-		Session: session,
-		requestID:        middleware.GetReqID(ctx),
-		}); err != nil {
+		id:        id,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
+	}); err != nil {
 		return err
 	}
 	return nil
@@ -194,7 +194,7 @@ func (es eventStore) RetrieveGroupHierarchy(ctx context.Context, session authn.S
 	if err != nil {
 		return g, err
 	}
-		if err := es.Publish(ctx, retrieveGroupHierarchyEvent{id: id, Session: session, HierarchyPageMeta: hm,requestID:        middleware.GetReqID(ctx) }); err != nil {
+	if err := es.Publish(ctx, retrieveGroupHierarchyEvent{id: id, Session: session, HierarchyPageMeta: hm, requestID: middleware.GetReqID(ctx)}); err != nil {
 		return g, err
 	}
 	return g, nil
@@ -204,7 +204,7 @@ func (es eventStore) AddParentGroup(ctx context.Context, session authn.Session, 
 	if err := es.svc.AddParentGroup(ctx, session, id, parentID); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, addParentGroupEvent{id: id, parentID: parentID, Session: session,requestID:        middleware.GetReqID(ctx)}); err != nil {
+	if err := es.Publish(ctx, addParentGroupEvent{id: id, parentID: parentID, Session: session, requestID: middleware.GetReqID(ctx)}); err != nil {
 		return err
 	}
 	return nil
@@ -214,7 +214,7 @@ func (es eventStore) RemoveParentGroup(ctx context.Context, session authn.Sessio
 	if err := es.svc.RemoveParentGroup(ctx, session, id); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, removeParentGroupEvent{id: id, Session: session,requestID:        middleware.GetReqID(ctx)}); err != nil {
+	if err := es.Publish(ctx, removeParentGroupEvent{id: id, Session: session, requestID: middleware.GetReqID(ctx)}); err != nil {
 		return err
 	}
 	return nil
@@ -224,7 +224,7 @@ func (es eventStore) AddChildrenGroups(ctx context.Context, session authn.Sessio
 	if err := es.svc.AddChildrenGroups(ctx, session, id, childrenGroupIDs); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, addChildrenGroupsEvent{id: id, Session: session, childrenIDs: childrenGroupIDs,requestID:        middleware.GetReqID(ctx)}); err != nil {
+	if err := es.Publish(ctx, addChildrenGroupsEvent{id: id, Session: session, childrenIDs: childrenGroupIDs, requestID: middleware.GetReqID(ctx)}); err != nil {
 		return err
 	}
 	return nil
@@ -234,7 +234,7 @@ func (es eventStore) RemoveChildrenGroups(ctx context.Context, session authn.Ses
 	if err := es.svc.RemoveChildrenGroups(ctx, session, id, childrenGroupIDs); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, removeChildrenGroupsEvent{id: id, Session: session, childrenIDs: childrenGroupIDs,requestID:        middleware.GetReqID(ctx)}); err != nil {
+	if err := es.Publish(ctx, removeChildrenGroupsEvent{id: id, Session: session, childrenIDs: childrenGroupIDs, requestID: middleware.GetReqID(ctx)}); err != nil {
 		return err
 	}
 
@@ -245,7 +245,7 @@ func (es eventStore) RemoveAllChildrenGroups(ctx context.Context, session authn.
 	if err := es.svc.RemoveAllChildrenGroups(ctx, session, id); err != nil {
 		return err
 	}
-	if err := es.Publish(ctx, removeAllChildrenGroupsEvent{id: id, Session: session,requestID:        middleware.GetReqID(ctx)}); err != nil {
+	if err := es.Publish(ctx, removeAllChildrenGroupsEvent{id: id, Session: session, requestID: middleware.GetReqID(ctx)}); err != nil {
 		return err
 	}
 	return nil
@@ -265,8 +265,8 @@ func (es eventStore) ListChildrenGroups(ctx context.Context, session authn.Sessi
 		userID:     session.UserID,
 		tokenType:  session.Type.String(),
 		superAdmin: session.SuperAdmin,
-		requestID:        middleware.GetReqID(ctx),
-		}); err != nil {
+		requestID:  middleware.GetReqID(ctx),
+	}); err != nil {
 		return g, err
 	}
 	return g, nil

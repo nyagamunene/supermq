@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	separator = "-"
+	separator   = "-"
 	emptyString = ""
 )
 
@@ -40,7 +40,7 @@ func (tm *tracingMiddleware) startSpan(ctx context.Context, name string, opts ..
 	reqID := middleware.GetReqID(ctx)
 	if reqID != "" {
 		cleanID := strings.ReplaceAll(reqID, separator, emptyString)
-        final:= fmt.Sprintf("%032s", cleanID)
+		final := fmt.Sprintf("%032s", cleanID)
 		if traceID, err := trace.TraceIDFromHex(final); err == nil {
 			spanCtx := trace.NewSpanContext(trace.SpanContextConfig{
 				TraceID:    traceID,
@@ -50,7 +50,7 @@ func (tm *tracingMiddleware) startSpan(ctx context.Context, name string, opts ..
 			ctx = trace.ContextWithSpanContext(ctx, spanCtx)
 		}
 	}
-	
+
 	opts = append(opts, trace.WithAttributes(attribute.String("request_id", reqID)))
 	return tm.tracer.Start(ctx, name, opts...)
 }

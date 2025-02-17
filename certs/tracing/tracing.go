@@ -50,7 +50,6 @@ func (tm *tracingMiddleware) startSpan(ctx context.Context, name string, opts ..
 	return tm.tracer.Start(ctx, name, opts...)
 }
 
-
 // IssueCert traces the "IssueCert" operation of the wrapped certs.Service.
 func (tm *tracingMiddleware) IssueCert(ctx context.Context, domainID, token, clientID, ttl string) (certs.Cert, error) {
 	ctx, span := tm.startSpan(ctx, "svc_create_group", trace.WithAttributes(
