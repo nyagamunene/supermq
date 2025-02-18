@@ -5,15 +5,13 @@ package tracing
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/absmach/supermq/channels"
 	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/roles"
 	rmTrace "github.com/absmach/supermq/pkg/roles/rolemanager/tracing"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/absmach/supermq/pkg/tracing"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -21,6 +19,7 @@ import (
 const (
 	separator   = "-"
 	emptyString = ""
+	formater    = "%032s"
 )
 
 var _ channels.Service = (*tracingMiddleware)(nil)
@@ -36,28 +35,9 @@ func New(svc channels.Service, tracer trace.Tracer) channels.Service {
 	return &tracingMiddleware{tracer, svc, rmTrace.NewRoleManagerTracing("channels", svc, tracer)}
 }
 
-func (tm *tracingMiddleware) startSpan(ctx context.Context, name string, opts ...trace.SpanStartOption) (context.Context, trace.Span) {
-	reqID := middleware.GetReqID(ctx)
-	if reqID != "" {
-		cleanID := strings.ReplaceAll(reqID, separator, emptyString)
-		final := fmt.Sprintf("%032s", cleanID)
-		if traceID, err := trace.TraceIDFromHex(final); err == nil {
-			spanCtx := trace.NewSpanContext(trace.SpanContextConfig{
-				TraceID:    traceID,
-				SpanID:     trace.SpanID{},
-				TraceFlags: trace.FlagsSampled,
-			})
-			ctx = trace.ContextWithSpanContext(ctx, spanCtx)
-		}
-	}
-
-	opts = append(opts, trace.WithAttributes(attribute.String("request_id", reqID)))
-	return tm.tracer.Start(ctx, name, opts...)
-}
-
 // CreateChannels traces the "CreateChannels" operation of the wrapped policies.Service.
 func (tm *tracingMiddleware) CreateChannels(ctx context.Context, session authn.Session, chs ...channels.Channel) ([]channels.Channel, []roles.RoleProvision, error) {
-	ctx, span := tm.startSpan(ctx, "svc_create_channel")
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_create_channel")
 	defer span.End()
 
 	return tm.svc.CreateChannels(ctx, session, chs...)
@@ -65,27 +45,27 @@ func (tm *tracingMiddleware) CreateChannels(ctx context.Context, session authn.S
 
 // ViewChannel traces the "ViewChannel" operation of the wrapped policies.Service.
 func (tm *tracingMiddleware) ViewChannel(ctx context.Context, session authn.Session, id string) (channels.Channel, error) {
-	ctx, span := tm.startSpan(ctx, "svc_view_channel", trace.WithAttributes(attribute.String("id", id)))
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_view_channel", trace.WithAttributes(attribute.String("id", id)))
 	defer span.End()
 	return tm.svc.ViewChannel(ctx, session, id)
 }
 
 // ListChannels traces the "ListChannels" operation of the wrapped policies.Service.
 func (tm *tracingMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.PageMetadata) (channels.Page, error) {
-	ctx, span := tm.startSpan(ctx, "svc_list_channels")
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_list_channels")
 	defer span.End()
 	return tm.svc.ListChannels(ctx, session, pm)
 }
 
 func (tm *tracingMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.PageMetadata) (channels.Page, error) {
-	ctx, span := tm.startSpan(ctx, "svc_list_user_channels")
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_list_user_channels")
 	defer span.End()
 	return tm.svc.ListUserChannels(ctx, session, userID, pm)
 }
 
 // UpdateChannel traces the "UpdateChannel" operation of the wrapped policies.Service.
 func (tm *tracingMiddleware) UpdateChannel(ctx context.Context, session authn.Session, cli channels.Channel) (channels.Channel, error) {
-	ctx, span := tm.startSpan(ctx, "svc_update_channel", trace.WithAttributes(attribute.String("id", cli.ID)))
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_update_channel", trace.WithAttributes(attribute.String("id", cli.ID)))
 	defer span.End()
 
 	return tm.svc.UpdateChannel(ctx, session, cli)
@@ -93,7 +73,7 @@ func (tm *tracingMiddleware) UpdateChannel(ctx context.Context, session authn.Se
 
 // UpdateChannelTags traces the "UpdateChannelTags" operation of the wrapped policies.Service.
 func (tm *tracingMiddleware) UpdateChannelTags(ctx context.Context, session authn.Session, cli channels.Channel) (channels.Channel, error) {
-	ctx, span := tm.startSpan(ctx, "svc_update_channel_tags", trace.WithAttributes(
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_update_channel_tags", trace.WithAttributes(
 		attribute.String("id", cli.ID),
 		attribute.StringSlice("tags", cli.Tags),
 	))
@@ -104,7 +84,7 @@ func (tm *tracingMiddleware) UpdateChannelTags(ctx context.Context, session auth
 
 // EnableChannel traces the "EnableChannel" operation of the wrapped policies.Service.
 func (tm *tracingMiddleware) EnableChannel(ctx context.Context, session authn.Session, id string) (channels.Channel, error) {
-	ctx, span := tm.startSpan(ctx, "svc_enable_channel", trace.WithAttributes(attribute.String("id", id)))
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_enable_channel", trace.WithAttributes(attribute.String("id", id)))
 	defer span.End()
 
 	return tm.svc.EnableChannel(ctx, session, id)
@@ -112,7 +92,7 @@ func (tm *tracingMiddleware) EnableChannel(ctx context.Context, session authn.Se
 
 // DisableChannel traces the "DisableChannel" operation of the wrapped policies.Service.
 func (tm *tracingMiddleware) DisableChannel(ctx context.Context, session authn.Session, id string) (channels.Channel, error) {
-	ctx, span := tm.startSpan(ctx, "svc_disable_channel", trace.WithAttributes(attribute.String("id", id)))
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_disable_channel", trace.WithAttributes(attribute.String("id", id)))
 	defer span.End()
 
 	return tm.svc.DisableChannel(ctx, session, id)
@@ -120,13 +100,13 @@ func (tm *tracingMiddleware) DisableChannel(ctx context.Context, session authn.S
 
 // DeleteChannel traces the "DeleteChannel" operation of the wrapped channels.Service.
 func (tm *tracingMiddleware) RemoveChannel(ctx context.Context, session authn.Session, id string) error {
-	ctx, span := tm.startSpan(ctx, "delete_channel", trace.WithAttributes(attribute.String("id", id)))
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "delete_channel", trace.WithAttributes(attribute.String("id", id)))
 	defer span.End()
 	return tm.svc.RemoveChannel(ctx, session, id)
 }
 
 func (tm *tracingMiddleware) Connect(ctx context.Context, session authn.Session, chIDs, thIDs []string, connTypes []connections.ConnType) error {
-	ctx, span := tm.startSpan(ctx, "connect", trace.WithAttributes(
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "connect", trace.WithAttributes(
 		attribute.StringSlice("channel_ids", chIDs),
 		attribute.StringSlice("client_ids", thIDs),
 	))
@@ -135,7 +115,7 @@ func (tm *tracingMiddleware) Connect(ctx context.Context, session authn.Session,
 }
 
 func (tm *tracingMiddleware) Disconnect(ctx context.Context, session authn.Session, chIDs, thIDs []string, connTypes []connections.ConnType) error {
-	ctx, span := tm.startSpan(ctx, "disconnect", trace.WithAttributes(
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "disconnect", trace.WithAttributes(
 		attribute.StringSlice("channel_ids", chIDs),
 		attribute.StringSlice("client_ids", thIDs),
 	))
@@ -144,7 +124,7 @@ func (tm *tracingMiddleware) Disconnect(ctx context.Context, session authn.Sessi
 }
 
 func (tm *tracingMiddleware) SetParentGroup(ctx context.Context, session authn.Session, parentGroupID string, id string) error {
-	ctx, span := tm.startSpan(ctx, "set_parent_group", trace.WithAttributes(
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "set_parent_group", trace.WithAttributes(
 		attribute.String("parent_group_id", parentGroupID),
 		attribute.String("id", id),
 	))
@@ -153,7 +133,7 @@ func (tm *tracingMiddleware) SetParentGroup(ctx context.Context, session authn.S
 }
 
 func (tm *tracingMiddleware) RemoveParentGroup(ctx context.Context, session authn.Session, id string) error {
-	ctx, span := tm.startSpan(ctx, "remove_parent_group", trace.WithAttributes(
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "remove_parent_group", trace.WithAttributes(
 		attribute.String("id", id),
 	))
 	defer span.End()
