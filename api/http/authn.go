@@ -7,12 +7,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/absmach/supermq"
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/auth"
 	smqauthn "github.com/absmach/supermq/pkg/authn"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 type sessionKeyType string
@@ -45,21 +43,6 @@ func AuthenticateMiddleware(authn smqauthn.Authentication, domainCheck bool) fun
 
 			ctx := context.WithValue(r.Context(), SessionKey, resp)
 
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-}
-
-func RequestIDMiddleware(idp supermq.IDProvider) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			requestID, err := idp.ID()
-			if err != nil {
-				EncodeError(r.Context(), err, w)
-				return
-			}
-
-			ctx := context.WithValue(r.Context(), middleware.RequestIDKey, requestID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
