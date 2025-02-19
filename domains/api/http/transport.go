@@ -20,14 +20,14 @@ import (
 )
 
 // MakeHandler returns a HTTP handler for Domains and Invitations API endpoints.
-func MakeHandler(svc domains.Service, authn authn.Authentication, mux *chi.Mux, logger *slog.Logger, instanceID string) http.Handler {
+func MakeHandler(svc domains.Service, authn authn.Authentication, mux *chi.Mux, logger *slog.Logger, instanceID string, idp supermq.IDProvider) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorEncoder(apiutil.LoggingErrorEncoder(logger, api.EncodeError)),
 	}
 
 	d := roleManagerHttp.NewDecoder("domainID")
 	mux.Route("/domains", func(r chi.Router) {
-		r.Use(api.RequestIDMiddleware())
+		r.Use(api.RequestIDMiddleware(idp))
 
 		r.Group(func(r chi.Router) {
 			r.Use(api.AuthenticateMiddleware(authn, false))

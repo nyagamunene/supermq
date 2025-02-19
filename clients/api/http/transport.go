@@ -15,8 +15,8 @@ import (
 )
 
 // MakeHandler returns a HTTP handler for clients and Groups API endpoints.
-func MakeHandler(tsvc clients.Service, authn smqauthn.Authentication, mux *chi.Mux, logger *slog.Logger, instanceID string) http.Handler {
-	mux = clientsHandler(tsvc, authn, mux, logger)
+func MakeHandler(tsvc clients.Service, authn smqauthn.Authentication, mux *chi.Mux, logger *slog.Logger, instanceID string, idp supermq.IDProvider) http.Handler {
+	mux = clientsHandler(tsvc, authn, mux, logger, idp)
 
 	mux.Get("/health", supermq.Health("clients", instanceID))
 	mux.Handle("/metrics", promhttp.Handler())

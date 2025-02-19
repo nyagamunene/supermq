@@ -23,6 +23,7 @@ import (
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/roles"
 	sdk "github.com/absmach/supermq/pkg/sdk"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -49,9 +50,10 @@ func setupDomains() (*httptest.Server, *mocks.Service, *authnmocks.Authenticatio
 	svc := new(mocks.Service)
 	logger := smqlog.NewMock()
 	mux := chi.NewRouter()
+	idp := uuid.NewMock()
 	authn := new(authnmocks.Authentication)
 
-	handler := domainapi.MakeHandler(svc, authn, mux, logger, "")
+	handler := domainapi.MakeHandler(svc, authn, mux, logger, "", idp)
 	return httptest.NewServer(handler), svc, authn
 }
 

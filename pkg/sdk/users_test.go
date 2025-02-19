@@ -22,6 +22,7 @@ import (
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	oauth2mocks "github.com/absmach/supermq/pkg/oauth2/mocks"
 	sdk "github.com/absmach/supermq/pkg/sdk"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/absmach/supermq/users"
 	httpapi "github.com/absmach/supermq/users/api"
 	umocks "github.com/absmach/supermq/users/mocks"
@@ -39,11 +40,12 @@ func setupUsers() (*httptest.Server, *umocks.Service, *authnmocks.Authentication
 	usvc := new(umocks.Service)
 	logger := smqlog.NewMock()
 	mux := chi.NewRouter()
+	idp := uuid.NewMock()
 	provider := new(oauth2mocks.Provider)
 	provider.On("Name").Return("test")
 	authn := new(authnmocks.Authentication)
 	token := new(authmocks.TokenServiceClient)
-	httpapi.MakeHandler(usvc, authn, token, true, mux, logger, "", passRegex, provider)
+	httpapi.MakeHandler(usvc, authn, token, true, mux, logger, "", passRegex, idp, provider)
 
 	return httptest.NewServer(mux), usvc, authn
 }

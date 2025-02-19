@@ -24,6 +24,7 @@ import (
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/roles"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -55,8 +56,9 @@ func newGroupsServer() (*httptest.Server, *mocks.Service, *authnmocks.Authentica
 	authn := new(authnmocks.Authentication)
 	svc := new(mocks.Service)
 	mux := chi.NewRouter()
+	idp := uuid.NewMock()
 	logger := smqlog.NewMock()
-	mux = MakeHandler(svc, authn, mux, logger, "")
+	mux = MakeHandler(svc, authn, mux, logger, "", idp)
 
 	return httptest.NewServer(mux), svc, authn
 }

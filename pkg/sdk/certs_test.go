@@ -22,6 +22,7 @@ import (
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	sdk "github.com/absmach/supermq/pkg/sdk"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -64,7 +65,8 @@ func setupCerts() (*httptest.Server, *mocks.Service, *authnmocks.Authentication)
 	svc := new(mocks.Service)
 	logger := smqlog.NewMock()
 	authn := new(authnmocks.Authentication)
-	mux := httpapi.MakeHandler(svc, authn, logger, instanceID)
+	idp := uuid.NewMock()
+	mux := httpapi.MakeHandler(svc, authn, logger, instanceID, idp)
 
 	return httptest.NewServer(mux), svc, authn
 }

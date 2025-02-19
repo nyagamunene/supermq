@@ -222,7 +222,8 @@ func main() {
 		return
 	}
 	mux := chi.NewMux()
-	hs := httpserver.NewServer(ctx, cancel, svcName, httpServerConfig, httpapi.MakeHandler(svc, authn, mux, logger, cfg.InstanceID), logger)
+	idp := uuid.New()
+	hs := httpserver.NewServer(ctx, cancel, svcName, httpServerConfig, httpapi.MakeHandler(svc, authn, mux, logger, cfg.InstanceID, idp), logger)
 
 	g.Go(func() error {
 		return hs.Start()

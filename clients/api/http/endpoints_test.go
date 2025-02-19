@@ -25,6 +25,7 @@ import (
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/roles"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -94,7 +95,8 @@ func newClientsServer() (*httptest.Server, *mocks.Service, *authnmocks.Authentic
 
 	logger := smqlog.NewMock()
 	mux := chi.NewRouter()
-	clientsapi.MakeHandler(svc, authn, mux, logger, "")
+	idp := uuid.NewMock()
+	clientsapi.MakeHandler(svc, authn, mux, logger, "", idp)
 
 	return httptest.NewServer(mux), svc, authn
 }

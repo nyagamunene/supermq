@@ -25,6 +25,7 @@ import (
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/roles"
 	sdk "github.com/absmach/supermq/pkg/sdk"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -41,7 +42,8 @@ func setupChannels() (*httptest.Server, *chmocks.Service, *authnmocks.Authentica
 	logger := smqlog.NewMock()
 	authn := new(authnmocks.Authentication)
 	mux := chi.NewRouter()
-	chapi.MakeHandler(svc, authn, mux, logger, "")
+	idp := uuid.NewMock()
+	chapi.MakeHandler(svc, authn, mux, logger, "", idp)
 
 	return httptest.NewServer(mux), svc, authn
 }

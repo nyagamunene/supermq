@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/absmach/supermq"
 	grpcTokenV1 "github.com/absmach/supermq/api/grpc/token/v1"
 	api "github.com/absmach/supermq/api/http"
 	apiutil "github.com/absmach/supermq/api/http/util"
@@ -27,7 +28,7 @@ import (
 var passRegex = regexp.MustCompile("^.{8,}$")
 
 // usersHandler returns a HTTP handler for API endpoints.
-func usersHandler(svc users.Service, authn smqauthn.Authentication, tokenClient grpcTokenV1.TokenServiceClient, selfRegister bool, r *chi.Mux, logger *slog.Logger, pr *regexp.Regexp, providers ...oauth2.Provider) *chi.Mux {
+func usersHandler(svc users.Service, authn smqauthn.Authentication, tokenClient grpcTokenV1.TokenServiceClient, selfRegister bool, r *chi.Mux, logger *slog.Logger, pr *regexp.Regexp, idp supermq.IDProvider, providers ...oauth2.Provider) *chi.Mux {
 	passRegex = pr
 
 	opts := []kithttp.ServerOption{
@@ -35,7 +36,7 @@ func usersHandler(svc users.Service, authn smqauthn.Authentication, tokenClient 
 	}
 
 	r.Route("/users", func(r chi.Router) {
-		r.Use(api.RequestIDMiddleware())
+		r.Use(api.RequestIDMiddleware(idp))
 
 		switch selfRegister {
 		case true:

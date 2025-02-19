@@ -17,6 +17,7 @@ import (
 	"github.com/absmach/supermq/journal"
 	smqauthn "github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/errors"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/go-chi/chi/v5"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -40,7 +41,8 @@ func MakeHandler(svc journal.Service, authn smqauthn.Authentication, logger *slo
 	}
 
 	mux := chi.NewRouter()
-	mux.Use(api.RequestIDMiddleware())
+	idp := uuid.New()
+	mux.Use(api.RequestIDMiddleware(idp))
 
 	mux.With(api.AuthenticateMiddleware(authn, false)).Get("/journal/user/{userID}", otelhttp.NewHandler(kithttp.NewServer(
 		retrieveJournalsEndpoint(svc),
@@ -51,7 +53,6 @@ func MakeHandler(svc journal.Service, authn smqauthn.Authentication, logger *slo
 
 	mux.Route("/{domainID}/journal", func(r chi.Router) {
 		r.Use(api.AuthenticateMiddleware(authn, true))
-		r.Use(api.RequestIDMiddleware())
 
 		r.Get("/{entityType}/{entityID}", otelhttp.NewHandler(kithttp.NewServer(
 			retrieveJournalsEndpoint(svc),

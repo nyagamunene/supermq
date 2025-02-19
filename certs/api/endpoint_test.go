@@ -23,6 +23,7 @@ import (
 	authnmocks "github.com/absmach/supermq/pkg/authn/mocks"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -69,8 +70,9 @@ func (tr testRequest) make() (*http.Response, error) {
 func newCertServer() (*httptest.Server, *mocks.Service, *authnmocks.Authentication) {
 	svc := new(mocks.Service)
 	logger := smqlog.NewMock()
+	idp := uuid.NewMock()
 	authn := new(authnmocks.Authentication)
-	mux := api.MakeHandler(svc, authn, logger, "")
+	mux := api.MakeHandler(svc, authn, logger, "", idp)
 
 	return httptest.NewServer(mux), svc, authn
 }

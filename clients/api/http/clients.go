@@ -6,6 +6,7 @@ package http
 import (
 	"log/slog"
 
+	"github.com/absmach/supermq"
 	api "github.com/absmach/supermq/api/http"
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/clients"
@@ -16,7 +17,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
-func clientsHandler(svc clients.Service, authn smqauthn.Authentication, r *chi.Mux, logger *slog.Logger) *chi.Mux {
+func clientsHandler(svc clients.Service, authn smqauthn.Authentication, r *chi.Mux, logger *slog.Logger, idp supermq.IDProvider) *chi.Mux {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorEncoder(apiutil.LoggingErrorEncoder(logger, api.EncodeError)),
 	}
@@ -24,7 +25,7 @@ func clientsHandler(svc clients.Service, authn smqauthn.Authentication, r *chi.M
 
 	r.Group(func(r chi.Router) {
 		r.Use(api.AuthenticateMiddleware(authn, true))
-		r.Use(api.RequestIDMiddleware())
+		r.Use(api.RequestIDMiddleware(idp))
 
 		r.Route("/{domainID}/clients", func(r chi.Router) {
 			r.Post("/", otelhttp.NewHandler(kithttp.NewServer(

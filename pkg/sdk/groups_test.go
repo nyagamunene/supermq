@@ -24,6 +24,7 @@ import (
 	oauth2mocks "github.com/absmach/supermq/pkg/oauth2/mocks"
 	"github.com/absmach/supermq/pkg/roles"
 	sdk "github.com/absmach/supermq/pkg/sdk"
+	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -41,10 +42,11 @@ func setupGroups() (*httptest.Server, *mocks.Service, *authnmocks.Authentication
 
 	logger := smqlog.NewMock()
 	mux := chi.NewRouter()
+	idp := uuid.NewMock()
 	provider := new(oauth2mocks.Provider)
 	provider.On("Name").Return(roleName)
 	authn := new(authnmocks.Authentication)
-	httpapi.MakeHandler(svc, authn, mux, logger, "")
+	httpapi.MakeHandler(svc, authn, mux, logger, "", idp)
 
 	return httptest.NewServer(mux), svc, authn
 }
