@@ -460,11 +460,10 @@ func (repo *Repository) RoleListActions(ctx context.Context, roleID string) ([]s
 }
 
 func (repo *Repository) RoleCheckActionsExists(ctx context.Context, roleID string, actions []string) (bool, error) {
-	q := fmt.Sprintf(`SELECT COUNT(*) FROM %s_role_actions WHERE role_id = :role_id AND action IN (:actions)`, repo.tableNamePrefix)
+	q := fmt.Sprintf(`SELECT COUNT(*) FROM %s_role_actions WHERE role_id = :role_id AND action IN ('%s')`, repo.tableNamePrefix, strings.Join(actions, ","))
 
 	params := map[string]interface{}{
 		"role_id": roleID,
-		"actions": actions,
 	}
 	var count int
 	query, err := repo.db.NamedQueryContext(ctx, q, params)
@@ -639,11 +638,10 @@ func (repo *Repository) RoleListMembers(ctx context.Context, roleID string, limi
 }
 
 func (repo *Repository) RoleCheckMembersExists(ctx context.Context, roleID string, members []string) (bool, error) {
-	q := fmt.Sprintf(`SELECT COUNT(*) FROM %s_role_members WHERE role_id = :role_id AND action IN (:members)`, repo.tableNamePrefix)
+	q := fmt.Sprintf(`SELECT COUNT(*) FROM %s_role_members WHERE role_id = :role_id AND member_id IN ('%s')`, repo.tableNamePrefix, strings.Join(members, ","))
 
 	params := map[string]interface{}{
 		"role_id": roleID,
-		"members": members,
 	}
 	var count int
 	query, err := repo.db.NamedQueryContext(ctx, q, params)

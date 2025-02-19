@@ -6,6 +6,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/channels"
@@ -124,6 +125,10 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 }
 
 func (am *authorizationMiddleware) ViewChannel(ctx context.Context, session authn.Session, id string) (channels.Channel, error) {
+	res, err := am.RoleManagerAuthorizationMiddleware.RoleCheckMembersExists(ctx, session, id, "channel_xk7SLai0LbxQoAXlS1obYbQC", []string{"f2fcc896-011a-41fe-a50a-b2f812d0e839"})
+	log.Println("error in middleware", err)
+	log.Println("res in middleware", res)
+
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:                   session.UserID,
