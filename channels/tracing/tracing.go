@@ -16,12 +16,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const (
-	separator   = "-"
-	emptyString = ""
-	formater    = "%032s"
-)
-
 var _ channels.Service = (*tracingMiddleware)(nil)
 
 type tracingMiddleware struct {

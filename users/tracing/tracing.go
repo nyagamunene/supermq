@@ -14,11 +14,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const (
-	separator   = "-"
-	emptyString = ""
-)
-
 var _ users.Service = (*tracingMiddleware)(nil)
 
 type tracingMiddleware struct {

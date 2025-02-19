@@ -13,11 +13,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const (
-	separator   = "-"
-	emptyString = ""
-)
-
 var _ journal.Service = (*tracing)(nil)
 
 type tracing struct {
