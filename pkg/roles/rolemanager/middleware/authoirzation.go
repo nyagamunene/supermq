@@ -227,16 +227,16 @@ func (ram RoleManagerAuthorizationMiddleware) RoleListMembers(ctx context.Contex
 }
 
 func (ram RoleManagerAuthorizationMiddleware) RoleCheckMembersExists(ctx context.Context, session authn.Session, entityID, roleID string, members []string) (bool, error) {
-	// if err := ram.authorize(ctx, roles.OpRoleCheckMembersExists, smqauthz.PolicyReq{
-	// 	Domain:      session.DomainID,
-	// 	Subject:     session.DomainUserID,
-	// 	SubjectType: policies.UserType,
-	// 	SubjectKind: policies.UsersKind,
-	// 	Object:      entityID,
-	// 	ObjectType:  ram.entityType,
-	// }); err != nil {
-	// 	return false, err
-	// }
+	if err := ram.authorize(ctx, roles.OpRoleCheckMembersExists, smqauthz.PolicyReq{
+		Domain:      session.DomainID,
+		Subject:     session.DomainUserID,
+		SubjectType: policies.UserType,
+		SubjectKind: policies.UsersKind,
+		Object:      entityID,
+		ObjectType:  ram.entityType,
+	}); err != nil {
+		return false, err
+	}
 	return ram.svc.RoleCheckMembersExists(ctx, session, entityID, roleID, members)
 }
 
