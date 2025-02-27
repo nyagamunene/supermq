@@ -416,7 +416,7 @@ CREATE TABLE IF NOT EXISTS pat_scopes (
 )
 ```
 
-### Authorization Flow
+### Authorization
 
 When a PAT is used for authentication:
 
