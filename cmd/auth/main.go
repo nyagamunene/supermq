@@ -54,7 +54,6 @@ const (
 	envPrefixHTTP  = "SMQ_AUTH_HTTP_"
 	envPrefixGrpc  = "SMQ_AUTH_GRPC_"
 	envPrefixDB    = "SMQ_AUTH_DB_"
-	envPrefixPATDB = "SMQ_AUTH_PAT_DB_"
 	defDB          = "auth"
 	defSvcHTTPPort = "8189"
 	defSvcGRPCPort = "8181"

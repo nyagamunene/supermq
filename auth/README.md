@@ -85,6 +85,8 @@ The service is configured using the environment variables presented in the follo
 | SMQ_AUTH_ACCESS_TOKEN_DURATION  | The access token expiration period                                      | 1h                             |
 | SMQ_AUTH_REFRESH_TOKEN_DURATION | The refresh token expiration period                                     | 24h                            |
 | SMQ_AUTH_INVITATION_DURATION    | The invitation token expiration period                                  | 168h                           |
+| SMQ_AUTH_CACHE_URL              | Redis URL for caching PAT scopes                                        | redis://localhost:6379/0       |
+| SMQ_AUTH_CACHE_KEY_DURATION     | Duration for which PAT scope cache keys are valid                       | 10m                            |
 | SMQ_SPICEDB_HOST                | SpiceDB host address                                                    | localhost                      |
 | SMQ_SPICEDB_PORT                | SpiceDB host port                                                       | 50051                          |
 | SMQ_SPICEDB_PRE_SHARED_KEY      | SpiceDB pre-shared key                                                  | 12345678                       |
