@@ -152,6 +152,279 @@ $GOBIN/supermq-auth
 Setting `SMQ_AUTH_HTTP_SERVER_CERT` and `SMQ_AUTH_HTTP_SERVER_KEY` will enable TLS against the service. The service expects a file in PEM format for both the certificate and the key.
 Setting `SMQ_AUTH_GRPC_SERVER_CERT` and `SMQ_AUTH_GRPC_SERVER_KEY` will enable TLS against the service. The service expects a file in PEM format for both the certificate and the key. Setting `SMQ_AUTH_GRPC_SERVER_CA_CERTS` will enable TLS against the service trusting only those CAs that are provided. The service expects a file in PEM format of trusted CAs. Setting `SMQ_AUTH_GRPC_CLIENT_CA_CERTS` will enable TLS against the service trusting only those CAs that are provided. The service expects a file in PEM format of trusted CAs.
 
+## Personal Access Tokens (PATs)
+
+Personal Access Tokens (PATs) provide a secure way to authenticate with SuperMQ APIs without using your primary credentials. They are particularly useful for automation, CI/CD pipelines, and integrating with third-party services.
+
+### Overview
+
+PATs in SuperMQ are designed with the following features:
+
+- **Scoped Access**: Each token can be limited to specific operations on specific resources
+- **Expiration Control**: Set custom expiration times for tokens
+- **Revocable**: Tokens can be revoked at any time
+- **Auditable**: Track when tokens were last used
+- **Secure**: Tokens are stored as hashes, not in plaintext
+
+### Token Structure
+
+A PAT consists of three parts separated by underscores:
+```
+pat_<encoded-user-and-pat-id>_<random-string>
+```
+
+Where:
+- `pat` is a fixed prefix
+- `<encoded-user-and-pat-id>` is a base64-encoded combination of the user ID and PAT ID
+- `<random-string>` is a randomly generated string for additional security
+
+### PAT Operations
+
+SuperMQ supports the following operations for PATs:
+
+| Operation | Description |
+|-----------|-------------|
+| `create` | Create a new resource |
+| `read` | Read/view a resource |
+| `list` | List resources |
+| `update` | Update/modify a resource |
+| `delete` | Delete a resource |
+| `share` | Share a resource with others |
+| `unshare` | Remove sharing permissions |
+| `publish` | Publish messages to a channel |
+| `subscribe` | Subscribe to messages from a channel |
+
+### Entity Types
+
+PATs can be scoped to the following entity types:
+
+| Entity Type | Description |
+|-------------|-------------|
+| `groups` | User groups |
+| `channels` | Communication channels |
+| `clients` | Client applications |
+| `domains` | Organizational domains |
+| `users` | User accounts |
+| `dashboards` | Dashboard interfaces |
+| `messages` | Message content |
+
+### API Examples
+
+#### Creating a PAT
+
+```bash
+curl --location 'http://localhost:9001/pats' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <access_token>' \
+--data '{
+    "name": "test pat",
+    "description": "testing pat",
+    "duration": "24h"
+}'
+```
+
+Response:
+```json
+{
+  "id": "a2500226-95dc-4285-87e2-e693e4a0a976",
+  "user_id": "user123",
+  "name": "pat 1",
+  "description": "for creating any client or channel",
+  "secret": "pat_dXNlcjEyM19hMjUwMDIyNi05NWRjLTQyODUtODdlMi1lNjkzZTRhMGE5NzY=_randomstring...",
+  "issued_at": "2025-02-27T11:20:59Z",
+  "expires_at": "2025-02-28T11:20:59Z"
+}
+```
+
+#### Adding Scopes to a PAT
+
+```bash
+curl --location --request PATCH 'http://localhost:9001/pats/a2500226-95dc-4285-87e2-e693e4a0a976/scope/add' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <access_token>' \
+--data '{
+    "scopes": [
+        {
+            "optional_domain_id": "c16c980a-9d4c-4793-8fb2-c81304cf1d9f",
+            "entity_type": "clients",
+            "operation": "create",
+            "entity_id": "*"
+        },
+        {
+            "optional_domain_id": "c16c980a-9d4c-4793-8fb2-c81304cf1d9f",
+            "entity_type": "channels",
+            "operation": "create",
+            "entity_id": "cfbc6936-5748-4339-a8ef-37b64b02bc96"
+        },
+        {
+            "entity_type": "dashboards",
+            "optional_domain_id": "c16c980a-9d4c-4793-8fb2-c81304cf1d9f",
+            "operation": "read",
+            "entity_id": "*"
+        }
+    ]
+}'
+```
+
+#### Listing PATs
+
+```bash
+curl --location 'http://localhost:9001/pats' \
+--header 'Authorization: Bearer <access_token>'
+```
+
+#### Listing Scopes for a PAT
+
+```bash
+curl --location 'http://localhost:9001/pats/a2500226-95dc-4285-87e2-e693e4a0a976/scopes' \
+--header 'Authorization: Bearer <access_token>'
+```
+
+#### Revoking a PAT
+
+```bash
+curl --location --request PATCH 'http://localhost:9001/pats/a2500226-95dc-4285-87e2-e693e4a0a976/revoke' \
+--header 'Authorization: Bearer <access_token>'
+```
+
+#### Resetting a PAT Secret
+
+```bash
+curl --location --request PATCH 'http://localhost:9001/pats/a2500226-95dc-4285-87e2-e693e4a0a976/reset' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <access_token>' \
+--data '{
+    "duration": "720h"
+}'
+```
+
+### Using PATs for Authentication
+
+When making API requests, include the PAT in the Authorization header:
+
+```
+Authorization: Bearer pat_<encoded-user-and-pat-id>_<random-string>
+```
+
+#### Example: Creating a Client Using PAT
+
+```bash
+curl --location 'http://localhost:9006/c16c980a-9d4c-4793-8fb2-c81304cf1d9f/clients' \
+--header 'accept: application/json' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer pat_etKoiXKTR6a0zdgsBHC00qJQAiaV3EKFh+Lmk+SgqXY=_u7@5fyjgti9V@#Bw^bS*SPmX3OnH=HTvKwmIbxIuyBjoI|6FASo9egjKD^u-M$b|2Dpt3CXZtv&4k+hmYYjk&C$57AV59P%-iDV0' \
+--data '{
+  "name": "test client",
+  "tags": [
+    "tag1",
+    "tag2"
+  ],
+  "metadata":{"units":"km"},
+  "status": "enabled"
+}'
+```
+
+This example shows how to create a client in a specific domain (`c16c980a-9d4c-4793-8fb2-c81304cf1d9f`) using a PAT for authentication. The PAT must have the appropriate scope (e.g., `clients` entity type with `create` operation) for this domain.
+
+### Wildcard Entity IDs
+
+When defining scopes for PATs, you can use the wildcard character `*` for the `entity_id` field to grant permissions for all entities of a specific type. This is particularly useful for automation tasks that need to operate on multiple resources.
+
+For example:
+- `"entity_id": "*"` - Grants permission for all entities of the specified type
+- `"entity_id": "specific-id"` - Grants permission only for the entity with the specified ID
+
+Using wildcards should be done carefully, as they grant broader permissions. Always follow the principle of least privilege by granting only the permissions necessary for the intended use case.
+
+### Scope Examples
+
+#### Allow Creating Any Client in a Domain
+
+```json
+{
+    "optional_domain_id": "domain_id",
+    "entity_type": "clients",
+    "operation": "create",
+    "entity_id": "*"
+}
+```
+
+This scope allows the PAT to create any client within the specified domain. The wildcard `*` for `entity_id` means the token can create any client, not just a specific one.
+
+#### Allow Publishing to a Specific Channel
+
+```json
+{
+    "optional_domain_id": "domain_id",
+    "entity_type": "channels",
+    "operation": "publish",
+    "entity_id": "channel_id"
+}
+```
+
+This scope restricts the PAT to only publish to a specific channel (`channel_id`) within the specified domain. No wildcard is used, so the permission is limited to just this one channel.
+
+#### Allow Reading All Dashboards
+
+```json
+{
+    "optional_domain_id": "domain_id",
+    "entity_type": "dashboards",
+    "operation": "read",
+    "entity_id": "*"
+}
+```
+
+This scope allows the PAT to read all dashboards within the specified domain. The wildcard `*` for `entity_id` means the token can read any dashboard in that domain.
+
+### Best Practices
+
+1. **Limit Scope**: Always use the principle of least privilege when creating PATs
+2. **Set Expirations**: Use reasonable expiration times for tokens
+3. **Rotate Regularly**: Reset token secrets periodically
+4. **Audit Usage**: Monitor when tokens are used
+5. **Revoke Unused**: Remove tokens that are no longer needed
+
+### Implementation Details
+
+PATs are stored in the database with the following schema:
+
+```sql
+CREATE TABLE IF NOT EXISTS pats (
+    id              VARCHAR(36) PRIMARY KEY,
+    name            VARCHAR(254) NOT NULL,
+    user_id         VARCHAR(36),
+    description     TEXT,
+    secret          TEXT,
+    issued_at       TIMESTAMP,
+    expires_at      TIMESTAMP,
+    updated_at      TIMESTAMP,
+    revoked         BOOLEAN,
+    revoked_at      TIMESTAMP,
+    last_used_at    TIMESTAMP,
+    UNIQUE          (id, name, secret)
+)
+
+CREATE TABLE IF NOT EXISTS pat_scopes (
+    id                  VARCHAR(36) PRIMARY KEY,
+    pat_id              VARCHAR(36) REFERENCES pats(id) ON DELETE CASCADE,
+    optional_domain_id  VARCHAR(36),
+    entity_type         VARCHAR(50) NOT NULL,
+    operation           VARCHAR(50) NOT NULL,
+    entity_id           VARCHAR(50) NOT NULL,
+    UNIQUE (pat_id, optional_domain_id, entity_type, operation, entity_id)
+)
+```
+
+### Authorization Flow
+
+When a PAT is used for authentication:
+
+1. The system parses the token to extract the user ID and PAT ID
+2. It verifies the token hasn't been revoked or expired
+3. It checks if the requested operation is allowed by the token's scopes
+4. If all checks pass, the operation is authorized
+
 ## Usage
 
 For more information about service capabilities and its usage, please check out the [API documentation](https://docs.api.supermq.abstractmachines.fr/?urls.primaryName=auth.yml).
