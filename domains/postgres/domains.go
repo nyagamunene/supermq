@@ -13,6 +13,7 @@ import (
 
 	api "github.com/absmach/supermq/api/http"
 	"github.com/absmach/supermq/domains"
+	"github.com/absmach/supermq/pkg/roles"
 	"github.com/absmach/supermq/pkg/errors"
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 	"github.com/absmach/supermq/pkg/policies"
@@ -169,11 +170,12 @@ func (repo domainRepo) RetrieveDomainByIDWithRoles(ctx context.Context, id strin
 		if err = rows.StructScan(&dbd); err != nil {
 			return domains.Domain{}, postgres.HandleError(repoerr.ErrViewEntity, err)
 		}
+	}
 
-		domain, err := toDomain(dbd)
-		if err != nil {
-			return domains.Domain{}, errors.Wrap(repoerr.ErrFailedOpDB, err)
-		}
+	domain, err := toDomain(dbd)
+	if err != nil {
+		return domains.Domain{}, errors.Wrap(repoerr.ErrFailedOpDB, err)
+	}
 
 		return domain, nil
 	}
