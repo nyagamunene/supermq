@@ -373,6 +373,8 @@ func (repo *clientRepo) RetrieveByIDWithRoles(ctx context.Context, id, memberID 
 func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Client, error) {
 	q := `SELECT id, name, tags, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_group_id, '') AS parent_group_id, identity, secret, metadata, created_at, updated_at, updated_by, status
         FROM clients WHERE id = :id`
+	roleQuery := `SELECT id, name FROM clients_roles WHERE entity_id = :id`
+	actionQuery := `SELECT action FROM clients_role_actions WHERE role_id = :id`
 
 	dbc := DBClient{
 		ID: id,
@@ -389,11 +391,50 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		if err := row.StructScan(&dbc); err != nil {
 			return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
-
-		return ToClient(dbc)
 	}
 
-	return clients.Client{}, repoerr.ErrNotFound
+	cl, err := ToClient(dbc)
+	if err != nil {
+		return clients.Client{}, err
+	}
+
+	roleRow, err := repo.DB.NamedQueryContext(ctx, roleQuery, dbc)
+	if err != nil {
+		return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
+	}
+	defer roleRow.Close()
+
+	var res []roles.RoleRes
+	for roleRow.Next() {
+		var role roles.RoleRes
+		if err := roleRow.StructScan(&role); err != nil {
+			return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		}
+
+		actRow, err := repo.DB.NamedQueryContext(ctx, actionQuery, role)
+		if err != nil {
+			return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		}
+		defer actRow.Close()
+
+		var items []string
+		for actRow.Next() {
+			var item string
+			if err := actRow.Scan(&item); err != nil {
+				return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			}
+			items = append(items, item)
+		}
+		res = append(res, roles.RoleRes{
+			RoleID:   role.RoleID,
+			RoleName: role.RoleName,
+			Actions:  items,
+		})
+	}
+
+	cl.Roles = res
+
+	return cl, nil
 }
 
 func (repo *clientRepo) RetrieveAll(ctx context.Context, pm clients.Page) (clients.ClientsPage, error) {

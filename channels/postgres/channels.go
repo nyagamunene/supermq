@@ -140,27 +140,10 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 		if err := row.StructScan(&dbch); err != nil {
 			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
+		return toChannel(dbch)
 	}
 
-	actionQuery := `SELECT action as actions FROM channels_role_actions WHERE role_id = :role_id`
-
-	param := dbChannel{
-		RoleID: "channel_vJO2BgXmrgruNJPLKXPABCmD",
-	}
-
-	actRow, err := cr.db.NamedQueryContext(ctx, actionQuery,param)
-	if err != nil {
-		return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
-	}
-	defer actRow.Close()
-
-	for actRow.Next() {
-		if err := actRow.StructScan(&dbch); err != nil {
-			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-	}
-
-	return toChannel(dbch)
+	return channels.Channel{}, repoerr.ErrNotFound
 }
 
 func (cr *channelRepository) RetrieveByIDWithRoles(ctx context.Context, id, memberID string) (channels.Channel, error) {
