@@ -23,6 +23,7 @@ import (
 	rolesPostgres "github.com/absmach/supermq/pkg/roles/repo/postgres"
 	"github.com/jackc/pgtype"
 	"github.com/lib/pq"
+	"github.com/absmach/supermq/pkg/roles"
 )
 
 const (
@@ -124,6 +125,8 @@ func (cr *channelRepository) ChangeStatus(ctx context.Context, channel channels.
 
 func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (channels.Channel, error) {
 	q := `SELECT id, name, tags, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_group_id, '') AS parent_group_id,  metadata, created_at, updated_at, updated_by, status FROM channels WHERE id = :id`
+	roleQuery := `SELECT id, name FROM clients_roles WHERE entity_id = :id`
+	actionQuery := `SELECT action FROM clients_role_actions WHERE role_id = :id`
 
 	dbch := dbChannel{
 		ID: id,
@@ -140,10 +143,50 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 		if err := row.StructScan(&dbch); err != nil {
 			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
-		return toChannel(dbch)
 	}
 
-	return channels.Channel{}, repoerr.ErrNotFound
+	ch,err :=  toChannel(dbch)
+	if err != nil {
+		return channels.Channel{}, err
+	}
+
+	roleRow, err := cr.db.NamedQueryContext(ctx, roleQuery, dbch)
+	if err != nil {
+		return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
+	}
+	defer roleRow.Close()
+
+	var res []roles.RoleRes
+	for roleRow.Next() {
+		var role roles.RoleRes
+		if err := roleRow.StructScan(&role); err != nil {
+			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		}
+
+		actRow, err := cr.db.NamedQueryContext(ctx, actionQuery, role)
+		if err != nil {
+			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		}
+		defer actRow.Close()
+
+		var items []string
+		for actRow.Next() {
+			var item string
+			if err := actRow.Scan(&item); err != nil {
+				return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			}
+			items = append(items, item)
+		}
+		res = append(res, roles.RoleRes{
+			RoleID:   role.RoleID,
+			RoleName: role.RoleName,
+			Actions:  items,
+		})
+	}
+
+	ch.Roles = res
+
+	return ch, nil
 }
 
 func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.PageMetadata) (channels.Page, error) {
