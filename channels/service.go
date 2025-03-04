@@ -175,8 +175,6 @@ func (svc service) DisableChannel(ctx context.Context, session authn.Session, id
 func (svc service) ViewChannel(ctx context.Context, session authn.Session, id string) (Channel, error) {
 	channel, err := svc.repo.RetrieveByID(ctx, id)
 	if err != nil {
-		fmt.Printf("err is %+v\n", err)
-		fmt.Printf("id is %+v\n", id)
 		return Channel{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 
