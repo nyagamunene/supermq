@@ -20,10 +20,10 @@ import (
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 	"github.com/absmach/supermq/pkg/policies"
 	"github.com/absmach/supermq/pkg/postgres"
+	"github.com/absmach/supermq/pkg/roles"
 	rolesPostgres "github.com/absmach/supermq/pkg/roles/repo/postgres"
 	"github.com/jackc/pgtype"
 	"github.com/lib/pq"
-	"github.com/absmach/supermq/pkg/roles"
 )
 
 const (
@@ -125,8 +125,8 @@ func (cr *channelRepository) ChangeStatus(ctx context.Context, channel channels.
 
 func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (channels.Channel, error) {
 	q := `SELECT id, name, tags, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_group_id, '') AS parent_group_id,  metadata, created_at, updated_at, updated_by, status FROM channels WHERE id = :id`
-	roleQuery := `SELECT id, name FROM clients_roles WHERE entity_id = :id`
-	actionQuery := `SELECT action FROM clients_role_actions WHERE role_id = :id`
+	roleQuery := `SELECT id, name FROM channels_roles WHERE entity_id = :id`
+	actionQuery := `SELECT action FROM channels_role_actions WHERE role_id = :id`
 
 	dbch := dbChannel{
 		ID: id,
@@ -145,7 +145,7 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 		}
 	}
 
-	ch,err :=  toChannel(dbch)
+	ch, err := toChannel(dbch)
 	if err != nil {
 		return channels.Channel{}, err
 	}
