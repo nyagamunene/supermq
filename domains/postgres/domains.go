@@ -13,6 +13,7 @@ import (
 
 	api "github.com/absmach/supermq/api/http"
 	"github.com/absmach/supermq/domains"
+	"github.com/absmach/supermq/pkg/roles"
 	"github.com/absmach/supermq/pkg/errors"
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 	"github.com/absmach/supermq/pkg/policies"
@@ -80,6 +81,8 @@ func (repo domainRepo) SaveDomain(ctx context.Context, d domains.Domain) (dd dom
 func (repo domainRepo) RetrieveDomainByID(ctx context.Context, id string) (domains.Domain, error) {
 	q := `SELECT d.id as id, d.name as name, d.tags as tags,  d.alias as alias, d.metadata as metadata, d.created_at as created_at, d.updated_at as updated_at, d.updated_by as updated_by, d.created_by as created_by, d.status as status
         FROM domains d WHERE d.id = :id`
+	roleQuery := `SELECT id, name FROM domains_roles WHERE entity_id = :id`
+	actionQuery := `SELECT action FROM domains_role_actions WHERE role_id = :id`
 
 	dbdp := dbDomainsPage{
 		ID: id,
@@ -96,15 +99,51 @@ func (repo domainRepo) RetrieveDomainByID(ctx context.Context, id string) (domai
 		if err = rows.StructScan(&dbd); err != nil {
 			return domains.Domain{}, postgres.HandleError(repoerr.ErrViewEntity, err)
 		}
+	}
 
-		domain, err := toDomain(dbd)
-		if err != nil {
-			return domains.Domain{}, errors.Wrap(repoerr.ErrFailedOpDB, err)
+	domain, err := toDomain(dbd)
+	if err != nil {
+		return domains.Domain{}, errors.Wrap(repoerr.ErrFailedOpDB, err)
+	}
+
+	roleRow, err := repo.db.NamedQueryContext(ctx, roleQuery, dbd)
+	if err != nil {
+		return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
+	}
+	defer roleRow.Close()
+
+	var res []roles.RoleRes
+	for roleRow.Next() {
+		var role roles.RoleRes
+		if err := roleRow.StructScan(&role); err != nil {
+			return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 
-		return domain, nil
+		actRow, err := repo.db.NamedQueryContext(ctx, actionQuery, role)
+		if err != nil {
+			return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		}
+		defer actRow.Close()
+
+		var items []string
+		for actRow.Next() {
+			var item string
+			if err := actRow.Scan(&item); err != nil {
+				return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			}
+			items = append(items, item)
+		}
+		res = append(res, roles.RoleRes{
+			RoleID:   role.RoleID,
+			RoleName: role.RoleName,
+			Actions:  items,
+		})
 	}
-	return domains.Domain{}, repoerr.ErrNotFound
+
+	domain.Roles = res
+
+	return domain, nil
+
 }
 
 func (repo domainRepo) RetrieveDomainByUserAndID(ctx context.Context, userID, id string) (domains.Domain, error) {
