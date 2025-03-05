@@ -236,12 +236,12 @@ func (et *EntityType) UnmarshalText(data []byte) (err error) {
 // ]
 
 type Scope struct {
-	ID               string     `json:"id"`
-	PatID            string     `json:"pat_id"`
-	OptionalDomainID string     `json:"optional_domain_id"`
-	EntityType       EntityType `json:"entity_type"`
-	EntityID         string     `json:"entity_id"`
-	Operation        Operation  `json:"operation"`
+	ID               string     `json:"id,omitempty"`
+	PatID            string     `json:"pat_id,omitempty"`
+	OptionalDomainID string     `json:"optional_domain_id,omitempty"`
+	EntityType       EntityType `json:"entity_type,omitempty"`
+	EntityID         string     `json:"entity_id,omitempty"`
+	Operation        Operation  `json:"operation,omitempty"`
 }
 
 func (s *Scope) Authorized(entityType EntityType, optionalDomainID string, operation Operation, entityID string) bool {
