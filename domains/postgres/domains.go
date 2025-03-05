@@ -84,7 +84,7 @@ func (repo domainRepo) RetrieveDomainByID(ctx context.Context, id string) (domai
 		SELECT
 			dr.id AS role_id,
 			dr.name AS role_name,
-			COALESCE(array_agg(dra.action), '{}'::text[]) AS actions
+			array_agg(dra.action) AS actions
 		FROM
 			domains_roles dr
 		LEFT JOIN
