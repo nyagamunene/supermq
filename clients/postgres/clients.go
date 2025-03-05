@@ -189,7 +189,7 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 	)
 	SELECT
 		c.id, c.name, c.tags, COALESCE(c.domain_id, '') AS domain_id, COALESCE(c.parent_group_id, '') AS parent_group_id,
-		c.identity, c.secret, c.metadata, c.created_at, c.updated_at, c.updated_by, c.status, cr.role_id, cr.role_name,	cr.actions
+		c.identity, c.secret, c.metadata, c.created_at, c.updated_at, c.updated_by, c.status, cr.role_id, cr.role_name, cr.actions
 	FROM
 		clients c
 	LEFT JOIN
@@ -211,7 +211,7 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 	var res []roles.RoleRes
 	for row.Next() {
 		var roleID, roleName string
-		var roleActions pq.StringArray
+		var roleActions pgtype.TextArray
 
 		if err := row.Scan(
 			&dbc.ID,
@@ -233,10 +233,15 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 			return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 
+		var actions []string
+		for _, e := range roleActions.Elements {
+			actions = append(actions, e.String)
+		}
+
 		res = append(res, roles.RoleRes{
 			RoleID:   roleID,
 			RoleName: roleName,
-			Actions:  roleActions,
+			Actions:  actions,
 		})
 	}
 
