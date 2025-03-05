@@ -13,11 +13,11 @@ import (
 
 	api "github.com/absmach/supermq/api/http"
 	"github.com/absmach/supermq/domains"
-	"github.com/absmach/supermq/pkg/roles"
 	"github.com/absmach/supermq/pkg/errors"
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 	"github.com/absmach/supermq/pkg/policies"
 	"github.com/absmach/supermq/pkg/postgres"
+	"github.com/absmach/supermq/pkg/roles"
 	rolesPostgres "github.com/absmach/supermq/pkg/roles/repo/postgres"
 	"github.com/jackc/pgtype"
 	"github.com/jmoiron/sqlx"
@@ -79,71 +79,83 @@ func (repo domainRepo) SaveDomain(ctx context.Context, d domains.Domain) (dd dom
 
 // RetrieveDomainByID retrieves Domain by its unique ID.
 func (repo domainRepo) RetrieveDomainByID(ctx context.Context, id string) (domains.Domain, error) {
-	q := `SELECT d.id as id, d.name as name, d.tags as tags,  d.alias as alias, d.metadata as metadata, d.created_at as created_at, d.updated_at as updated_at, d.updated_by as updated_by, d.created_by as created_by, d.status as status
-        FROM domains d WHERE d.id = :id`
-	roleQuery := `SELECT id, name FROM domains_roles WHERE entity_id = :id`
-	actionQuery := `SELECT action FROM domains_role_actions WHERE role_id = :id`
+	q := `
+	WITH domain_roles AS (
+		SELECT
+			dr.id AS role_id,
+			dr.name AS role_name,
+			COALESCE(array_agg(dra.action), '{}'::text[]) AS actions
+		FROM
+			domains_roles dr
+		LEFT JOIN
+			domains_role_actions dra ON dr.id = dra.role_id
+		WHERE
+			dr.entity_id = :id
+		GROUP BY
+			dr.id, dr.name
+	)
+	SELECT
+		d.id, d.name, d.tags, d.alias, d.metadata, d.created_at, d.updated_at,
+		d.updated_by, d.created_by, d.status, dr.role_id, dr.role_name,	dr.actions
+	FROM
+		domains d
+	LEFT JOIN
+		domain_roles dr ON 1=1
+	WHERE
+		d.id = :id`
 
-	dbdp := dbDomainsPage{
+	dbdp := dbDomain{
 		ID: id,
 	}
 
-	rows, err := repo.db.NamedQueryContext(ctx, q, dbdp)
-	if err != nil {
-		return domains.Domain{}, postgres.HandleError(repoerr.ErrViewEntity, err)
-	}
-	defer rows.Close()
-
-	dbd := dbDomain{}
-	if rows.Next() {
-		if err = rows.StructScan(&dbd); err != nil {
-			return domains.Domain{}, postgres.HandleError(repoerr.ErrViewEntity, err)
-		}
-	}
-
-	domain, err := toDomain(dbd)
-	if err != nil {
-		return domains.Domain{}, errors.Wrap(repoerr.ErrFailedOpDB, err)
-	}
-
-	roleRow, err := repo.db.NamedQueryContext(ctx, roleQuery, dbd)
+	row, err := repo.db.NamedQueryContext(ctx, q, dbdp)
 	if err != nil {
 		return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
-	defer roleRow.Close()
+	defer row.Close()
 
+	dbdp = dbDomain{}
 	var res []roles.RoleRes
-	for roleRow.Next() {
-		var role roles.RoleRes
-		if err := roleRow.StructScan(&role); err != nil {
+	for row.Next() {
+		var roleID, roleName string
+		var roleActions pgtype.TextArray
+
+		if err := row.Scan(
+			&dbdp.ID,
+			&dbdp.Name,
+			&dbdp.Tags,
+			&dbdp.Alias,
+			&dbdp.Metadata,
+			&dbdp.CreatedAt,
+			&dbdp.UpdatedAt,
+			&dbdp.UpdatedBy,
+			&dbdp.CreatedBy,
+			&dbdp.Status,
+			&roleID,
+			&roleName,
+			&roleActions,
+		); err != nil {
 			return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 
-		actRow, err := repo.db.NamedQueryContext(ctx, actionQuery, role)
-		if err != nil {
-			return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		var actions []string
+		for _, e := range roleActions.Elements {
+			actions = append(actions, e.String)
 		}
-		defer actRow.Close()
 
-		var items []string
-		for actRow.Next() {
-			var item string
-			if err := actRow.Scan(&item); err != nil {
-				return domains.Domain{}, errors.Wrap(repoerr.ErrViewEntity, err)
-			}
-			items = append(items, item)
-		}
 		res = append(res, roles.RoleRes{
-			RoleID:   role.RoleID,
-			RoleName: role.RoleName,
-			Actions:  items,
+			RoleID:   roleID,
+			RoleName: roleName,
+			Actions:  actions,
 		})
 	}
 
+	domain, err := toDomain(dbdp)
+	if err != nil {
+		return domains.Domain{}, err
+	}
 	domain.Roles = res
-
 	return domain, nil
-
 }
 
 func (repo domainRepo) RetrieveDomainByUserAndID(ctx context.Context, userID, id string) (domains.Domain, error) {
