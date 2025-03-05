@@ -144,10 +144,6 @@ func (repo groupRepository) ChangeStatus(ctx context.Context, group groups.Group
 }
 
 func (repo groupRepository) RetrieveByID(ctx context.Context, id string) (groups.Group, error) {
-	// q := `SELECT id, name, domain_id, COALESCE(parent_id, '') AS parent_id,
-	// description, metadata, created_at, updated_at, updated_by, status, path FROM groups
-	//     WHERE id = :id`
-
 	q := `
 		WITH group_roles AS (
 			SELECT
