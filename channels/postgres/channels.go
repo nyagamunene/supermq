@@ -124,10 +124,30 @@ func (cr *channelRepository) ChangeStatus(ctx context.Context, channel channels.
 }
 
 func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (channels.Channel, error) {
-	q := `SELECT id, name, tags, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_group_id, '') AS parent_group_id,  metadata, created_at, updated_at, updated_by, status FROM channels WHERE id = :id`
-	roleQuery := `SELECT id, name FROM channels_roles WHERE entity_id = :id`
-	actionQuery := `SELECT action FROM channels_role_actions WHERE role_id = :id`
-
+	q := `
+	WITH channel_roles AS (
+		SELECT
+			cr.id AS role_id,
+			cr.name AS role_name,
+			array_agg(cra.action) AS actions
+		FROM
+			channels_roles cr
+		LEFT JOIN
+			channels_role_actions cra ON cr.id = cra.role_id
+		WHERE
+			cr.entity_id = :id
+		GROUP BY
+			cr.id, cr.name
+	)
+	SELECT
+		c.id, c.name, c.tags, COALESCE(c.domain_id, '') AS domain_id, COALESCE(c.parent_group_id, '') AS parent_group_id,
+		c.metadata, c.created_at, c.updated_at, c.updated_by, c.status, cr.role_id, cr.role_name,	cr.actions
+	FROM
+		channels c
+	LEFT JOIN
+		channel_roles cr ON 1=1
+	WHERE
+		c.id = :id`
 	dbch := dbChannel{
 		ID: id,
 	}
@@ -139,49 +159,39 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 	defer row.Close()
 
 	dbch = dbChannel{}
-	if row.Next() {
-		if err := row.StructScan(&dbch); err != nil {
+	var res []roles.RoleRes
+	for row.Next() {
+		var roleID, roleName string
+		var roleActions pq.StringArray
+
+		if err := row.Scan(
+			&dbch.ID,
+			&dbch.Name,
+			&dbch.Tags,
+			&dbch.Domain,
+			&dbch.ParentGroup,
+			&dbch.Metadata,
+			&dbch.CreatedAt,
+			&dbch.UpdatedAt,
+			&dbch.UpdatedBy,
+			&dbch.Status,
+			&roleID,
+			&roleName,
+			&roleActions,
+		); err != nil {
 			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
+
+		res = append(res, roles.RoleRes{
+			RoleID:   roleID,
+			RoleName: roleName,
+			Actions:  roleActions,
+		})
 	}
 
 	ch, err := toChannel(dbch)
 	if err != nil {
 		return channels.Channel{}, err
-	}
-
-	roleRow, err := cr.db.NamedQueryContext(ctx, roleQuery, dbch)
-	if err != nil {
-		return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
-	}
-	defer roleRow.Close()
-
-	var res []roles.RoleRes
-	for roleRow.Next() {
-		var role roles.RoleRes
-		if err := roleRow.StructScan(&role); err != nil {
-			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		actRow, err := cr.db.NamedQueryContext(ctx, actionQuery, role)
-		if err != nil {
-			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-		defer actRow.Close()
-
-		var items []string
-		for actRow.Next() {
-			var item string
-			if err := actRow.Scan(&item); err != nil {
-				return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
-			}
-			items = append(items, item)
-		}
-		res = append(res, roles.RoleRes{
-			RoleID:   role.RoleID,
-			RoleName: role.RoleName,
-			Actions:  items,
-		})
 	}
 
 	ch.Roles = res
