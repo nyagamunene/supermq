@@ -141,7 +141,7 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 	)
 	SELECT
 		c.id, c.name, c.tags, COALESCE(c.domain_id, '') AS domain_id, COALESCE(c.parent_group_id, '') AS parent_group_id,
-		c.metadata, c.created_at, c.updated_at, c.updated_by, c.status, cr.role_id, cr.role_name,	cr.actions
+		c.metadata, c.created_at, c.updated_at, c.updated_by, c.status, cr.role_id, cr.role_name, cr.actions
 	FROM
 		channels c
 	LEFT JOIN
@@ -162,7 +162,7 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 	var res []roles.RoleRes
 	for row.Next() {
 		var roleID, roleName string
-		var roleActions pq.StringArray
+		var roleActions pgtype.TextArray
 
 		if err := row.Scan(
 			&dbch.ID,
@@ -182,10 +182,15 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 
+		var actions []string
+		for _, e := range roleActions.Elements {
+			actions = append(actions, e.String)
+		}
+
 		res = append(res, roles.RoleRes{
 			RoleID:   roleID,
 			RoleName: roleName,
-			Actions:  roleActions,
+			Actions:  actions,
 		})
 	}
 
