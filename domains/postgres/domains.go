@@ -13,7 +13,6 @@ import (
 
 	api "github.com/absmach/supermq/api/http"
 	"github.com/absmach/supermq/domains"
-	"github.com/absmach/supermq/pkg/roles"
 	"github.com/absmach/supermq/pkg/errors"
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 	"github.com/absmach/supermq/pkg/policies"
