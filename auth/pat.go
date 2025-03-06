@@ -312,7 +312,7 @@ type PATSPage struct {
 	Total  uint64 `json:"total"`
 	Offset uint64 `json:"offset"`
 	Limit  uint64 `json:"limit"`
-	PATS   []PAT  `json:"pats,omitempty"`
+	PATS   []PAT  `json:"pats"`
 }
 
 type ScopesPageMeta struct {
@@ -324,9 +324,9 @@ type ScopesPageMeta struct {
 
 type ScopesPage struct {
 	Total  uint64  `json:"total"`
-	Offset uint64  `json:"offset,omitempty"`
-	Limit  uint64  `json:"limit,omitempy"`
-	Scopes []Scope `json:"scopes,omitempty"`
+	Offset uint64  `json:"offset"`
+	Limit  uint64  `json:"limit"`
+	Scopes []Scope `json:"scopes"`
 }
 
 func (pat PAT) MarshalBinary() ([]byte, error) {
