@@ -173,76 +173,45 @@ func (repo *clientRepo) ChangeStatus(ctx context.Context, client clients.Client)
 
 func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Client, error) {
 	query := `
-	WITH client_roles AS (
-		SELECT
-			cr.id AS role_id,
-			cr.name AS role_name,
-			array_agg(cra.action) AS actions
-		FROM
-			clients_roles cr
-		LEFT JOIN
-			clients_role_actions cra ON cr.id = cra.role_id
-		WHERE
-			cr.entity_id = :id
-		GROUP BY
-			cr.id, cr.name
-	)
-	SELECT
-		c.id, c.name, c.tags, COALESCE(c.domain_id, '') AS domain_id, COALESCE(c.parent_group_id, '') AS parent_group_id,
-		c.identity, c.secret, c.metadata, c.created_at, c.updated_at, c.updated_by, c.status, cr.role_id, cr.role_name, cr.actions
-	FROM
-		clients c
-	LEFT JOIN
-		client_roles cr ON 1=1
-	WHERE
-		c.id = :id`
-
-	_ = `
-	WITH direct_clients AS (
-		SELECT
-			c.id,
-			c.name,
-			c.domain_id,
-			c.parent_group_id,
-			c.tags,
-			c.metadata,
-			c.identity,
-			c.secret,
-			c.created_at,
-			c.updated_at,
-			c.updated_by,
-			c.status,
-			COALESCE((SELECT path FROM groups WHERE id = c.parent_group_id), ''::::ltree) AS parent_group_path,
-			cr.id AS role_id,
-			cr."name" AS role_name,
-			array_agg(cra."action") AS actions,
-			'direct' as access_type,
-			'' AS access_provider_id,
-			'' AS access_provider_role_id,
-			'' AS access_provider_role_name,
-			array[]::::text[] AS access_provider_role_actions
-		FROM
-			clients_role_members crm
-		JOIN
-			clients_role_actions cra ON cra.role_id = crm.role_id
-		JOIN
-			clients_roles cr ON cr.id = crm.role_id
-		JOIN
-			clients c ON c.id = cr.entity_id
-		WHERE
-			WHERE
-			cr.entity_id = :id
-		GROUP BY
-			cr.entity_id, crm.member_id, cr.id, cr."name", c.id
+	WITH direct_roles AS (
+    SELECT
+        c.id AS client_id,
+        json_build_object(
+            'role_id', cr.id,
+            'role_name', cr.name,
+            'actions', array_agg(cra.action),
+            'access_type', 'direct',
+            'access_provider_id', '',
+            'access_provider_role_id', '',
+            'access_provider_role_name', '',
+            'access_provider_role_actions', array[]::text[]
+        ) AS role_info
+    FROM
+        clients c
+    JOIN
+        clients_roles cr ON cr.entity_id = c.id
+    JOIN
+        clients_role_members crm ON crm.role_id = cr.id
+    JOIN
+        clients_role_actions cra ON cra.role_id = cr.id
+    WHERE
+        c.id = $1
+    GROUP BY
+        c.id, cr.id, cr.name
 	),
-	direct_groups AS (
+	group_roles AS (
 		SELECT
-			g.*,
-			gr.entity_id AS entity_id,
-			grm.member_id AS member_id,
-			gr.id AS role_id,
-			gr."name" AS role_name,
-			array_agg(DISTINCT all_actions."action") AS actions
+			$1 AS client_id,
+			json_build_object(
+				'role_id', gr.id,
+				'role_name', gr.name,
+				'actions', array_agg(DISTINCT gra.action),
+				'access_type', 'direct_group',
+				'access_provider_id', g.id,
+				'access_provider_role_id', gr.id,
+				'access_provider_role_name', gr.name,
+				'access_provider_role_actions', array_agg(DISTINCT gra.action)
+			) AS role_info
 		FROM
 			groups_role_members grm
 		JOIN
@@ -250,24 +219,28 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		JOIN
 			groups_roles gr ON gr.id = grm.role_id
 		JOIN
-			"groups" g ON g.id = gr.entity_id
+			groups g ON g.id = gr.entity_id
 		JOIN
-			groups_role_actions all_actions ON all_actions.role_id = grm.role_id
+			clients c ON c.id = $1 AND c.domain_id = g.domain_id
 		WHERE
-			grm.member_id = '%s'
-			AND g.domain_id = '%s'
-			AND gra."action" LIKE 'client%%'
+			grm.member_id = $1
+			AND gra.action LIKE 'client%'
 		GROUP BY
-			gr.entity_id, grm.member_id, gr.id, gr."name", g."path", g.id
+			g.id, gr.id, gr.name
 	),
-	direct_groups_with_subgroup AS (
+	subgroup_roles AS (
 		SELECT
-			g.*,
-			gr.entity_id AS entity_id,
-			grm.member_id AS member_id,
-			gr.id AS role_id,
-			gr."name" AS role_name,
-			array_agg(DISTINCT all_actions."action") AS actions
+			$1 AS client_id,
+			json_build_object(
+				'role_id', gr.id,
+				'role_name', gr.name,
+				'actions', array_agg(DISTINCT gra.action),
+				'access_type', 'direct_group_subgroup',
+				'access_provider_id', g.id,
+				'access_provider_role_id', gr.id,
+				'access_provider_role_name', gr.name,
+				'access_provider_role_actions', array_agg(DISTINCT gra.action)
+			) AS role_info
 		FROM
 			groups_role_members grm
 		JOIN
@@ -275,167 +248,68 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		JOIN
 			groups_roles gr ON gr.id = grm.role_id
 		JOIN
-			"groups" g ON g.id = gr.entity_id
+			groups g ON g.id = gr.entity_id
 		JOIN
-			groups_role_actions all_actions ON all_actions.role_id = grm.role_id
+			clients c ON c.id = $1 AND c.domain_id = g.domain_id
 		WHERE
-			grm.member_id = '%s'
-			AND g.domain_id = '%s'
-			AND gra."action" LIKE 'subgroup_client%%'
+			grm.member_id = $1
+			AND gra.action LIKE 'subgroup_client%'
 		GROUP BY
-			gr.entity_id, grm.member_id, gr.id, gr."name", g."path", g.id
+			g.id, gr.id, gr.name
 	),
-	indirect_child_groups AS (
+	indirect_child_group_roles AS (
 		SELECT
-			DISTINCT indirect_child_groups.id as child_id,
-			indirect_child_groups.*,
-			dgws.id as access_provider_id,
-			dgws.role_id as access_provider_role_id,
-			dgws.role_name as access_provider_role_name,
-			dgws.actions as access_provider_role_actions
+			$1 AS client_id,
+			json_build_object(
+				'role_id', gr.id,
+				'role_name', gr.name,
+				'actions', array_agg(DISTINCT gra.action),
+				'access_type', 'indirect_group',
+				'access_provider_id', g.id,
+				'access_provider_role_id', gr.id,
+				'access_provider_role_name', gr.name,
+				'access_provider_role_actions', array_agg(DISTINCT gra.action)
+			) AS role_info
 		FROM
-			direct_groups_with_subgroup dgws
+			groups_role_members grm
 		JOIN
-			groups indirect_child_groups ON indirect_child_groups.path <@ dgws.path
+			groups_role_actions gra ON gra.role_id = grm.role_id
+		JOIN
+			groups_roles gr ON gr.id = grm.role_id
+		JOIN
+			groups g ON g.id = gr.entity_id
+		JOIN
+			groups parent_g ON parent_g.path @> g.path
+		JOIN
+			clients c ON c.id = $1 AND c.domain_id = g.domain_id
 		WHERE
-			indirect_child_groups.domain_id = '%s'
-			AND NOT EXISTS (
-				SELECT 1
-				FROM (
-					SELECT id FROM direct_groups_with_subgroup
-					UNION ALL
-					SELECT id FROM direct_groups
-				) excluded
-				WHERE excluded.id = indirect_child_groups.id
+			grm.member_id = parent_g.id
+			AND parent_g.id IN (
+				SELECT (role_info->>'access_provider_id') FROM subgroup_roles
 			)
+			AND gra.action LIKE 'client%'
+			AND NOT EXISTS (
+				SELECT 1 FROM group_roles WHERE (role_info->>'access_provider_id') = g.id
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM subgroup_roles WHERE (role_info->>'access_provider_id') = g.id
+        )
+    GROUP BY
+        g.id, gr.id, gr.name
 	),
-	final_groups AS (
+	domain_roles AS (
 		SELECT
-			id,
-			parent_id,
-			domain_id,
-			"name",
-			description,
-			metadata,
-			created_at,
-			updated_at,
-			updated_by,
-			status,
-			"path",
-			'' AS role_id,
-			'' AS role_name,
-			array[]::::text[] AS actions,
-			'direct_group' AS access_type,
-			id AS access_provider_id,
-			role_id AS access_provider_role_id,
-			role_name AS access_provider_role_name,
-			actions AS access_provider_role_actions
-		FROM
-			direct_groups
-		UNION
-		SELECT
-			id,
-			parent_id,
-			domain_id,
-			"name",
-			description,
-			metadata,
-			created_at,
-			updated_at,
-			updated_by,
-			status,
-			"path",
-			'' AS role_id,
-			'' AS role_name,
-			array[]::::text[] AS actions,
-			'indirect_group' AS access_type,
-			access_provider_id,
-			access_provider_role_id,
-			access_provider_role_name,
-			access_provider_role_actions
-		FROM
-			indirect_child_groups
-	),
-	groups_clients AS (
-		SELECT
-			c.id,
-			c.name,
-			c.domain_id,
-			c.parent_group_id,
-			c.tags,
-			c.metadata,
-			c.identity,
-			c.secret,
-			c.created_at,
-			c.updated_at,
-			c.updated_by,
-			c.status,
-			g.path AS parent_group_path,
-			g.role_id,
-			g.role_name,
-			g.actions,
-			g.access_type,
-			g.access_provider_id,
-			g.access_provider_role_id,
-			g.access_provider_role_name,
-			g.access_provider_role_actions
-		FROM
-			final_groups g
-		JOIN
-			clients c ON c.parent_group_id = g.id
-		WHERE
-			c.id NOT IN (SELECT id FROM direct_clients)
-		UNION
-		SELECT	* FROM   direct_clients
-	),
-	final_clients AS (
-		SELECT
-			gc.id,
-			gc."name",
-			gc.domain_id,
-			gc.parent_group_id,
-			gc.tags,
-			gc.metadata,
-			gc.identity,
-			gc.secret,
-			gc.created_at,
-			gc.updated_at,
-			gc.updated_by,
-			gc.status,
-			gc.parent_group_path,
-			gc.role_id,
-			gc.role_name,
-			gc.actions,
-			gc.access_type,
-			gc.access_provider_id,
-			gc.access_provider_role_id,
-			gc.access_provider_role_name,
-			gc.access_provider_role_actions
-		FROM
-			groups_clients AS  gc
-		UNION
-		SELECT
-			dc.id,
-			dc."name",
-			dc.domain_id,
-			dc.parent_group_id,
-			dc.tags,
-			dc.metadata,
-			dc.identity,
-			dc.secret,
-			dc.created_at,
-			dc.updated_at,
-			dc.updated_by,
-			dc.status,
-			text2ltree('') AS parent_group_path,
-			'' AS role_id,
-			'' AS role_name,
-			array[]::::text[] AS actions,
-			'domain' AS access_type,
-			d.id AS access_provider_id,
-			dr.id AS access_provider_role_id,
-			dr."name" AS access_provider_role_name,
-			array_agg(dra."action") as access_provider_role_actions
+			$1 AS client_id,
+			json_build_object(
+				'role_id', '',
+				'role_name', '',
+				'actions', array[]::text[],
+				'access_type', 'domain',
+				'access_provider_id', d.id,
+				'access_provider_role_id', dr.id,
+				'access_provider_role_name', dr."name",
+				'access_provider_role_actions', array_agg(dra.action)
+			) AS role_info
 		FROM
 			domains_role_members drm
 		JOIN
@@ -445,74 +319,70 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		JOIN
 			domains d ON d.id = dr.entity_id
 		JOIN
-			clients dc ON dc.domain_id = d.id
+			clients c ON c.domain_id = d.id AND c.id = $1
 		WHERE
-			drm.member_id = '%s' -- user_id
-			 AND d.id = '%s' -- domain_id
-			 AND dra."action" LIKE 'client_%%'
-			 AND NOT EXISTS (  -- Ensures that the direct and indirect clients are not in included.
-				SELECT 1 FROM groups_clients gc
-				WHERE gc.id = dc.id
-			)
-		 GROUP BY
-			dc.id, d.id, dr.id
+			drm.member_id = $1
+			AND dra.action LIKE 'client_%'
+		GROUP BY
+			d.id, dr.id, dr."name"
+	),
+	all_roles AS (
+		SELECT role_info FROM direct_roles
+		UNION ALL
+		SELECT role_info FROM group_roles
+		UNION ALL
+		SELECT role_info FROM subgroup_roles
+		UNION ALL
+		SELECT role_info FROM indirect_child_group_roles
+		UNION ALL
+		SELECT role_info FROM domain_roles
 	)
+	SELECT
+		c.id,
+		c.name,
+		c.domain_id,
+		c.parent_group_id,
+		c.tags,
+		c.metadata,
+		c.identity,
+		c.secret,
+		c.created_at,
+		c.updated_at,
+		c.updated_by,
+		c.status,
+		COALESCE((SELECT path FROM groups WHERE id = c.parent_group_id), '') AS parent_group_path,
+		COALESCE(json_agg(r.role_info) FILTER (WHERE r.role_info IS NOT NULL), '[]'::json) AS roles
+	FROM
+		clients c
+	LEFT JOIN all_roles r ON true
+	WHERE
+		c.id = $1
+	GROUP BY
+		c.id, c.name, c.domain_id, c.parent_group_id, c.tags, c.metadata, c.identity, c.secret, 
+		c.created_at, c.updated_at, c.updated_by, c.status
 	`
 
-	dbc := DBClient{
-		ID: id,
-	}
+	// dbc := DBClient{
+	// 	ID: id,
+	// }
 
-	row, err := repo.DB.NamedQueryContext(ctx, query, dbc)
+	row, err := repo.DB.QueryxContext(ctx, query, id)
 	if err != nil {
 		return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 	defer row.Close()
 
-	dbc = DBClient{}
-	var res []roles.RoleRes
+	dbc := DBClient{}
 	for row.Next() {
-		var roleID, roleName string
-		var roleActions pgtype.TextArray
-
-		if err := row.Scan(
-			&dbc.ID,
-			&dbc.Name,
-			&dbc.Tags,
-			&dbc.Domain,
-			&dbc.ParentGroup,
-			&dbc.Identity,
-			&dbc.Secret,
-			&dbc.Metadata,
-			&dbc.CreatedAt,
-			&dbc.UpdatedAt,
-			&dbc.UpdatedBy,
-			&dbc.Status,
-			&roleID,
-			&roleName,
-			&roleActions,
-		); err != nil {
+		if err := row.StructScan(&dbc); err != nil {
 			return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
-
-		var actions []string
-		for _, e := range roleActions.Elements {
-			actions = append(actions, e.String)
-		}
-
-		res = append(res, roles.RoleRes{
-			RoleID:   roleID,
-			RoleName: roleName,
-			Actions:  actions,
-		})
 	}
 
 	cl, err := ToClient(dbc)
 	if err != nil {
 		return clients.Client{}, err
 	}
-
-	cl.Roles = res
 
 	return cl, nil
 }
@@ -1135,18 +1005,7 @@ type DBClient struct {
 	Status          clients.Status   `db:"status,omitempty"`
 	ParentGroupPath string           `db:"parent_group_path,omitempty"`
 	ConnectionTypes pq.Int32Array    `db:"connection_types,omitempty"`
-	Roles           []role           `db:"roles,omitempty"`
-}
-
-type role struct {
-	RoleID                    string         `db:"role_id,omitempty"`
-	RoleName                  string         `db:"role_name,omitempty"`
-	Actions                   pq.StringArray `db:"actions,omitempty"`
-	AccessType                string         `db:"access_type,omitempty"`
-	AccessProviderId          string         `db:"access_provider_id,omitempty"`
-	AccessProviderRoleId      string         `db:"access_provider_role_id,omitempty"`
-	AccessProviderRoleName    string         `db:"access_provider_role_name,omitempty"`
-	AccessProviderRoleActions pq.StringArray `db:"access_provider_role_actions,omitempty"`
+	Roles           json.RawMessage  `db:"roles,omitempty"`
 }
 
 func ToDBClient(c clients.Client) (DBClient, error) {
@@ -1190,18 +1049,21 @@ func ToDBClient(c clients.Client) (DBClient, error) {
 func ToClient(t DBClient) (clients.Client, error) {
 	var metadata clients.Metadata
 	if t.Metadata != nil {
-		if err := json.Unmarshal([]byte(t.Metadata), &metadata); err != nil {
+		if err := json.Unmarshal(t.Metadata, &metadata); err != nil {
 			return clients.Client{}, errors.Wrap(errors.ErrMalformedEntity, err)
 		}
 	}
+
 	var tags []string
 	for _, e := range t.Tags.Elements {
 		tags = append(tags, e.String)
 	}
+
 	var updatedBy string
 	if t.UpdatedBy != nil {
 		updatedBy = *t.UpdatedBy
 	}
+
 	var updatedAt time.Time
 	if t.UpdatedAt.Valid {
 		updatedAt = t.UpdatedAt.Time
@@ -1216,17 +1078,11 @@ func ToClient(t DBClient) (clients.Client, error) {
 		connTypes = append(connTypes, connType)
 	}
 
-	res := []roles.RoleRes{}
-	for _, r := range t.Roles {
-		res = append(res, roles.RoleRes{
-			RoleID:                    r.RoleID,
-			RoleName:                  r.RoleName,
-			Actions:                   r.Actions,
-			AccessProviderId:          r.AccessProviderId,
-			AccessProviderRoleId:      r.AccessProviderRoleId,
-			AccessProviderRoleName:    r.AccessProviderRoleName,
-			AccessProviderRoleActions: r.AccessProviderRoleActions,
-		})
+	var roles []roles.RoleRes
+	if t.Roles != nil {
+		if err := json.Unmarshal(t.Roles, &roles); err != nil {
+			return clients.Client{}, errors.Wrap(errors.ErrMalformedEntity, err)
+		}
 	}
 
 	cli := clients.Client{
@@ -1245,7 +1101,7 @@ func ToClient(t DBClient) (clients.Client, error) {
 		UpdatedBy:       updatedBy,
 		Status:          t.Status,
 		ParentGroupPath: t.ParentGroupPath,
-		Roles:           res,
+		Roles:           roles,
 		ConnectionTypes: connTypes,
 	}
 	return cli, nil
