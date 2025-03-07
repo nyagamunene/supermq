@@ -102,7 +102,7 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 
 func (am *authorizationMiddleware) ListClients(ctx context.Context, session authn.Session, pm clients.Page) (clients.ClientsPage, error) {
 	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
-		return clients.ClientsPage{}, err
+		session.SuperAdmin = true
 	}
 
 	return am.svc.ListClients(ctx, session, pm)

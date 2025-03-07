@@ -187,7 +187,7 @@ func main() {
 
 	pat, patHandler, err := authsvcPat.NewAuthorization(ctx, authClientConfig)
 	if err != nil {
-		logger.Error("failed to create authz " + err.Error())
+		logger.Error("failed to create PAT authz " + err.Error())
 		exitCode = 1
 		return
 	}
