@@ -362,10 +362,6 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		c.created_at, c.updated_at, c.updated_by, c.status
 	`
 
-	// dbc := DBClient{
-	// 	ID: id,
-	// }
-
 	row, err := repo.DB.QueryxContext(ctx, query, id)
 	if err != nil {
 		return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
