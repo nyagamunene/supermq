@@ -78,10 +78,10 @@ func (pr *patRepo) RetrieveAll(ctx context.Context, userID string, pm auth.PATSP
 	SELECT 
 		p.id, p.user_id, p.name, p.description, p.secret, p.issued_at, p.expires_at,
 		p.updated_at, p.last_used_at, p.revoked_at, p.status
-	FROM pats p
-	WHERE p.user_id = :user_id %s
-	ORDER BY p.issued_at DESC
-	LIMIT :limit OFFSET :offset`, auth.ExpiredStatus, pageQuery)
+		FROM pats p
+		WHERE p.user_id = :user_id %s
+		ORDER BY p.issued_at DESC
+		LIMIT :limit OFFSET :offset`, auth.ExpiredStatus, pageQuery)
 
 	dbPage := dbPagemeta{
 		Limit:     pm.Limit,
@@ -170,8 +170,12 @@ func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, pa
 		UPDATE pats
 		SET status = %d
 		WHERE user_id = $1 AND expires_at < $3
-		RETURNING id
+		RETURNING secret, status
 	)
+	SELECT 
+    	secret, status
+	FROM updated_pats
+	UNION ALL
 		SELECT p.secret, p.status
 		FROM pats p
 		WHERE user_id = $1 AND id = $2`, auth.ExpiredStatus)
