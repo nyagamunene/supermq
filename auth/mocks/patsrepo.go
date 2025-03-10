@@ -237,7 +237,7 @@ func (_m *PATSRepository) RetrieveScope(ctx context.Context, pm auth.ScopesPageM
 }
 
 // RetrieveSecretAndRevokeStatus provides a mock function with given fields: ctx, userID, patID
-func (_m *PATSRepository) RetrieveSecretAndRevokeStatus(ctx context.Context, userID string, patID string) (string, bool, bool, error) {
+func (_m *PATSRepository) RetrieveSecretAndRevokeStatus(ctx context.Context, userID string, patID string) (string, auth.Status, error) {
 	ret := _m.Called(ctx, userID, patID)
 
 	if len(ret) == 0 {
@@ -245,10 +245,9 @@ func (_m *PATSRepository) RetrieveSecretAndRevokeStatus(ctx context.Context, use
 	}
 
 	var r0 string
-	var r1 bool
-	var r2 bool
-	var r3 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (string, bool, bool, error)); ok {
+	var r1 auth.Status
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (string, auth.Status, error)); ok {
 		return rf(ctx, userID, patID)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
@@ -257,25 +256,19 @@ func (_m *PATSRepository) RetrieveSecretAndRevokeStatus(ctx context.Context, use
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) bool); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) auth.Status); ok {
 		r1 = rf(ctx, userID, patID)
 	} else {
-		r1 = ret.Get(1).(bool)
+		r1 = ret.Get(1).(auth.Status)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, string, string) bool); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, string, string) error); ok {
 		r2 = rf(ctx, userID, patID)
 	} else {
-		r2 = ret.Get(2).(bool)
+		r2 = ret.Error(2)
 	}
 
-	if rf, ok := ret.Get(3).(func(context.Context, string, string) error); ok {
-		r3 = rf(ctx, userID, patID)
-	} else {
-		r3 = ret.Error(3)
-	}
-
-	return r0, r1, r2, r3
+	return r0, r1, r2
 }
 
 // Revoke provides a mock function with given fields: ctx, userID, patID

@@ -489,6 +489,7 @@ func (svc service) CreatePAT(ctx context.Context, token, name, description strin
 		Secret:      hash,
 		IssuedAt:    now,
 		ExpiresAt:   now.Add(duration),
+		Status:      ActiveStatus,
 	}
 
 	if err := svc.pats.Save(ctx, pat); err != nil {
@@ -579,7 +580,7 @@ func (svc service) ResetPATSecret(ctx context.Context, token, patID string, dura
 		return PAT{}, errors.Wrap(svcerr.ErrUpdateEntity, err)
 	}
 	pat.Secret = secret
-	pat.Revoked = false
+	pat.Status = ActiveStatus
 	pat.RevokedAt = time.Time{}
 	return pat, nil
 }
@@ -675,14 +676,14 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, errMalformedPAT)
 	}
-	secretHash, revoked, expired, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
+	secretHash, status, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
-	if revoked {
+	if status == RevokedStatus {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, errRevokedPAT)
 	}
-	if expired {
+	if status == ExpiredStatus {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, ErrExpiry)
 	}
 	if err := svc.hasher.Compare(secret, secretHash); err != nil {

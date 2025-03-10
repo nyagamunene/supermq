@@ -300,13 +300,16 @@ type PAT struct {
 	ExpiresAt   time.Time `json:"expires_at,omitempty"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 	LastUsedAt  time.Time `json:"last_used_at,omitempty"`
-	Revoked     bool      `json:"revoked,omitempty"`
 	RevokedAt   time.Time `json:"revoked_at,omitempty"`
+	Status      Status    `json:"status,omitempty"`
 }
 
 type PATSPageMeta struct {
 	Offset uint64 `json:"offset"`
 	Limit  uint64 `json:"limit"`
+	Name   string `json:"name"`
+	ID     string `json:"id"`
+	Status Status `json:"status"`
 }
 type PATSPage struct {
 	Total  uint64 `json:"total"`
@@ -409,7 +412,7 @@ type PATSRepository interface {
 	RetrieveScope(ctx context.Context, pm ScopesPageMeta) (scopes ScopesPage, err error)
 
 	// RetrieveSecretAndRevokeStatus retrieves secret and revoke status of PAT by its unique identifier.
-	RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, bool, error)
+	RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, Status, error)
 
 	// UpdateName updates the name of a PAT.
 	UpdateName(ctx context.Context, userID, patID, name string) (PAT, error)
