@@ -99,7 +99,7 @@ func (pr *patRepo) RetrieveAll(ctx context.Context, userID string, pm auth.PATSP
 	}
 	defer rows.Close()
 
-	var items []auth.PAT
+	items := []auth.PAT{}
 	for rows.Next() {
 		var pat dbPat
 		if err := rows.StructScan(&pat); err != nil {
