@@ -289,10 +289,12 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 	defer row.Close()
 
 	dbc := DBClient{}
-	for row.Next() {
-		if err := row.StructScan(&dbc); err != nil {
-			return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
+	if !row.Next() {
+		return clients.Client{}, errors.Wrap(repoerr.ErrNotFound, err)
+	}
+
+	if err := row.StructScan(&dbc); err != nil {
+		return clients.Client{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 
 	cl, err := ToClient(dbc)
