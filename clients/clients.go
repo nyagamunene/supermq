@@ -167,9 +167,9 @@ type Client struct {
 	Status      Status      `json:"status,omitempty"` // 1 for enabled, 0 for disabled
 	Identity    string      `json:"identity,omitempty"`
 	// Extended
-	ParentGroupPath           string                 `json:"parent_group_path,omitempty"`
-	ConnectionTypes           []connections.ConnType `json:"connection_types,omitempty"`
-	Roles                     []roles.RoleRes        `json:"roles,omitempty"`
+	ParentGroupPath string                 `json:"parent_group_path,omitempty"`
+	ConnectionTypes []connections.ConnType `json:"connection_types,omitempty"`
+	Roles           []roles.RoleRes        `json:"roles,omitempty"`
 }
 
 // ClientsPage contains page related metadata as well as list.
