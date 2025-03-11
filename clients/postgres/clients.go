@@ -174,26 +174,26 @@ func (repo *clientRepo) ChangeStatus(ctx context.Context, client clients.Client)
 func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Client, error) {
 	query := `
 	WITH direct_roles AS (
-		SELECT
-			c.id AS client_id,
-			cr.id AS role_id,
-			cr.name AS role_name,
-			array_agg(DISTINCT cra.action) AS actions,
-			'direct' AS access_type,
-			'' AS access_provider_id,
-			'' AS access_provider_role_id,
-			'' AS access_provider_role_name,
-            array[]::text[] AS access_provider_role_actions
-		FROM
-			clients c
-		JOIN
-			clients_roles cr ON c.id = cr.entity_id
-		LEFT JOIN
-			clients_role_actions cra ON cr.id = cra.role_id
-		WHERE
-			c.id = $1
-		GROUP BY
-			c.id, cr.id, cr.name
+    SELECT
+        c.id AS client_id,
+        cr.id AS role_id,
+        cr.name AS role_name,
+        array_agg(DISTINCT cra.action) AS actions,
+        'direct' AS access_type,
+        '' AS access_provider_id,
+        '' AS access_provider_role_id,
+        '' AS access_provider_role_name,
+        array[]::text[] AS access_provider_role_actions
+    FROM
+        clients c
+    JOIN
+        clients_roles cr ON c.id = cr.entity_id
+    LEFT JOIN
+        clients_role_actions cra ON cr.id = cra.role_id
+    WHERE
+        c.id = $1
+    GROUP BY
+        c.id, cr.id, cr.name
 	),
 	group_roles AS (
 		SELECT
@@ -246,8 +246,42 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		WHERE
 			grm.entity_id = c.parent_group_id
 			AND gra.action LIKE 'subgroup_client%'
+			AND NOT EXISTS (
+				SELECT 1 FROM group_roles grs
+				WHERE grs.role_id = gr.id
+			)
 		GROUP BY
 			c.id, g.id, gr.id, gr.name
+	),
+	domain_roles AS (
+		SELECT
+			c.id AS client_id,
+			dr.id AS role_id,
+			dr.name AS role_name,
+			array_agg(DISTINCT dra.action) AS actions,
+			'domain' AS access_type,
+			d.id AS access_provider_id,
+			dr.id AS access_provider_role_id,
+			dr.name AS access_provider_role_name,
+			array_agg(DISTINCT dra.action) AS access_provider_role_actions
+		FROM
+			domains_role_members drm
+		JOIN
+			domains_role_actions dra ON dra.role_id = drm.role_id
+		JOIN
+			domains_roles dr ON dr.id = drm.role_id
+		JOIN
+			domains d ON d.id = dr.entity_id
+		JOIN
+			clients c ON c.id = $1 AND c.domain_id = d.id
+		WHERE
+			dra.action LIKE 'client_%'
+			AND NOT EXISTS (
+				SELECT 1 FROM group_roles gr
+				WHERE gr.role_id = dr.id
+			)
+		GROUP BY
+			c.id, d.id, dr.id, dr.name
 	),
 	all_roles AS (
 		SELECT * FROM direct_roles
@@ -255,6 +289,8 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		SELECT * FROM group_roles
 		UNION ALL
 		SELECT * FROM subgroup_roles
+		UNION ALL
+		SELECT * FROM domain_roles
 	)
 	SELECT
 		c.id,
@@ -271,7 +307,7 @@ func (repo *clientRepo) RetrieveByID(ctx context.Context, id string) (clients.Cl
 		c.status,
 		COALESCE((SELECT path FROM groups WHERE id = c.parent_group_id), '') AS parent_group_path,
 		COALESCE(
-        json_agg(r.*) FILTER (WHERE r.role_id IS NOT NULL), '[]'::json) AS roles
+		json_agg(r.*) FILTER (WHERE r.role_id IS NOT NULL), '[]'::json) AS roles
 	FROM
 		clients c
 	LEFT JOIN all_roles r ON c.id = r.client_id
