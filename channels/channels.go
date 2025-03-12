@@ -40,6 +40,7 @@ type Channel struct {
 	AccessProviderRoleName    string                    `json:"access_provider_role_name,omitempty"`
 	AccessProviderRoleActions []string                  `json:"access_provider_role_actions,omitempty"`
 	ConnectionTypes           []connections.ConnType    `json:"connection_types,omitempty"`
+	MemberId                  string                    `json:"member_id,omitempty"`
 	Roles                     []roles.MemberRoleActions `json:"roles,omitempty"`
 }
 
