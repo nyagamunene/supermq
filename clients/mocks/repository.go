@@ -414,12 +414,12 @@ func (_m *Repository) RetrieveByID(ctx context.Context, id string) (clients.Clie
 	return r0, r1
 }
 
-// RetrieveByIDRoles provides a mock function with given fields: ctx, id, memberID
-func (_m *Repository) RetrieveByIDRoles(ctx context.Context, id string, memberID string) (clients.Client, error) {
+// RetrieveByIDWithRoles provides a mock function with given fields: ctx, id, memberID
+func (_m *Repository) RetrieveByIDWithRoles(ctx context.Context, id string, memberID string) (clients.Client, error) {
 	ret := _m.Called(ctx, id, memberID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RetrieveByIDRoles")
+		panic("no return value specified for RetrieveByIDWithRoles")
 	}
 
 	var r0 clients.Client

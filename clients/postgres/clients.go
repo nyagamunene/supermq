@@ -171,7 +171,7 @@ func (repo *clientRepo) ChangeStatus(ctx context.Context, client clients.Client)
 	return repo.update(ctx, client, q)
 }
 
-func (repo *clientRepo) RetrieveByIDRoles(ctx context.Context, id, memberID string) (clients.Client, error) {
+func (repo *clientRepo) RetrieveByIDWithRoles(ctx context.Context, id, memberID string) (clients.Client, error) {
 	query := `
 	WITH selected_client AS (
 		SELECT

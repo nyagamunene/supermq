@@ -32,8 +32,8 @@ type Repository interface {
 	// RetrieveByID retrieves client by its unique ID.
 	RetrieveByID(ctx context.Context, id string) (Client, error)
 
-	// RetrieveByID retrieves client by its unique ID along with member roles.
-	RetrieveByIDRoles(ctx context.Context, id, memberID string) (Client, error)
+	// RetrieveByIDWithRoles retrieves client by its unique ID along with member roles.
+	RetrieveByIDWithRoles(ctx context.Context, id, memberID string) (Client, error)
 
 	// RetrieveAll retrieves all clients.
 	RetrieveAll(ctx context.Context, pm Page) (ClientsPage, error)

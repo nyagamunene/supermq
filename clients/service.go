@@ -126,7 +126,7 @@ func (svc service) View(ctx context.Context, session authn.Session, id string, g
 	var err error
 	switch getRoles {
 	case true:
-		client, err = svc.repo.RetrieveByIDRoles(ctx, id, session.UserID)
+		client, err = svc.repo.RetrieveByIDWithRoles(ctx, id, session.UserID)
 	default:
 		client, err = svc.repo.RetrieveByID(ctx, id)
 	}
