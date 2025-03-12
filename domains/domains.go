@@ -235,8 +235,8 @@ type Repository interface {
 	// SaveDomain creates db insert transaction for the given domain.
 	SaveDomain(ctx context.Context, d Domain) (Domain, error)
 
-	// RetrieveDomainByIDRoles retrieves a domain by its unique ID along with member roles.
-	RetrieveDomainByIDRoles(ctx context.Context, id string, memberID string) (Domain, error)
+	// RetrieveDomainByIDWithRoles retrieves a domain by its unique ID along with member roles.
+	RetrieveDomainByIDWithRoles(ctx context.Context, id string, memberID string) (Domain, error)
 
 	// RetrieveDomainByID retrieves a domain by its unique ID.
 	RetrieveDomainByID(ctx context.Context, id string) (Domain, error)

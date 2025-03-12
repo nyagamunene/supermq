@@ -77,8 +77,8 @@ func (repo domainRepo) SaveDomain(ctx context.Context, d domains.Domain) (dd dom
 	return domain, nil
 }
 
-// RetrieveDomainByIDRoles retrieves Domain by its unique ID along with member roles.
-func (repo domainRepo) RetrieveDomainByIDRoles(ctx context.Context, id string, memberID string) (domains.Domain, error) {
+// RetrieveDomainByIDWithRoles retrieves Domain by its unique ID along with member roles.
+func (repo domainRepo) RetrieveDomainByIDWithRoles(ctx context.Context, id string, memberID string) (domains.Domain, error) {
 	q := `
 	WITH all_roles AS (
 		SELECT

@@ -306,12 +306,12 @@ func (_m *Repository) RetrieveDomainByID(ctx context.Context, id string) (domain
 	return r0, r1
 }
 
-// RetrieveDomainByIDRoles provides a mock function with given fields: ctx, id, memberID
-func (_m *Repository) RetrieveDomainByIDRoles(ctx context.Context, id string, memberID string) (domains.Domain, error) {
+// RetrieveDomainByIDWithRoles provides a mock function with given fields: ctx, id, memberID
+func (_m *Repository) RetrieveDomainByIDWithRoles(ctx context.Context, id string, memberID string) (domains.Domain, error) {
 	ret := _m.Called(ctx, id, memberID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RetrieveDomainByIDRoles")
+		panic("no return value specified for RetrieveDomainByIDWithRoles")
 	}
 
 	var r0 domains.Domain

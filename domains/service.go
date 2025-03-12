@@ -106,7 +106,7 @@ func (svc service) RetrieveDomain(ctx context.Context, session authn.Session, id
 	default:
 		switch getRoles {
 		case true:
-			domain, err = svc.repo.RetrieveDomainByIDRoles(ctx, id, session.UserID)
+			domain, err = svc.repo.RetrieveDomainByIDWithRoles(ctx, id, session.UserID)
 		default:
 			domain, err = svc.repo.RetrieveDomainByID(ctx, id)
 		}
