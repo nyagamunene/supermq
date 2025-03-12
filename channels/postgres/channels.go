@@ -311,10 +311,9 @@ func (cr *channelRepository) RetrieveByIDWithRoles(ctx context.Context, id, memb
 		c2.tags,
 		COALESCE(c2.domain_id, '') AS domain_id,
 		COALESCE(c2.parent_group_id, '') AS parent_group_id,
-		c2."identity",
-		c2.secret,
 		c2.metadata,
 		c2.created_at,
+		c2.created_by,
 		c2.updated_at,
 		c2.updated_by,
 		c2.status,
@@ -1090,6 +1089,7 @@ type dbChannel struct {
 	AccessProviderRoleName    string           `db:"access_provider_role_name,omitempty"`
 	AccessProviderRoleActions pq.StringArray   `db:"access_provider_role_actions,omitempty"`
 	ConnectionTypes           pq.Int32Array    `db:"connection_types,omitempty"`
+	MemberID                  string           `db:"member_id,omitempty"`
 	Roles                     json.RawMessage  `db:"roles,omitempty"`
 }
 
@@ -1213,6 +1213,7 @@ func toChannel(ch dbChannel) (channels.Channel, error) {
 		AccessProviderRoleName:    ch.AccessProviderRoleName,
 		AccessProviderRoleActions: ch.AccessProviderRoleActions,
 		ConnectionTypes:           connTypes,
+		Roles:                     roles,
 	}
 
 	return newCh, nil
