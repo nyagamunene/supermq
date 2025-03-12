@@ -53,7 +53,7 @@ var (
 		},
 		Tags:   []string{"tag1", "tag2"},
 		Domain: testsutil.GenerateUUID(&testing.T{}),
-		Status: clients.EnabledStatus,
+		Status: channels.EnabledStatus,
 		Roles: []roles.MemberRoleActions{
 			{
 				RoleID:   "test-id",
