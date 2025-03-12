@@ -226,31 +226,31 @@ func TestViewChannel(t *testing.T) {
 	svc := newService(t)
 
 	cases := []struct {
-		desc     string
-		id       string
-		getRoles bool
-		repoResp channels.Channel
-		repoErr  error
-		err      error
+		desc      string
+		id        string
+		withRoles bool
+		repoResp  channels.Channel
+		repoErr   error
+		err       error
 	}{
 		{
-			desc:     "view channel successfully",
-			id:       validChannel.ID,
-			getRoles: false,
-			repoResp: validChannel,
+			desc:      "view channel successfully",
+			id:        validChannel.ID,
+			withRoles: false,
+			repoResp:  validChannel,
 		},
 		{
-			desc:     "view channel successfully with roles",
-			id:       validChannelWithRoles.ID,
-			getRoles: true,
-			repoResp: validChannelWithRoles,
+			desc:      "view channel successfully with roles",
+			id:        validChannelWithRoles.ID,
+			withRoles: true,
+			repoResp:  validChannelWithRoles,
 		},
 		{
-			desc:     "view channel with failed to retrieve",
-			id:       testsutil.GenerateUUID(t),
-			getRoles: true,
-			repoErr:  repoerr.ErrNotFound,
-			err:      svcerr.ErrViewEntity,
+			desc:      "view channel with failed to retrieve",
+			id:        testsutil.GenerateUUID(t),
+			withRoles: true,
+			repoErr:   repoerr.ErrNotFound,
+			err:       svcerr.ErrViewEntity,
 		},
 	}
 
@@ -258,10 +258,10 @@ func TestViewChannel(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			repoCall := repo.On("RetrieveByID", context.Background(), tc.id).Return(tc.repoResp, tc.repoErr)
 			repoCall1 := repo.On("RetrieveByIDWithRoles", context.Background(), tc.id, validSession.UserID).Return(tc.repoResp, tc.repoErr)
-			got, err := svc.ViewChannel(context.Background(), validSession, tc.id, tc.getRoles)
+			got, err := svc.ViewChannel(context.Background(), validSession, tc.id, tc.withRoles)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("expected error %v to contain %v", err, tc.err))
 			if err == nil {
-				switch tc.getRoles {
+				switch tc.withRoles {
 				case true:
 					assert.Equal(t, tc.repoResp, got)
 					assert.NotEmpty(t, got.Roles)
