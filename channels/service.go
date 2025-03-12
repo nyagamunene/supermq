@@ -172,10 +172,10 @@ func (svc service) DisableChannel(ctx context.Context, session authn.Session, id
 	return ch, nil
 }
 
-func (svc service) ViewChannel(ctx context.Context, session authn.Session, id string, getRoles bool) (Channel, error) {
+func (svc service) ViewChannel(ctx context.Context, session authn.Session, id string, withRoles bool) (Channel, error) {
 	var ch Channel
 	var err error
-	switch getRoles {
+	switch withRoles {
 	case true:
 		ch, err = svc.repo.RetrieveByIDWithRoles(ctx, id, session.UserID)
 	default:

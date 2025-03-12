@@ -95,7 +95,7 @@ type Service interface {
 
 	// ViewChannel retrieves data about the channel identified by the provided
 	// ID, that belongs to the user.
-	ViewChannel(ctx context.Context, session authn.Session, id string, getRoles bool) (Channel, error)
+	ViewChannel(ctx context.Context, session authn.Session, id string, withRoles bool) (Channel, error)
 
 	// UpdateChannel updates the channel identified by the provided ID, that
 	// belongs to the user.
