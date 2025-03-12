@@ -103,31 +103,13 @@ func listChannelsEndpoint(svc channels.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthentication
 		}
 
-		pm := channels.PageMetadata{
-			Offset:         req.offset,
-			Limit:          req.limit,
-			Name:           req.name,
-			Order:          req.order,
-			Dir:            req.dir,
-			Metadata:       req.metadata,
-			Tag:            req.tag,
-			Status:         req.status,
-			Group:          req.groupID,
-			Client:         req.clientID,
-			ConnectionType: req.connType,
-			RoleName:       req.roleName,
-			RoleID:         req.roleID,
-			Actions:        req.actions,
-			AccessType:     req.accessType,
-		}
-
-		var page channels.Page
+		var page channels.ChannelsPage
 		var err error
 		switch req.userID != "" {
 		case true:
-			page, err = svc.ListUserChannels(ctx, session, req.userID, pm)
+			page, err = svc.ListUserChannels(ctx, session, req.userID, req.Page)
 		default:
-			page, err = svc.ListChannels(ctx, session, pm)
+			page, err = svc.ListChannels(ctx, session, req.Page)
 		}
 		if err != nil {
 			return channelsPageRes{}, err

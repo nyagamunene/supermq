@@ -14,7 +14,6 @@ import (
 	api "github.com/absmach/supermq/api/http"
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/channels"
-	clients "github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/errors"
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
@@ -102,7 +101,7 @@ func (cr *channelRepository) Update(ctx context.Context, channel channels.Channe
         WHERE id = :id AND status = :status
         RETURNING id, name, tags, metadata, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_group_id, '') AS parent_group_id, status, created_at, updated_at, updated_by`,
 		upq)
-	channel.Status = clients.EnabledStatus
+	channel.Status = channels.EnabledStatus
 	return cr.update(ctx, channel, q)
 }
 
@@ -110,7 +109,7 @@ func (cr *channelRepository) UpdateTags(ctx context.Context, channel channels.Ch
 	q := `UPDATE channels SET tags = :tags, updated_at = :updated_at, updated_by = :updated_by
 	WHERE id = :id AND status = :status
 	RETURNING id, name, tags,  metadata, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_group_id, '') AS parent_group_id, status, created_at, updated_at, updated_by`
-	channel.Status = clients.EnabledStatus
+	channel.Status = channels.EnabledStatus
 	return cr.update(ctx, channel, q)
 }
 
@@ -146,10 +145,10 @@ func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (chann
 	return channels.Channel{}, repoerr.ErrNotFound
 }
 
-func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.PageMetadata) (channels.Page, error) {
+func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) (channels.ChannelsPage, error) {
 	pageQuery, err := PageQuery(pm)
 	if err != nil {
-		return channels.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 
 	connJoinQuery := `
@@ -204,11 +203,11 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.PageMe
 
 	dbPage, err := toDBChannelsPage(pm)
 	if err != nil {
-		return channels.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 	rows, err := cr.db.NamedQueryContext(ctx, q, dbPage)
 	if err != nil {
-		return channels.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 	defer rows.Close()
 
@@ -216,12 +215,12 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.PageMe
 	for rows.Next() {
 		dbch := dbChannel{}
 		if err := rows.StructScan(&dbch); err != nil {
-			return channels.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 
 		ch, err := toChannel(dbch)
 		if err != nil {
-			return channels.Page{}, err
+			return channels.ChannelsPage{}, err
 		}
 
 		items = append(items, ch)
@@ -234,12 +233,12 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.PageMe
 
 	total, err := postgres.Total(ctx, cr.db, cq, dbPage)
 	if err != nil {
-		return channels.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 
-	page := channels.Page{
+	page := channels.ChannelsPage{
 		Channels: items,
-		PageMetadata: channels.PageMetadata{
+		Page: channels.Page{
 			Total:  total,
 			Offset: pm.Offset,
 			Limit:  pm.Limit,
@@ -248,14 +247,14 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.PageMe
 	return page, nil
 }
 
-func (repo *channelRepository) RetrieveUserChannels(ctx context.Context, domainID, userID string, pm channels.PageMetadata) (channels.Page, error) {
-	return repo.retrieveClients(ctx, domainID, userID, pm)
+func (repo *channelRepository) RetrieveUserChannels(ctx context.Context, domainID, userID string, pm channels.Page) (channels.ChannelsPage, error) {
+	return repo.retrieveChannels(ctx, domainID, userID, pm)
 }
 
-func (repo *channelRepository) retrieveClients(ctx context.Context, domainID, userID string, pm channels.PageMetadata) (channels.Page, error) {
+func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, userID string, pm channels.Page) (channels.ChannelsPage, error) {
 	pageQuery, err := PageQuery(pm)
 	if err != nil {
-		return channels.Page{}, err
+		return channels.ChannelsPage{}, err
 	}
 
 	bq := repo.userChannelsBaseQuery(domainID, userID)
@@ -316,12 +315,12 @@ func (repo *channelRepository) retrieveClients(ctx context.Context, domainID, us
 
 	dbPage, err := toDBChannelsPage(pm)
 	if err != nil {
-		return channels.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 
 	rows, err := repo.db.NamedQueryContext(ctx, q, dbPage)
 	if err != nil {
-		return channels.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 	defer rows.Close()
 
@@ -329,12 +328,12 @@ func (repo *channelRepository) retrieveClients(ctx context.Context, domainID, us
 	for rows.Next() {
 		dbc := dbChannel{}
 		if err := rows.StructScan(&dbc); err != nil {
-			return channels.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 
 		c, err := toChannel(dbc)
 		if err != nil {
-			return channels.Page{}, err
+			return channels.ChannelsPage{}, err
 		}
 
 		items = append(items, c)
@@ -371,12 +370,12 @@ func (repo *channelRepository) retrieveClients(ctx context.Context, domainID, us
 
 	total, err := postgres.Total(ctx, repo.db, cq, dbPage)
 	if err != nil {
-		return channels.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 
-	page := channels.Page{
+	page := channels.ChannelsPage{
 		Channels: items,
-		PageMetadata: channels.PageMetadata{
+		Page: channels.Page{
 			Total:  total,
 			Offset: pm.Offset,
 			Limit:  pm.Limit,
@@ -880,7 +879,7 @@ type dbChannel struct {
 	CreatedAt                 time.Time        `db:"created_at,omitempty"`
 	UpdatedAt                 sql.NullTime     `db:"updated_at,omitempty"`
 	UpdatedBy                 *string          `db:"updated_by,omitempty"`
-	Status                    clients.Status   `db:"status,omitempty"`
+	Status                    channels.Status  `db:"status,omitempty"`
 	ParentGroupPath           string           `db:"parent_group_path,omitempty"`
 	RoleID                    string           `db:"role_id,omitempty"`
 	RoleName                  string           `db:"role_name,omitempty"`
@@ -952,7 +951,7 @@ func toString(s sql.NullString) string {
 }
 
 func toChannel(ch dbChannel) (channels.Channel, error) {
-	var metadata clients.Metadata
+	var metadata channels.Metadata
 	if ch.Metadata != nil {
 		if err := json.Unmarshal([]byte(ch.Metadata), &metadata); err != nil {
 			return channels.Channel{}, errors.Wrap(errors.ErrMalformedEntity, err)
@@ -1011,7 +1010,7 @@ func toChannel(ch dbChannel) (channels.Channel, error) {
 	return newCh, nil
 }
 
-func PageQuery(pm channels.PageMetadata) (string, error) {
+func PageQuery(pm channels.Page) (string, error) {
 	mq, _, err := postgres.CreateMetadataQuery("", pm.Metadata)
 	if err != nil {
 		return "", errors.Wrap(errors.ErrMalformedEntity, err)
@@ -1022,8 +1021,8 @@ func PageQuery(pm channels.PageMetadata) (string, error) {
 		query = append(query, "c.name ILIKE '%' || :name || '%'")
 	}
 
-	if pm.Id != "" {
-		query = append(query, "c.id ILIKE '%' || :id || '%'")
+	if pm.ID != "" {
+		query = append(query, "c.id = :id")
 	}
 	if pm.Tag != "" {
 		query = append(query, "EXISTS (SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE '%' || :tag || '%')")
@@ -1036,7 +1035,7 @@ func PageQuery(pm channels.PageMetadata) (string, error) {
 	if len(pm.IDs) != 0 {
 		query = append(query, fmt.Sprintf("id IN ('%s')", strings.Join(pm.IDs, "','")))
 	}
-	if pm.Status != clients.AllStatus {
+	if pm.Status != channels.AllStatus {
 		query = append(query, "c.status = :status")
 	}
 	if pm.Domain != "" {
@@ -1074,7 +1073,7 @@ func PageQuery(pm channels.PageMetadata) (string, error) {
 	return emq, nil
 }
 
-func applyOrdering(emq string, pm channels.PageMetadata) string {
+func applyOrdering(emq string, pm channels.Page) string {
 	switch pm.Order {
 	case "name", "created_at", "updated_at":
 		emq = fmt.Sprintf("%s ORDER BY %s", emq, pm.Order)
@@ -1090,7 +1089,7 @@ func applyLimitOffset(query string) string {
 			LIMIT :limit OFFSET :offset`, query)
 }
 
-func toDBChannelsPage(pm channels.PageMetadata) (dbChannelsPage, error) {
+func toDBChannelsPage(pm channels.Page) (dbChannelsPage, error) {
 	_, data, err := postgres.CreateMetadataQuery("", pm.Metadata)
 	if err != nil {
 		return dbChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
@@ -1099,7 +1098,7 @@ func toDBChannelsPage(pm channels.PageMetadata) (dbChannelsPage, error) {
 		Limit:      pm.Limit,
 		Offset:     pm.Offset,
 		Name:       pm.Name,
-		Id:         pm.Id,
+		Id:         pm.ID,
 		Domain:     pm.Domain,
 		Metadata:   data,
 		Tag:        pm.Tag,
@@ -1115,21 +1114,21 @@ func toDBChannelsPage(pm channels.PageMetadata) (dbChannelsPage, error) {
 }
 
 type dbChannelsPage struct {
-	Limit      uint64         `db:"limit"`
-	Offset     uint64         `db:"offset"`
-	Name       string         `db:"name"`
-	Id         string         `db:"id"`
-	Domain     string         `db:"domain_id"`
-	Metadata   []byte         `db:"metadata"`
-	Tag        string         `db:"tag"`
-	Status     clients.Status `db:"status"`
-	GroupID    string         `db:"group_id"`
-	ClientID   string         `db:"client_id"`
-	ConnType   string         `db:"type"`
-	RoleName   string         `db:"role_name"`
-	RoleID     string         `db:"role_id"`
-	Actions    pq.StringArray `db:"actions"`
-	AccessType string         `db:"access_type"`
+	Limit      uint64          `db:"limit"`
+	Offset     uint64          `db:"offset"`
+	Name       string          `db:"name"`
+	Id         string          `db:"id"`
+	Domain     string          `db:"domain_id"`
+	Metadata   []byte          `db:"metadata"`
+	Tag        string          `db:"tag"`
+	Status     channels.Status `db:"status"`
+	GroupID    string          `db:"group_id"`
+	ClientID   string          `db:"client_id"`
+	ConnType   string          `db:"type"`
+	RoleName   string          `db:"role_name"`
+	RoleID     string          `db:"role_id"`
+	Actions    pq.StringArray  `db:"actions"`
+	AccessType string          `db:"access_type"`
 }
 
 type dbConnection struct {

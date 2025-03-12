@@ -900,7 +900,7 @@ func buildQuery(gm groups.PageMeta, ids ...string) string {
 		queries = append(queries, "g.name ILIKE '%' || :name || '%'")
 	}
 	if gm.ID != "" {
-		queries = append(queries, "g.id ILIKE '%' || :id || '%'")
+		queries = append(queries, "g.id = :id")
 	}
 	if gm.Status != groups.AllStatus {
 		queries = append(queries, "g.status = :status")

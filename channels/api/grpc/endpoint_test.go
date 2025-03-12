@@ -12,10 +12,10 @@ import (
 
 	grpcChannelsV1 "github.com/absmach/supermq/api/grpc/channels/v1"
 	grpcCommonV1 "github.com/absmach/supermq/api/grpc/common/v1"
+	"github.com/absmach/supermq/channels"
 	ch "github.com/absmach/supermq/channels"
 	grpcapi "github.com/absmach/supermq/channels/api/grpc"
 	"github.com/absmach/supermq/channels/private/mocks"
-	"github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/internal/testsutil"
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/errors"
@@ -35,7 +35,7 @@ var (
 	validChannel = ch.Channel{
 		ID:     validID,
 		Domain: testsutil.GenerateUUID(&testing.T{}),
-		Status: clients.EnabledStatus,
+		Status: channels.EnabledStatus,
 	}
 )
 

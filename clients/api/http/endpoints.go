@@ -82,7 +82,7 @@ func viewClientEndpoint(svc clients.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthentication
 		}
 
-		c, err := svc.View(ctx, session, req.id)
+		c, err := svc.View(ctx, session, req.id, req.roles)
 		if err != nil {
 			return nil, err
 		}
@@ -103,31 +103,13 @@ func listClientsEndpoint(svc clients.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthentication
 		}
 
-		pm := clients.Page{
-			Name:           req.name,
-			Tag:            req.tag,
-			Status:         req.status,
-			Metadata:       req.metadata,
-			RoleName:       req.roleName,
-			RoleID:         req.roleID,
-			Actions:        req.actions,
-			AccessType:     req.accessType,
-			Order:          req.order,
-			Dir:            req.dir,
-			Offset:         req.offset,
-			Limit:          req.limit,
-			Group:          req.groupID,
-			Channel:        req.channelID,
-			ConnectionType: req.connType,
-		}
-
 		var page clients.ClientsPage
 		var err error
 		switch req.userID != "" {
 		case true:
-			page, err = svc.ListUserClients(ctx, session, req.userID, pm)
+			page, err = svc.ListUserClients(ctx, session, req.userID, req.Page)
 		default:
-			page, err = svc.ListClients(ctx, session, pm)
+			page, err = svc.ListClients(ctx, session, req.Page)
 		}
 		if err != nil {
 			return clientsPageRes{}, err

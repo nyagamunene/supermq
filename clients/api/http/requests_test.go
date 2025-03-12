@@ -192,29 +192,31 @@ func TestListClientsReqValidate(t *testing.T) {
 		{
 			desc: "valid request",
 			req: listClientsReq{
-				limit: 10,
+				Page: clients.Page{Limit: 10},
 			},
 			err: nil,
 		},
 		{
 			desc: "limit too big",
 			req: listClientsReq{
-				limit: api.MaxLimitSize + 1,
+				Page: clients.Page{Limit: api.MaxLimitSize + 1},
 			},
 			err: apiutil.ErrLimitSize,
 		},
 		{
 			desc: "limit too small",
 			req: listClientsReq{
-				limit: 0,
+				Page: clients.Page{Limit: 0},
 			},
 			err: apiutil.ErrLimitSize,
 		},
 		{
 			desc: "name too long",
 			req: listClientsReq{
-				limit: 10,
-				name:  strings.Repeat("a", api.MaxNameSize+1),
+				Page: clients.Page{
+					Limit: 10,
+					Name:  strings.Repeat("a", api.MaxNameSize+1),
+				},
 			},
 			err: apiutil.ErrNameSize,
 		},

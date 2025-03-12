@@ -148,29 +148,28 @@ func TestListChannelsReqValidation(t *testing.T) {
 		{
 			desc: "valid request",
 			req: listChannelsReq{
-				limit: 10,
+				Page: channels.Page{Limit: 10},
 			},
 			err: nil,
 		},
 		{
 			desc: "limit is 0",
 			req: listChannelsReq{
-				limit: 0,
+				Page: channels.Page{Limit: 0},
 			},
 			err: apiutil.ErrLimitSize,
 		},
 		{
 			desc: "limit is greater than max limit",
 			req: listChannelsReq{
-				limit: api.MaxLimitSize + 1,
+				Page: channels.Page{Limit: api.MaxLimitSize + 1},
 			},
 			err: apiutil.ErrLimitSize,
 		},
 		{
 			desc: "name is too long",
 			req: listChannelsReq{
-				limit: 10,
-				name:  strings.Repeat("a", api.MaxNameSize+1),
+				Page: channels.Page{Limit: 10, Name: strings.Repeat("a", api.MaxNameSize+1)},
 			},
 			err: apiutil.ErrNameSize,
 		},

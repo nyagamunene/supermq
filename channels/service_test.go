@@ -15,8 +15,6 @@ import (
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/channels"
 	"github.com/absmach/supermq/channels/mocks"
-	"github.com/absmach/supermq/clients"
-	smqclients "github.com/absmach/supermq/clients"
 	clmocks "github.com/absmach/supermq/clients/mocks"
 	gpmocks "github.com/absmach/supermq/groups/mocks"
 	"github.com/absmach/supermq/internal/testsutil"
@@ -45,7 +43,7 @@ var (
 		},
 		Tags:   []string{"tag1", "tag2"},
 		Domain: testsutil.GenerateUUID(&testing.T{}),
-		Status: clients.EnabledStatus,
+		Status: channels.EnabledStatus,
 	}
 	parentGroupID    = testsutil.GenerateUUID(&testing.T{})
 	validID          = testsutil.GenerateUUID(&testing.T{})
@@ -67,7 +65,7 @@ func newService(t *testing.T) channels.Service {
 	groupsSvc = new(gpmocks.GroupsServiceClient)
 	availableActions := []roles.Action{}
 	builtInRoles := map[roles.BuiltInRoleName][]roles.Action{
-		clients.BuiltInRoleAdmin: availableActions,
+		channels.BuiltInRoleAdmin: availableActions,
 	}
 	svc, err := channels.New(repo, policies, idProvider, clientsSvc, groupsSvc, idProvider, availableActions, builtInRoles)
 	assert.Nil(t, err, fmt.Sprintf(" Unexpected error  while creating service %v", err))
@@ -102,7 +100,7 @@ func TestCreateChannel(t *testing.T) {
 			desc: "create channel with invalid status",
 			channel: channels.Channel{
 				Name:   namegen.Generate(),
-				Status: clients.Status(100),
+				Status: channels.Status(100),
 			},
 			err: svcerr.ErrInvalidStatus,
 		},
@@ -110,7 +108,7 @@ func TestCreateChannel(t *testing.T) {
 			desc: "create channel successfully with parent",
 			channel: channels.Channel{
 				Name:        namegen.Generate(),
-				Status:      clients.EnabledStatus,
+				Status:      channels.EnabledStatus,
 				ParentGroup: testsutil.GenerateUUID(t),
 			},
 			saveResp: []channels.Channel{
@@ -353,7 +351,7 @@ func TestEnableChannel(t *testing.T) {
 			desc: "enable channel successfully",
 			id:   testsutil.GenerateUUID(t),
 			retrieveResp: channels.Channel{
-				Status: clients.DisabledStatus,
+				Status: channels.DisabledStatus,
 			},
 			changeResp: validChannel,
 		},
@@ -361,7 +359,7 @@ func TestEnableChannel(t *testing.T) {
 			desc: "enable channel with enabled channel",
 			id:   testsutil.GenerateUUID(t),
 			retrieveResp: channels.Channel{
-				Status: clients.EnabledStatus,
+				Status: channels.EnabledStatus,
 			},
 			err: errors.ErrStatusAlreadyAssigned,
 		},
@@ -376,7 +374,7 @@ func TestEnableChannel(t *testing.T) {
 			desc: "enable channel with change status error",
 			id:   testsutil.GenerateUUID(t),
 			retrieveResp: channels.Channel{
-				Status: clients.DisabledStatus,
+				Status: channels.DisabledStatus,
 			},
 			changeErr: repoerr.ErrNotFound,
 			err:       repoerr.ErrNotFound,
@@ -416,7 +414,7 @@ func TestDisableChannel(t *testing.T) {
 			desc: "disable channel successfully",
 			id:   testsutil.GenerateUUID(t),
 			retrieveResp: channels.Channel{
-				Status: clients.EnabledStatus,
+				Status: channels.EnabledStatus,
 			},
 			changeResp: validChannel,
 		},
@@ -424,7 +422,7 @@ func TestDisableChannel(t *testing.T) {
 			desc: "disable channel with disabled channel",
 			id:   testsutil.GenerateUUID(t),
 			retrieveResp: channels.Channel{
-				Status: clients.DisabledStatus,
+				Status: channels.DisabledStatus,
 			},
 			err: errors.ErrStatusAlreadyAssigned,
 		},
@@ -438,7 +436,7 @@ func TestDisableChannel(t *testing.T) {
 		{
 			desc:         "disable channel with change status error",
 			id:           testsutil.GenerateUUID(t),
-			retrieveResp: channels.Channel{Status: clients.EnabledStatus},
+			retrieveResp: channels.Channel{Status: channels.EnabledStatus},
 			changeErr:    repoerr.ErrNotFound,
 			err:          repoerr.ErrNotFound,
 		},
@@ -472,9 +470,9 @@ func TestListChannels(t *testing.T) {
 		desc                string
 		userKind            string
 		session             smqauthn.Session
-		page                channels.PageMetadata
-		retrieveAllResponse channels.Page
-		response            channels.Page
+		page                channels.Page
+		retrieveAllResponse channels.ChannelsPage
+		response            channels.ChannelsPage
 		id                  string
 		size                uint64
 		listObjectsErr      error
@@ -487,20 +485,20 @@ func TestListChannels(t *testing.T) {
 			userKind: "non-admin",
 			session:  smqauthn.Session{UserID: nonAdminID, DomainID: domainID, SuperAdmin: false},
 			id:       nonAdminID,
-			page: channels.PageMetadata{
+			page: channels.Page{
 				Offset: 0,
 				Limit:  100,
 			},
-			retrieveAllResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			retrieveAllResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total:  2,
 					Offset: 0,
 					Limit:  100,
 				},
 				Channels: []channels.Channel{validChannel, validChannel},
 			},
-			response: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			response: channels.ChannelsPage{
+				Page: channels.Page{
 					Total:  2,
 					Offset: 0,
 					Limit:  100,
@@ -514,12 +512,12 @@ func TestListChannels(t *testing.T) {
 			userKind: "non-admin",
 			session:  smqauthn.Session{UserID: nonAdminID, DomainID: domainID, SuperAdmin: false},
 			id:       nonAdminID,
-			page: channels.PageMetadata{
+			page: channels.Page{
 				Offset: 0,
 				Limit:  100,
 			},
-			retrieveAllResponse: channels.Page{},
-			response:            channels.Page{},
+			retrieveAllResponse: channels.ChannelsPage{},
+			response:            channels.ChannelsPage{},
 			retrieveAllErr:      repoerr.ErrNotFound,
 			err:                 svcerr.ErrNotFound,
 		},
@@ -528,23 +526,23 @@ func TestListChannels(t *testing.T) {
 			userKind: "non-admin",
 			session:  smqauthn.Session{UserID: nonAdminID, DomainID: domainID, SuperAdmin: false},
 			id:       nonAdminID,
-			page: channels.PageMetadata{
+			page: channels.Page{
 				Offset: 0,
 				Limit:  100,
 			},
-			response: channels.Page{},
+			response: channels.ChannelsPage{},
 			err:      nil,
 		},
 		{
 			desc:     "list all channels as non admin with failed to list objects",
 			userKind: "non-admin",
 			id:       nonAdminID,
-			page: channels.PageMetadata{
+			page: channels.Page{
 				Offset: 0,
 				Limit:  100,
 			},
 			retrieveAllErr: repoerr.ErrNotFound,
-			response:       channels.Page{},
+			response:       channels.ChannelsPage{},
 			listObjectsErr: svcerr.ErrNotFound,
 			err:            svcerr.ErrNotFound,
 		},
@@ -564,9 +562,9 @@ func TestListChannels(t *testing.T) {
 		desc                string
 		userKind            string
 		session             smqauthn.Session
-		page                channels.PageMetadata
-		retrieveAllResponse channels.Page
-		response            channels.Page
+		page                channels.Page
+		retrieveAllResponse channels.ChannelsPage
+		response            channels.ChannelsPage
 		id                  string
 		size                uint64
 		listObjectsErr      error
@@ -579,21 +577,21 @@ func TestListChannels(t *testing.T) {
 			userKind: "admin",
 			id:       adminID,
 			session:  smqauthn.Session{UserID: adminID, DomainID: domainID, SuperAdmin: true},
-			page: channels.PageMetadata{
+			page: channels.Page{
 				Offset: 0,
 				Limit:  100,
 				Domain: domainID,
 			},
-			retrieveAllResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			retrieveAllResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total:  2,
 					Offset: 0,
 					Limit:  100,
 				},
 				Channels: []channels.Channel{validChannel, validChannel},
 			},
-			response: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			response: channels.ChannelsPage{
+				Page: channels.Page{
 					Total:  2,
 					Offset: 0,
 					Limit:  100,
@@ -607,12 +605,12 @@ func TestListChannels(t *testing.T) {
 			userKind: "admin",
 			id:       adminID,
 			session:  smqauthn.Session{UserID: adminID, DomainID: domainID, SuperAdmin: true},
-			page: channels.PageMetadata{
+			page: channels.Page{
 				Offset: 0,
 				Limit:  100,
 				Domain: domainID,
 			},
-			retrieveAllResponse: channels.Page{},
+			retrieveAllResponse: channels.ChannelsPage{},
 			retrieveAllErr:      repoerr.ErrNotFound,
 			err:                 svcerr.ErrNotFound,
 		},
@@ -621,12 +619,12 @@ func TestListChannels(t *testing.T) {
 			userKind: "admin",
 			id:       adminID,
 			session:  smqauthn.Session{UserID: adminID, DomainID: domainID, SuperAdmin: true},
-			page: channels.PageMetadata{
+			page: channels.Page{
 				Offset: 0,
 				Limit:  100,
 				Domain: domainID,
 			},
-			retrieveAllResponse: channels.Page{},
+			retrieveAllResponse: channels.ChannelsPage{},
 			retrieveAllErr:      repoerr.ErrNotFound,
 			err:                 svcerr.ErrNotFound,
 		},
@@ -645,7 +643,7 @@ func TestRemoveChannel(t *testing.T) {
 	svc := newService(t)
 
 	deletedChannel := validChannel
-	deletedChannel.Status = clients.DeletedStatus
+	deletedChannel.Status = channels.DeletedStatus
 
 	channelWithParent := deletedChannel
 	channelWithParent.ParentGroup = testsutil.GenerateUUID(t)
@@ -732,7 +730,7 @@ func TestRemoveChannel(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			repoCall := repo.On("DoesChannelHaveConnections", context.Background(), validChannel.ID).Return(tc.connectionsRes, tc.connectionsErr)
 			clientsCall := clientsSvc.On("RemoveChannelConnections", context.Background(), &grpcClientsV1.RemoveChannelConnectionsReq{ChannelId: tc.id}).Return(&grpcClientsV1.RemoveChannelConnectionsRes{}, tc.removeConnectionsErr)
-			repoCall1 := repo.On("ChangeStatus", context.Background(), channels.Channel{ID: tc.id, Status: smqclients.DeletedStatus}).Return(tc.changeStatusRes, tc.changeStatusErr)
+			repoCall1 := repo.On("ChangeStatus", context.Background(), channels.Channel{ID: tc.id, Status: channels.DeletedStatus}).Return(tc.changeStatusRes, tc.changeStatusErr)
 			repoCall2 := repo.On("RetrieveEntitiesRolesActionsMembers", context.Background(), []string{tc.id}).Return([]roles.EntityActionRole{}, []roles.EntityMemberRole{}, nil)
 			policyCall := policies.On("DeletePolicies", context.Background(), mock.Anything).Return(tc.deletePoliciesErr)
 			policyCall1 := policies.On("DeletePolicyFilter", context.Background(), mock.Anything).Return(tc.deletePolicyFilterErr)
@@ -757,7 +755,7 @@ func TestConnect(t *testing.T) {
 	validDomainChannel.Domain = validID
 
 	disabledChannel := validChannel
-	disabledChannel.Status = clients.DisabledStatus
+	disabledChannel.Status = channels.DisabledStatus
 
 	cases := []struct {
 		desc                     string
@@ -785,7 +783,7 @@ func TestConnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			checkConnErr: repoerr.ErrNotFound,
@@ -845,7 +843,7 @@ func TestConnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.DisabledStatus),
+					Status:   uint32(channels.DisabledStatus),
 				},
 			},
 			err: svcerr.ErrCreateEntity,
@@ -859,7 +857,7 @@ func TestConnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: testsutil.GenerateUUID(t),
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			err: svcerr.ErrCreateEntity,
@@ -874,7 +872,7 @@ func TestConnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			repoConn: channels.Connection{
@@ -896,7 +894,7 @@ func TestConnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			repoConn: channels.Connection{
@@ -918,7 +916,7 @@ func TestConnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			repoConn: channels.Connection{
@@ -949,7 +947,7 @@ func TestConnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			repoConn: channels.Connection{
@@ -1021,7 +1019,7 @@ func TestDisconnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			repoConn: channels.Connection{
@@ -1073,7 +1071,7 @@ func TestDisconnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: testsutil.GenerateUUID(t),
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			err: svcerr.ErrRemoveEntity,
@@ -1088,7 +1086,7 @@ func TestDisconnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			repoConn: channels.Connection{
@@ -1118,7 +1116,7 @@ func TestDisconnect(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       validID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			repoConn: channels.Connection{
@@ -1188,7 +1186,7 @@ func TestSetParentGroup(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       parentGroupID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			err: nil,
@@ -1219,7 +1217,7 @@ func TestSetParentGroup(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       parentGroupID,
 					DomainId: testsutil.GenerateUUID(t),
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			err: svcerr.ErrUpdateEntity,
@@ -1233,7 +1231,7 @@ func TestSetParentGroup(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       parentGroupID,
 					DomainId: validID,
-					Status:   uint32(clients.DisabledStatus),
+					Status:   uint32(channels.DisabledStatus),
 				},
 			},
 			err: svcerr.ErrUpdateEntity,
@@ -1247,7 +1245,7 @@ func TestSetParentGroup(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       parentGroupID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			err: svcerr.ErrConflict,
@@ -1261,7 +1259,7 @@ func TestSetParentGroup(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       parentGroupID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			addPoliciesErr: svcerr.ErrAuthorization,
@@ -1276,7 +1274,7 @@ func TestSetParentGroup(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       parentGroupID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			setParentGroupErr: repoerr.ErrNotFound,
@@ -1291,7 +1289,7 @@ func TestSetParentGroup(t *testing.T) {
 				Entity: &grpcCommonV1.EntityBasic{
 					Id:       parentGroupID,
 					DomainId: validID,
-					Status:   uint32(clients.EnabledStatus),
+					Status:   uint32(channels.EnabledStatus),
 				},
 			},
 			setParentGroupErr: repoerr.ErrNotFound,

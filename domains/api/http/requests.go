@@ -11,20 +11,6 @@ import (
 
 const maxLimitSize = 100
 
-type page struct {
-	offset   uint64
-	limit    uint64
-	order    string
-	dir      string
-	name     string
-	metadata map[string]interface{}
-	tag      string
-	roleID   string
-	roleName string
-	actions  []string
-	status   domains.Status
-}
-
 type createDomainReq struct {
 	ID       string                 `json:"id,omitempty"`
 	Name     string                 `json:"name"`
@@ -77,7 +63,7 @@ func (req updateDomainReq) validate() error {
 }
 
 type listDomainsReq struct {
-	page
+	domains.Page
 }
 
 func (req listDomainsReq) validate() error {

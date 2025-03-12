@@ -114,15 +114,15 @@ func (es *eventStore) ViewChannel(ctx context.Context, session authn.Session, id
 	return chann, nil
 }
 
-func (es *eventStore) ListChannels(ctx context.Context, session authn.Session, pm channels.PageMetadata) (channels.Page, error) {
+func (es *eventStore) ListChannels(ctx context.Context, session authn.Session, pm channels.Page) (channels.ChannelsPage, error) {
 	cp, err := es.svc.ListChannels(ctx, session, pm)
 	if err != nil {
 		return cp, err
 	}
 	event := listChannelEvent{
-		PageMetadata: pm,
-		Session:      session,
-		requestID:    middleware.GetReqID(ctx),
+		Page:      pm,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cp, err
@@ -131,16 +131,16 @@ func (es *eventStore) ListChannels(ctx context.Context, session authn.Session, p
 	return cp, nil
 }
 
-func (es *eventStore) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.PageMetadata) (channels.Page, error) {
+func (es *eventStore) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.Page) (channels.ChannelsPage, error) {
 	cp, err := es.svc.ListUserChannels(ctx, session, userID, pm)
 	if err != nil {
 		return cp, err
 	}
 	event := listUserChannelsEvent{
-		userID:       userID,
-		PageMetadata: pm,
-		Session:      session,
-		requestID:    middleware.GetReqID(ctx),
+		userID:    userID,
+		Page:      pm,
+		Session:   session,
+		requestID: middleware.GetReqID(ctx),
 	}
 	if err := es.Publish(ctx, event); err != nil {
 		return cp, err

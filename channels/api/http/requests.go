@@ -9,7 +9,6 @@ import (
 	api "github.com/absmach/supermq/api/http"
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/channels"
-	"github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/pkg/connections"
 )
 
@@ -64,30 +63,16 @@ func (req viewChannelReq) validate() error {
 }
 
 type listChannelsReq struct {
-	name       string
-	tag        string
-	status     clients.Status
-	metadata   clients.Metadata
-	roleName   string
-	roleID     string
-	actions    []string
-	accessType string
-	order      string
-	dir        string
-	offset     uint64
-	limit      uint64
-	groupID    string
-	clientID   string
-	connType   string
-	userID     string
+	channels.Page
+	userID string
 }
 
 func (req listChannelsReq) validate() error {
-	if req.limit > api.MaxLimitSize || req.limit < 1 {
+	if req.Limit > api.MaxLimitSize || req.Limit < 1 {
 		return apiutil.ErrLimitSize
 	}
 
-	if len(req.name) > api.MaxNameSize {
+	if len(req.Name) > api.MaxNameSize {
 		return apiutil.ErrNameSize
 	}
 

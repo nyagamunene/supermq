@@ -15,7 +15,6 @@ import (
 	"github.com/absmach/supermq/channels"
 	chapi "github.com/absmach/supermq/channels/api/http"
 	chmocks "github.com/absmach/supermq/channels/mocks"
-	"github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/internal/testsutil"
 	smqlog "github.com/absmach/supermq/logger"
 	smqauthn "github.com/absmach/supermq/pkg/authn"
@@ -54,14 +53,14 @@ func TestCreateChannel(t *testing.T) {
 
 	createChannelReq := channels.Channel{
 		Name:     channel.Name,
-		Metadata: clients.Metadata{"role": "client"},
-		Status:   clients.EnabledStatus,
+		Metadata: channels.Metadata{"role": "client"},
+		Status:   channels.EnabledStatus,
 	}
 
 	channelReq := sdk.Channel{
 		Name:     channel.Name,
 		Metadata: validMetadata,
-		Status:   clients.EnabledStatus.String(),
+		Status:   channels.EnabledStatus.String(),
 	}
 
 	parentID := testsutil.GenerateUUID(&testing.T{})
@@ -69,7 +68,7 @@ func TestCreateChannel(t *testing.T) {
 	pChannel.ParentGroup = parentID
 
 	iChannel := convertChannel(channel)
-	iChannel.Metadata = clients.Metadata{
+	iChannel.Metadata = channels.Metadata{
 		"test": make(chan int),
 	}
 
@@ -135,14 +134,14 @@ func TestCreateChannel(t *testing.T) {
 			channelReq: sdk.Channel{
 				Name:        channel.Name,
 				ParentGroup: parentID,
-				Status:      clients.EnabledStatus.String(),
+				Status:      channels.EnabledStatus.String(),
 			},
 			domainID: domainID,
 			token:    validToken,
 			createChannelReq: channels.Channel{
 				Name:        channel.Name,
 				ParentGroup: parentID,
-				Status:      clients.EnabledStatus,
+				Status:      channels.EnabledStatus,
 			},
 			svcRes:   []channels.Channel{convertChannel(pChannel)},
 			svcErr:   nil,
@@ -154,14 +153,14 @@ func TestCreateChannel(t *testing.T) {
 			channelReq: sdk.Channel{
 				Name:        channel.Name,
 				ParentGroup: wrongID,
-				Status:      clients.EnabledStatus.String(),
+				Status:      channels.EnabledStatus.String(),
 			},
 			domainID: domainID,
 			token:    validToken,
 			createChannelReq: channels.Channel{
 				Name:        channel.Name,
 				ParentGroup: wrongID,
-				Status:      clients.EnabledStatus,
+				Status:      channels.EnabledStatus,
 			},
 			svcRes:   []channels.Channel{},
 			svcErr:   svcerr.ErrCreateEntity,
@@ -177,7 +176,7 @@ func TestCreateChannel(t *testing.T) {
 				Metadata:    validMetadata,
 				CreatedAt:   channel.CreatedAt,
 				UpdatedAt:   channel.UpdatedAt,
-				Status:      clients.EnabledStatus.String(),
+				Status:      channels.EnabledStatus.String(),
 			},
 			domainID: domainID,
 			token:    validToken,
@@ -185,10 +184,10 @@ func TestCreateChannel(t *testing.T) {
 				ID:          channel.ID,
 				ParentGroup: parentID,
 				Name:        channel.Name,
-				Metadata:    clients.Metadata{"role": "client"},
+				Metadata:    channels.Metadata{"role": "client"},
 				CreatedAt:   channel.CreatedAt,
 				UpdatedAt:   channel.UpdatedAt,
-				Status:      clients.EnabledStatus,
+				Status:      channels.EnabledStatus,
 			},
 			svcRes:   []channels.Channel{convertChannel(pChannel)},
 			svcErr:   nil,
@@ -238,11 +237,7 @@ func TestCreateChannels(t *testing.T) {
 	mgsdk := sdk.NewSDK(conf)
 
 	for i := 0; i < 3; i++ {
-		gr := sdk.Channel{
-			ID:       generateUUID(t),
-			Name:     fmt.Sprintf("channel_%d", i),
-			Metadata: sdk.Metadata{"name": fmt.Sprintf("client_%d", i)},
-		}
+		gr := generateTestChannel(t)
 		chs = append(chs, gr)
 	}
 
@@ -320,7 +315,7 @@ func TestCreateChannels(t *testing.T) {
 			svcRes: []channels.Channel{
 				{
 					ID: generateUUID(t),
-					Metadata: clients.Metadata{
+					Metadata: channels.Metadata{
 						"test": make(chan int),
 					},
 				},
@@ -358,11 +353,7 @@ func TestListChannels(t *testing.T) {
 	mgsdk := sdk.NewSDK(conf)
 
 	for i := 10; i < 100; i++ {
-		gr := sdk.Channel{
-			ID:       generateUUID(t),
-			Name:     fmt.Sprintf("channel_%d", i),
-			Metadata: sdk.Metadata{"name": fmt.Sprintf("client_%d", i)},
-		}
+		gr := generateTestChannel(t)
 		chs = append(chs, gr)
 	}
 
@@ -371,15 +362,15 @@ func TestListChannels(t *testing.T) {
 		domainID         string
 		token            string
 		session          smqauthn.Session
-		status           clients.Status
+		status           channels.Status
 		total            uint64
 		offset           uint64
 		limit            uint64
 		level            int
 		name             string
 		metadata         sdk.Metadata
-		channelsPageMeta channels.PageMetadata
-		svcRes           channels.Page
+		channelsPageMeta channels.Page
+		svcRes           channels.ChannelsPage
 		svcErr           error
 		authenticateRes  smqauthn.Session
 		authenticateErr  error
@@ -393,15 +384,15 @@ func TestListChannels(t *testing.T) {
 			limit:    limit,
 			offset:   offset,
 			total:    total,
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 				Offset:  offset,
 				Limit:   limit,
 			},
-			svcRes: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			svcRes: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: uint64(len(chs[offset:limit])),
 				},
 				Channels: convertChannels(chs[offset:limit]),
@@ -420,14 +411,14 @@ func TestListChannels(t *testing.T) {
 			domainID: domainID,
 			offset:   offset,
 			limit:    limit,
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 				Offset:  offset,
 				Limit:   limit,
 			},
-			svcRes:          channels.Page{},
+			svcRes:          channels.ChannelsPage{},
 			authenticateErr: svcerr.ErrAuthentication,
 			response:        sdk.ChannelsPage{},
 			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
@@ -438,12 +429,12 @@ func TestListChannels(t *testing.T) {
 			domainID: validID,
 			offset:   offset,
 			limit:    limit,
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 			},
-			svcRes:   channels.Page{},
+			svcRes:   channels.ChannelsPage{},
 			svcErr:   nil,
 			response: sdk.ChannelsPage{},
 			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
@@ -454,15 +445,15 @@ func TestListChannels(t *testing.T) {
 			domainID: domainID,
 			offset:   offset,
 			limit:    0,
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 				Offset:  offset,
 				Limit:   10,
 			},
-			svcRes: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			svcRes: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: uint64(len(chs[offset:])),
 				},
 				Channels: convertChannels(chs[offset:limit]),
@@ -482,12 +473,12 @@ func TestListChannels(t *testing.T) {
 			domainID: domainID,
 			offset:   offset,
 			limit:    110,
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 			},
-			svcRes:   channels.Page{},
+			svcRes:   channels.ChannelsPage{},
 			svcErr:   nil,
 			response: sdk.ChannelsPage{},
 			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrLimitSize), http.StatusBadRequest),
@@ -499,15 +490,15 @@ func TestListChannels(t *testing.T) {
 			offset:   0,
 			limit:    1,
 			level:    1,
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 				Offset:  offset,
 				Limit:   1,
 			},
-			svcRes: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			svcRes: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: convertChannels(chs[0:1]),
@@ -528,16 +519,16 @@ func TestListChannels(t *testing.T) {
 			offset:   0,
 			limit:    10,
 			metadata: sdk.Metadata{"name": "client_89"},
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions:  []string{},
 				Order:    "updated_at",
 				Dir:      "asc",
 				Offset:   offset,
 				Limit:    10,
-				Metadata: clients.Metadata{"name": "client_89"},
+				Metadata: channels.Metadata{"name": "client_89"},
 			},
-			svcRes: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			svcRes: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: convertChannels([]sdk.Channel{chs[89]}),
@@ -560,12 +551,12 @@ func TestListChannels(t *testing.T) {
 			metadata: sdk.Metadata{
 				"test": make(chan int),
 			},
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 			},
-			svcRes:   channels.Page{},
+			svcRes:   channels.ChannelsPage{},
 			svcErr:   nil,
 			response: sdk.ChannelsPage{},
 			err:      errors.NewSDKError(errors.New("json: unsupported type: chan int")),
@@ -576,20 +567,20 @@ func TestListChannels(t *testing.T) {
 			domainID: domainID,
 			offset:   0,
 			limit:    10,
-			channelsPageMeta: channels.PageMetadata{
+			channelsPageMeta: channels.Page{
 				Actions: []string{},
 				Order:   "updated_at",
 				Dir:     "asc",
 				Offset:  0,
 				Limit:   10,
 			},
-			svcRes: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			svcRes: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{{
 					ID: generateUUID(t),
-					Metadata: clients.Metadata{
+					Metadata: channels.Metadata{
 						"test": make(chan int),
 					},
 				}},
@@ -705,7 +696,7 @@ func TestViewChannel(t *testing.T) {
 			channelID: channelRes.ID,
 			svcRes: channels.Channel{
 				ID: generateUUID(t),
-				Metadata: clients.Metadata{
+				Metadata: channels.Metadata{
 					"test": make(chan int),
 				},
 			},
@@ -745,7 +736,7 @@ func TestUpdateChannel(t *testing.T) {
 	mgsdk := sdk.NewSDK(conf)
 
 	mChannel := convertChannel(channel)
-	mChannel.Metadata = clients.Metadata{
+	mChannel.Metadata = channels.Metadata{
 		"field": "value2",
 	}
 	msdkChannel := channel
@@ -760,7 +751,7 @@ func TestUpdateChannel(t *testing.T) {
 
 	aChannel := convertChannel(channel)
 	aChannel.Name = newName
-	aChannel.Metadata = clients.Metadata{"field": "value2"}
+	aChannel.Metadata = channels.Metadata{"field": "value2"}
 	asdkChannel := channel
 	asdkChannel.Name = newName
 	asdkChannel.Metadata = sdk.Metadata{"field": "value2"}
@@ -807,7 +798,7 @@ func TestUpdateChannel(t *testing.T) {
 			},
 			updateChannelReq: channels.Channel{
 				ID:       channel.ID,
-				Metadata: clients.Metadata{"field": "value2"},
+				Metadata: channels.Metadata{"field": "value2"},
 			},
 			svcRes:   mChannel,
 			svcErr:   nil,
@@ -827,7 +818,7 @@ func TestUpdateChannel(t *testing.T) {
 				ID:   channel.ID,
 				Name: newName,
 
-				Metadata: clients.Metadata{"field": "value2"},
+				Metadata: channels.Metadata{"field": "value2"},
 			},
 			svcRes:   aChannel,
 			svcErr:   nil,
@@ -878,7 +869,7 @@ func TestUpdateChannel(t *testing.T) {
 			},
 			updateChannelReq: channels.Channel{
 				ID:       wrongID,
-				Metadata: clients.Metadata{"field": "value2"},
+				Metadata: channels.Metadata{"field": "value2"},
 			},
 			svcRes:   channels.Channel{},
 			svcErr:   svcerr.ErrNotFound,
@@ -964,7 +955,7 @@ func TestUpdateChannel(t *testing.T) {
 			},
 			svcRes: channels.Channel{
 				ID: generateUUID(t),
-				Metadata: clients.Metadata{
+				Metadata: channels.Metadata{
 					"test": make(chan int),
 				},
 			},
@@ -1128,7 +1119,7 @@ func TestUpdateChannelTags(t *testing.T) {
 			svcRes: channels.Channel{
 				Name: updatedChannel.Name,
 				Tags: updatedChannel.Tags,
-				Metadata: clients.Metadata{
+				Metadata: channels.Metadata{
 					"test": make(chan int),
 				},
 			},
@@ -1235,7 +1226,7 @@ func TestEnableChannel(t *testing.T) {
 			channelID: channel.ID,
 			svcRes: channels.Channel{
 				ID: generateUUID(t),
-				Metadata: clients.Metadata{
+				Metadata: channels.Metadata{
 					"test": make(chan int),
 				},
 			},
@@ -1274,7 +1265,7 @@ func TestDisableChannel(t *testing.T) {
 	mgsdk := sdk.NewSDK(conf)
 
 	dChannel := channel
-	dChannel.Status = clients.DisabledStatus.String()
+	dChannel.Status = channels.DisabledStatus.String()
 
 	cases := []struct {
 		desc            string
@@ -1345,7 +1336,7 @@ func TestDisableChannel(t *testing.T) {
 			channelID: channel.ID,
 			svcRes: channels.Channel{
 				ID: generateUUID(t),
-				Metadata: clients.Metadata{
+				Metadata: channels.Metadata{
 					"test": make(chan int),
 				},
 			},
@@ -2091,6 +2082,7 @@ func generateTestChannel(t *testing.T) sdk.Channel {
 		Metadata:  sdk.Metadata{"role": "client"},
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
+		Status:    channels.EnabledStatus.String(),
 	}
 	return ch
 }

@@ -17,7 +17,6 @@ import (
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/channels"
 	"github.com/absmach/supermq/channels/mocks"
-	"github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/internal/testsutil"
 	smqlog "github.com/absmach/supermq/logger"
 	smqauthn "github.com/absmach/supermq/pkg/authn"
@@ -39,13 +38,13 @@ var (
 		Name:        valid,
 		Domain:      testsutil.GenerateUUID(&testing.T{}),
 		ParentGroup: testsutil.GenerateUUID(&testing.T{}),
-		Metadata: clients.Metadata{
+		Metadata: channels.Metadata{
 			"name": "test",
 		},
 		CreatedAt: time.Now().Add(-1 * time.Second),
 		UpdatedAt: time.Now(),
 		UpdatedBy: testsutil.GenerateUUID(&testing.T{}),
-		Status:    clients.EnabledStatus,
+		Status:    channels.EnabledStatus,
 	}
 	validID      = testsutil.GenerateUUID(&testing.T{})
 	validToken   = "validToken"
@@ -439,7 +438,7 @@ func TestListChannels(t *testing.T) {
 		domainID             string
 		token                string
 		session              smqauthn.Session
-		listChannelsResponse channels.Page
+		listChannelsResponse channels.ChannelsPage
 		status               int
 		authnErr             error
 		err                  error
@@ -449,8 +448,8 @@ func TestListChannels(t *testing.T) {
 			domainID: validID,
 			token:    validToken,
 			status:   http.StatusOK,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -476,8 +475,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with offset",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -498,8 +497,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with limit",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -528,8 +527,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with name",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -558,8 +557,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with status",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -588,8 +587,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with tags",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -618,8 +617,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with metadata",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -648,8 +647,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with permissions",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -678,8 +677,8 @@ func TestListChannels(t *testing.T) {
 			desc:     "list channels with list perms",
 			domainID: validID,
 			token:    validToken,
-			listChannelsResponse: channels.Page{
-				PageMetadata: channels.PageMetadata{
+			listChannelsResponse: channels.ChannelsPage{
+				Page: channels.Page{
 					Total: 1,
 				},
 				Channels: []channels.Channel{validChannelResp},
@@ -2032,11 +2031,11 @@ func toJSON(data interface{}) string {
 }
 
 type respBody struct {
-	Err         string         `json:"error"`
-	Message     string         `json:"message"`
-	Total       int            `json:"total"`
-	Permissions []string       `json:"permissions"`
-	ID          string         `json:"id"`
-	Tags        []string       `json:"tags"`
-	Status      clients.Status `json:"status"`
+	Err         string          `json:"error"`
+	Message     string          `json:"message"`
+	Total       int             `json:"total"`
+	Permissions []string        `json:"permissions"`
+	ID          string          `json:"id"`
+	Tags        []string        `json:"tags"`
+	Status      channels.Status `json:"status"`
 }

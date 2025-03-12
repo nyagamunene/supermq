@@ -342,7 +342,7 @@ func TestViewClient(t *testing.T) {
 
 	for _, tc := range cases {
 		repoCall1 := repo.On("RetrieveByID", context.Background(), mock.Anything).Return(tc.response, tc.err)
-		rClient, err := svc.View(context.Background(), smqauthn.Session{}, tc.clientID)
+		rClient, err := svc.View(context.Background(), smqauthn.Session{}, tc.clientID, false)
 		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 		assert.Equal(t, tc.response, rClient, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, rClient))
 		repoCall1.Unset()

@@ -45,13 +45,13 @@ func (tm *tracingMiddleware) ViewChannel(ctx context.Context, session authn.Sess
 }
 
 // ListChannels traces the "ListChannels" operation of the wrapped policies.Service.
-func (tm *tracingMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.PageMetadata) (channels.Page, error) {
+func (tm *tracingMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.Page) (channels.ChannelsPage, error) {
 	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_list_channels")
 	defer span.End()
 	return tm.svc.ListChannels(ctx, session, pm)
 }
 
-func (tm *tracingMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.PageMetadata) (channels.Page, error) {
+func (tm *tracingMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.Page) (channels.ChannelsPage, error) {
 	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_list_user_channels")
 	defer span.End()
 	return tm.svc.ListUserChannels(ctx, session, userID, pm)

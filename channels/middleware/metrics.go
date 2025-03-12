@@ -50,7 +50,7 @@ func (ms *metricsMiddleware) ViewChannel(ctx context.Context, session authn.Sess
 	return ms.svc.ViewChannel(ctx, session, id)
 }
 
-func (ms *metricsMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.PageMetadata) (channels.Page, error) {
+func (ms *metricsMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.Page) (channels.ChannelsPage, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_channels").Add(1)
 		ms.latency.With("method", "list_channels").Observe(time.Since(begin).Seconds())
@@ -58,7 +58,7 @@ func (ms *metricsMiddleware) ListChannels(ctx context.Context, session authn.Ses
 	return ms.svc.ListChannels(ctx, session, pm)
 }
 
-func (ms *metricsMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.PageMetadata) (channels.Page, error) {
+func (ms *metricsMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.Page) (channels.ChannelsPage, error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "list_user_channels").Add(1)
 		ms.latency.With("method", "list_user_channels").Observe(time.Since(begin).Seconds())

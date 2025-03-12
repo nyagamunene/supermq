@@ -183,7 +183,7 @@ func (vce viewChannelEvent) Encode() (map[string]interface{}, error) {
 }
 
 type listChannelEvent struct {
-	channels.PageMetadata
+	channels.Page
 	authn.Session
 	requestID string
 }
@@ -228,7 +228,7 @@ func (lce listChannelEvent) Encode() (map[string]interface{}, error) {
 
 type listUserChannelsEvent struct {
 	userID string
-	channels.PageMetadata
+	channels.Page
 	authn.Session
 	requestID string
 }

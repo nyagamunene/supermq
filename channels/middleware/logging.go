@@ -67,7 +67,7 @@ func (lm *loggingMiddleware) ViewChannel(ctx context.Context, session authn.Sess
 	return lm.svc.ViewChannel(ctx, session, id)
 }
 
-func (lm *loggingMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.PageMetadata) (cp channels.Page, err error) {
+func (lm *loggingMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.Page) (cp channels.ChannelsPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -89,7 +89,7 @@ func (lm *loggingMiddleware) ListChannels(ctx context.Context, session authn.Ses
 	return lm.svc.ListChannels(ctx, session, pm)
 }
 
-func (lm *loggingMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.PageMetadata) (cp channels.Page, err error) {
+func (lm *loggingMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.Page) (cp channels.ChannelsPage, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),

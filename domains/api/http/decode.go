@@ -71,7 +71,7 @@ func decodeListDomainRequest(ctx context.Context, r *http.Request) (interface{},
 		return nil, err
 	}
 	req := listDomainsReq{
-		page: page,
+		page,
 	}
 
 	return req, nil
@@ -98,47 +98,47 @@ func decodeFreezeDomainRequest(_ context.Context, r *http.Request) (interface{},
 	return req, nil
 }
 
-func decodePageRequest(_ context.Context, r *http.Request) (page, error) {
+func decodePageRequest(_ context.Context, r *http.Request) (domains.Page, error) {
 	s, err := apiutil.ReadStringQuery(r, api.StatusKey, api.DefClientStatus)
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	st, err := domains.ToStatus(s)
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	o, err := apiutil.ReadNumQuery[uint64](r, api.OffsetKey, api.DefOffset)
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	or, err := apiutil.ReadStringQuery(r, api.OrderKey, api.DefOrder)
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	dir, err := apiutil.ReadStringQuery(r, api.DirKey, api.DefDir)
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	l, err := apiutil.ReadNumQuery[uint64](r, api.LimitKey, api.DefLimit)
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	m, err := apiutil.ReadMetadataQuery(r, api.MetadataKey, nil)
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	n, err := apiutil.ReadStringQuery(r, api.NameKey, "")
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 	t, err := apiutil.ReadStringQuery(r, api.TagKey, "")
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
 	allActions, err := apiutil.ReadStringQuery(r, api.ActionsKey, "")
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
 	var actions []string
@@ -149,26 +149,32 @@ func decodePageRequest(_ context.Context, r *http.Request) (page, error) {
 	}
 	roleID, err := apiutil.ReadStringQuery(r, api.RoleIDKey, "")
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
 	roleName, err := apiutil.ReadStringQuery(r, api.RoleNameKey, "")
 	if err != nil {
-		return page{}, errors.Wrap(apiutil.ErrValidation, err)
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
-	return page{
-		offset:   o,
-		order:    or,
-		dir:      dir,
-		limit:    l,
-		name:     n,
-		metadata: m,
-		tag:      t,
-		roleID:   roleID,
-		roleName: roleName,
-		actions:  actions,
-		status:   st,
+	id, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
+	if err != nil {
+		return domains.Page{}, errors.Wrap(apiutil.ErrValidation, err)
+	}
+
+	return domains.Page{
+		Offset:   o,
+		Order:    or,
+		Dir:      dir,
+		Limit:    l,
+		Name:     n,
+		Metadata: m,
+		Tag:      t,
+		RoleID:   roleID,
+		RoleName: roleName,
+		Actions:  actions,
+		Status:   st,
+		ID:       id,
 	}, nil
 }
 

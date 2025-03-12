@@ -7,26 +7,28 @@ import (
 	"context"
 	"time"
 
-	clients "github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/roles"
 )
 
+// Metadata represents arbitrary JSON.
+type Metadata map[string]interface{}
+
 // Channel represents a SuperMQ "communication topic". This topic
 // contains the clients that can exchange messages between each other.
 type Channel struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name,omitempty"`
-	Tags        []string         `json:"tags,omitempty"`
-	ParentGroup string           `json:"parent_group_id,omitempty"`
-	Domain      string           `json:"domain_id,omitempty"`
-	Metadata    clients.Metadata `json:"metadata,omitempty"`
-	CreatedBy   string           `json:"created_by,omitempty"`
-	CreatedAt   time.Time        `json:"created_at,omitempty"`
-	UpdatedAt   time.Time        `json:"updated_at,omitempty"`
-	UpdatedBy   string           `json:"updated_by,omitempty"`
-	Status      clients.Status   `json:"status,omitempty"` // 1 for enabled, 0 for disabled
+	ID          string    `json:"id"`
+	Name        string    `json:"name,omitempty"`
+	Tags        []string  `json:"tags,omitempty"`
+	ParentGroup string    `json:"parent_group_id,omitempty"`
+	Domain      string    `json:"domain_id,omitempty"`
+	Metadata    Metadata  `json:"metadata,omitempty"`
+	CreatedBy   string    `json:"created_by,omitempty"`
+	CreatedAt   time.Time `json:"created_at,omitempty"`
+	UpdatedAt   time.Time `json:"updated_at,omitempty"`
+	UpdatedBy   string    `json:"updated_by,omitempty"`
+	Status      Status    `json:"status,omitempty"` // 1 for enabled, 0 for disabled
 	// Extended
 	ParentGroupPath           string                 `json:"parent_group_path,omitempty"`
 	RoleID                    string                 `json:"role_id,omitempty"`
@@ -40,32 +42,32 @@ type Channel struct {
 	ConnectionTypes           []connections.ConnType `json:"connection_types,omitempty"`
 }
 
-type PageMetadata struct {
-	Total          uint64           `json:"total"`
-	Offset         uint64           `json:"offset"`
-	Limit          uint64           `json:"limit"`
-	Order          string           `json:"order,omitempty"`
-	Dir            string           `json:"dir,omitempty"`
-	Id             string           `json:"id,omitempty"`
-	Name           string           `json:"name,omitempty"`
-	Metadata       clients.Metadata `json:"metadata,omitempty"`
-	Domain         string           `json:"domain,omitempty"`
-	Tag            string           `json:"tag,omitempty"`
-	Status         clients.Status   `json:"status,omitempty"`
-	Group          string           `json:"group,omitempty"`
-	Client         string           `json:"client,omitempty"`
-	ConnectionType string           `json:"connection_type,omitempty"`
-	RoleName       string           `json:"role_name,omitempty"`
-	RoleID         string           `json:"role_id,omitempty"`
-	Actions        []string         `json:"actions,omitempty"`
-	AccessType     string           `json:"access_type,omitempty"`
-	IDs            []string         `json:"-"`
+type Page struct {
+	Total          uint64   `json:"total"`
+	Offset         uint64   `json:"offset"`
+	Limit          uint64   `json:"limit"`
+	Order          string   `json:"order,omitempty"`
+	Dir            string   `json:"dir,omitempty"`
+	ID             string   `json:"id,omitempty"`
+	Name           string   `json:"name,omitempty"`
+	Metadata       Metadata `json:"metadata,omitempty"`
+	Domain         string   `json:"domain,omitempty"`
+	Tag            string   `json:"tag,omitempty"`
+	Status         Status   `json:"status,omitempty"`
+	Group          string   `json:"group,omitempty"`
+	Client         string   `json:"client,omitempty"`
+	ConnectionType string   `json:"connection_type,omitempty"`
+	RoleName       string   `json:"role_name,omitempty"`
+	RoleID         string   `json:"role_id,omitempty"`
+	Actions        []string `json:"actions,omitempty"`
+	AccessType     string   `json:"access_type,omitempty"`
+	IDs            []string `json:"-"`
 }
 
 // ChannelsPage contains page related metadata as well as list of channels that
 // belong to this page.
-type Page struct {
-	PageMetadata
+type ChannelsPage struct {
+	Page
 	Channels []Channel
 }
 
@@ -105,10 +107,10 @@ type Service interface {
 	DisableChannel(ctx context.Context, session authn.Session, id string) (Channel, error)
 
 	// ListChannels retrieves data about subset of channels that belongs to the user.
-	ListChannels(ctx context.Context, session authn.Session, pm PageMetadata) (Page, error)
+	ListChannels(ctx context.Context, session authn.Session, pm Page) (ChannelsPage, error)
 
 	// ListUserChannels retrieves data about subset of channels that belong to the specified user.
-	ListUserChannels(ctx context.Context, session authn.Session, userID string, pm PageMetadata) (Page, error)
+	ListUserChannels(ctx context.Context, session authn.Session, userID string, pm Page) (ChannelsPage, error)
 
 	// RemoveChannel removes the client identified by the provided ID, that
 	// belongs to the user.
@@ -144,13 +146,13 @@ type Repository interface {
 	ChangeStatus(ctx context.Context, channel Channel) (Channel, error)
 
 	// RetrieveUserChannels retrieves the channel of given domainID and userID.
-	RetrieveUserChannels(ctx context.Context, domainID, userID string, pm PageMetadata) (Page, error)
+	RetrieveUserChannels(ctx context.Context, domainID, userID string, pm Page) (ChannelsPage, error)
 
 	// RetrieveByID retrieves the channel having the provided identifier
 	RetrieveByID(ctx context.Context, id string) (Channel, error)
 
 	// RetrieveAll retrieves the subset of channels.
-	RetrieveAll(ctx context.Context, pm PageMetadata) (Page, error)
+	RetrieveAll(ctx context.Context, pm Page) (ChannelsPage, error)
 
 	// Remove removes the channel having the provided identifier
 	Remove(ctx context.Context, ids ...string) error

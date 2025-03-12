@@ -13,7 +13,6 @@ import (
 	grpcCommonV1 "github.com/absmach/supermq/api/grpc/common/v1"
 	grpcGroupsV1 "github.com/absmach/supermq/api/grpc/groups/v1"
 	apiutil "github.com/absmach/supermq/api/http/util"
-	smqclients "github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/errors"
@@ -67,7 +66,7 @@ func (svc service) CreateChannels(ctx context.Context, session authn.Session, ch
 			c.ID = clientID
 		}
 
-		if c.Status != smqclients.DisabledStatus && c.Status != smqclients.EnabledStatus {
+		if c.Status != DisabledStatus && c.Status != EnabledStatus {
 			return []Channel{}, []roles.RoleProvision{}, svcerr.ErrInvalidStatus
 		}
 		c.Domain = session.DomainID
@@ -148,12 +147,12 @@ func (svc service) UpdateChannelTags(ctx context.Context, session authn.Session,
 func (svc service) EnableChannel(ctx context.Context, session authn.Session, id string) (Channel, error) {
 	channel := Channel{
 		ID:        id,
-		Status:    smqclients.EnabledStatus,
+		Status:    EnabledStatus,
 		UpdatedAt: time.Now(),
 	}
 	ch, err := svc.changeChannelStatus(ctx, session.UserID, channel)
 	if err != nil {
-		return Channel{}, errors.Wrap(smqclients.ErrEnableClient, err)
+		return Channel{}, errors.Wrap(ErrEnableChannel, err)
 	}
 
 	return ch, nil
@@ -162,12 +161,12 @@ func (svc service) EnableChannel(ctx context.Context, session authn.Session, id 
 func (svc service) DisableChannel(ctx context.Context, session authn.Session, id string) (Channel, error) {
 	channel := Channel{
 		ID:        id,
-		Status:    smqclients.DisabledStatus,
+		Status:    DisabledStatus,
 		UpdatedAt: time.Now(),
 	}
 	ch, err := svc.changeChannelStatus(ctx, session.UserID, channel)
 	if err != nil {
-		return Channel{}, errors.Wrap(smqclients.ErrDisableClient, err)
+		return Channel{}, errors.Wrap(ErrDisableChannel, err)
 	}
 
 	return ch, nil
@@ -178,30 +177,31 @@ func (svc service) ViewChannel(ctx context.Context, session authn.Session, id st
 	if err != nil {
 		return Channel{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
+
 	return channel, nil
 }
 
-func (svc service) ListChannels(ctx context.Context, session authn.Session, pm PageMetadata) (Page, error) {
+func (svc service) ListChannels(ctx context.Context, session authn.Session, pm Page) (ChannelsPage, error) {
 	switch session.SuperAdmin {
 	case true:
 		cp, err := svc.repo.RetrieveAll(ctx, pm)
 		if err != nil {
-			return Page{}, errors.Wrap(svcerr.ErrViewEntity, err)
+			return ChannelsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 		}
 		return cp, nil
 	default:
 		cp, err := svc.repo.RetrieveUserChannels(ctx, session.DomainID, session.UserID, pm)
 		if err != nil {
-			return Page{}, errors.Wrap(svcerr.ErrViewEntity, err)
+			return ChannelsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 		}
 		return cp, nil
 	}
 }
 
-func (svc service) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm PageMetadata) (Page, error) {
+func (svc service) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm Page) (ChannelsPage, error) {
 	cp, err := svc.repo.RetrieveUserChannels(ctx, session.DomainID, userID, pm)
 	if err != nil {
-		return Page{}, errors.Wrap(svcerr.ErrViewEntity, err)
+		return ChannelsPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
 	return cp, nil
 }
@@ -217,7 +217,7 @@ func (svc service) RemoveChannel(ctx context.Context, session authn.Session, id 
 			return errors.Wrap(svcerr.ErrRemoveEntity, err)
 		}
 	}
-	ch, err := svc.repo.ChangeStatus(ctx, Channel{ID: id, Status: smqclients.DeletedStatus})
+	ch, err := svc.repo.ChangeStatus(ctx, Channel{ID: id, Status: DeletedStatus})
 	if err != nil {
 		return errors.Wrap(svcerr.ErrRemoveEntity, err)
 	}
@@ -270,7 +270,7 @@ func (svc service) Connect(ctx context.Context, session authn.Session, chIDs, th
 		if err != nil {
 			return errors.Wrap(svcerr.ErrCreateEntity, err)
 		}
-		if c.Status != smqclients.EnabledStatus {
+		if c.Status != EnabledStatus {
 			return errors.Wrap(svcerr.ErrCreateEntity, fmt.Errorf("channel id %s is not in enabled state", chID))
 		}
 		if c.Domain != session.DomainID {
@@ -283,7 +283,7 @@ func (svc service) Connect(ctx context.Context, session authn.Session, chIDs, th
 		if err != nil {
 			return errors.Wrap(svcerr.ErrCreateEntity, err)
 		}
-		if resp.GetEntity().GetStatus() != uint32(smqclients.EnabledStatus) {
+		if resp.GetEntity().GetStatus() != uint32(EnabledStatus) {
 			return errors.Wrap(svcerr.ErrCreateEntity, fmt.Errorf("client id %s is not in enabled state", thID))
 		}
 		if resp.GetEntity().GetDomainId() != session.DomainID {
@@ -399,7 +399,7 @@ func (svc service) SetParentGroup(ctx context.Context, session authn.Session, pa
 	if resp.GetEntity().GetDomainId() != session.DomainID {
 		return errors.Wrap(svcerr.ErrUpdateEntity, fmt.Errorf("parent group id %s has invalid domain id", parentGroupID))
 	}
-	if resp.GetEntity().GetStatus() != uint32(smqclients.EnabledStatus) {
+	if resp.GetEntity().GetStatus() != uint32(EnabledStatus) {
 		return errors.Wrap(svcerr.ErrUpdateEntity, fmt.Errorf("parent group id %s is not in enabled state", parentGroupID))
 	}
 

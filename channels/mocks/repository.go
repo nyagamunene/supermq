@@ -367,25 +367,25 @@ func (_m *Repository) RemoveRoles(ctx context.Context, roleIDs []string) error {
 }
 
 // RetrieveAll provides a mock function with given fields: ctx, pm
-func (_m *Repository) RetrieveAll(ctx context.Context, pm channels.PageMetadata) (channels.Page, error) {
+func (_m *Repository) RetrieveAll(ctx context.Context, pm channels.Page) (channels.ChannelsPage, error) {
 	ret := _m.Called(ctx, pm)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RetrieveAll")
 	}
 
-	var r0 channels.Page
+	var r0 channels.ChannelsPage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, channels.PageMetadata) (channels.Page, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, channels.Page) (channels.ChannelsPage, error)); ok {
 		return rf(ctx, pm)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, channels.PageMetadata) channels.Page); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, channels.Page) channels.ChannelsPage); ok {
 		r0 = rf(ctx, pm)
 	} else {
-		r0 = ret.Get(0).(channels.Page)
+		r0 = ret.Get(0).(channels.ChannelsPage)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, channels.PageMetadata) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, channels.Page) error); ok {
 		r1 = rf(ctx, pm)
 	} else {
 		r1 = ret.Error(1)
@@ -576,25 +576,25 @@ func (_m *Repository) RetrieveRole(ctx context.Context, roleID string) (roles.Ro
 }
 
 // RetrieveUserChannels provides a mock function with given fields: ctx, domainID, userID, pm
-func (_m *Repository) RetrieveUserChannels(ctx context.Context, domainID string, userID string, pm channels.PageMetadata) (channels.Page, error) {
+func (_m *Repository) RetrieveUserChannels(ctx context.Context, domainID string, userID string, pm channels.Page) (channels.ChannelsPage, error) {
 	ret := _m.Called(ctx, domainID, userID, pm)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RetrieveUserChannels")
 	}
 
-	var r0 channels.Page
+	var r0 channels.ChannelsPage
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, channels.PageMetadata) (channels.Page, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, channels.Page) (channels.ChannelsPage, error)); ok {
 		return rf(ctx, domainID, userID, pm)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, channels.PageMetadata) channels.Page); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, channels.Page) channels.ChannelsPage); ok {
 		r0 = rf(ctx, domainID, userID, pm)
 	} else {
-		r0 = ret.Get(0).(channels.Page)
+		r0 = ret.Get(0).(channels.ChannelsPage)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, channels.PageMetadata) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, channels.Page) error); ok {
 		r1 = rf(ctx, domainID, userID, pm)
 	} else {
 		r1 = ret.Error(1)

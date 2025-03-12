@@ -681,12 +681,12 @@ func TestViewClient(t *testing.T) {
 				tc.session = smqauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, mock.Anything).Return(tc.session, tc.authenticateErr)
-			svcCall := tsvc.On("View", mock.Anything, tc.session, tc.clientID).Return(tc.svcRes, tc.svcErr)
+			svcCall := tsvc.On("View", mock.Anything, tc.session, tc.clientID, false).Return(tc.svcRes, tc.svcErr)
 			resp, err := mgsdk.Client(tc.clientID, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {
-				ok := svcCall.Parent.AssertCalled(t, "View", mock.Anything, tc.session, tc.clientID)
+				ok := svcCall.Parent.AssertCalled(t, "View", mock.Anything, tc.session, tc.clientID, false)
 				assert.True(t, ok)
 			}
 			svcCall.Unset()

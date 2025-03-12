@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/absmach/supermq/channels"
 	mgchannels "github.com/absmach/supermq/channels"
 	"github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/domains"
@@ -198,9 +199,9 @@ func convertClient(c sdk.Client) clients.Client {
 
 func convertChannel(g sdk.Channel) mgchannels.Channel {
 	if g.Status == "" {
-		g.Status = clients.EnabledStatus.String()
+		g.Status = channels.EnabledStatus.String()
 	}
-	status, err := clients.ToStatus(g.Status)
+	status, err := channels.ToStatus(g.Status)
 	if err != nil {
 		return mgchannels.Channel{}
 	}
@@ -210,7 +211,7 @@ func convertChannel(g sdk.Channel) mgchannels.Channel {
 		Tags:        g.Tags,
 		ParentGroup: g.ParentGroup,
 		Domain:      g.DomainID,
-		Metadata:    clients.Metadata(g.Metadata),
+		Metadata:    channels.Metadata(g.Metadata),
 		CreatedAt:   g.CreatedAt,
 		UpdatedAt:   g.UpdatedAt,
 		UpdatedBy:   g.UpdatedBy,

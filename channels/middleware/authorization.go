@@ -148,7 +148,7 @@ func (am *authorizationMiddleware) ViewChannel(ctx context.Context, session auth
 	return am.svc.ViewChannel(ctx, session, id)
 }
 
-func (am *authorizationMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.PageMetadata) (channels.Page, error) {
+func (am *authorizationMiddleware) ListChannels(ctx context.Context, session authn.Session, pm channels.Page) (channels.ChannelsPage, error) {
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:           session.UserID,
@@ -158,7 +158,7 @@ func (am *authorizationMiddleware) ListChannels(ctx context.Context, session aut
 			Operation:        auth.ListOp,
 			EntityID:         auth.AnyIDs,
 		}); err != nil {
-			return channels.Page{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			return channels.ChannelsPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 
@@ -168,7 +168,7 @@ func (am *authorizationMiddleware) ListChannels(ctx context.Context, session aut
 	return am.svc.ListChannels(ctx, session, pm)
 }
 
-func (am *authorizationMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.PageMetadata) (channels.Page, error) {
+func (am *authorizationMiddleware) ListUserChannels(ctx context.Context, session authn.Session, userID string, pm channels.Page) (channels.ChannelsPage, error) {
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:           session.UserID,
@@ -178,11 +178,11 @@ func (am *authorizationMiddleware) ListUserChannels(ctx context.Context, session
 			Operation:        auth.ListOp,
 			EntityID:         auth.AnyIDs,
 		}); err != nil {
-			return channels.Page{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
+			return channels.ChannelsPage{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
 	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
-		return channels.Page{}, errors.Wrap(err, errList)
+		return channels.ChannelsPage{}, errors.Wrap(err, errList)
 	}
 	return am.svc.ListUserChannels(ctx, session, userID, pm)
 }
