@@ -45,6 +45,22 @@ var (
 		Domain: testsutil.GenerateUUID(&testing.T{}),
 		Status: channels.EnabledStatus,
 	}
+	validChannelWithRoles = channels.Channel{
+		ID:   testsutil.GenerateUUID(&testing.T{}),
+		Name: namegen.Generate(),
+		Metadata: map[string]interface{}{
+			"key": "value",
+		},
+		Tags:   []string{"tag1", "tag2"},
+		Domain: testsutil.GenerateUUID(&testing.T{}),
+		Status: clients.EnabledStatus,
+		Roles: []roles.MemberRoleActions{
+			{
+				RoleID:   "test-id",
+				RoleName: "test-name",
+			},
+		},
+	}
 	parentGroupID    = testsutil.GenerateUUID(&testing.T{})
 	validID          = testsutil.GenerateUUID(&testing.T{})
 	validSession     = authn.Session{UserID: validID, DomainID: validID, DomainUserID: validID}
@@ -212,6 +228,7 @@ func TestViewChannel(t *testing.T) {
 	cases := []struct {
 		desc     string
 		id       string
+		getRoles bool
 		repoResp channels.Channel
 		repoErr  error
 		err      error
@@ -219,27 +236,45 @@ func TestViewChannel(t *testing.T) {
 		{
 			desc:     "view channel successfully",
 			id:       validChannel.ID,
+			getRoles: false,
 			repoResp: validChannel,
 		},
 		{
-			desc:    "view channel with failed to retrieve",
-			id:      testsutil.GenerateUUID(t),
-			repoErr: repoerr.ErrNotFound,
-			err:     svcerr.ErrViewEntity,
+			desc:     "view channel successfully with roles",
+			id:       validChannelWithRoles.ID,
+			getRoles: true,
+			repoResp: validChannelWithRoles,
+		},
+		{
+			desc:     "view channel with failed to retrieve",
+			id:       testsutil.GenerateUUID(t),
+			getRoles: true,
+			repoErr:  repoerr.ErrNotFound,
+			err:      svcerr.ErrViewEntity,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			repoCall := repo.On("RetrieveByID", context.Background(), tc.id).Return(tc.repoResp, tc.repoErr)
-			got, err := svc.ViewChannel(context.Background(), validSession, tc.id)
+			repoCall1 := repo.On("RetrieveByIDWithRoles", context.Background(), tc.id, validSession.UserID).Return(tc.repoResp, tc.repoErr)
+			got, err := svc.ViewChannel(context.Background(), validSession, tc.id, tc.getRoles)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("expected error %v to contain %v", err, tc.err))
 			if err == nil {
-				assert.Equal(t, tc.repoResp, got)
-				ok := repo.AssertCalled(t, "RetrieveByID", context.Background(), tc.id)
-				assert.True(t, ok, fmt.Sprintf("RetrieveByID was not called on %s", tc.desc))
+				switch tc.getRoles {
+				case true:
+					assert.Equal(t, tc.repoResp, got)
+					assert.NotEmpty(t, got.Roles)
+					ok := repo.AssertCalled(t, "RetrieveByIDWithRoles", context.Background(), tc.id, validSession.UserID)
+					assert.True(t, ok, fmt.Sprintf("RetrieveByIDWithRoles was not called on %s", tc.desc))
+				default:
+					assert.Equal(t, tc.repoResp, got)
+					ok := repo.AssertCalled(t, "RetrieveByID", context.Background(), tc.id)
+					assert.True(t, ok, fmt.Sprintf("RetrieveByID was not called on %s", tc.desc))
+				}
 			}
 			repoCall.Unset()
+			repoCall1.Unset()
 		})
 	}
 }
