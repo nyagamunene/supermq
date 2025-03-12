@@ -55,7 +55,7 @@ func (lm *loggingMiddleware) CreateDomain(ctx context.Context, session authn.Ses
 	return lm.svc.CreateDomain(ctx, session, d)
 }
 
-func (lm *loggingMiddleware) RetrieveDomain(ctx context.Context, session authn.Session, id string) (do domains.Domain, err error) {
+func (lm *loggingMiddleware) RetrieveDomain(ctx context.Context, session authn.Session, id string, getRoles bool) (do domains.Domain, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -69,7 +69,7 @@ func (lm *loggingMiddleware) RetrieveDomain(ctx context.Context, session authn.S
 		}
 		lm.logger.Info("Retrieve domain completed successfully", args...)
 	}(time.Now())
-	return lm.svc.RetrieveDomain(ctx, session, id)
+	return lm.svc.RetrieveDomain(ctx, session, id, getRoles)
 }
 
 func (lm *loggingMiddleware) UpdateDomain(ctx context.Context, session authn.Session, id string, d domains.DomainReq) (do domains.Domain, err error) {

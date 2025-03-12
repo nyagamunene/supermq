@@ -38,7 +38,6 @@ type Channel struct {
 	AccessProviderRoleName    string                 `json:"access_provider_role_name,omitempty"`
 	AccessProviderRoleActions []string               `json:"access_provider_role_actions,omitempty"`
 	ConnectionTypes           []connections.ConnType `json:"connection_types,omitempty"`
-	Roles                     []roles.RoleRes        `json:"roles,omitempty"`
 }
 
 type PageMetadata struct {

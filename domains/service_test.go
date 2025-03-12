@@ -245,7 +245,7 @@ func TestRetrieveDomain(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			repoCall := drepo.On("RetrieveDomainByID", context.Background(), tc.domainID).Return(tc.retrieveDomainRes, tc.retrieveDomainErr)
 			repoCall1 := drepo.On("RetrieveDomainByUserAndID", context.Background(), tc.session.UserID, tc.domainID).Return(tc.retrieveDomainRes, tc.retrieveDomainErr)
-			domain, err := svc.RetrieveDomain(context.Background(), tc.session, tc.domainID)
+			domain, err := svc.RetrieveDomain(context.Background(), tc.session, tc.domainID, false)
 			assert.True(t, errors.Contains(err, tc.err))
 			assert.Equal(t, tc.retrieveDomainRes, domain)
 			repoCall.Unset()

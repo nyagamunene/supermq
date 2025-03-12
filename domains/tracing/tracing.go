@@ -36,12 +36,13 @@ func (tm *tracingMiddleware) CreateDomain(ctx context.Context, session authn.Ses
 	return tm.svc.CreateDomain(ctx, session, d)
 }
 
-func (tm *tracingMiddleware) RetrieveDomain(ctx context.Context, session authn.Session, id string) (domains.Domain, error) {
+func (tm *tracingMiddleware) RetrieveDomain(ctx context.Context, session authn.Session, id string, getRoles bool) (domains.Domain, error) {
 	ctx, span := tracing.StartSpan(ctx, tm.tracer, "view_domain", trace.WithAttributes(
 		attribute.String("id", id),
+		attribute.Bool("get_roles", getRoles),
 	))
 	defer span.End()
-	return tm.svc.RetrieveDomain(ctx, session, id)
+	return tm.svc.RetrieveDomain(ctx, session, id, getRoles)
 }
 
 func (tm *tracingMiddleware) UpdateDomain(ctx context.Context, session authn.Session, id string, d domains.DomainReq) (domains.Domain, error) {
