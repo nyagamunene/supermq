@@ -717,7 +717,7 @@ func TestViewChannel(t *testing.T) {
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.err == nil {
-				ok := svcCall.Parent.AssertCalled(t, "ViewChannel", mock.Anything, tc.session, tc.channelID)
+				ok := svcCall.Parent.AssertCalled(t, "ViewChannel", mock.Anything, tc.session, tc.channelID, false)
 				assert.True(t, ok)
 			}
 			svcCall.Unset()
