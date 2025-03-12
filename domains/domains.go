@@ -171,7 +171,7 @@ type Service interface {
 	CreateDomain(ctx context.Context, sesssion authn.Session, d Domain) (Domain, []roles.RoleProvision, error)
 
 	// RetrieveDomain retrieves a domain specified by the provided ID.
-	RetrieveDomain(ctx context.Context, sesssion authn.Session, id string, getRoles bool) (Domain, error)
+	RetrieveDomain(ctx context.Context, sesssion authn.Session, id string, withRoles bool) (Domain, error)
 
 	// UpdateDomain updates the domain specified by the provided ID.
 	UpdateDomain(ctx context.Context, sesssion authn.Session, id string, d DomainReq) (Domain, error)

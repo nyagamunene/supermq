@@ -62,8 +62,8 @@ func (es *eventStore) CreateDomain(ctx context.Context, session authn.Session, d
 	return domain, rps, nil
 }
 
-func (es *eventStore) RetrieveDomain(ctx context.Context, session authn.Session, id string, getRoles bool) (domains.Domain, error) {
-	domain, err := es.svc.RetrieveDomain(ctx, session, id, getRoles)
+func (es *eventStore) RetrieveDomain(ctx context.Context, session authn.Session, id string, withRoles bool) (domains.Domain, error) {
+	domain, err := es.svc.RetrieveDomain(ctx, session, id, withRoles)
 	if err != nil {
 		return domain, err
 	}

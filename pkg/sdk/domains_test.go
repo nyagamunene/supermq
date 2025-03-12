@@ -42,6 +42,12 @@ var (
 		Metadata: sdkDomain.Metadata,
 		Tags:     sdkDomain.Tags,
 		Alias:    sdkDomain.Alias,
+		Roles: []roles.MemberRoleActions{
+			{
+				RoleID:   "test_role_id",
+				RoleName: "test_role_name",
+			},
+		},
 	}
 	updatedDomianName = "updated-domain"
 )
@@ -337,65 +343,82 @@ func TestViewDomain(t *testing.T) {
 	mgsdk := sdk.NewSDK(sdkConf)
 
 	cases := []struct {
-		desc     string
-		token    string
-		session  smqauthn.Session
-		domainID string
-		svcRes   domains.Domain
-		svcErr   error
-		authnErr error
-		response sdk.Domain
-		err      error
+		desc      string
+		token     string
+		session   smqauthn.Session
+		withRoles bool
+		domainID  string
+		svcRes    domains.Domain
+		svcErr    error
+		authnErr  error
+		response  sdk.Domain
+		err       error
 	}{
 		{
-			desc:     "view domain successfully",
-			token:    validToken,
-			domainID: sdkDomain.ID,
-			svcRes:   authDomain,
-			svcErr:   nil,
-			response: sdkDomain,
-			err:      nil,
+			desc:      "view domain successfully",
+			token:     validToken,
+			domainID:  sdkDomain.ID,
+			withRoles: false,
+			svcRes:    authDomain,
+			svcErr:    nil,
+			response:  sdkDomain,
+			err:       nil,
 		},
 		{
-			desc:     "view domain with invalid token",
-			token:    invalidToken,
-			domainID: sdkDomain.ID,
-			svcRes:   domains.Domain{},
-			authnErr: svcerr.ErrAuthentication,
-			response: sdk.Domain{},
-			err:      errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
+			desc:      "view domain successfully with roles",
+			token:     validToken,
+			domainID:  sdkDomain.ID,
+			withRoles: false,
+			svcRes:    authDomain,
+			svcErr:    nil,
+			response:  sdkDomain,
+			err:       nil,
 		},
 		{
-			desc:     "view domain with empty token",
-			token:    "",
-			domainID: sdkDomain.ID,
-			svcRes:   domains.Domain{},
-			svcErr:   nil,
-			response: sdk.Domain{},
-			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
+			desc:      "view domain with invalid token",
+			token:     invalidToken,
+			domainID:  sdkDomain.ID,
+			withRoles: false,
+			svcRes:    domains.Domain{},
+			authnErr:  svcerr.ErrAuthentication,
+			response:  sdk.Domain{},
+			err:       errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
 		},
 		{
-			desc:     "view domain with invalid domain ID",
-			token:    validToken,
-			domainID: wrongID,
-			svcRes:   domains.Domain{},
-			svcErr:   svcerr.ErrAuthorization,
-			response: sdk.Domain{},
-			err:      errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			desc:      "view domain with empty token",
+			token:     "",
+			domainID:  sdkDomain.ID,
+			withRoles: false,
+			svcRes:    domains.Domain{},
+			svcErr:    nil,
+			response:  sdk.Domain{},
+			err:       errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:     "view domain with empty id",
-			token:    validToken,
-			domainID: "",
-			svcRes:   domains.Domain{},
-			svcErr:   nil,
-			response: sdk.Domain{},
-			err:      errors.NewSDKError(apiutil.ErrMissingID),
+			desc:      "view domain with invalid domain ID",
+			token:     validToken,
+			domainID:  wrongID,
+			withRoles: false,
+			svcRes:    domains.Domain{},
+			svcErr:    svcerr.ErrAuthorization,
+			response:  sdk.Domain{},
+			err:       errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
 		},
 		{
-			desc:     "view domain with response that cannot be unmarshalled",
-			token:    validToken,
-			domainID: sdkDomain.ID,
+			desc:      "view domain with empty id",
+			token:     validToken,
+			domainID:  "",
+			withRoles: false,
+			svcRes:    domains.Domain{},
+			svcErr:    nil,
+			response:  sdk.Domain{},
+			err:       errors.NewSDKError(apiutil.ErrMissingID),
+		},
+		{
+			desc:      "view domain with response that cannot be unmarshalled",
+			token:     validToken,
+			domainID:  sdkDomain.ID,
+			withRoles: false,
 			svcRes: domains.Domain{
 				ID:   authDomain.ID,
 				Name: authDomain.Name,
@@ -414,10 +437,13 @@ func TestViewDomain(t *testing.T) {
 				tc.session = smqauthn.Session{DomainUserID: tc.domainID + "_" + validID, UserID: validID, DomainID: tc.domainID}
 			}
 			authCall := authn.On("Authenticate", mock.Anything, mock.Anything).Return(tc.session, tc.authnErr)
-			svcCall := svc.On("RetrieveDomain", mock.Anything, tc.session, tc.domainID, false).Return(tc.svcRes, tc.svcErr)
+			svcCall := svc.On("RetrieveDomain", mock.Anything, tc.session, tc.domainID, tc.withRoles).Return(tc.svcRes, tc.svcErr)
 			resp, err := mgsdk.Domain(tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
+			if tc.withRoles {
+				assert.NotEmpty(t, resp.Roles)
+			}
 			if tc.err == nil {
 				ok := svcCall.Parent.AssertCalled(t, "RetrieveDomain", mock.Anything, tc.session, tc.domainID, false)
 				assert.True(t, ok)
