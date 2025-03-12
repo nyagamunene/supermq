@@ -340,6 +340,7 @@ func TestViewChannelEndpoint(t *testing.T) {
 		token    string
 		id       string
 		domainID string
+		getRoles bool
 		session  smqauthn.Session
 		svcResp  channels.Channel
 		svcErr   error
@@ -353,6 +354,19 @@ func TestViewChannelEndpoint(t *testing.T) {
 			token:    validToken,
 			domainID: validID,
 			id:       validID,
+			getRoles: false,
+			svcResp:  validChannelResp,
+			svcErr:   nil,
+			resp:     validChannelResp,
+			status:   http.StatusOK,
+			err:      nil,
+		},
+		{
+			desc:     "view channel successfully with roles",
+			token:    validToken,
+			domainID: validID,
+			id:       validID,
+			getRoles: true,
 			svcResp:  validChannelResp,
 			svcErr:   nil,
 			resp:     validChannelResp,
@@ -365,6 +379,7 @@ func TestViewChannelEndpoint(t *testing.T) {
 			session:  smqauthn.Session{},
 			domainID: validID,
 			id:       validID,
+			getRoles: false,
 			svcResp:  validChannelResp,
 			svcErr:   nil,
 			authnErr: svcerr.ErrAuthentication,
@@ -377,21 +392,24 @@ func TestViewChannelEndpoint(t *testing.T) {
 			session:  smqauthn.Session{},
 			domainID: validID,
 			id:       validID,
+			getRoles: false,
 			status:   http.StatusUnauthorized,
 			err:      apiutil.ErrBearerToken,
 		},
 		{
-			desc:   "view channel with empty domainID",
-			token:  validToken,
-			id:     validID,
-			status: http.StatusBadRequest,
-			err:    apiutil.ErrMissingDomainID,
+			desc:     "view channel with empty domainID",
+			token:    validToken,
+			id:       validID,
+			getRoles: false,
+			status:   http.StatusBadRequest,
+			err:      apiutil.ErrMissingDomainID,
 		},
 		{
 			desc:     "view channel with service error",
 			token:    validToken,
 			id:       validID,
 			domainID: validID,
+			getRoles: false,
 			svcResp:  validChannelResp,
 			svcErr:   svcerr.ErrAuthorization,
 			status:   http.StatusForbidden,
@@ -404,14 +422,14 @@ func TestViewChannelEndpoint(t *testing.T) {
 			req := testRequest{
 				client: gs.Client(),
 				method: http.MethodGet,
-				url:    fmt.Sprintf("%s/%s/channels/%s", gs.URL, tc.domainID, tc.id),
+				url:    fmt.Sprintf("%s/%s/channels/%s?roles=%v", gs.URL, tc.domainID, tc.id, tc.getRoles),
 				token:  tc.token,
 			}
 			if tc.token == validToken {
 				tc.session = smqauthn.Session{DomainUserID: validID + "_" + validID, UserID: validID, DomainID: validID}
 			}
 			authCall := authn.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authnErr)
-			svcCall := svc.On("ViewChannel", mock.Anything, tc.session, tc.id).Return(tc.svcResp, tc.svcErr)
+			svcCall := svc.On("ViewChannel", mock.Anything, tc.session, tc.id, tc.getRoles).Return(tc.svcResp, tc.svcErr)
 			res, err := req.make()
 			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 			var errRes respBody
