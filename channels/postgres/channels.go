@@ -123,82 +123,171 @@ func (cr *channelRepository) ChangeStatus(ctx context.Context, channel channels.
 }
 
 func (cr *channelRepository) RetrieveByID(ctx context.Context, id string) (channels.Channel, error) {
-	q := `
-	WITH channel_roles AS (
+	query := `
+		WITH direct_roles AS (
 		SELECT
+			c.id AS channel_id,
 			cr.id AS role_id,
 			cr.name AS role_name,
-			array_agg(cra.action) AS actions
+			array_agg(DISTINCT cra.action) AS actions,
+			'direct' AS access_type,
+			'' AS access_provider_id,
+			'' AS access_provider_role_id,
+			'' AS access_provider_role_name,
+			array[]::text[] AS access_provider_role_actions
 		FROM
-			channels_roles cr
+			channels c
+		JOIN
+			channels_roles cr ON c.id = cr.entity_id
 		LEFT JOIN
 			channels_role_actions cra ON cr.id = cra.role_id
 		WHERE
-			cr.entity_id = :id
+			c.id = $1
 		GROUP BY
-			cr.id, cr.name
-	)
-	SELECT
-		c.id, c.name, c.tags, COALESCE(c.domain_id, '') AS domain_id, COALESCE(c.parent_group_id, '') AS parent_group_id,
-		c.metadata, c.created_at, c.updated_at, c.updated_by, c.status, cr.role_id, cr.role_name, cr.actions
-	FROM
-		channels c
-	LEFT JOIN
-		channel_roles cr ON 1=1
-	WHERE
-		c.id = :id`
-	dbch := dbChannel{
-		ID: id,
-	}
+			c.id, cr.id, cr.name
+		),
+		group_roles AS (
+			SELECT
+				c.id AS channels_id,
+				gr.id AS role_id,
+				gr.name AS role_name, 
+				array_agg(DISTINCT gra.action) AS actions,
+				'direct_group' AS access_type,
+				g.id AS access_provider_id,
+				gr.id AS access_provider_role_id,
+				gr.name AS access_provider_role_name,
+				array_agg(DISTINCT gra.action) AS access_provider_role_actions
+			FROM
+				groups_role_members grm
+			JOIN
+				groups_role_actions gra ON gra.role_id = grm.role_id
+			JOIN
+				groups_roles gr ON gr.id = grm.role_id
+			JOIN
+				groups g ON g.id = gr.entity_id
+			JOIN
+				channels c ON c.id = $1 AND c.domain_id = g.domain_id
+			WHERE
+				grm.entity_id = c.parent_group_id
+				AND gra.action LIKE 'client%'
+			GROUP BY
+				c.id, g.id, gr.id, gr.name
+		),
+		subgroup_roles AS (
+			SELECT
+				c.id AS channels_id,
+				gr.id AS role_id,
+				gr.name AS role_name,
+				array_agg(DISTINCT gra.action) AS actions,
+				'indirect_group' AS access_type,
+				g.id AS access_provider_id,
+				gr.id AS access_provider_role_id,
+				gr.name AS access_provider_role_name,
+				array_agg(DISTINCT gra.action) AS access_provider_role_actions
+			FROM
+				groups_role_members grm
+			JOIN
+				groups_role_actions gra ON gra.role_id = grm.role_id
+			JOIN
+				groups_roles gr ON gr.id = grm.role_id
+			JOIN
+				groups g ON g.id = gr.entity_id
+			JOIN
+				channels c ON c.id = $1 AND c.domain_id = g.domain_id
+			WHERE
+				grm.entity_id = c.parent_group_id
+				AND gra.action LIKE 'subgroup_client%'
+				AND NOT EXISTS (
+					SELECT 1 FROM group_roles grs
+					WHERE grs.role_id = gr.id
+				)
+			GROUP BY
+				c.id, g.id, gr.id, gr.name
+		),
+		domain_roles AS (
+			SELECT
+				c.id AS channels_id,
+				dr.id AS role_id,
+				dr.name AS role_name,
+				array_agg(DISTINCT dra.action) AS actions,
+				'domain' AS access_type,
+				d.id AS access_provider_id,
+				dr.id AS access_provider_role_id,
+				dr.name AS access_provider_role_name,
+				array_agg(DISTINCT dra.action) AS access_provider_role_actions
+			FROM
+				domains_role_members drm
+			JOIN
+				domains_role_actions dra ON dra.role_id = drm.role_id
+			JOIN
+				domains_roles dr ON dr.id = drm.role_id
+			JOIN
+				domains d ON d.id = dr.entity_id
+			JOIN
+				channels c ON c.id = $1 AND c.domain_id = d.id
+			WHERE
+				dra.action LIKE 'client_%'
+				AND NOT EXISTS (
+					SELECT 1 FROM group_roles gr
+					WHERE gr.role_id = dr.id
+				)
+			GROUP BY
+				c.id, d.id, dr.id, dr.name
+		),
+		all_roles AS (
+			SELECT * FROM direct_roles
+			UNION ALL
+			SELECT * FROM group_roles
+			UNION ALL
+			SELECT * FROM subgroup_roles
+			UNION ALL
+			SELECT * FROM domain_roles
+		)
+		SELECT
+			c.id,
+			c.name,
+			c.domain_id,
+			c.parent_group_id,
+			c.tags,
+			c.metadata,
+			c.identity,
+			c.secret,
+			c.created_at,
+			c.updated_at,
+			c.updated_by,
+			c.status,
+			COALESCE((SELECT path FROM groups WHERE id = c.parent_group_id), '') AS parent_group_path,
+			COALESCE(
+			json_agg(r.*) FILTER (WHERE r.role_id IS NOT NULL), '[]'::json) AS roles
+		FROM
+			channels c
+		LEFT JOIN all_roles r ON c.id = r.channels_id
+		WHERE
+			c.id = $1
+		GROUP BY
+			c.id, c.name, c.domain_id, c.parent_group_id, c.tags, c.metadata, c.identity, c.secret, 
+			c.created_at, c.updated_at, c.updated_by, c.status;
+		`
 
-	row, err := cr.db.NamedQueryContext(ctx, q, dbch)
+	row, err := cr.db.NamedQueryContext(ctx, query, id)
 	if err != nil {
 		return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 	defer row.Close()
 
-	dbch = dbChannel{}
-	var res []roles.RoleRes
-	for row.Next() {
-		var roleID, roleName string
-		var roleActions pgtype.TextArray
+	dbch := dbChannel{}
+	if !row.Next() {
+		return channels.Channel{}, errors.Wrap(repoerr.ErrNotFound, err)
+	}
 
-		if err := row.Scan(
-			&dbch.ID,
-			&dbch.Name,
-			&dbch.Tags,
-			&dbch.Domain,
-			&dbch.ParentGroup,
-			&dbch.Metadata,
-			&dbch.CreatedAt,
-			&dbch.UpdatedAt,
-			&dbch.UpdatedBy,
-			&dbch.Status,
-			&roleID,
-			&roleName,
-			&roleActions,
-		); err != nil {
-			return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		var actions []string
-		for _, e := range roleActions.Elements {
-			actions = append(actions, e.String)
-		}
-
-		res = append(res, roles.RoleRes{
-			RoleID:   roleID,
-			RoleName: roleName,
-			Actions:  actions,
-		})
+	if err := row.StructScan(&dbch); err != nil {
+		return channels.Channel{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 
 	ch, err := toChannel(dbch)
 	if err != nil {
 		return channels.Channel{}, err
 	}
-
-	ch.Roles = res
 
 	return ch, nil
 }
@@ -927,27 +1016,20 @@ func (cr *channelRepository) update(ctx context.Context, ch channels.Channel, qu
 }
 
 type dbChannel struct {
-	ID                        string           `db:"id"`
-	Name                      string           `db:"name,omitempty"`
-	ParentGroup               sql.NullString   `db:"parent_group_id,omitempty"`
-	Tags                      pgtype.TextArray `db:"tags,omitempty"`
-	Domain                    string           `db:"domain_id"`
-	Metadata                  []byte           `db:"metadata,omitempty"`
-	CreatedBy                 *string          `db:"created_by,omitempty"`
-	CreatedAt                 time.Time        `db:"created_at,omitempty"`
-	UpdatedAt                 sql.NullTime     `db:"updated_at,omitempty"`
-	UpdatedBy                 *string          `db:"updated_by,omitempty"`
-	Status                    channels.Status  `db:"status,omitempty"`
-	ParentGroupPath           string           `db:"parent_group_path,omitempty"`
-	RoleID                    string           `db:"role_id,omitempty"`
-	RoleName                  string           `db:"role_name,omitempty"`
-	Actions                   pq.StringArray   `db:"actions,omitempty"`
-	AccessType                string           `db:"access_type,omitempty"`
-	AccessProviderId          string           `db:"access_provider_id,omitempty"`
-	AccessProviderRoleId      string           `db:"access_provider_role_id,omitempty"`
-	AccessProviderRoleName    string           `db:"access_provider_role_name,omitempty"`
-	AccessProviderRoleActions pq.StringArray   `db:"access_provider_role_actions,omitempty"`
-	ConnectionTypes           pq.Int32Array    `db:"connection_types,omitempty"`
+	ID              string           `db:"id"`
+	Name            string           `db:"name,omitempty"`
+	ParentGroup     sql.NullString   `db:"parent_group_id,omitempty"`
+	Tags            pgtype.TextArray `db:"tags,omitempty"`
+	Domain          string           `db:"domain_id"`
+	Metadata        []byte           `db:"metadata,omitempty"`
+	CreatedBy       *string          `db:"created_by,omitempty"`
+	CreatedAt       time.Time        `db:"created_at,omitempty"`
+	UpdatedAt       sql.NullTime     `db:"updated_at,omitempty"`
+	UpdatedBy       *string          `db:"updated_by,omitempty"`
+	Status          channels.Status  `db:"status,omitempty"`
+	ParentGroupPath string           `db:"parent_group_path,omitempty"`
+	ConnectionTypes pq.Int32Array    `db:"connection_types,omitempty"`
+	Roles           json.RawMessage  `db:"roles,omitempty"`
 }
 
 func toDBChannel(ch channels.Channel) (dbChannel, error) {
@@ -1041,28 +1123,28 @@ func toChannel(ch dbChannel) (channels.Channel, error) {
 		connTypes = append(connTypes, connType)
 	}
 
+	var roles []roles.RoleRes
+	if ch.Roles != nil {
+		if err := json.Unmarshal(ch.Roles, &roles); err != nil {
+			return channels.Channel{}, errors.Wrap(errors.ErrMalformedEntity, err)
+		}
+	}
+
 	newCh := channels.Channel{
-		ID:                        ch.ID,
-		Name:                      ch.Name,
-		Tags:                      tags,
-		Domain:                    ch.Domain,
-		ParentGroup:               toString(ch.ParentGroup),
-		Metadata:                  metadata,
-		CreatedBy:                 createdBy,
-		CreatedAt:                 ch.CreatedAt,
-		UpdatedAt:                 updatedAt,
-		UpdatedBy:                 updatedBy,
-		Status:                    ch.Status,
-		ParentGroupPath:           ch.ParentGroupPath,
-		RoleID:                    ch.RoleID,
-		RoleName:                  ch.RoleName,
-		Actions:                   ch.Actions,
-		AccessType:                ch.AccessType,
-		AccessProviderId:          ch.AccessProviderId,
-		AccessProviderRoleId:      ch.AccessProviderRoleId,
-		AccessProviderRoleName:    ch.AccessProviderRoleName,
-		AccessProviderRoleActions: ch.AccessProviderRoleActions,
-		ConnectionTypes:           connTypes,
+		ID:              ch.ID,
+		Name:            ch.Name,
+		Tags:            tags,
+		Domain:          ch.Domain,
+		ParentGroup:     toString(ch.ParentGroup),
+		Metadata:        metadata,
+		CreatedBy:       createdBy,
+		CreatedAt:       ch.CreatedAt,
+		UpdatedAt:       updatedAt,
+		UpdatedBy:       updatedBy,
+		Status:          ch.Status,
+		ParentGroupPath: ch.ParentGroupPath,
+		Roles:           roles,
+		ConnectionTypes: connTypes,
 	}
 
 	return newCh, nil
