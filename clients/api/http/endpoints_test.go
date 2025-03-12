@@ -826,7 +826,7 @@ func TestViewClient(t *testing.T) {
 			}
 
 			authCall := authn.On("Authenticate", mock.Anything, tc.token).Return(tc.authnRes, tc.authnErr)
-			svcCall := svc.On("View", mock.Anything, tc.authnRes, tc.id).Return(clients.Client{}, tc.err)
+			svcCall := svc.On("View", mock.Anything, tc.authnRes, tc.id, false).Return(clients.Client{}, tc.err)
 			res, err := req.make()
 			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 			var errRes respBody

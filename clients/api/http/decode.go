@@ -19,8 +19,14 @@ import (
 const clientID = "clientID"
 
 func decodeViewClient(_ context.Context, r *http.Request) (interface{}, error) {
+	roles, err := apiutil.ReadBoolQuery(r, api.RolesKey, false)
+	if err != nil {
+		return listClientsReq{}, errors.Wrap(apiutil.ErrValidation, err)
+	}
+
 	req := viewClientReq{
-		id: chi.URLParam(r, clientID),
+		id:    chi.URLParam(r, clientID),
+		roles: roles,
 	}
 
 	return req, nil

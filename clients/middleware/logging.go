@@ -49,7 +49,7 @@ func (lm *loggingMiddleware) CreateClients(ctx context.Context, session authn.Se
 	return lm.svc.CreateClients(ctx, session, clients...)
 }
 
-func (lm *loggingMiddleware) View(ctx context.Context, session authn.Session, id string) (c clients.Client, err error) {
+func (lm *loggingMiddleware) View(ctx context.Context, session authn.Session, id string, getRoles bool) (c clients.Client, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -58,6 +58,7 @@ func (lm *loggingMiddleware) View(ctx context.Context, session authn.Session, id
 			slog.Group("client",
 				slog.String("id", c.ID),
 				slog.String("name", c.Name),
+				slog.Bool("get_roles", getRoles),
 			),
 		}
 		if err != nil {
@@ -67,7 +68,7 @@ func (lm *loggingMiddleware) View(ctx context.Context, session authn.Session, id
 		}
 		lm.logger.Info("View client completed successfully", args...)
 	}(time.Now())
-	return lm.svc.View(ctx, session, id)
+	return lm.svc.View(ctx, session, id, getRoles)
 }
 
 func (lm *loggingMiddleware) ListClients(ctx context.Context, session authn.Session, pm clients.Page) (cp clients.ClientsPage, err error) {

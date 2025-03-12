@@ -54,6 +54,7 @@ const (
 	SubjectKey = "subject"
 	ObjectKey  = "object"
 
+	RolesKey            = "roles"
 	ActionKey           = "action"
 	ActionsKey          = "actions"
 	RoleIDKey           = "role_id"

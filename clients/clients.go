@@ -32,6 +32,9 @@ type Repository interface {
 	// RetrieveByID retrieves client by its unique ID.
 	RetrieveByID(ctx context.Context, id string) (Client, error)
 
+	// RetrieveByID retrieves client by its unique ID along with member roles.
+	RetrieveByIDRoles(ctx context.Context, id, memberID string) (Client, error)
+
 	// RetrieveAll retrieves all clients.
 	RetrieveAll(ctx context.Context, pm Page) (ClientsPage, error)
 
@@ -104,7 +107,7 @@ type Service interface {
 	CreateClients(ctx context.Context, session authn.Session, client ...Client) ([]Client, []roles.RoleProvision, error)
 
 	// View retrieves client info for a given client ID and an authorized token.
-	View(ctx context.Context, session authn.Session, id string) (Client, error)
+	View(ctx context.Context, session authn.Session, id string, getRoles bool) (Client, error)
 
 	// ListClients retrieves clients list for given page query.
 	ListClients(ctx context.Context, session authn.Session, pm Page) (ClientsPage, error)
@@ -167,9 +170,18 @@ type Client struct {
 	Status      Status      `json:"status,omitempty"` // 1 for enabled, 0 for disabled
 	Identity    string      `json:"identity,omitempty"`
 	// Extended
-	ParentGroupPath string                 `json:"parent_group_path,omitempty"`
-	ConnectionTypes []connections.ConnType `json:"connection_types,omitempty"`
-	Roles           []roles.RoleRes        `json:"roles,omitempty"`
+	ParentGroupPath           string                    `json:"parent_group_path,omitempty"`
+	RoleID                    string                    `json:"role_id,omitempty"`
+	RoleName                  string                    `json:"role_name,omitempty"`
+	Actions                   []string                  `json:"actions,omitempty"`
+	AccessType                string                    `json:"access_type,omitempty"`
+	AccessProviderId          string                    `json:"access_provider_id,omitempty"`
+	AccessProviderRoleId      string                    `json:"access_provider_role_id,omitempty"`
+	AccessProviderRoleName    string                    `json:"access_provider_role_name,omitempty"`
+	AccessProviderRoleActions []string                  `json:"access_provider_role_actions,omitempty"`
+	ConnectionTypes           []connections.ConnType    `json:"connection_types,omitempty"`
+	MemberId                  string                    `json:"member_id,omitempty"`
+	Roles                     []roles.MemberRoleActions `json:"roles,omitempty"`
 }
 
 // ClientsPage contains page related metadata as well as list.

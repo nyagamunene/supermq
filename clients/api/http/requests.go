@@ -47,7 +47,8 @@ func (req createClientsReq) validate() error {
 }
 
 type viewClientReq struct {
-	id string
+	id    string
+	roles bool
 }
 
 func (req viewClientReq) validate() error {

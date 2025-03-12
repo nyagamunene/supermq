@@ -82,7 +82,7 @@ func viewClientEndpoint(svc clients.Service) endpoint.Endpoint {
 			return nil, svcerr.ErrAuthentication
 		}
 
-		c, err := svc.View(ctx, session, req.id)
+		c, err := svc.View(ctx, session, req.id, req.roles)
 		if err != nil {
 			return nil, err
 		}
