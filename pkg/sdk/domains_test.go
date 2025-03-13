@@ -37,17 +37,20 @@ var (
 		Tags:     authDomain.Tags,
 		Alias:    authDomain.Alias,
 	}
+	validRoles = []roles.MemberRoleActions{
+		{
+			RoleID:     "domain_role_id",
+			RoleName:   "domain_role_name",
+			Actions:    []string{"read", "delete"},
+			AccessType: "direct",
+		},
+	}
 	sdkDomainReq = sdk.Domain{
 		Name:     sdkDomain.Name,
 		Metadata: sdkDomain.Metadata,
 		Tags:     sdkDomain.Tags,
 		Alias:    sdkDomain.Alias,
-		Roles: []roles.MemberRoleActions{
-			{
-				RoleID:   "test_role_id",
-				RoleName: "test_role_name",
-			},
-		},
+		Roles:    validRoles,
 	}
 	updatedDomianName = "updated-domain"
 )
@@ -442,7 +445,7 @@ func TestViewDomain(t *testing.T) {
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.withRoles {
-				assert.NotEmpty(t, resp.Roles)
+				assert.Equal(t, resp.Roles, validRoles, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, validRoles, resp.Roles))
 			}
 			if tc.err == nil {
 				ok := svcCall.Parent.AssertCalled(t, "RetrieveDomain", mock.Anything, tc.session, tc.domainID, false)
