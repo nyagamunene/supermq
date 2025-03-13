@@ -19,7 +19,6 @@ const (
 	AllStatus
 )
 
-// String representation of the possible status values.
 const (
 	Active  = "active"
 	Revoked = "revoked"
@@ -28,7 +27,6 @@ const (
 	Unknown = "unknown"
 )
 
-// String converts client/group status to string literal.
 func (s Status) String() string {
 	switch s {
 	case ActiveStatus:
