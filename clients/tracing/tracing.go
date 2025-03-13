@@ -42,7 +42,7 @@ func (tm *tracingMiddleware) CreateClients(ctx context.Context, session authn.Se
 
 // View traces the "View" operation of the wrapped clients.Service.
 func (tm *tracingMiddleware) View(ctx context.Context, session authn.Session, id string, withRoles bool) (clients.Client, error) {
-	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_view_client", trace.WithAttributes(attribute.String("id", id), attribute.Bool("get_roles", withRoles)))
+	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_view_client", trace.WithAttributes(attribute.String("id", id), attribute.Bool("with_roles", withRoles)))
 	defer span.End()
 	return tm.svc.View(ctx, session, id, withRoles)
 }

@@ -58,7 +58,7 @@ func (lm *loggingMiddleware) View(ctx context.Context, session authn.Session, id
 			slog.Group("client",
 				slog.String("id", c.ID),
 				slog.String("name", c.Name),
-				slog.Bool("get_roles", withRoles),
+				slog.Bool("with_roles", withRoles),
 			),
 		}
 		if err != nil {
