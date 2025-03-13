@@ -54,6 +54,14 @@ var (
 		CreatedBy: validID,
 		UpdatedBy: validID,
 	}
+	validRoles = []roles.MemberRoleActions{
+		{
+			RoleID:     "domain_role_id",
+			RoleName:   "domain_role_name",
+			Actions:    []string{"read", "delete"},
+			AccessType: "direct",
+		},
+	}
 	domainWithRoles = domains.Domain{
 		ID:        validID,
 		Name:      groupName,
@@ -62,12 +70,7 @@ var (
 		RoleID:    "test_role_id",
 		CreatedBy: validID,
 		UpdatedBy: validID,
-		Roles: []roles.MemberRoleActions{
-			{
-				RoleID:   "test_role_id",
-				RoleName: "test_role_name",
-			},
-		},
+		Roles:     validRoles,
 	}
 	userID          = testsutil.GenerateUUID(&testing.T{})
 	validSession    = authn.Session{UserID: userID}
@@ -279,10 +282,11 @@ func TestRetrieveDomain(t *testing.T) {
 
 			switch tc.withRoles {
 			case true:
-				assert.NotEmpty(t, domain.Roles)
+				assert.Equal(t, domain.Roles, validRoles, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, validRoles, domain.Roles))
 				ok := drepo.AssertCalled(t, "RetrieveDomainByIDWithRoles", context.Background(), tc.domainID, tc.session.UserID)
 				assert.True(t, ok, fmt.Sprintf("RetrieveDomainByIDWithRoles was not called on %s", tc.desc))
 			default:
+				assert.Empty(t, domain.Roles)
 				ok := drepo.AssertCalled(t, "RetrieveDomainByID", context.Background(), tc.domainID)
 				assert.True(t, ok, fmt.Sprintf("RetrieveDomainByID was not called on %s", tc.desc))
 			}
