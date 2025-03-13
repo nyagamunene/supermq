@@ -64,6 +64,9 @@ func (ram RoleManagerAuthorizationMiddleware) AddRole(ctx context.Context, sessi
 	}); err != nil {
 		return roles.RoleProvision{}, err
 	}
+	if err := ram.authorizeMembers(ctx, session, optionalMembers); err != nil {
+		return roles.RoleProvision{}, err
+	}
 	return ram.svc.AddRole(ctx, session, entityID, roleName, optionalActions, optionalMembers)
 }
 
