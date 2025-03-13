@@ -61,6 +61,7 @@ func (lm *loggingMiddleware) RetrieveDomain(ctx context.Context, session authn.S
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("request_id", middleware.GetReqID(ctx)),
 			slog.String("domain_id", id),
+			slog.Bool("with_roles", withRoles),
 		}
 		if err != nil {
 			args = append(args, slog.String("error", err.Error()))
