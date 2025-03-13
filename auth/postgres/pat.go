@@ -21,6 +21,7 @@ type dbPat struct {
 	ExpiresAt   time.Time    `db:"expires_at,omitempty"`
 	UpdatedAt   sql.NullTime `db:"updated_at,omitempty"`
 	LastUsedAt  sql.NullTime `db:"last_used_at,omitempty"`
+	Revoked     bool         `db:"revoked,omitempty"`
 	RevokedAt   sql.NullTime `db:"revoked_at,omitempty"`
 	Status      auth.Status  `db:"status,omitempty"`
 }
@@ -48,6 +49,7 @@ type dbPagemeta struct {
 	Description string       `db:"description"`
 	Secret      string       `db:"secret"`
 	Status      auth.Status  `db:"status"`
+	Timestamp   time.Time    `db:"timestamp,omitempty"`
 }
 
 func toAuthPat(db dbPat) (auth.PAT, error) {
@@ -81,6 +83,7 @@ func toAuthPat(db dbPat) (auth.PAT, error) {
 		ExpiresAt:   db.ExpiresAt,
 		UpdatedAt:   updatedAt,
 		LastUsedAt:  lastUsedAt,
+		Revoked:     db.Revoked,
 		RevokedAt:   revokedAt,
 		Status:      db.Status,
 	}
@@ -145,6 +148,7 @@ func toDBPats(pat auth.PAT) (dbPat, error) {
 		Secret:      pat.Secret,
 		IssuedAt:    pat.IssuedAt,
 		ExpiresAt:   pat.ExpiresAt,
+		Revoked:     pat.Revoked,
 		UpdatedAt:   updatedAt,
 		LastUsedAt:  lastUsedAt,
 		RevokedAt:   revokedAt,

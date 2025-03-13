@@ -300,6 +300,7 @@ type PAT struct {
 	ExpiresAt   time.Time `json:"expires_at,omitempty"`
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 	LastUsedAt  time.Time `json:"last_used_at,omitempty"`
+	Revoked     bool      `json:"revoked,omitempty"`
 	RevokedAt   time.Time `json:"revoked_at,omitempty"`
 	Status      Status    `json:"status,omitempty"`
 }

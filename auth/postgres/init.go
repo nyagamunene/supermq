@@ -77,9 +77,9 @@ func Migration() *migrate.MemoryMigrationSource {
 						issued_at			TIMESTAMP,
 						expires_at 			TIMESTAMP,
 						updated_at 			TIMESTAMP,
+						revoked 			BOOLEAN,
 						revoked_at 			TIMESTAMP,
 						last_used_at		TIMESTAMP,
-						status		        SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
 						UNIQUE 				(id, name, secret)
 					)`,
 				},
