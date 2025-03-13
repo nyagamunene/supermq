@@ -413,7 +413,7 @@ type PATSRepository interface {
 	RetrieveScope(ctx context.Context, pm ScopesPageMeta) (scopes ScopesPage, err error)
 
 	// RetrieveSecretAndRevokeStatus retrieves secret and revoke status of PAT by its unique identifier.
-	RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, Status, error)
+	RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, bool, error)
 
 	// UpdateName updates the name of a PAT.
 	UpdateName(ctx context.Context, userID, patID, name string) (PAT, error)

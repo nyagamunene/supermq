@@ -170,16 +170,11 @@ func PageQuery(pm auth.PATSPageMeta) (string, error) {
 	return emq, nil
 }
 
-func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, auth.Status, error) {
-	q := fmt.Sprintf(`
-		SELECT p.secret, 
-		CASE 
-			WHEN p.revoked = TRUE THEN %d
-			WHEN p.expires_at IS NOT NULL AND p.expires_at < :timestamp THEN %d
-			ELSE %d
-    	END AS status
+func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, bool, error) {
+	q := `
+		SELECT p.secret, p.revoked, p.expires_at 
 		FROM pats p
-		WHERE p.user_id = :user_id AND p.id = :pat_id`, auth.RevokedStatus, auth.ExpiredStatus, auth.ActiveStatus)
+		WHERE p.user_id = :user_id AND p.id = :pat_id`
 
 	dbPage := dbPagemeta{
 		User:      userID,
@@ -189,22 +184,24 @@ func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, pa
 
 	rows, err := pr.db.NamedQueryContext(ctx, q, dbPage)
 	if err != nil {
-		return "", auth.Status(0), postgres.HandleError(repoerr.ErrNotFound, err)
+		return "", true, true, postgres.HandleError(repoerr.ErrNotFound, err)
 	}
 	defer rows.Close()
 
 	var secret string
-	var status auth.Status
+	var revoked bool
+	var expiresAt time.Time
 
 	if !rows.Next() {
-		return "", auth.Status(0), repoerr.ErrNotFound
+		return "", true, true, repoerr.ErrNotFound
 	}
 
-	if err := rows.Scan(&secret, &status); err != nil {
-		return "", auth.Status(0), postgres.HandleError(repoerr.ErrNotFound, err)
+	if err := rows.Scan(&secret, &revoked, &expiresAt); err != nil {
+		return "", true, true, postgres.HandleError(repoerr.ErrNotFound, err)
 	}
 
-	return secret, status, nil
+	expired := time.Now().After(expiresAt)
+	return secret, revoked, expired, nil
 }
 
 func (pr *patRepo) UpdateName(ctx context.Context, userID, patID, name string) (auth.PAT, error) {

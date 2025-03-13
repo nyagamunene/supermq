@@ -679,14 +679,14 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, errMalformedPAT)
 	}
-	secretHash, status, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
+	secretHash, revoked, expired, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
-	if status == RevokedStatus {
+	if revoked {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, errRevokedPAT)
 	}
-	if status == ExpiredStatus {
+	if expired {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, ErrExpiry)
 	}
 	if err := svc.hasher.Compare(secret, secretHash); err != nil {
