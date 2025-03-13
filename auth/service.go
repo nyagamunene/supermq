@@ -6,7 +6,6 @@ package auth
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -545,7 +544,6 @@ func (svc service) ListPATS(ctx context.Context, token string, pm PATSPageMeta) 
 	}
 	patsPage, err := svc.pats.RetrieveAll(ctx, key.User, pm)
 	if err != nil {
-		fmt.Printf("err is %+v\n", err)
 		return PATSPage{}, errors.Wrap(errRetrievePAT, err)
 	}
 	return patsPage, nil

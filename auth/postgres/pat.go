@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/absmach/supermq/auth"
-	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 )
 
 type dbPat struct {
@@ -52,11 +51,7 @@ type dbPagemeta struct {
 	Timestamp   time.Time    `db:"timestamp,omitempty"`
 }
 
-func toAuthPat(db dbPat) (auth.PAT, error) {
-	if db.ID == "" {
-		return auth.PAT{}, repoerr.ErrNotFound
-	}
-
+func toAuthPat(db dbPat) auth.PAT {
 	updatedAt := time.Time{}
 	lastUsedAt := time.Time{}
 	revokedAt := time.Time{}
@@ -73,7 +68,7 @@ func toAuthPat(db dbPat) (auth.PAT, error) {
 		revokedAt = db.RevokedAt.Time
 	}
 
-	pat := auth.PAT{
+	return auth.PAT{
 		ID:          db.ID,
 		User:        db.User,
 		Name:        db.Name,
@@ -87,8 +82,6 @@ func toAuthPat(db dbPat) (auth.PAT, error) {
 		RevokedAt:   revokedAt,
 		Status:      db.Status,
 	}
-
-	return pat, nil
 }
 
 func toAuthScope(dsc []dbScope) ([]auth.Scope, error) {
