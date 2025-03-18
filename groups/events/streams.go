@@ -80,8 +80,8 @@ func (es eventStore) UpdateGroup(ctx context.Context, session authn.Session, gro
 	return group, nil
 }
 
-func (es eventStore) ViewGroup(ctx context.Context, session authn.Session, id string) (groups.Group, error) {
-	group, err := es.svc.ViewGroup(ctx, session, id)
+func (es eventStore) ViewGroup(ctx context.Context, session authn.Session, id string, withRoles bool) (groups.Group, error) {
+	group, err := es.svc.ViewGroup(ctx, session, id, withRoles)
 	if err != nil {
 		return group, err
 	}

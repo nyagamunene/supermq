@@ -77,7 +77,7 @@ func (lm *loggingMiddleware) UpdateGroup(ctx context.Context, session authn.Sess
 
 // ViewGroup logs the view_group request. It logs the group name, id and the time it took to complete the request.
 // If the request fails, it logs the error.
-func (lm *loggingMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string) (g groups.Group, err error) {
+func (lm *loggingMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string, withRoles bool) (g groups.Group, err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
@@ -86,6 +86,7 @@ func (lm *loggingMiddleware) ViewGroup(ctx context.Context, session authn.Sessio
 			slog.Group("group",
 				slog.String("id", g.ID),
 				slog.String("name", g.Name),
+				slog.Bool("get_roles", withRoles),
 			),
 		}
 		if err != nil {
@@ -95,7 +96,7 @@ func (lm *loggingMiddleware) ViewGroup(ctx context.Context, session authn.Sessio
 		}
 		lm.logger.Info("View group completed successfully", args...)
 	}(time.Now())
-	return lm.svc.ViewGroup(ctx, session, id)
+	return lm.svc.ViewGroup(ctx, session, id, withRoles)
 }
 
 // ListGroups logs the list_groups request. It logs the page metadata and the time it took to complete the request.

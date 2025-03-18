@@ -169,12 +169,11 @@ func (repo domainRepo) RetrieveDomainByIDWithRoles(ctx context.Context, id strin
 		if err = rows.StructScan(&dbd); err != nil {
 			return domains.Domain{}, postgres.HandleError(repoerr.ErrViewEntity, err)
 		}
-	}
 
-	domain, err := toDomain(dbd)
-	if err != nil {
-		return domains.Domain{}, errors.Wrap(repoerr.ErrFailedOpDB, err)
-	}
+		domain, err := toDomain(dbd)
+		if err != nil {
+			return domains.Domain{}, errors.Wrap(repoerr.ErrFailedOpDB, err)
+		}
 
 		return domain, nil
 	}

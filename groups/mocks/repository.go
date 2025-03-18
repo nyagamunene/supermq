@@ -334,6 +334,34 @@ func (_m *Repository) RetrieveByIDAndUser(ctx context.Context, domainID string, 
 	return r0, r1
 }
 
+// RetrieveByIDWithRoles provides a mock function with given fields: ctx, groupID, memberID
+func (_m *Repository) RetrieveByIDWithRoles(ctx context.Context, groupID string, memberID string) (groups.Group, error) {
+	ret := _m.Called(ctx, groupID, memberID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RetrieveByIDWithRoles")
+	}
+
+	var r0 groups.Group
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (groups.Group, error)); ok {
+		return rf(ctx, groupID, memberID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) groups.Group); ok {
+		r0 = rf(ctx, groupID, memberID)
+	} else {
+		r0 = ret.Get(0).(groups.Group)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, groupID, memberID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RetrieveByIDs provides a mock function with given fields: ctx, pm, ids
 func (_m *Repository) RetrieveByIDs(ctx context.Context, pm groups.PageMeta, ids ...string) (groups.Page, error) {
 	ret := _m.Called(ctx, pm, ids)

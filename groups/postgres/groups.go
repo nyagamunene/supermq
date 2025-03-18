@@ -18,7 +18,6 @@ import (
 	"github.com/absmach/supermq/pkg/postgres"
 	"github.com/absmach/supermq/pkg/roles"
 	rolesPostgres "github.com/absmach/supermq/pkg/roles/repo/postgres"
-	"github.com/jackc/pgtype"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 )
@@ -144,31 +143,8 @@ func (repo groupRepository) ChangeStatus(ctx context.Context, group groups.Group
 }
 
 func (repo groupRepository) RetrieveByID(ctx context.Context, id string) (groups.Group, error) {
-	q := `
-		WITH group_roles AS (
-			SELECT
-				gr.id AS role_id,
-				gr.name AS role_name,
-				array_agg(gra.action) AS actions
-			FROM
-				groups_roles gr
-			LEFT JOIN
-				groups_role_actions gra ON gr.id = gra.role_id
-			WHERE
-				gr.entity_id = :id
-			GROUP BY
-				gr.id, gr.name
-		)
-		SELECT
-			g.id, g.name, COALESCE(g.domain_id, '') AS domain_id, COALESCE(g.parent_id, '') AS parent_id,
-			g.description, g.metadata, g.created_at, g.updated_at, g.updated_by, g.status, g.path,
-			gr.role_id, gr.role_name, gr.actions
-		FROM
-			groups g
-		LEFT JOIN
-			group_roles gr ON 1=1
-		WHERE
-			g.id = :id`
+	q := `SELECT id, name, domain_id, COALESCE(parent_id, '') AS parent_id, description, metadata, created_at, updated_at, updated_by, status, path FROM groups
+	    WHERE id = :id`
 
 	dbg := dbGroup{
 		ID: id,
@@ -181,47 +157,172 @@ func (repo groupRepository) RetrieveByID(ctx context.Context, id string) (groups
 	defer row.Close()
 
 	dbg = dbGroup{}
-	var res []roles.RoleRes
-	for row.Next() {
-		var roleID, roleName string
-		var roleActions pgtype.TextArray
-		if err := row.Scan(
-			&dbg.ID,
-			&dbg.Name,
-			&dbg.DomainID,
-			&dbg.ParentID,
-			&dbg.Description,
-			&dbg.Metadata,
-			&dbg.CreatedAt,
-			&dbg.UpdatedAt,
-			&dbg.UpdatedBy,
-			&dbg.Status,
-			&dbg.Path,
-			&roleID,
-			&roleName,
-			&roleActions,
-		); err != nil {
-			return groups.Group{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		var actions []string
-		for _, e := range roleActions.Elements {
-			actions = append(actions, e.String)
-		}
-
-		res = append(res, roles.RoleRes{
-			RoleID:   roleID,
-			RoleName: roleName,
-			Actions:  actions,
-		})
+	if ok := row.Next(); !ok {
+		return groups.Group{}, repoerr.ErrNotFound
 	}
+	if err := row.StructScan(&dbg); err != nil {
+		return groups.Group{}, errors.Wrap(repoerr.ErrViewEntity, err)
+	}
+	return toGroup(dbg)
+}
 
-	group, err := toGroup(dbg)
+func (repo groupRepository) RetrieveByIDWithRoles(ctx context.Context, id, memberID string) (groups.Group, error) {
+	query := `
+	WITH selected_group AS (
+    SELECT
+        g.id,
+        g.parent_id,
+        g.domain_id,
+        g.path AS parent_group_path
+    FROM
+        groups g
+    WHERE
+        g.id = :id
+    LIMIT 1
+	),
+	selected_group_roles AS (
+		SELECT
+			sg.id AS group_id,
+			grm.member_id AS member_id,
+			gr.id AS role_id,
+			gr.name AS role_name,
+			jsonb_agg(DISTINCT gra.action) AS actions,
+			g.path AS access_provider_path,
+			gr.entity_id AS access_provider_id,
+			CASE
+				WHEN gr.entity_id = sg.id THEN 'direct'
+				WHEN gr.entity_id = sg.parent_id THEN 'direct_group'
+				ELSE 'indirect_group'
+			END AS access_type
+		FROM
+			groups g
+		JOIN
+			groups_roles gr ON gr.entity_id = g.id
+		JOIN
+			groups_role_members grm ON gr.id = grm.role_id
+		JOIN
+			groups_role_actions gra ON gr.id = gra.role_id
+		JOIN
+			selected_group sg ON g.path @> sg.parent_group_path
+		WHERE
+			grm.member_id = :member_id
+			AND (
+				(gr.entity_id = sg.id)
+				OR (gr.entity_id = sg.parent_id AND gra.action LIKE 'group%%')
+				OR (gr.entity_id <> sg.parent_id AND gra.action LIKE 'subgroup%%')
+			)
+		GROUP BY
+			sg.id, gr.entity_id, gr.id, gr.name, g.path, grm.member_id, sg.parent_id
+	),
+	selected_domain_roles AS (
+		SELECT
+			sg.id AS group_id,
+			drm.member_id AS member_id,
+			dr.id AS role_id,
+			dr.name AS role_name,
+			jsonb_agg(DISTINCT all_actions.action) AS actions,
+			''::::ltree access_provider_path,
+			'domain' AS access_type,
+			dr.entity_id AS access_provider_id
+		FROM
+			domains d
+		JOIN
+			selected_group sg ON sg.domain_id = d.id
+		JOIN
+			domains_roles dr ON dr.entity_id = d.id
+		JOIN
+			domains_role_members drm ON dr.id = drm.role_id
+		JOIN
+			domains_role_actions dra ON dr.id = dra.role_id
+		JOIN
+			domains_role_actions all_actions ON dr.id = all_actions.role_id
+		WHERE
+			drm.member_id = :member_id
+			AND dra.action LIKE 'group%%'
+		GROUP BY
+			sg.id, dr.entity_id, dr.id, dr.name, drm.member_id
+	),
+	all_roles AS (
+		SELECT
+			sgr.group_id,
+			sgr.member_id,
+			sgr.role_id AS role_id,
+			sgr.role_name AS role_name,
+			sgr.actions AS actions,
+			sgr.access_type AS access_type,
+			sgr.access_provider_path AS access_provider_path,
+			sgr.access_provider_id AS access_provider_id
+		FROM
+			selected_group_roles sgr
+		UNION
+		SELECT
+			sdr.group_id,
+			sdr.member_id,
+			sdr.role_id AS role_id,
+			sdr.role_name AS role_name,
+			sdr.actions AS actions,
+			sdr.access_type AS access_type,
+			sdr.access_provider_path AS access_provider_path,
+			sdr.access_provider_id AS access_provider_id
+		FROM
+			selected_domain_roles sdr
+	),
+	final_roles AS (
+		SELECT
+			ar.group_id,
+			ar.member_id,
+			jsonb_agg(
+				jsonb_build_object(
+					'role_id', ar.role_id,
+					'role_name', ar.role_name,
+					'actions', ar.actions,
+					'access_type', ar.access_type,
+					'access_provider_path', ar.access_provider_path,
+					'access_provider_id', ar.access_provider_id
+				)
+			) AS roles
+		FROM all_roles ar
+		GROUP BY
+			ar.group_id, ar.member_id
+	)
+	SELECT
+		g.id,
+		g.parent_id,
+		g.domain_id,
+		g.name,
+		g.description,
+		g.path,
+		g.metadata,
+		g.created_at,
+		g.updated_at,
+		g.updated_by,
+		g.status,
+		fr.member_id,
+		fr.roles
+	FROM groups g
+		JOIN final_roles fr ON fr.group_id = g.id
+	`
+
+	parameters := map[string]interface{}{
+		"id":        id,
+		"member_id": memberID,
+	}
+	row, err := repo.db.NamedQueryContext(ctx, query, parameters)
 	if err != nil {
-		return groups.Group{}, err
+		return groups.Group{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
-	group.Roles = res
-	return group, nil
+	defer row.Close()
+
+	dbg := dbGroup{}
+	if !row.Next() {
+		return groups.Group{}, errors.Wrap(repoerr.ErrNotFound, err)
+	}
+
+	if err := row.StructScan(&dbg); err != nil {
+		return groups.Group{}, errors.Wrap(repoerr.ErrViewEntity, err)
+	}
+
+	return toGroup(dbg)
 }
 
 func (repo groupRepository) RetrieveByIDAndUser(ctx context.Context, domainID, userID, groupID string) (groups.Group, error) {
@@ -993,26 +1094,28 @@ func buildQuery(gm groups.PageMeta, ids ...string) string {
 }
 
 type dbGroup struct {
-	ID                        string         `db:"id"`
-	ParentID                  *string        `db:"parent_id,omitempty"`
-	DomainID                  string         `db:"domain_id,omitempty"`
-	Name                      string         `db:"name"`
-	Description               string         `db:"description,omitempty"`
-	Level                     int            `db:"level"`
-	Path                      string         `db:"path,omitempty"`
-	Metadata                  []byte         `db:"metadata,omitempty"`
-	CreatedAt                 time.Time      `db:"created_at"`
-	UpdatedAt                 sql.NullTime   `db:"updated_at,omitempty"`
-	UpdatedBy                 *string        `db:"updated_by,omitempty"`
-	Status                    groups.Status  `db:"status"`
-	RoleID                    string         `db:"role_id"`
-	RoleName                  string         `db:"role_name"`
-	Actions                   pq.StringArray `db:"actions"`
-	AccessType                string         `db:"access_type"`
-	AccessProviderId          string         `db:"access_provider_id"`
-	AccessProviderRoleId      string         `db:"access_provider_role_id"`
-	AccessProviderRoleName    string         `db:"access_provider_role_name"`
-	AccessProviderRoleActions pq.StringArray `db:"access_provider_role_actions"`
+	ID                        string          `db:"id"`
+	ParentID                  *string         `db:"parent_id,omitempty"`
+	DomainID                  string          `db:"domain_id,omitempty"`
+	Name                      string          `db:"name"`
+	Description               string          `db:"description,omitempty"`
+	Level                     int             `db:"level"`
+	Path                      string          `db:"path,omitempty"`
+	Metadata                  []byte          `db:"metadata,omitempty"`
+	CreatedAt                 time.Time       `db:"created_at"`
+	UpdatedAt                 sql.NullTime    `db:"updated_at,omitempty"`
+	UpdatedBy                 *string         `db:"updated_by,omitempty"`
+	Status                    groups.Status   `db:"status"`
+	RoleID                    string          `db:"role_id"`
+	RoleName                  string          `db:"role_name"`
+	Actions                   pq.StringArray  `db:"actions"`
+	AccessType                string          `db:"access_type"`
+	AccessProviderId          string          `db:"access_provider_id"`
+	AccessProviderRoleId      string          `db:"access_provider_role_id"`
+	AccessProviderRoleName    string          `db:"access_provider_role_name"`
+	AccessProviderRoleActions pq.StringArray  `db:"access_provider_role_actions"`
+	MemberID                  string          `db:"member_id,omitempty"`
+	Roles                     json.RawMessage `db:"roles,omitempty"`
 }
 
 func toDBGroup(g groups.Group) (dbGroup, error) {
@@ -1071,6 +1174,13 @@ func toGroup(g dbGroup) (groups.Group, error) {
 		updatedBy = *g.UpdatedBy
 	}
 
+	var roles []roles.MemberRoleActions
+	if g.Roles != nil {
+		if err := json.Unmarshal(g.Roles, &roles); err != nil {
+			return groups.Group{}, errors.Wrap(errors.ErrMalformedEntity, err)
+		}
+	}
+
 	return groups.Group{
 		ID:                        g.ID,
 		Name:                      g.Name,
@@ -1092,6 +1202,7 @@ func toGroup(g dbGroup) (groups.Group, error) {
 		AccessProviderRoleId:      g.AccessProviderRoleId,
 		AccessProviderRoleName:    g.AccessProviderRoleName,
 		AccessProviderRoleActions: g.AccessProviderRoleActions,
+		Roles:                     roles,
 	}, nil
 }
 

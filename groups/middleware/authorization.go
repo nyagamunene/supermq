@@ -150,7 +150,7 @@ func (am *authorizationMiddleware) UpdateGroup(ctx context.Context, session auth
 	return am.svc.UpdateGroup(ctx, session, g)
 }
 
-func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string) (groups.Group, error) {
+func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string, withRoles bool) (groups.Group, error) {
 	if session.Type == authn.PersonalAccessToken {
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:           session.UserID,
@@ -175,7 +175,7 @@ func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.
 		return groups.Group{}, errors.Wrap(errView, err)
 	}
 
-	return am.svc.ViewGroup(ctx, session, id)
+	return am.svc.ViewGroup(ctx, session, id, withRoles)
 }
 
 func (am *authorizationMiddleware) ListGroups(ctx context.Context, session authn.Session, gm groups.PageMeta) (groups.Page, error) {

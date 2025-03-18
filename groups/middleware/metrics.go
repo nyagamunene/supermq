@@ -53,12 +53,12 @@ func (ms *metricsMiddleware) UpdateGroup(ctx context.Context, session authn.Sess
 }
 
 // ViewGroup instruments ViewGroup method with metrics.
-func (ms *metricsMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string) (g groups.Group, err error) {
+func (ms *metricsMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string, withRoles bool) (g groups.Group, err error) {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "view_group").Add(1)
 		ms.latency.With("method", "view_group").Observe(time.Since(begin).Seconds())
 	}(time.Now())
-	return ms.svc.ViewGroup(ctx, session, id)
+	return ms.svc.ViewGroup(ctx, session, id, withRoles)
 }
 
 // ListGroups instruments ListGroups method with metrics.

@@ -56,7 +56,8 @@ func (req listGroupsReq) validate() error {
 }
 
 type groupReq struct {
-	id string
+	id    string
+	roles bool
 }
 
 func (req groupReq) validate() error {

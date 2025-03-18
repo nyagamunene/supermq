@@ -832,9 +832,9 @@ func (_m *Service) UpdateRoleName(ctx context.Context, session authn.Session, en
 	return r0, r1
 }
 
-// ViewGroup provides a mock function with given fields: ctx, session, id
-func (_m *Service) ViewGroup(ctx context.Context, session authn.Session, id string) (groups.Group, error) {
-	ret := _m.Called(ctx, session, id)
+// ViewGroup provides a mock function with given fields: ctx, session, id, withRoles
+func (_m *Service) ViewGroup(ctx context.Context, session authn.Session, id string, withRoles bool) (groups.Group, error) {
+	ret := _m.Called(ctx, session, id, withRoles)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ViewGroup")
@@ -842,17 +842,17 @@ func (_m *Service) ViewGroup(ctx context.Context, session authn.Session, id stri
 
 	var r0 groups.Group
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, authn.Session, string) (groups.Group, error)); ok {
-		return rf(ctx, session, id)
+	if rf, ok := ret.Get(0).(func(context.Context, authn.Session, string, bool) (groups.Group, error)); ok {
+		return rf(ctx, session, id, withRoles)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, authn.Session, string) groups.Group); ok {
-		r0 = rf(ctx, session, id)
+	if rf, ok := ret.Get(0).(func(context.Context, authn.Session, string, bool) groups.Group); ok {
+		r0 = rf(ctx, session, id, withRoles)
 	} else {
 		r0 = ret.Get(0).(groups.Group)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, authn.Session, string) error); ok {
-		r1 = rf(ctx, session, id)
+	if rf, ok := ret.Get(1).(func(context.Context, authn.Session, string, bool) error); ok {
+		r1 = rf(ctx, session, id, withRoles)
 	} else {
 		r1 = ret.Error(1)
 	}

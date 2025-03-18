@@ -69,9 +69,16 @@ func DecodeGroupUpdate(_ context.Context, r *http.Request) (interface{}, error) 
 }
 
 func DecodeGroupRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	req := groupReq{
-		id: chi.URLParam(r, "groupID"),
+	roles, err := apiutil.ReadBoolQuery(r, api.RolesKey, false)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
 	}
+
+	req := groupReq{
+		id:    chi.URLParam(r, "groupID"),
+		roles: roles,
+	}
+
 	return req, nil
 }
 

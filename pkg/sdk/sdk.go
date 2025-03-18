@@ -397,9 +397,9 @@ type SDK interface {
 	// Client returns client object by id.
 	//
 	// example:
-	//  client, _ := sdk.Client("clientID", "domainID", "token")
+	//  client, _ := sdk.Client("clientID", "domainID", "token", false)
 	//  fmt.Println(client)
-	Client(id, domainID, token string) (Client, errors.SDKError)
+	Client(id, domainID, token string, withRoles bool) (Client, errors.SDKError)
 
 	// UpdateClient updates existing client.
 	//
@@ -622,9 +622,9 @@ type SDK interface {
 	// Group returns users group object by id.
 	//
 	// example:
-	//  group, _ := sdk.Group("groupID", "domainID", "token")
+	//  group, _ := sdk.Group("groupID", "domainID", "token", false)
 	//  fmt.Println(group)
-	Group(id, domainID, token string) (Group, errors.SDKError)
+	Group(id, domainID, token string, withRoles bool) (Group, errors.SDKError)
 
 	// UpdateGroup updates existing group.
 	//
@@ -896,9 +896,9 @@ type SDK interface {
 	// Channel returns channel data by id.
 	//
 	// example:
-	//  channel, _ := sdk.Channel("channelID", "domainID", "token")
+	//  channel, _ := sdk.Channel("channelID", "domainID", "token", false)
 	//  fmt.Println(channel)
-	Channel(id, domainID, token string) (Channel, errors.SDKError)
+	Channel(id, domainID, token string, withRoles bool) (Channel, errors.SDKError)
 
 	// UpdateChannel updates existing channel.
 	//
@@ -1077,9 +1077,9 @@ type SDK interface {
 	// Domain retrieve domain information of given domain ID .
 	//
 	// example:
-	//  domain, _ := sdk.Domain("domainID", "token")
+	//  domain, _ := sdk.Domain("domainID", "token", false)
 	//  fmt.Println(domain)
-	Domain(domainID, token string) (Domain, errors.SDKError)
+	Domain(domainID, token string, withRoles bool) (Domain, errors.SDKError)
 
 	// UpdateDomain updates details of the given domain ID.
 	//

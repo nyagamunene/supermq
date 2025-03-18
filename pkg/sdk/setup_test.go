@@ -128,6 +128,7 @@ func convertGroup(g sdk.Group) groups.Group {
 		AccessProviderRoleId:      g.AccessProviderRoleId,
 		AccessProviderRoleName:    g.AccessProviderRoleName,
 		AccessProviderRoleActions: g.AccessProviderRoleActions,
+		Roles:                     g.Roles,
 	}
 }
 
@@ -194,6 +195,7 @@ func convertClient(c sdk.Client) clients.Client {
 		UpdatedAt:   c.UpdatedAt,
 		UpdatedBy:   c.UpdatedBy,
 		Status:      status,
+		Roles:       c.Roles,
 	}
 }
 
@@ -216,6 +218,7 @@ func convertChannel(g sdk.Channel) mgchannels.Channel {
 		UpdatedAt:   g.UpdatedAt,
 		UpdatedBy:   g.UpdatedBy,
 		Status:      status,
+		Roles:       g.Roles,
 	}
 }
 

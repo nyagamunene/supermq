@@ -632,6 +632,7 @@ func TestViewChannel(t *testing.T) {
 		domainID        string
 		token           string
 		session         smqauthn.Session
+		withRoles       bool
 		channelID       string
 		svcRes          channels.Channel
 		svcErr          error
@@ -643,6 +644,18 @@ func TestViewChannel(t *testing.T) {
 			desc:      "view channel successfully",
 			domainID:  domainID,
 			token:     validToken,
+			withRoles: false,
+			channelID: channelRes.ID,
+			svcRes:    channelRes,
+			svcErr:    nil,
+			response:  channel,
+			err:       nil,
+		},
+		{
+			desc:      "view channel successfully with roles",
+			domainID:  domainID,
+			token:     validToken,
+			withRoles: true,
 			channelID: channelRes.ID,
 			svcRes:    channelRes,
 			svcErr:    nil,
@@ -653,6 +666,7 @@ func TestViewChannel(t *testing.T) {
 			desc:            "view channel with invalid token",
 			domainID:        domainID,
 			token:           invalidToken,
+			withRoles:       false,
 			channelID:       channelRes.ID,
 			svcRes:          channels.Channel{},
 			authenticateErr: svcerr.ErrAuthentication,
@@ -663,6 +677,7 @@ func TestViewChannel(t *testing.T) {
 			desc:      "view channel with empty token",
 			domainID:  domainID,
 			token:     "",
+			withRoles: false,
 			channelID: channelRes.ID,
 			svcRes:    channels.Channel{},
 			svcErr:    nil,
@@ -673,6 +688,7 @@ func TestViewChannel(t *testing.T) {
 			desc:      "view channel for wrong id",
 			domainID:  domainID,
 			token:     validToken,
+			withRoles: false,
 			channelID: wrongID,
 			svcRes:    channels.Channel{},
 			svcErr:    svcerr.ErrViewEntity,
@@ -683,6 +699,7 @@ func TestViewChannel(t *testing.T) {
 			desc:      "view channel with empty channel id",
 			domainID:  domainID,
 			token:     validToken,
+			withRoles: false,
 			channelID: "",
 			svcRes:    channels.Channel{},
 			svcErr:    nil,
@@ -693,6 +710,7 @@ func TestViewChannel(t *testing.T) {
 			desc:      "view channel with service response that can't be unmarshalled",
 			domainID:  domainID,
 			token:     validToken,
+			withRoles: false,
 			channelID: channelRes.ID,
 			svcRes: channels.Channel{
 				ID: generateUUID(t),
@@ -712,12 +730,15 @@ func TestViewChannel(t *testing.T) {
 				tc.session = smqauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
-			svcCall := gsvc.On("ViewChannel", mock.Anything, tc.session, tc.channelID, false).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Channel(tc.channelID, tc.domainID, tc.token)
+			svcCall := gsvc.On("ViewChannel", mock.Anything, tc.session, tc.channelID, tc.withRoles).Return(tc.svcRes, tc.svcErr)
+			resp, err := mgsdk.Channel(tc.channelID, tc.domainID, tc.token, tc.withRoles)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
+			if tc.withRoles {
+				assert.Equal(t, resp.Roles, validRoles, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, validRoles, resp.Roles))
+			}
 			if tc.err == nil {
-				ok := svcCall.Parent.AssertCalled(t, "ViewChannel", mock.Anything, tc.session, tc.channelID, false)
+				ok := svcCall.Parent.AssertCalled(t, "ViewChannel", mock.Anything, tc.session, tc.channelID, tc.withRoles)
 				assert.True(t, ok)
 			}
 			svcCall.Unset()
@@ -2083,6 +2104,7 @@ func generateTestChannel(t *testing.T) sdk.Channel {
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 		Status:    channels.EnabledStatus.String(),
+		Roles:     validRoles,
 	}
 	return ch
 }

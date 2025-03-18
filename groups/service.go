@@ -105,8 +105,15 @@ func (svc service) CreateGroup(ctx context.Context, session smqauthn.Session, g 
 	return saved, nrps, nil
 }
 
-func (svc service) ViewGroup(ctx context.Context, session smqauthn.Session, id string) (Group, error) {
-	group, err := svc.repo.RetrieveByIDAndUser(ctx, session.DomainID, session.UserID, id)
+func (svc service) ViewGroup(ctx context.Context, session smqauthn.Session, id string, withRoles bool) (Group, error) {
+	var group Group
+	var err error
+	switch withRoles {
+	case true:
+		group, err = svc.repo.RetrieveByIDWithRoles(ctx, id, session.UserID)
+	default:
+		group, err = svc.repo.RetrieveByIDAndUser(ctx, session.DomainID, session.UserID, id)
+	}
 	if err != nil {
 		return Group{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}

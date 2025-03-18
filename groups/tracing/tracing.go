@@ -38,11 +38,11 @@ func (tm *tracingMiddleware) CreateGroup(ctx context.Context, session authn.Sess
 }
 
 // ViewGroup traces the "ViewGroup" operation of the wrapped groups.Service.
-func (tm *tracingMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string) (groups.Group, error) {
+func (tm *tracingMiddleware) ViewGroup(ctx context.Context, session authn.Session, id string, withRoles bool) (groups.Group, error) {
 	ctx, span := tracing.StartSpan(ctx, tm.tracer, "svc_view_group", trace.WithAttributes(attribute.String("id", id)))
 	defer span.End()
 
-	return tm.svc.ViewGroup(ctx, session, id)
+	return tm.svc.ViewGroup(ctx, session, id, withRoles)
 }
 
 // ListGroups traces the "ListGroups" operation of the wrapped groups.Service.

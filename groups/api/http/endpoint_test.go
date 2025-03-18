@@ -236,6 +236,7 @@ func TestViewGroupEndpoint(t *testing.T) {
 		token    string
 		id       string
 		domainID string
+		roles    bool
 		session  smqauthn.Session
 		svcResp  groups.Group
 		svcErr   error
@@ -248,6 +249,7 @@ func TestViewGroupEndpoint(t *testing.T) {
 			desc:     "view group successfully",
 			token:    validToken,
 			domainID: validID,
+			roles:    false,
 			id:       validID,
 			svcResp:  validGroupResp,
 			svcErr:   nil,
@@ -260,6 +262,7 @@ func TestViewGroupEndpoint(t *testing.T) {
 			token:    invalidToken,
 			session:  smqauthn.Session{},
 			domainID: validID,
+			roles:    false,
 			id:       validID,
 			svcResp:  validGroupResp,
 			svcErr:   nil,
@@ -272,6 +275,7 @@ func TestViewGroupEndpoint(t *testing.T) {
 			token:    "",
 			session:  smqauthn.Session{},
 			domainID: validID,
+			roles:    false,
 			id:       validID,
 			status:   http.StatusUnauthorized,
 			err:      apiutil.ErrBearerToken,
@@ -288,6 +292,7 @@ func TestViewGroupEndpoint(t *testing.T) {
 			token:    validToken,
 			id:       validID,
 			domainID: validID,
+			roles:    false,
 			svcResp:  validGroupResp,
 			svcErr:   svcerr.ErrAuthorization,
 			status:   http.StatusForbidden,
@@ -300,14 +305,14 @@ func TestViewGroupEndpoint(t *testing.T) {
 			req := testRequest{
 				client: gs.Client(),
 				method: http.MethodGet,
-				url:    fmt.Sprintf("%s/%s/groups/%s", gs.URL, tc.domainID, tc.id),
+				url:    fmt.Sprintf("%s/%s/groups/%s?roles=%v", gs.URL, tc.domainID, tc.id, tc.roles),
 				token:  tc.token,
 			}
 			if tc.token == validToken {
 				tc.session = smqauthn.Session{DomainUserID: validID + "_" + validID, UserID: validID, DomainID: validID}
 			}
 			authCall := authn.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authnErr)
-			svcCall := svc.On("ViewGroup", mock.Anything, tc.session, tc.id).Return(tc.svcResp, tc.svcErr)
+			svcCall := svc.On("ViewGroup", mock.Anything, tc.session, tc.id, tc.roles).Return(tc.svcResp, tc.svcErr)
 			res, err := req.make()
 			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 			var errRes respBody

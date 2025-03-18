@@ -45,7 +45,7 @@ func TestCreateClient(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	client := generateTestClient(t)
+	client := generateTestClient(t, false)
 	createClientReq := sdk.Client{
 		Name:        client.Name,
 		Tags:        client.Tags,
@@ -213,7 +213,7 @@ func TestCreateClients(t *testing.T) {
 
 	sdkClients := []sdk.Client{}
 	for i := 0; i < 3; i++ {
-		client := generateTestClient(t)
+		client := generateTestClient(t, false)
 		sdkClients = append(sdkClients, client)
 	}
 
@@ -324,7 +324,7 @@ func TestListClients(t *testing.T) {
 
 	var sdkClients []sdk.Client
 	for i := 10; i < 100; i++ {
-		c := generateTestClient(t)
+		c := generateTestClient(t, false)
 		if i == 50 {
 			c.Status = clients.DisabledStatus.String()
 			c.Tags = []string{"tag1", "tag2"}
@@ -589,7 +589,8 @@ func TestViewClient(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	sdkClient := generateTestClient(t)
+	sdkClient := generateTestClient(t, false)
+	sdkClientWithRoles := generateTestClient(t, true)
 	conf := sdk.Config{
 		ClientsURL: ts.URL,
 	}
@@ -600,6 +601,7 @@ func TestViewClient(t *testing.T) {
 		domainID        string
 		token           string
 		session         smqauthn.Session
+		withRoles       bool
 		clientID        string
 		svcRes          clients.Client
 		svcErr          error
@@ -608,19 +610,32 @@ func TestViewClient(t *testing.T) {
 		err             errors.SDKError
 	}{
 		{
-			desc:     "view client successfully",
-			domainID: domainID,
-			token:    validToken,
-			clientID: sdkClient.ID,
-			svcRes:   convertClient(sdkClient),
-			svcErr:   nil,
-			response: sdkClient,
-			err:      nil,
+			desc:      "view client successfully",
+			domainID:  domainID,
+			token:     validToken,
+			withRoles: false,
+			clientID:  sdkClient.ID,
+			svcRes:    convertClient(sdkClient),
+			svcErr:    nil,
+			response:  sdkClient,
+			err:       nil,
+		},
+		{
+			desc:      "view client successfully with roles",
+			domainID:  domainID,
+			token:     validToken,
+			withRoles: true,
+			clientID:  sdkClientWithRoles.ID,
+			svcRes:    convertClient(sdkClientWithRoles),
+			svcErr:    nil,
+			response:  sdkClientWithRoles,
+			err:       nil,
 		},
 		{
 			desc:            "view client with an invalid token",
 			domainID:        domainID,
 			token:           invalidToken,
+			withRoles:       false,
 			clientID:        sdkClient.ID,
 			svcRes:          clients.Client{},
 			authenticateErr: svcerr.ErrAuthorization,
@@ -628,40 +643,44 @@ func TestViewClient(t *testing.T) {
 			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
 		},
 		{
-			desc:     "view client with empty token",
-			domainID: domainID,
-			token:    "",
-			clientID: sdkClient.ID,
-			svcRes:   clients.Client{},
-			svcErr:   nil,
-			response: sdk.Client{},
-			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
+			desc:      "view client with empty token",
+			domainID:  domainID,
+			token:     "",
+			withRoles: false,
+			clientID:  sdkClient.ID,
+			svcRes:    clients.Client{},
+			svcErr:    nil,
+			response:  sdk.Client{},
+			err:       errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:     "view client with an invalid client id",
-			domainID: domainID,
-			token:    validToken,
-			clientID: wrongID,
-			svcRes:   clients.Client{},
-			svcErr:   svcerr.ErrViewEntity,
-			response: sdk.Client{},
-			err:      errors.NewSDKErrorWithStatus(svcerr.ErrViewEntity, http.StatusBadRequest),
+			desc:      "view client with an invalid client id",
+			domainID:  domainID,
+			token:     validToken,
+			withRoles: false,
+			clientID:  wrongID,
+			svcRes:    clients.Client{},
+			svcErr:    svcerr.ErrViewEntity,
+			response:  sdk.Client{},
+			err:       errors.NewSDKErrorWithStatus(svcerr.ErrViewEntity, http.StatusBadRequest),
 		},
 		{
-			desc:     "view client with empty client id",
-			domainID: domainID,
-			token:    validToken,
-			clientID: "",
-			svcRes:   clients.Client{},
-			svcErr:   nil,
-			response: sdk.Client{},
-			err:      errors.NewSDKError(apiutil.ErrMissingID),
+			desc:      "view client with empty client id",
+			domainID:  domainID,
+			token:     validToken,
+			withRoles: false,
+			clientID:  "",
+			svcRes:    clients.Client{},
+			svcErr:    nil,
+			response:  sdk.Client{},
+			err:       errors.NewSDKError(apiutil.ErrMissingID),
 		},
 		{
-			desc:     "view client with response that can't be unmarshalled",
-			domainID: domainID,
-			token:    validToken,
-			clientID: sdkClient.ID,
+			desc:      "view client with response that can't be unmarshalled",
+			domainID:  domainID,
+			token:     validToken,
+			withRoles: false,
+			clientID:  sdkClient.ID,
 			svcRes: clients.Client{
 				Name:        sdkClient.Name,
 				Tags:        sdkClient.Tags,
@@ -681,12 +700,15 @@ func TestViewClient(t *testing.T) {
 				tc.session = smqauthn.Session{DomainUserID: domainID + "_" + validID, UserID: validID, DomainID: domainID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, mock.Anything).Return(tc.session, tc.authenticateErr)
-			svcCall := tsvc.On("View", mock.Anything, tc.session, tc.clientID, false).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Client(tc.clientID, tc.domainID, tc.token)
+			svcCall := tsvc.On("View", mock.Anything, tc.session, tc.clientID, tc.withRoles).Return(tc.svcRes, tc.svcErr)
+			resp, err := mgsdk.Client(tc.clientID, tc.domainID, tc.token, tc.withRoles)
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
+			if tc.withRoles {
+				assert.Equal(t, resp.Roles, validRoles, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, validRoles, resp.Roles))
+			}
 			if tc.err == nil {
-				ok := svcCall.Parent.AssertCalled(t, "View", mock.Anything, tc.session, tc.clientID, false)
+				ok := svcCall.Parent.AssertCalled(t, "View", mock.Anything, tc.session, tc.clientID, tc.withRoles)
 				assert.True(t, ok)
 			}
 			svcCall.Unset()
@@ -699,7 +721,7 @@ func TestUpdateClient(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	sdkClient := generateTestClient(t)
+	sdkClient := generateTestClient(t, false)
 	updatedClient := sdkClient
 	updatedClient.Name = "newName"
 	updatedClient.Metadata = map[string]interface{}{
@@ -857,7 +879,7 @@ func TestUpdateClientTags(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	sdkClient := generateTestClient(t)
+	sdkClient := generateTestClient(t, false)
 	updatedClient := sdkClient
 	updatedClient.Tags = []string{"newTag1", "newTag2"}
 	updateClientReq := sdk.Client{
@@ -1009,7 +1031,7 @@ func TestUpdateClientSecret(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	sdkClient := generateTestClient(t)
+	sdkClient := generateTestClient(t, false)
 	newSecret := generateUUID(t)
 	updatedClient := sdkClient
 	updatedClient.Credentials.Secret = newSecret
@@ -1141,7 +1163,7 @@ func TestEnableClient(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	client := generateTestClient(t)
+	client := generateTestClient(t, false)
 	enabledClient := client
 	enabledClient.Status = clients.EnabledStatus.String()
 
@@ -1244,7 +1266,7 @@ func TestDisableClient(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	client := generateTestClient(t)
+	client := generateTestClient(t, false)
 	disabledClient := client
 	disabledClient.Status = clients.DisabledStatus.String()
 
@@ -1347,7 +1369,7 @@ func TestDeleteClient(t *testing.T) {
 	ts, tsvc, auth := setupClients()
 	defer ts.Close()
 
-	client := generateTestClient(t)
+	client := generateTestClient(t, false)
 
 	conf := sdk.Config{
 		ClientsURL: ts.URL,
@@ -3213,10 +3235,14 @@ func TestListAvailableClientRoleActions(t *testing.T) {
 	}
 }
 
-func generateTestClient(t *testing.T) sdk.Client {
+func generateTestClient(t *testing.T, withRoles bool) sdk.Client {
 	createdAt, err := time.Parse(time.RFC3339, "2023-03-03T00:00:00Z")
 	assert.Nil(t, err, fmt.Sprintf("unexpected error %s", err))
 	updatedAt := createdAt
+	var rl []roles.MemberRoleActions
+	if withRoles {
+		rl = validRoles
+	}
 	return sdk.Client{
 		ID:   testsutil.GenerateUUID(t),
 		Name: "clientname",
@@ -3229,5 +3255,6 @@ func generateTestClient(t *testing.T) sdk.Client {
 		Status:    clients.EnabledStatus.String(),
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
+		Roles:     rl,
 	}
 }

@@ -11,6 +11,7 @@ import (
 
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/pkg/errors"
+	"github.com/absmach/supermq/pkg/roles"
 )
 
 const (
@@ -20,17 +21,18 @@ const (
 
 // Channel represents supermq channel.
 type Channel struct {
-	ID          string    `json:"id,omitempty"`
-	Name        string    `json:"name,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
-	ParentGroup string    `json:"parent_group_id,omitempty"`
-	DomainID    string    `json:"domain_id,omitempty"`
-	Metadata    Metadata  `json:"metadata,omitempty"`
-	CreatedAt   time.Time `json:"created_at,omitempty"`
-	UpdatedAt   time.Time `json:"updated_at,omitempty"`
-	UpdatedBy   string    `json:"updated_by,omitempty"`
-	Status      string    `json:"status,omitempty"`
-	Permissions []string  `json:"permissions,omitempty"`
+	ID          string                    `json:"id,omitempty"`
+	Name        string                    `json:"name,omitempty"`
+	Tags        []string                  `json:"tags,omitempty"`
+	ParentGroup string                    `json:"parent_group_id,omitempty"`
+	DomainID    string                    `json:"domain_id,omitempty"`
+	Metadata    Metadata                  `json:"metadata,omitempty"`
+	CreatedAt   time.Time                 `json:"created_at,omitempty"`
+	UpdatedAt   time.Time                 `json:"updated_at,omitempty"`
+	UpdatedBy   string                    `json:"updated_by,omitempty"`
+	Status      string                    `json:"status,omitempty"`
+	Permissions []string                  `json:"permissions,omitempty"`
+	Roles       []roles.MemberRoleActions `json:"roles,omitempty"`
 }
 
 func (sdk mgSDK) CreateChannel(c Channel, domainID, token string) (Channel, errors.SDKError) {
@@ -94,11 +96,11 @@ func (sdk mgSDK) Channels(pm PageMetadata, domainID, token string) (ChannelsPage
 	return cp, nil
 }
 
-func (sdk mgSDK) Channel(id, domainID, token string) (Channel, errors.SDKError) {
+func (sdk mgSDK) Channel(id, domainID, token string, withRoles bool) (Channel, errors.SDKError) {
 	if id == "" {
 		return Channel{}, errors.NewSDKError(apiutil.ErrMissingID)
 	}
-	url := fmt.Sprintf("%s/%s/%s/%s", sdk.channelsURL, domainID, channelsEndpoint, id)
+	url := fmt.Sprintf("%s/%s/%s/%s?roles=%v", sdk.channelsURL, domainID, channelsEndpoint, id, withRoles)
 
 	_, body, err := sdk.processRequest(http.MethodGet, url, token, nil, nil, http.StatusOK)
 	if err != nil {
