@@ -63,18 +63,32 @@ func (pr *patRepo) Retrieve(ctx context.Context, userID, patID string) (auth.PAT
 }
 
 func (pr *patRepo) RetrieveAll(ctx context.Context, userID string, pm auth.PATSPageMeta) (auth.PATSPage, error) {
-	q := `
+	pageQuery, err := PageQuery(pm)
+	if err != nil {
+		return auth.PATSPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
+	}
+
+	q := fmt.Sprintf(`
 		SELECT 
-		p.id, p.user_id, p.name, p.description, p.issued_at, p.expires_at,
-		p.updated_at, p.revoked, p.revoked_at
-		FROM pats p WHERE user_id = :user_id
+			p.id, p.user_id, p.name, p.description, p.issued_at, p.expires_at,
+			p.updated_at, p.revoked, p.revoked_at,
+		CASE 
+			WHEN p.revoked = TRUE THEN %d
+			WHEN expires_at IS NOT NULL AND expires_at < :timestamp THEN %d
+        ELSE %d
+    	END AS status
+		FROM pats p WHERE user_id = :user_id %s
 		ORDER BY issued_at DESC
-		LIMIT :limit OFFSET :offset`
+		LIMIT :limit OFFSET :offset`, auth.RevokedStatus, auth.ExpiredStatus, auth.ActiveStatus, pageQuery)
 
 	dbPage := dbPagemeta{
-		Limit:  pm.Limit,
-		Offset: pm.Offset,
-		User:   userID,
+		Limit:     pm.Limit,
+		Offset:    pm.Offset,
+		User:      userID,
+		Name:      pm.Name,
+		ID:        pm.ID,
+		Status:    pm.Status,
+		Timestamp: time.Now(),
 	}
 
 	rows, err := pr.db.NamedQueryContext(ctx, q, dbPage)
@@ -83,35 +97,17 @@ func (pr *patRepo) RetrieveAll(ctx context.Context, userID string, pm auth.PATSP
 	}
 	defer rows.Close()
 
-	var items []auth.PAT
+	items := []auth.PAT{}
 	for rows.Next() {
 		var pat dbPat
 		if err := rows.StructScan(&pat); err != nil {
 			return auth.PATSPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 
-		var updatedAt, revokedAt time.Time
-		if pat.UpdatedAt.Valid {
-			updatedAt = pat.UpdatedAt.Time
-		}
-		if pat.RevokedAt.Valid {
-			revokedAt = pat.RevokedAt.Time
-		}
-
-		items = append(items, auth.PAT{
-			ID:          pat.ID,
-			User:        pat.User,
-			Name:        pat.Name,
-			Description: pat.Description,
-			IssuedAt:    pat.IssuedAt,
-			ExpiresAt:   pat.ExpiresAt,
-			UpdatedAt:   updatedAt,
-			Revoked:     pat.Revoked,
-			RevokedAt:   revokedAt,
-		})
+		items = append(items, toAuthPat(pat))
 	}
 
-	cq := `SELECT COUNT(*) FROM pats p WHERE user_id = :user_id`
+	cq := fmt.Sprintf(`SELECT COUNT(*) FROM pats p WHERE user_id = :user_id %s`, pageQuery)
 
 	total, err := postgres.Total(ctx, pr.db, cq, dbPage)
 	if err != nil {
@@ -127,13 +123,47 @@ func (pr *patRepo) RetrieveAll(ctx context.Context, userID string, pm auth.PATSP
 	return page, nil
 }
 
+func PageQuery(pm auth.PATSPageMeta) (string, error) {
+	var query []string
+	if pm.Name != "" {
+		query = append(query, "p.name ILIKE '%' || :name || '%'")
+	}
+
+	if pm.ID != "" {
+		query = append(query, "p.id = :id")
+	}
+
+	if pm.Status != auth.AllStatus {
+		switch pm.Status {
+		case auth.RevokedStatus:
+			query = append(query, "p.revoked = TRUE")
+		case auth.ExpiredStatus:
+			query = append(query, "p.revoked = FALSE AND p.expires_at IS NOT NULL AND p.expires_at < :timestamp")
+		case auth.ActiveStatus:
+			query = append(query, "p.revoked = FALSE AND (p.expires_at IS NULL OR p.expires_at >= :timestamp)")
+		}
+	}
+
+	var emq string
+	if len(query) > 0 {
+		emq = fmt.Sprintf("AND %s", strings.Join(query, " AND "))
+	}
+	return emq, nil
+}
+
 func (pr *patRepo) RetrieveSecretAndRevokeStatus(ctx context.Context, userID, patID string) (string, bool, bool, error) {
 	q := `
 		SELECT p.secret, p.revoked, p.expires_at 
 		FROM pats p
-		WHERE user_id = $1 AND id = $2`
+		WHERE p.user_id = :user_id AND p.id = :pat_id`
 
-	rows, err := pr.db.QueryContext(ctx, q, userID, patID)
+	dbPage := dbPagemeta{
+		User:      userID,
+		PatID:     patID,
+		Timestamp: time.Now(),
+	}
+
+	rows, err := pr.db.NamedQueryContext(ctx, q, dbPage)
 	if err != nil {
 		return "", true, true, postgres.HandleError(repoerr.ErrNotFound, err)
 	}
@@ -186,12 +216,7 @@ func (pr *patRepo) UpdateName(ctx context.Context, userID, patID, name string) (
 		return auth.PAT{}, errors.Wrap(repoerr.ErrUpdateEntity, err)
 	}
 
-	res, err := toAuthPat(pat)
-	if err != nil {
-		return auth.PAT{}, errors.Wrap(repoerr.ErrUpdateEntity, err)
-	}
-
-	return res, nil
+	return toAuthPat(pat), nil
 }
 
 func (pr *patRepo) UpdateDescription(ctx context.Context, userID, patID, description string) (auth.PAT, error) {
@@ -225,12 +250,7 @@ func (pr *patRepo) UpdateDescription(ctx context.Context, userID, patID, descrip
 		return auth.PAT{}, errors.Wrap(repoerr.ErrUpdateEntity, err)
 	}
 
-	res, err := toAuthPat(pat)
-	if err != nil {
-		return auth.PAT{}, errors.Wrap(repoerr.ErrUpdateEntity, err)
-	}
-
-	return res, nil
+	return toAuthPat(pat), nil
 }
 
 func (pr *patRepo) UpdateTokenHash(ctx context.Context, userID, patID, tokenHash string, expiryAt time.Time) (auth.PAT, error) {
@@ -265,12 +285,7 @@ func (pr *patRepo) UpdateTokenHash(ctx context.Context, userID, patID, tokenHash
 		return auth.PAT{}, errors.Wrap(repoerr.ErrUpdateEntity, err)
 	}
 
-	res, err := toAuthPat(pat)
-	if err != nil {
-		return auth.PAT{}, errors.Wrap(repoerr.ErrUpdateEntity, err)
-	}
-
-	return res, nil
+	return toAuthPat(pat), nil
 }
 
 func (pr *patRepo) Revoke(ctx context.Context, userID, patID string) error {
@@ -624,15 +639,21 @@ func (pr *patRepo) retrieveScopeFromDB(ctx context.Context, pm dbPagemeta) ([]au
 }
 
 func (pr *patRepo) retrievePATFromDB(ctx context.Context, userID, patID string) (auth.PAT, error) {
-	q := `
+	q := fmt.Sprintf(`
 		SELECT 
 		id, user_id, name, description, secret, issued_at, expires_at,
-		updated_at, last_used_at, revoked, revoked_at
-		FROM pats WHERE user_id = :user_id AND id = :id`
+		updated_at, last_used_at, revoked, revoked_at,
+		CASE 
+			WHEN revoked = TRUE THEN %d
+			WHEN expires_at IS NOT NULL AND expires_at < :timestamp THEN %d
+			ELSE %d
+    	END AS status
+		FROM pats WHERE user_id = :user_id AND id = :id`, auth.RevokedStatus, auth.ExpiredStatus, auth.ActiveStatus)
 
 	dbp := dbPagemeta{
-		ID:   patID,
-		User: userID,
+		ID:        patID,
+		User:      userID,
+		Timestamp: time.Now(),
 	}
 
 	rows, err := pr.db.NamedQueryContext(ctx, q, dbp)
@@ -648,10 +669,5 @@ func (pr *patRepo) retrievePATFromDB(ctx context.Context, userID, patID string) 
 		}
 	}
 
-	pat, err := toAuthPat(record)
-	if err != nil {
-		return auth.PAT{}, err
-	}
-
-	return pat, nil
+	return toAuthPat(record), nil
 }

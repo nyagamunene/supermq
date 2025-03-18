@@ -489,6 +489,8 @@ func (svc service) CreatePAT(ctx context.Context, token, name, description strin
 		Secret:      hash,
 		IssuedAt:    now,
 		ExpiresAt:   now.Add(duration),
+		Status:      ActiveStatus,
+		Revoked:     false,
 	}
 
 	if err := svc.pats.Save(ctx, pat); err != nil {
@@ -579,7 +581,7 @@ func (svc service) ResetPATSecret(ctx context.Context, token, patID string, dura
 		return PAT{}, errors.Wrap(svcerr.ErrUpdateEntity, err)
 	}
 	pat.Secret = secret
-	pat.Revoked = false
+	pat.Status = ActiveStatus
 	pat.RevokedAt = time.Time{}
 	return pat, nil
 }

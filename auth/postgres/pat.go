@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/absmach/supermq/auth"
-	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 )
 
 type dbPat struct {
@@ -23,6 +22,7 @@ type dbPat struct {
 	LastUsedAt  sql.NullTime `db:"last_used_at,omitempty"`
 	Revoked     bool         `db:"revoked,omitempty"`
 	RevokedAt   sql.NullTime `db:"revoked_at,omitempty"`
+	Status      auth.Status  `db:"status,omitempty"`
 }
 
 type dbScope struct {
@@ -47,13 +47,11 @@ type dbPagemeta struct {
 	RevokedAt   sql.NullTime `db:"revoked_at"`
 	Description string       `db:"description"`
 	Secret      string       `db:"secret"`
+	Status      auth.Status  `db:"status"`
+	Timestamp   time.Time    `db:"timestamp,omitempty"`
 }
 
-func toAuthPat(db dbPat) (auth.PAT, error) {
-	if db.ID == "" {
-		return auth.PAT{}, repoerr.ErrNotFound
-	}
-
+func toAuthPat(db dbPat) auth.PAT {
 	updatedAt := time.Time{}
 	lastUsedAt := time.Time{}
 	revokedAt := time.Time{}
@@ -70,7 +68,7 @@ func toAuthPat(db dbPat) (auth.PAT, error) {
 		revokedAt = db.RevokedAt.Time
 	}
 
-	pat := auth.PAT{
+	return auth.PAT{
 		ID:          db.ID,
 		User:        db.User,
 		Name:        db.Name,
@@ -82,9 +80,8 @@ func toAuthPat(db dbPat) (auth.PAT, error) {
 		LastUsedAt:  lastUsedAt,
 		Revoked:     db.Revoked,
 		RevokedAt:   revokedAt,
+		Status:      db.Status,
 	}
-
-	return pat, nil
 }
 
 func toAuthScope(dsc []dbScope) ([]auth.Scope, error) {
@@ -144,9 +141,9 @@ func toDBPats(pat auth.PAT) (dbPat, error) {
 		Secret:      pat.Secret,
 		IssuedAt:    pat.IssuedAt,
 		ExpiresAt:   pat.ExpiresAt,
+		Revoked:     pat.Revoked,
 		UpdatedAt:   updatedAt,
 		LastUsedAt:  lastUsedAt,
-		Revoked:     pat.Revoked,
 		RevokedAt:   revokedAt,
 	}, nil
 }

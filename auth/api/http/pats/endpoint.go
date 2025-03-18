@@ -84,6 +84,9 @@ func listPATSEndpoint(svc auth.Service) endpoint.Endpoint {
 		pm := auth.PATSPageMeta{
 			Limit:  req.limit,
 			Offset: req.offset,
+			Name:   req.name,
+			ID:     req.id,
+			Status: req.status,
 		}
 		patsPage, err := svc.ListPATS(ctx, req.token, pm)
 		if err != nil {

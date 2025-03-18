@@ -204,15 +204,36 @@ func decodeListPATSRequest(_ context.Context, r *http.Request) (interface{}, err
 	if err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
 	}
+	n, err := apiutil.ReadStringQuery(r, api.NameKey, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	i, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
 	token := apiutil.ExtractBearerToken(r)
 	if strings.HasPrefix(token, patPrefix) {
 		return nil, apiutil.ErrUnsupportedTokenType
 	}
+	s, err := apiutil.ReadStringQuery(r, api.StatusKey, "")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+	patStatus, err := auth.ToStatus(s)
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
+
 	req := listPatsReq{
 		token:  token,
 		limit:  l,
 		offset: o,
+		name:   n,
+		id:     i,
+		status: patStatus,
 	}
+
 	return req, nil
 }
 
