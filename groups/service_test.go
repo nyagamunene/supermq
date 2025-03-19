@@ -276,7 +276,7 @@ func TestViewGroup(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			repoCall := repo.On("RetrieveByIDAndUser", context.Background(), tc.session.DomainID, tc.session.UserID, tc.id).Return(tc.repoResp, tc.repoErr)
+			repoCall := repo.On("RetrieveByID", context.Background(), tc.id).Return(tc.repoResp, tc.repoErr)
 			repoCall1 := repo.On("RetrieveByIDWithRoles", context.Background(), tc.id, tc.session.UserID).Return(tc.repoResp, tc.repoErr)
 			got, err := svc.ViewGroup(context.Background(), validSession, tc.id, tc.withRoles)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("expected error %v to contain %v", err, tc.err))
@@ -288,8 +288,8 @@ func TestViewGroup(t *testing.T) {
 					assert.True(t, ok, fmt.Sprintf("RetrieveByIDWithRoles was not called on %s", tc.desc))
 				default:
 					assert.Equal(t, tc.repoResp, got)
-					ok := repo.AssertCalled(t, "RetrieveByIDAndUser", context.Background(), tc.session.DomainID, tc.session.UserID, tc.id)
-					assert.True(t, ok, fmt.Sprintf("RetrieveByIDAndUser was not called on %s", tc.desc))
+					ok := repo.AssertCalled(t, "RetrieveByID", context.Background(), tc.id)
+					assert.True(t, ok, fmt.Sprintf("RetrieveByID was not called on %s", tc.desc))
 				}
 			}
 			repoCall.Unset()

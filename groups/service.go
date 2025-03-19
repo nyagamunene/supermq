@@ -112,7 +112,7 @@ func (svc service) ViewGroup(ctx context.Context, session smqauthn.Session, id s
 	case true:
 		group, err = svc.repo.RetrieveByIDWithRoles(ctx, id, session.UserID)
 	default:
-		group, err = svc.repo.RetrieveByIDAndUser(ctx, session.DomainID, session.UserID, id)
+		group, err = svc.repo.RetrieveByID(ctx, id)
 	}
 	if err != nil {
 		return Group{}, errors.Wrap(svcerr.ErrViewEntity, err)
