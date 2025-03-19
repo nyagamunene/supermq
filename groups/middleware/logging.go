@@ -86,7 +86,7 @@ func (lm *loggingMiddleware) ViewGroup(ctx context.Context, session authn.Sessio
 			slog.Group("group",
 				slog.String("id", g.ID),
 				slog.String("name", g.Name),
-				slog.Bool("get_roles", withRoles),
+				slog.Bool("with_roles", withRoles),
 			),
 		}
 		if err != nil {
