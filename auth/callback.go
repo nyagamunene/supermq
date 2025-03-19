@@ -58,7 +58,6 @@ func (c *callback) Authorize(ctx context.Context, pr policies.Policy) error {
 	}
 
 	// Check if the permission is in the allowed list
-	// If the map is empty, all permissions are allowed (backward compatibility)
 	// Otherwise, only call webhook if the permission is in the map
 	if len(c.allowedPermission) > 0 {
 		_, exists := c.allowedPermission[pr.Permission]
