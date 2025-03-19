@@ -65,7 +65,7 @@ var cmdDomains = []cobra.Command{
 				logJSONCmd(*cmd, l)
 				return
 			}
-			d, err := sdk.Domain(args[0], args[1], false)
+			d, err := sdk.Domain(args[0], args[1])
 			if err != nil {
 				logErrorCmd(*cmd, err)
 				return

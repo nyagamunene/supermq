@@ -596,6 +596,12 @@ func TestViewClient(t *testing.T) {
 	}
 	mgsdk := sdk.NewSDK(conf)
 
+	confRoles := sdk.Config{
+		ClientsURL: ts.URL,
+		Roles:      true,
+	}
+	mgsdkRoles := sdk.NewSDK(confRoles)
+
 	cases := []struct {
 		desc            string
 		domainID        string
@@ -701,7 +707,15 @@ func TestViewClient(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, mock.Anything).Return(tc.session, tc.authenticateErr)
 			svcCall := tsvc.On("View", mock.Anything, tc.session, tc.clientID, tc.withRoles).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Client(tc.clientID, tc.domainID, tc.token, tc.withRoles)
+
+			var resp sdk.Client
+			var err error
+			switch tc.withRoles {
+			case true:
+				resp, err = mgsdkRoles.Client(tc.clientID, tc.domainID, tc.token)
+			default:
+				resp, err = mgsdk.Client(tc.clientID, tc.domainID, tc.token)
+			}
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.withRoles {

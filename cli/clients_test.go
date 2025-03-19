@@ -221,7 +221,7 @@ func TestGetClientssCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("Clients", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.sdkErr)
-			sdkCall1 := sdkMock.On("Client", mock.Anything, mock.Anything, mock.Anything).Return(tc.client, tc.sdkErr)
+			sdkCall1 := sdkMock.On("Client", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.client, tc.sdkErr)
 
 			out := executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)
 

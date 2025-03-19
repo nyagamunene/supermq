@@ -690,9 +690,9 @@ func (_c *SDK_AvailableGroupRoleActions_Call) RunAndReturn(run func(string, stri
 	return _c
 }
 
-// Channel provides a mock function with given fields: id, domainID, token, withRoles
-func (_m *SDK) Channel(id string, domainID string, token string, withRoles bool) (sdk.Channel, errors.SDKError) {
-	ret := _m.Called(id, domainID, token, withRoles)
+// Channel provides a mock function with given fields: id, domainID, token
+func (_m *SDK) Channel(id string, domainID string, token string) (sdk.Channel, errors.SDKError) {
+	ret := _m.Called(id, domainID, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Channel")
@@ -700,17 +700,17 @@ func (_m *SDK) Channel(id string, domainID string, token string, withRoles bool)
 
 	var r0 sdk.Channel
 	var r1 errors.SDKError
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) (sdk.Channel, errors.SDKError)); ok {
-		return rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string, string) (sdk.Channel, errors.SDKError)); ok {
+		return rf(id, domainID, token)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) sdk.Channel); ok {
-		r0 = rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string, string) sdk.Channel); ok {
+		r0 = rf(id, domainID, token)
 	} else {
 		r0 = ret.Get(0).(sdk.Channel)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string, bool) errors.SDKError); ok {
-		r1 = rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(1).(func(string, string, string) errors.SDKError); ok {
+		r1 = rf(id, domainID, token)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(errors.SDKError)
@@ -729,14 +729,13 @@ type SDK_Channel_Call struct {
 //   - id string
 //   - domainID string
 //   - token string
-//   - withRoles bool
-func (_e *SDK_Expecter) Channel(id interface{}, domainID interface{}, token interface{}, withRoles interface{}) *SDK_Channel_Call {
-	return &SDK_Channel_Call{Call: _e.mock.On("Channel", id, domainID, token, withRoles)}
+func (_e *SDK_Expecter) Channel(id interface{}, domainID interface{}, token interface{}) *SDK_Channel_Call {
+	return &SDK_Channel_Call{Call: _e.mock.On("Channel", id, domainID, token)}
 }
 
-func (_c *SDK_Channel_Call) Run(run func(id string, domainID string, token string, withRoles bool)) *SDK_Channel_Call {
+func (_c *SDK_Channel_Call) Run(run func(id string, domainID string, token string)) *SDK_Channel_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string), args[3].(bool))
+		run(args[0].(string), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -746,7 +745,7 @@ func (_c *SDK_Channel_Call) Return(_a0 sdk.Channel, _a1 errors.SDKError) *SDK_Ch
 	return _c
 }
 
-func (_c *SDK_Channel_Call) RunAndReturn(run func(string, string, string, bool) (sdk.Channel, errors.SDKError)) *SDK_Channel_Call {
+func (_c *SDK_Channel_Call) RunAndReturn(run func(string, string, string) (sdk.Channel, errors.SDKError)) *SDK_Channel_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -872,9 +871,9 @@ func (_c *SDK_Children_Call) RunAndReturn(run func(string, string, sdk.PageMetad
 	return _c
 }
 
-// Client provides a mock function with given fields: id, domainID, token, withRoles
-func (_m *SDK) Client(id string, domainID string, token string, withRoles bool) (sdk.Client, errors.SDKError) {
-	ret := _m.Called(id, domainID, token, withRoles)
+// Client provides a mock function with given fields: id, domainID, token
+func (_m *SDK) Client(id string, domainID string, token string) (sdk.Client, errors.SDKError) {
+	ret := _m.Called(id, domainID, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Client")
@@ -882,17 +881,17 @@ func (_m *SDK) Client(id string, domainID string, token string, withRoles bool) 
 
 	var r0 sdk.Client
 	var r1 errors.SDKError
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) (sdk.Client, errors.SDKError)); ok {
-		return rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string, string) (sdk.Client, errors.SDKError)); ok {
+		return rf(id, domainID, token)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) sdk.Client); ok {
-		r0 = rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string, string) sdk.Client); ok {
+		r0 = rf(id, domainID, token)
 	} else {
 		r0 = ret.Get(0).(sdk.Client)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string, bool) errors.SDKError); ok {
-		r1 = rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(1).(func(string, string, string) errors.SDKError); ok {
+		r1 = rf(id, domainID, token)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(errors.SDKError)
@@ -911,14 +910,13 @@ type SDK_Client_Call struct {
 //   - id string
 //   - domainID string
 //   - token string
-//   - withRoles bool
-func (_e *SDK_Expecter) Client(id interface{}, domainID interface{}, token interface{}, withRoles interface{}) *SDK_Client_Call {
-	return &SDK_Client_Call{Call: _e.mock.On("Client", id, domainID, token, withRoles)}
+func (_e *SDK_Expecter) Client(id interface{}, domainID interface{}, token interface{}) *SDK_Client_Call {
+	return &SDK_Client_Call{Call: _e.mock.On("Client", id, domainID, token)}
 }
 
-func (_c *SDK_Client_Call) Run(run func(id string, domainID string, token string, withRoles bool)) *SDK_Client_Call {
+func (_c *SDK_Client_Call) Run(run func(id string, domainID string, token string)) *SDK_Client_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string), args[3].(bool))
+		run(args[0].(string), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -928,7 +926,7 @@ func (_c *SDK_Client_Call) Return(_a0 sdk.Client, _a1 errors.SDKError) *SDK_Clie
 	return _c
 }
 
-func (_c *SDK_Client_Call) RunAndReturn(run func(string, string, string, bool) (sdk.Client, errors.SDKError)) *SDK_Client_Call {
+func (_c *SDK_Client_Call) RunAndReturn(run func(string, string, string) (sdk.Client, errors.SDKError)) *SDK_Client_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2793,9 +2791,9 @@ func (_c *SDK_DisconnectClients_Call) RunAndReturn(run func(string, []string, []
 	return _c
 }
 
-// Domain provides a mock function with given fields: domainID, token, withRoles
-func (_m *SDK) Domain(domainID string, token string, withRoles bool) (sdk.Domain, errors.SDKError) {
-	ret := _m.Called(domainID, token, withRoles)
+// Domain provides a mock function with given fields: domainID, token
+func (_m *SDK) Domain(domainID string, token string) (sdk.Domain, errors.SDKError) {
+	ret := _m.Called(domainID, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Domain")
@@ -2803,17 +2801,17 @@ func (_m *SDK) Domain(domainID string, token string, withRoles bool) (sdk.Domain
 
 	var r0 sdk.Domain
 	var r1 errors.SDKError
-	if rf, ok := ret.Get(0).(func(string, string, bool) (sdk.Domain, errors.SDKError)); ok {
-		return rf(domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string) (sdk.Domain, errors.SDKError)); ok {
+		return rf(domainID, token)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, bool) sdk.Domain); ok {
-		r0 = rf(domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string) sdk.Domain); ok {
+		r0 = rf(domainID, token)
 	} else {
 		r0 = ret.Get(0).(sdk.Domain)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, bool) errors.SDKError); ok {
-		r1 = rf(domainID, token, withRoles)
+	if rf, ok := ret.Get(1).(func(string, string) errors.SDKError); ok {
+		r1 = rf(domainID, token)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(errors.SDKError)
@@ -2831,14 +2829,13 @@ type SDK_Domain_Call struct {
 // Domain is a helper method to define mock.On call
 //   - domainID string
 //   - token string
-//   - withRoles bool
-func (_e *SDK_Expecter) Domain(domainID interface{}, token interface{}, withRoles interface{}) *SDK_Domain_Call {
-	return &SDK_Domain_Call{Call: _e.mock.On("Domain", domainID, token, withRoles)}
+func (_e *SDK_Expecter) Domain(domainID interface{}, token interface{}) *SDK_Domain_Call {
+	return &SDK_Domain_Call{Call: _e.mock.On("Domain", domainID, token)}
 }
 
-func (_c *SDK_Domain_Call) Run(run func(domainID string, token string, withRoles bool)) *SDK_Domain_Call {
+func (_c *SDK_Domain_Call) Run(run func(domainID string, token string)) *SDK_Domain_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(bool))
+		run(args[0].(string), args[1].(string))
 	})
 	return _c
 }
@@ -2848,7 +2845,7 @@ func (_c *SDK_Domain_Call) Return(_a0 sdk.Domain, _a1 errors.SDKError) *SDK_Doma
 	return _c
 }
 
-func (_c *SDK_Domain_Call) RunAndReturn(run func(string, string, bool) (sdk.Domain, errors.SDKError)) *SDK_Domain_Call {
+func (_c *SDK_Domain_Call) RunAndReturn(run func(string, string) (sdk.Domain, errors.SDKError)) *SDK_Domain_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -3492,9 +3489,9 @@ func (_c *SDK_FreezeDomain_Call) RunAndReturn(run func(string, string) errors.SD
 	return _c
 }
 
-// Group provides a mock function with given fields: id, domainID, token, withRoles
-func (_m *SDK) Group(id string, domainID string, token string, withRoles bool) (sdk.Group, errors.SDKError) {
-	ret := _m.Called(id, domainID, token, withRoles)
+// Group provides a mock function with given fields: id, domainID, token
+func (_m *SDK) Group(id string, domainID string, token string) (sdk.Group, errors.SDKError) {
+	ret := _m.Called(id, domainID, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Group")
@@ -3502,17 +3499,17 @@ func (_m *SDK) Group(id string, domainID string, token string, withRoles bool) (
 
 	var r0 sdk.Group
 	var r1 errors.SDKError
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) (sdk.Group, errors.SDKError)); ok {
-		return rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string, string) (sdk.Group, errors.SDKError)); ok {
+		return rf(id, domainID, token)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, string, bool) sdk.Group); ok {
-		r0 = rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(0).(func(string, string, string) sdk.Group); ok {
+		r0 = rf(id, domainID, token)
 	} else {
 		r0 = ret.Get(0).(sdk.Group)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, string, bool) errors.SDKError); ok {
-		r1 = rf(id, domainID, token, withRoles)
+	if rf, ok := ret.Get(1).(func(string, string, string) errors.SDKError); ok {
+		r1 = rf(id, domainID, token)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(errors.SDKError)
@@ -3531,14 +3528,13 @@ type SDK_Group_Call struct {
 //   - id string
 //   - domainID string
 //   - token string
-//   - withRoles bool
-func (_e *SDK_Expecter) Group(id interface{}, domainID interface{}, token interface{}, withRoles interface{}) *SDK_Group_Call {
-	return &SDK_Group_Call{Call: _e.mock.On("Group", id, domainID, token, withRoles)}
+func (_e *SDK_Expecter) Group(id interface{}, domainID interface{}, token interface{}) *SDK_Group_Call {
+	return &SDK_Group_Call{Call: _e.mock.On("Group", id, domainID, token)}
 }
 
-func (_c *SDK_Group_Call) Run(run func(id string, domainID string, token string, withRoles bool)) *SDK_Group_Call {
+func (_c *SDK_Group_Call) Run(run func(id string, domainID string, token string)) *SDK_Group_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(string), args[3].(bool))
+		run(args[0].(string), args[1].(string), args[2].(string))
 	})
 	return _c
 }
@@ -3548,7 +3544,7 @@ func (_c *SDK_Group_Call) Return(_a0 sdk.Group, _a1 errors.SDKError) *SDK_Group_
 	return _c
 }
 
-func (_c *SDK_Group_Call) RunAndReturn(run func(string, string, string, bool) (sdk.Group, errors.SDKError)) *SDK_Group_Call {
+func (_c *SDK_Group_Call) RunAndReturn(run func(string, string, string) (sdk.Group, errors.SDKError)) *SDK_Group_Call {
 	_c.Call.Return(run)
 	return _c
 }

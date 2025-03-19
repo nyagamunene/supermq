@@ -169,7 +169,7 @@ func TestRevokeCert(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdk.On("Client", tc.clientID, tc.domainID, tc.token).Return(mgsdk.Client{ID: tc.clientID, Credentials: mgsdk.ClientCredentials{Secret: clientKey}}, tc.clientErr)
+			sdkCall := sdk.On("Client", tc.clientID, tc.domainID, tc.token, false).Return(mgsdk.Client{ID: tc.clientID, Credentials: mgsdk.ClientCredentials{Secret: clientKey}}, tc.clientErr)
 			agentCall := agent.On("Revoke", mock.Anything).Return(tc.revokeErr)
 			agentCall1 := agent.On("ListCerts", mock.Anything).Return(tc.page, tc.listErr)
 			_, err := svc.RevokeCert(context.Background(), tc.domainID, tc.token, tc.clientID)

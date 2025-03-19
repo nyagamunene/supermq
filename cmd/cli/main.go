@@ -219,6 +219,15 @@ func main() {
 		"",
 		"Subscription contact query parameter",
 	)
+
+	rootCmd.PersistentFlags().BoolVarP(
+		&sdkConf.Roles,
+		"roles",
+		"R",
+		false,
+		"Adds option to display roles for entities",
+	)
+
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}

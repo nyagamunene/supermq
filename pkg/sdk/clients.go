@@ -108,11 +108,11 @@ func (sdk mgSDK) Clients(pm PageMetadata, domainID, token string) (ClientsPage, 
 	return cp, nil
 }
 
-func (sdk mgSDK) Client(id, domainID, token string, withRoles bool) (Client, errors.SDKError) {
+func (sdk mgSDK) Client(id, domainID, token string) (Client, errors.SDKError) {
 	if id == "" {
 		return Client{}, errors.NewSDKError(apiutil.ErrMissingID)
 	}
-	url := fmt.Sprintf("%s/%s/%s/%s?roles=%v", sdk.clientsURL, domainID, clientsEndpoint, id, withRoles)
+	url := fmt.Sprintf("%s/%s/%s/%s", sdk.clientsURL, domainID, clientsEndpoint, id)
 
 	_, body, sdkerr := sdk.processRequest(http.MethodGet, url, token, nil, nil, http.StatusOK)
 	if sdkerr != nil {

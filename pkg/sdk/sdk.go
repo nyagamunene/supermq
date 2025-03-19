@@ -397,9 +397,9 @@ type SDK interface {
 	// Client returns client object by id.
 	//
 	// example:
-	//  client, _ := sdk.Client("clientID", "domainID", "token", false)
+	//  client, _ := sdk.Client("clientID", "domainID", "token")
 	//  fmt.Println(client)
-	Client(id, domainID, token string, withRoles bool) (Client, errors.SDKError)
+	Client(id, domainID, token string) (Client, errors.SDKError)
 
 	// UpdateClient updates existing client.
 	//
@@ -622,9 +622,9 @@ type SDK interface {
 	// Group returns users group object by id.
 	//
 	// example:
-	//  group, _ := sdk.Group("groupID", "domainID", "token", false)
+	//  group, _ := sdk.Group("groupID", "domainID", "token")
 	//  fmt.Println(group)
-	Group(id, domainID, token string, withRoles bool) (Group, errors.SDKError)
+	Group(id, domainID, token string) (Group, errors.SDKError)
 
 	// UpdateGroup updates existing group.
 	//
@@ -896,9 +896,9 @@ type SDK interface {
 	// Channel returns channel data by id.
 	//
 	// example:
-	//  channel, _ := sdk.Channel("channelID", "domainID", "token", false)
+	//  channel, _ := sdk.Channel("channelID", "domainID", "token")
 	//  fmt.Println(channel)
-	Channel(id, domainID, token string, withRoles bool) (Channel, errors.SDKError)
+	Channel(id, domainID, token string) (Channel, errors.SDKError)
 
 	// UpdateChannel updates existing channel.
 	//
@@ -1077,9 +1077,9 @@ type SDK interface {
 	// Domain retrieve domain information of given domain ID .
 	//
 	// example:
-	//  domain, _ := sdk.Domain("domainID", "token", false)
+	//  domain, _ := sdk.Domain("domainID", "token")
 	//  fmt.Println(domain)
-	Domain(domainID, token string, withRoles bool) (Domain, errors.SDKError)
+	Domain(domainID, token string) (Domain, errors.SDKError)
 
 	// UpdateDomain updates details of the given domain ID.
 	//
@@ -1324,6 +1324,7 @@ type mgSDK struct {
 	msgContentType ContentType
 	client         *http.Client
 	curlFlag       bool
+	roles          bool
 }
 
 // Config contains sdk configuration parameters.
@@ -1341,6 +1342,7 @@ type Config struct {
 	MsgContentType  ContentType
 	TLSVerification bool
 	CurlFlag        bool
+	Roles           bool
 }
 
 // NewSDK returns new supermq SDK instance.
@@ -1365,12 +1367,16 @@ func NewSDK(conf Config) SDK {
 			},
 		},
 		curlFlag: conf.CurlFlag,
+		roles:    conf.Roles,
 	}
 }
 
 // processRequest creates and send a new HTTP request, and checks for errors in the HTTP response.
 // It then returns the response headers, the response body, and the associated error(s) (if any).
 func (sdk mgSDK) processRequest(method, reqUrl, token string, data []byte, headers map[string]string, expectedRespCodes ...int) (http.Header, []byte, errors.SDKError) {
+	if sdk.roles {
+		reqUrl = reqUrl + fmt.Sprintf("?roles=%v", true)
+	}
 	req, err := http.NewRequest(method, reqUrl, bytes.NewReader(data))
 	if err != nil {
 		return make(http.Header), []byte{}, errors.NewSDKError(err)

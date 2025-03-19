@@ -70,7 +70,7 @@ type Revoke struct {
 func (cs *certsService) IssueCert(ctx context.Context, domainID, token, clientID, ttl string) (Cert, error) {
 	var err error
 
-	client, err := cs.sdk.Client(clientID, domainID, token, false)
+	client, err := cs.sdk.Client(clientID, domainID, token)
 	if err != nil {
 		return Cert{}, errors.Wrap(ErrFailedCertCreation, err)
 	}
@@ -94,7 +94,7 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 	var revoke Revoke
 	var err error
 
-	client, err := cs.sdk.Client(clientID, domainID, token, false)
+	client, err := cs.sdk.Client(clientID, domainID, token)
 	if err != nil {
 		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 	}

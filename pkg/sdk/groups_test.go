@@ -523,6 +523,12 @@ func TestViewGroup(t *testing.T) {
 	}
 	mgsdk := sdk.NewSDK(conf)
 
+	confRoles := sdk.Config{
+		GroupsURL: ts.URL,
+		Roles:     true,
+	}
+	mgsdkRoles := sdk.NewSDK(confRoles)
+
 	cases := []struct {
 		desc            string
 		domainID        string
@@ -628,8 +634,17 @@ func TestViewGroup(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ViewGroup", mock.Anything, tc.session, tc.groupID, tc.withRoles).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Group(tc.groupID, tc.domainID, tc.token, tc.withRoles)
-			fmt.Printf("roles is %+v\n", tc.withRoles)
+
+			var resp sdk.Group
+			var err error
+
+			switch tc.withRoles {
+			case true:
+				resp, err = mgsdkRoles.Group(tc.groupID, tc.domainID, tc.token)
+			default:
+				resp, err = mgsdk.Group(tc.groupID, tc.domainID, tc.token)
+			}
+
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.withRoles {

@@ -627,6 +627,12 @@ func TestViewChannel(t *testing.T) {
 	}
 	mgsdk := sdk.NewSDK(conf)
 
+	channelResRoles := sdk.Config{
+		ChannelsURL: ts.URL,
+		Roles:       true,
+	}
+	mgsdkRoles := sdk.NewSDK(channelResRoles)
+
 	cases := []struct {
 		desc            string
 		domainID        string
@@ -731,7 +737,17 @@ func TestViewChannel(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := gsvc.On("ViewChannel", mock.Anything, tc.session, tc.channelID, tc.withRoles).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Channel(tc.channelID, tc.domainID, tc.token, tc.withRoles)
+
+			var resp sdk.Channel
+			var err error
+
+			switch tc.withRoles {
+			case true:
+				resp, err = mgsdkRoles.Channel(tc.channelID, tc.domainID, tc.token)
+			default:
+				resp, err = mgsdk.Channel(tc.channelID, tc.domainID, tc.token)
+			}
+
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.withRoles {

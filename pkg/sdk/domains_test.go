@@ -345,6 +345,12 @@ func TestViewDomain(t *testing.T) {
 
 	mgsdk := sdk.NewSDK(sdkConf)
 
+	sdkConfRoles := sdk.Config{
+		DomainsURL: ds.URL,
+		Roles:      true,
+	}
+	mgsdkRoles := sdk.NewSDK(sdkConfRoles)
+
 	cases := []struct {
 		desc      string
 		token     string
@@ -441,7 +447,16 @@ func TestViewDomain(t *testing.T) {
 			}
 			authCall := authn.On("Authenticate", mock.Anything, mock.Anything).Return(tc.session, tc.authnErr)
 			svcCall := svc.On("RetrieveDomain", mock.Anything, tc.session, tc.domainID, tc.withRoles).Return(tc.svcRes, tc.svcErr)
-			resp, err := mgsdk.Domain(tc.domainID, tc.token, tc.withRoles)
+
+			var resp sdk.Domain
+			var err error
+
+			switch tc.withRoles {
+			case true:
+				resp, err = mgsdkRoles.Domain(tc.domainID, tc.token)
+			default:
+				resp, err = mgsdk.Domain(tc.domainID, tc.token)
+			}
 			assert.Equal(t, tc.err, err)
 			assert.Equal(t, tc.response, resp)
 			if tc.withRoles {

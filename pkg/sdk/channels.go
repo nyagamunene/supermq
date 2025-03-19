@@ -96,11 +96,11 @@ func (sdk mgSDK) Channels(pm PageMetadata, domainID, token string) (ChannelsPage
 	return cp, nil
 }
 
-func (sdk mgSDK) Channel(id, domainID, token string, withRoles bool) (Channel, errors.SDKError) {
+func (sdk mgSDK) Channel(id, domainID, token string) (Channel, errors.SDKError) {
 	if id == "" {
 		return Channel{}, errors.NewSDKError(apiutil.ErrMissingID)
 	}
-	url := fmt.Sprintf("%s/%s/%s/%s?roles=%v", sdk.channelsURL, domainID, channelsEndpoint, id, withRoles)
+	url := fmt.Sprintf("%s/%s/%s/%s", sdk.channelsURL, domainID, channelsEndpoint, id)
 
 	_, body, err := sdk.processRequest(http.MethodGet, url, token, nil, nil, http.StatusOK)
 	if err != nil {

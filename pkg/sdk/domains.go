@@ -75,11 +75,11 @@ func (sdk mgSDK) Domains(pm PageMetadata, token string) (DomainsPage, errors.SDK
 	return dp, nil
 }
 
-func (sdk mgSDK) Domain(domainID, token string, withRoles bool) (Domain, errors.SDKError) {
+func (sdk mgSDK) Domain(domainID, token string) (Domain, errors.SDKError) {
 	if domainID == "" {
 		return Domain{}, errors.NewSDKError(apiutil.ErrMissingID)
 	}
-	url := fmt.Sprintf("%s/%s/%s?roles=%v", sdk.domainsURL, domainsEndpoint, domainID, withRoles)
+	url := fmt.Sprintf("%s/%s/%s", sdk.domainsURL, domainsEndpoint, domainID)
 
 	_, body, sdkerr := sdk.processRequest(http.MethodGet, url, token, nil, nil, http.StatusOK)
 	if sdkerr != nil {

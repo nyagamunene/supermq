@@ -72,7 +72,7 @@ var cmdChannels = []cobra.Command{
 				logJSONCmd(*cmd, l)
 				return
 			}
-			c, err := sdk.Channel(args[0], args[1], args[2], false)
+			c, err := sdk.Channel(args[0], args[1], args[2])
 			if err != nil {
 				logErrorCmd(*cmd, err)
 				return

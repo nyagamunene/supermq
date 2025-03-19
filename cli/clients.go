@@ -72,7 +72,7 @@ var cmdClients = []cobra.Command{
 				logJSONCmd(*cmd, l)
 				return
 			}
-			t, err := sdk.Client(args[0], args[1], args[2], false)
+			t, err := sdk.Client(args[0], args[1], args[2])
 			if err != nil {
 				logErrorCmd(*cmd, err)
 				return

@@ -90,12 +90,12 @@ func (sdk mgSDK) Groups(pm PageMetadata, domainID, token string) (GroupsPage, er
 	return gp, nil
 }
 
-func (sdk mgSDK) Group(id, domainID, token string, withRoles bool) (Group, errors.SDKError) {
+func (sdk mgSDK) Group(id, domainID, token string) (Group, errors.SDKError) {
 	if id == "" {
 		return Group{}, errors.NewSDKError(apiutil.ErrMissingID)
 	}
 
-	url := fmt.Sprintf("%s/%s/%s/%s?roles=%v", sdk.groupsURL, domainID, groupsEndpoint, id, withRoles)
+	url := fmt.Sprintf("%s/%s/%s/%s", sdk.groupsURL, domainID, groupsEndpoint, id)
 
 	_, body, sdkerr := sdk.processRequest(http.MethodGet, url, token, nil, nil, http.StatusOK)
 	if sdkerr != nil {
