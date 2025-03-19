@@ -208,7 +208,7 @@ func (repo groupRepository) RetrieveByIDWithRoles(ctx context.Context, id, membe
 			grm.member_id = :member_id
 			AND (
 				(gr.entity_id = sg.id)
-				OR (gr.entity_id <> sg.parent_id AND gra.action LIKE 'subgroup%%')
+				OR (gr.entity_id <> sg.id AND gra.action LIKE 'subgroup%%')
 			)
 		GROUP BY
 			sg.id, gr.entity_id, gr.id, gr.name, g.path, grm.member_id, sg.parent_id
