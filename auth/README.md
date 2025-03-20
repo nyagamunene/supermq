@@ -102,7 +102,7 @@ The service is configured using the environment variables presented in the follo
 | SMQ_AUTH_CALLOUT_CA_CERT          | Path to CA certificate file                                             | ""                             |
 | SMQ_AUTH_CALLOUT_CERT             | Path to client certificate file                                         | ""                             |
 | SMQ_AUTH_CALLOUT_KEY              | Path to client key file                                                 | ""                             |
-| SMQ_AUTH_CALLOUT_INVOKE_PERMISSIONS | Invoke permissions                            | ""                              |
+| SMQ_AUTH_CALLOUT_INVOKE_PERMISSIONS | Invoke callout if the authorization permission matches any of the given permissions.                           | ""                              |
 
 ## Deployment
 
