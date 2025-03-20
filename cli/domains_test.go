@@ -170,7 +170,7 @@ func TestGetDomainsCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("Domain", tc.args[0], tc.args[1], false).Return(tc.domain, tc.sdkErr)
+			sdkCall := sdkMock.On("Domain", tc.args[0], tc.args[1]).Return(tc.domain, tc.sdkErr)
 			sdkCall1 := sdkMock.On("Domains", mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
 
 			out := executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)

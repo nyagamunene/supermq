@@ -181,7 +181,7 @@ func TestGetChannelsCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("Channel", tc.args[0], tc.args[1], tc.args[2], false).Return(tc.channel, tc.sdkErr)
+			sdkCall := sdkMock.On("Channel", tc.args[0], tc.args[1], tc.args[2]).Return(tc.channel, tc.sdkErr)
 			sdkCall1 := sdkMock.On("Channels", mock.Anything, tc.args[1], tc.args[2]).Return(tc.page, tc.sdkErr)
 
 			out := executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)
