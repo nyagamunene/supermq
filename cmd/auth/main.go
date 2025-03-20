@@ -87,7 +87,7 @@ type config struct {
 	AuthCalloutCACert          string        `env:"SMQ_AUTH_CALLOUT_CA_CERT"          envDefault:""`
 	AuthCalloutCert            string        `env:"SMQ_AUTH_CALLOUT_CERT"             envDefault:""`
 	AuthCalloutKey             string        `env:"SMQ_AUTH_CALLOUT_KEY"              envDefault:""`
-	AuthCalloutPermissions     []string      `env:"SMQ_AUTH_CALL_WEBHOOK_PERMISSIONS" envDefault:"" envSeparator:","`
+	AuthCalloutPermissions     []string      `env:"SMQ_AUTH_CALLOUT_INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
 }
 
 func main() {

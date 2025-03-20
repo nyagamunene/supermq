@@ -102,7 +102,7 @@ The service is configured using the environment variables presented in the follo
 | SMQ_AUTH_CALLOUT_CA_CERT          | Path to CA certificate file                                             | ""                             |
 | SMQ_AUTH_CALLOUT_CERT             | Path to client certificate file                                         | ""                             |
 | SMQ_AUTH_CALLOUT_KEY              | Path to client key file                                                 | ""                             |
-| SMQ_AUTH_CALL_WEBHOOK_PERMISSIONS | Filter webhook permission           | "administrator,group_create_permission,client_create_permission,channel_create_permission,client_delete_permission,client_update_permission"  |
+| SMQ_AUTH_CALLOUT_INVOKE_PERMISSIONS | Invoke permissions                            | ""                              |
 
 ## Deployment
 
