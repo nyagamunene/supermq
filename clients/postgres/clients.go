@@ -443,7 +443,7 @@ func (repo *clientRepo) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 					clients c
 			)
 			SELECT
-				*
+				c.*
 			%s
 			%s
 		`, connJoinQuery, pageQuery)

@@ -391,7 +391,7 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
         					channels c
 					)
 					SELECT
-						*
+						c.*
 					%s
 					%s
 					`, connJoinQuery, pageQuery)
