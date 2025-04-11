@@ -34,7 +34,7 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 						updated_at	TIMESTAMP,
 						updated_by  VARCHAR(254),
 						status		SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
-						UNIQUE		(domain_id, id),
+						UNIQUE		(domain_id, name),
 						FOREIGN KEY (parent_id) REFERENCES groups (id) ON DELETE SET NULL,
 						CHECK (id != parent_id)
 					)`,
@@ -53,6 +53,15 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 				Down: []string{
 					`DROP TABLE IF EXISTS groups`,
 					`DROP EXTENSION IF EXISTS LTREE`,
+				},
+			},
+			{
+				Id: "groups_03",
+				Up: []string{
+					`ALTER TABLE groups DROP CONSTRAINT IF EXISTS groups_domain_id_name_key`,
+				},
+				Down: []string{
+					`ALTER TABLE groups ADD CONSTRAINT groups_domain_id_name_key UNIQUE (domain_id, name)`,
 				},
 			},
 		},

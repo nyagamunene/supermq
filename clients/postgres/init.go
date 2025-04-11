@@ -39,6 +39,7 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 						updated_by         VARCHAR(254),
 						status		       SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
 						UNIQUE		       (domain_id, secret),
+						UNIQUE		       (domain_id, name),
 						UNIQUE		       (domain_id, id)
 					)`,
 					`CREATE TABLE IF NOT EXISTS connections (
@@ -53,6 +54,15 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 				Down: []string{
 					`DROP TABLE IF EXISTS clients`,
 					`DROP TABLE IF EXISTS connections`,
+				},
+			},
+			{
+				Id: "clients_02",
+				Up: []string{
+					`ALTER TABLE clients DROP CONSTRAINT IF EXISTS clients_domain_id_name_key`,
+				},
+				Down: []string{
+					`ALTER TABLE clients ADD CONSTRAINT clients_domain_id_name_key UNIQUE (domain_id, name)`,
 				},
 			},
 		},
