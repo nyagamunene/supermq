@@ -125,7 +125,7 @@ func (c *callback) makeRequest(ctx context.Context, urlStr string, params map[st
 	return nil
 }
 
-func LoadCerts(authCalloutTLSVerification bool, authCalloutCert, authCalloutKey, authCalloutCACert string, authCalloutTimeout time.Duration) (*http.Client, error) {
+func NewCalloutClient(authCalloutTLSVerification bool, authCalloutCert, authCalloutKey, authCalloutCACert string, authCalloutTimeout time.Duration) (*http.Client, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: !authCalloutTLSVerification,
 	}
