@@ -211,7 +211,7 @@ func main() {
 	}
 	defer domainsHandler.Close()
 
-	client, err := authsvcAuthz.LoadCerts(cfg.AuthCalloutTLSVerification, cfg.AuthCalloutCACert, cfg.AuthCalloutKey, cfg.AuthCalloutCACert, cfg.AuthCalloutTimeout)
+	client, err := authsvcAuthz.NewCalloutClient(cfg.AuthCalloutTLSVerification, cfg.AuthCalloutCACert, cfg.AuthCalloutKey, cfg.AuthCalloutCACert, cfg.AuthCalloutTimeout)
 	if err != nil {
 		logger.Error(err.Error())
 		exitCode = 1
