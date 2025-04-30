@@ -5,6 +5,7 @@ package authz
 
 import (
 	"context"
+	"time"
 
 	"github.com/absmach/supermq/auth"
 )
@@ -59,9 +60,5 @@ type PatReq struct {
 type Authorization interface {
 	Authorize(ctx context.Context, pr PolicyReq) error
 	AuthorizePAT(ctx context.Context, pr PatReq) error
-}
-
-// CallBack send auth request to an external service.
-type CallBack interface {
-	Authorize(ctx context.Context, pr PolicyReq) error
+	Callback(ctx context.Context, entity, sender, domain string, time time.Time, permission string) error
 }
