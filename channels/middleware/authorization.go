@@ -6,6 +6,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/channels"
@@ -37,6 +38,10 @@ var (
 	errGroupRemoveChildChannels = errors.New("not authorized to remove child channel for group")
 	errClientDisConnectChannels = errors.New("not authorized to disconnect channel for client")
 	errClientConnectChannels    = errors.New("not authorized to connect channel for client")
+)
+
+const (
+	createPerm = "channel.create"
 )
 
 var _ channels.Service = (*authorizationMiddleware)(nil)
@@ -94,6 +99,10 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 		}); err != nil {
 			return []channels.Channel{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.Callback(ctx, session, createPerm); err != nil {
+		return []channels.Channel{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateChannels)
 	}
 
 	if err := am.extAuthorize(ctx, channels.DomainOpCreateChannel, smqauthz.PolicyReq{
@@ -543,5 +552,13 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, userID s
 	}); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
+	if err := am.authz.Callback(ctx, policies.ChannelType, session.UserID, session.DomainID, time.Now(), perm); err != nil {
+		return err
+	}
+
 	return nil
 }

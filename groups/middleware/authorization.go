@@ -6,6 +6,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/groups"
@@ -37,6 +38,10 @@ var (
 	errChildGroupSetParentGroup    = errors.New("not authorized to set parent group to child group")
 	errDomainCreateGroups          = errors.New("not authorized to create groups in domain")
 	errDomainListGroups            = errors.New("not authorized to list groups in domain")
+)
+
+const (
+	createPerm = "group.create"
 )
 
 var _ groups.Service = (*authorizationMiddleware)(nil)
@@ -94,6 +99,10 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 		}); err != nil {
 			return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.Callback(ctx, session, createPerm); err != nil {
+		return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateGroups)
 	}
 
 	if err := am.extAuthorize(ctx, groups.DomainOpCreateGroup, smqauthz.PolicyReq{
@@ -597,6 +606,14 @@ func (am *authorizationMiddleware) extAuthorize(ctx context.Context, extOp svcut
 	req.Permission = perm.String()
 
 	if err := am.authz.Authorize(ctx, req); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
+	if err := am.authz.Callback(ctx, policies.GroupType, session.UserID, session.DomainID, time.Now(), perm); err != nil {
 		return err
 	}
 

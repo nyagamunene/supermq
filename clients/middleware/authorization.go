@@ -5,6 +5,7 @@ package middleware
 
 import (
 	"context"
+	"time"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/clients"
@@ -31,6 +32,10 @@ var (
 	errDomainCreateClients     = errors.New("not authorized to create thing in domain")
 	errGroupSetChildClients    = errors.New("not authorized to set child thing for group")
 	errGroupRemoveChildClients = errors.New("not authorized to remove child thing for group")
+)
+
+const (
+	createPerm = "client.create"
 )
 
 var _ clients.Service = (*authorizationMiddleware)(nil)
@@ -86,6 +91,10 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 		}); err != nil {
 			return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.Callback(ctx, session, createPerm); err != nil {
+		return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateClients)
 	}
 
 	if err := am.extAuthorize(ctx, clients.DomainOpCreateClient, smqauthz.PolicyReq{
@@ -448,5 +457,13 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, userID s
 	}); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
+	if err := am.authz.Callback(ctx, policies.ClientType, session.UserID, session.DomainID, time.Now(), perm); err != nil {
+		return err
+	}
+
 	return nil
 }
