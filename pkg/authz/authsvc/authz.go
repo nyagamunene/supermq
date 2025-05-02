@@ -43,11 +43,6 @@ func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz p
 		return nil, nil, grpcclient.ErrSvcNotServing
 	}
 
-	// callback, err := NewCallback(httpClient, authCalloutMethod, authCalloutURLs, authCalloutPermissions)
-	// if err != nil {
-	// 	return nil, nil, err
-	// }
-
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -131,7 +126,7 @@ func (a authorization) Callback(ctx context.Context, entity, sender, domain stri
 		"sender":      sender,
 		"entity_type": entity,
 		"time":        time.String(),
-		"permission": permission,
+		"permission":  permission,
 	}
 
 	var err error

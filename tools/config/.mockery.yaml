@@ -116,7 +116,6 @@ packages:
   github.com/absmach/supermq/pkg/authz:
     interfaces:
       Authorization:
-      CallBack:
   github.com/absmach/supermq/pkg/events:
     interfaces:
       Publisher:

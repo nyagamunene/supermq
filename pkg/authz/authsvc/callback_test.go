@@ -5,191 +5,235 @@ package authsvc_test
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"crypto/x509/pkix"
+	"encoding/pem"
+	"fmt"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
+	"time"
 
-	"github.com/absmach/supermq/pkg/authz"
+	"github.com/absmach/supermq/auth/mocks"
 	"github.com/absmach/supermq/pkg/authz/authsvc"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
+	"github.com/absmach/supermq/pkg/grpcclient"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func TestCallback_Authorize(t *testing.T) {
-	policy := authz.PolicyReq{
-		Domain:          "test-domain",
-		Subject:         "test-subject",
-		SubjectType:     "user",
-		SubjectKind:     "individual",
-		SubjectRelation: "owner",
-		Object:          "test-object",
-		ObjectType:      "message",
-		ObjectKind:      "event",
-		Relation:        "publish",
-		Permission:      "allow",
-	}
+const (
+	port       = 5050
+	permission = "test_permission"
+	entityType = "client"
+	userID     = "user_id"
+	domainID   = "domain_id"
+)
 
+var svc *mocks.Service
+
+func TestNewCalloutClient(t *testing.T) {
 	cases := []struct {
 		desc        string
-		method      string
-		respStatus  int
+		ctls        bool
+		certPath    string
+		keyPath     string
+		caPath      string
+		timeout     time.Duration
 		expectError bool
 	}{
 		{
-			desc:        "successful GET authorization",
-			method:      http.MethodGet,
-			respStatus:  http.StatusOK,
+			desc:        "successful client creation without TLS",
+			ctls:        false,
+			timeout:     time.Second,
 			expectError: false,
 		},
 		{
-			desc:        "successful POST authorization",
-			method:      http.MethodPost,
-			respStatus:  http.StatusOK,
+			desc:        "successful client creation with TLS",
+			ctls:        true,
+			certPath:    "client.crt",
+			keyPath:     "client.key",
+			caPath:      "ca.crt",
+			timeout:     time.Second,
 			expectError: false,
 		},
 		{
-			desc:        "failed authorization",
-			method:      http.MethodPost,
-			respStatus:  http.StatusForbidden,
+			desc:        "failed client creation with invalid cert",
+			ctls:        true,
+			certPath:    "invalid.crt",
+			keyPath:     "invalid.key",
+			caPath:      "invalid.ca",
+			timeout:     time.Second,
 			expectError: true,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				assert.Equal(t, tc.method, r.Method)
+			if tc.desc == "successful client creation with TLS" {
+				generateAndWriteCertificates(t, tc.caPath, tc.certPath, tc.keyPath)
 
-				if tc.method == http.MethodGet {
-					query := r.URL.Query()
-					assert.Equal(t, policy.Domain, query.Get("domain"))
-					assert.Equal(t, policy.Subject, query.Get("subject"))
-				}
+				defer func() {
+					os.Remove(tc.certPath)
+					os.Remove(tc.keyPath)
+					os.Remove(tc.caPath)
+				}()
+			} else if tc.desc == "failed client creation with invalid cert" {
+				writeFile(t, tc.certPath, []byte("invalid cert content"))
+				writeFile(t, tc.keyPath, []byte("invalid key content"))
+				writeFile(t, tc.caPath, []byte("invalid ca content"))
 
-				w.WriteHeader(tc.respStatus)
-			}))
-			defer ts.Close()
+				defer func() {
+					os.Remove(tc.certPath)
+					os.Remove(tc.keyPath)
+					os.Remove(tc.caPath)
+				}()
+			}
 
-			cb, err := authsvc.NewCallback(http.DefaultClient, tc.method, []string{ts.URL}, []string{})
-			assert.NoError(t, err)
-			err = cb.Authorize(context.Background(), policy)
-
+			client, err := authsvc.NewCalloutClient(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout)
 			if tc.expectError {
 				assert.Error(t, err)
-				assert.True(t, errors.Contains(err, svcerr.ErrAuthorization), "expected authorization error")
+				assert.Nil(t, client)
 			} else {
 				assert.NoError(t, err)
+				assert.NotNil(t, client)
 			}
 		})
 	}
 }
 
-func TestCallback_MultipleURLs(t *testing.T) {
-	ts1 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func generateAndWriteCertificates(t *testing.T, caPath, certPath, keyPath string) {
+	caKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err, "Failed to generate CA private key")
+
+	caTemplate := x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			Organization: []string{"Test CA"},
+			CommonName:   "Test CA",
+		},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(24 * time.Hour),
+		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+	}
+
+	caBytes, err := x509.CreateCertificate(rand.Reader, &caTemplate, &caTemplate, &caKey.PublicKey, caKey)
+	require.NoError(t, err, "Failed to create CA certificate")
+
+	clientKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err, "Failed to generate client private key")
+
+	clientTemplate := x509.Certificate{
+		SerialNumber: big.NewInt(2),
+		Subject: pkix.Name{
+			Organization: []string{"Test Client"},
+			CommonName:   "Test Client",
+		},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(24 * time.Hour),
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+		BasicConstraintsValid: true,
+	}
+
+	clientBytes, err := x509.CreateCertificate(rand.Reader, &clientTemplate, &caTemplate, &clientKey.PublicKey, caKey)
+	require.NoError(t, err, "Failed to create client certificate")
+
+	caPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: caBytes,
+	})
+	writeFile(t, caPath, caPEM)
+
+	certPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: clientBytes,
+	})
+	writeFile(t, certPath, certPEM)
+
+	keyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(clientKey),
+	})
+	writeFile(t, keyPath, keyPEM)
+}
+
+func writeFile(t *testing.T, path string, content []byte) {
+	err := os.WriteFile(path, content, 0644)
+	require.NoError(t, err, "Failed to write file: %s", path)
+}
+
+func TestCallback_MakeRequest(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			assert.Equal(t, "test-value", r.URL.Query().Get("test-param"))
+		} else if r.Method == http.MethodPost {
+			assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
+		}
 		w.WriteHeader(http.StatusOK)
 	}))
-	defer ts1.Close()
+	defer ts.Close()
 
-	ts2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer ts2.Close()
-
-	cb, err := authsvc.NewCallback(http.DefaultClient, http.MethodPost, []string{ts1.URL, ts2.URL}, []string{})
+	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
 	assert.NoError(t, err)
-	err = cb.Authorize(context.Background(), authz.PolicyReq{})
+
+	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodPost, []string{ts.URL}, []string{permission})
+	assert.NoError(t, err)
+
+	err = auth.Callback(context.Background(), entityType, userID, domainID, time.Now(), permission)
 	assert.NoError(t, err)
 }
 
-func TestCallback_InvalidURL(t *testing.T) {
-	cb, err := authsvc.NewCallback(http.DefaultClient, http.MethodPost, []string{"http://invalid-url"}, []string{})
+func TestCallback_MakeRequest_Error(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	defer ts.Close()
+
+	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
 	assert.NoError(t, err)
-	err = cb.Authorize(context.Background(), authz.PolicyReq{})
+
+	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodPost, []string{ts.URL}, []string{permission})
+	assert.NoError(t, err)
+
+	err = auth.Callback(context.Background(), entityType, userID, domainID, time.Now(), permission)
+	assert.Error(t, err)
+	assert.True(t, errors.Contains(err, svcerr.ErrAuthorization))
+}
+
+func TestCallback_MakeRequest_InvalidURL(t *testing.T) {
+	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
+	assert.NoError(t, err)
+
+	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodGet, []string{"http://invalid-url"}, []string{permission})
+	assert.NoError(t, err)
+
+	err = auth.Callback(context.Background(), entityType, userID, domainID, time.Now(), permission)
 	assert.Error(t, err)
 }
 
-func TestCallback_InvalidMethod(t *testing.T) {
-	_, err := authsvc.NewCallback(http.DefaultClient, "invalid-method", []string{"http://example.com"}, []string{})
-	assert.Error(t, err)
-}
-
-func TestCallback_CancelledContext(t *testing.T) {
+func TestCallback_MakeRequest_CancelledContext(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer ts.Close()
+
+	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
+	assert.NoError(t, err)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	cb, err := authsvc.NewCallback(http.DefaultClient, http.MethodPost, []string{ts.URL}, []string{})
+	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodGet, []string{ts.URL}, []string{permission})
 	assert.NoError(t, err)
-	err = cb.Authorize(ctx, authz.PolicyReq{})
+
+	err = auth.Callback(ctx, entityType, userID, domainID, time.Now(), permission)
 	assert.Error(t, err)
-}
-
-func TestNewCallback_NilClient(t *testing.T) {
-	cb, err := authsvc.NewCallback(nil, http.MethodPost, []string{"test"}, []string{})
-	assert.NoError(t, err)
-	assert.NotNil(t, cb)
-}
-
-func TestCallback_NoURL(t *testing.T) {
-	cb, err := authsvc.NewCallback(http.DefaultClient, http.MethodPost, []string{}, []string{})
-	assert.NoError(t, err)
-	err = cb.Authorize(context.Background(), authz.PolicyReq{})
-	assert.NoError(t, err)
-}
-
-func TestCallback_PermissionFiltering(t *testing.T) {
-	webhookCalled := false
-
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		webhookCalled = true
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer ts.Close()
-
-	t.Run("allowed permission", func(t *testing.T) {
-		webhookCalled = false
-		allowedPermissions := []string{"create_client", "delete_channel"}
-
-		cb, err := authsvc.NewCallback(http.DefaultClient, http.MethodPost, []string{ts.URL}, allowedPermissions)
-		assert.NoError(t, err)
-
-		err = cb.Authorize(context.Background(), authz.PolicyReq{
-			Permission: "create_client",
-		})
-		assert.NoError(t, err)
-		assert.True(t, webhookCalled, "webhook should be called for allowed permission")
-	})
-
-	t.Run("non-allowed permission", func(t *testing.T) {
-		webhookCalled = false
-		allowedPermissions := []string{"create_client", "delete_channel"}
-
-		cb, err := authsvc.NewCallback(http.DefaultClient, http.MethodPost, []string{ts.URL}, allowedPermissions)
-		assert.NoError(t, err)
-
-		err = cb.Authorize(context.Background(), authz.PolicyReq{
-			Permission: "read_channel",
-		})
-		assert.NoError(t, err)
-		assert.False(t, webhookCalled, "webhook should not be called for non-allowed permission")
-	})
-
-	t.Run("empty allowed permissions", func(t *testing.T) {
-		webhookCalled = false
-		allowedPermissions := []string{}
-
-		cb, err := authsvc.NewCallback(http.DefaultClient, http.MethodPost, []string{ts.URL}, allowedPermissions)
-		assert.NoError(t, err)
-
-		err = cb.Authorize(context.Background(), authz.PolicyReq{
-			Permission: "any_permission",
-		})
-		assert.NoError(t, err)
-		assert.True(t, webhookCalled, "webhook should be called when allowed permissions list is empty")
-	})
 }
