@@ -28,11 +28,12 @@ import (
 )
 
 const (
-	port       = 5050
-	permission = "test_permission"
-	entityType = "client"
-	userID     = "user_id"
-	domainID   = "domain_id"
+	port           = 5050
+	permission     = "test_permission"
+	entityType     = "client"
+	userID         = "user_id"
+	domainID       = "domain_id"
+	filePermission = 0o644
 )
 
 var svc *mocks.Service
@@ -166,7 +167,7 @@ func generateAndWriteCertificates(t *testing.T, caPath, certPath, keyPath string
 }
 
 func writeFile(t *testing.T, path string, content []byte) {
-	err := os.WriteFile(path, content, 0644)
+	err := os.WriteFile(path, content, filePermission)
 	require.NoError(t, err, "Failed to write file: %s", path)
 }
 
