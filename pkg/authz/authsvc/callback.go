@@ -43,7 +43,7 @@ func NewCalloutClient(ctls bool, certPath, keyPath, caPath string, timeout time.
 			return nil, err
 		}
 		if !certPool.AppendCertsFromPEM(caCert) {
-			return nil, errors.New("failed to append CA certificate")
+			return nil, errors.Wrap(errors.New("failed to append CA certificate"), svcerr.ErrCreateEntity)
 		}
 		tlsConfig.RootCAs = certPool
 		tlsConfig.Certificates = []tls.Certificate{clientTLSCert}
