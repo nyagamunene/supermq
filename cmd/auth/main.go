@@ -244,41 +244,6 @@ func newService(db *sqlx.DB, tracer trace.Tracer, cfg config, dbConfig pgclient.
 
 	t := jwt.New([]byte(cfg.SecretKey))
 
-	// tlsConfig := &tls.Config{
-	// 	InsecureSkipVerify: !cfg.AuthCalloutTLSVerification,
-	// }
-	// if cfg.AuthCalloutCert != "" || cfg.AuthCalloutKey != "" {
-	// 	clientTLSCert, err := tls.LoadX509KeyPair(cfg.AuthCalloutCert, cfg.AuthCalloutKey)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	certPool, err := x509.SystemCertPool()
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	caCert, err := os.ReadFile(cfg.AuthCalloutCACert)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	if !certPool.AppendCertsFromPEM(caCert) {
-	// 		return nil, errors.New("failed to append CA certificate")
-	// 	}
-	// 	tlsConfig.RootCAs = certPool
-	// 	tlsConfig.Certificates = []tls.Certificate{clientTLSCert}
-	// }
-
-	// httpClient := &http.Client{
-	// 	Transport: &http.Transport{
-	// 		TLSClientConfig: tlsConfig,
-	// 	},
-	// 	Timeout: cfg.AuthCalloutTimeout,
-	// }
-
-	// callback, err := auth.NewCallback(httpClient, cfg.AuthCalloutMethod, cfg.AuthCalloutURLs, cfg.AuthCalloutPermissions)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	svc := auth.New(keysRepo, patsRepo, nil, hasher, idProvider, t, pEvaluator, pService, cfg.AccessDuration, cfg.RefreshDuration, cfg.InvitationDuration)
 	svc = api.LoggingMiddleware(svc, logger)
 	counter, latency := prometheus.MakeMetrics("auth", "api")
