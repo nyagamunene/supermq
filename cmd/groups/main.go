@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"os"
-	"time"
 
 	chclient "github.com/absmach/callhome/pkg/client"
 	"github.com/absmach/supermq"
@@ -32,6 +32,7 @@ import (
 	authsvcAuthn "github.com/absmach/supermq/pkg/authn/authsvc"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
 	authsvcAuthz "github.com/absmach/supermq/pkg/authz/authsvc"
+	"github.com/absmach/supermq/pkg/callback"
 	dconsumer "github.com/absmach/supermq/pkg/domains/events/consumer"
 	domainsAuthz "github.com/absmach/supermq/pkg/domains/grpcclient"
 	"github.com/absmach/supermq/pkg/grpcclient"
@@ -75,25 +76,17 @@ const (
 )
 
 type config struct {
-	LogLevel                   string        `env:"SMQ_GROUPS_LOG_LEVEL"          envDefault:"info"`
-	InstanceID                 string        `env:"SMQ_GROUPS_INSTANCE_ID"        envDefault:""`
-	JaegerURL                  url.URL       `env:"SMQ_JAEGER_URL"                envDefault:"http://localhost:4318/v1/traces"`
-	SendTelemetry              bool          `env:"SMQ_SEND_TELEMETRY"            envDefault:"true"`
-	ESURL                      string        `env:"SMQ_ES_URL"                    envDefault:"nats://localhost:4222"`
-	ESConsumerName             string        `env:"SMQ_GROUPS_EVENT_CONSUMER"     envDefault:"groups"`
-	TraceRatio                 float64       `env:"SMQ_JAEGER_TRACE_RATIO"        envDefault:"1.0"`
-	SpicedbHost                string        `env:"SMQ_SPICEDB_HOST"              envDefault:"localhost"`
-	SpicedbPort                string        `env:"SMQ_SPICEDB_PORT"              envDefault:"50051"`
-	SpicedbSchemaFile          string        `env:"SMQ_SPICEDB_SCHEMA_FILE"       envDefault:"schema.zed"`
-	SpicedbPreSharedKey        string        `env:"SMQ_SPICEDB_PRE_SHARED_KEY"    envDefault:"12345678"`
-	AuthCalloutURLs            []string      `env:"SMQ_AUTH_CALLOUT_URLS"             envDefault:"" envSeparator:","`
-	AuthCalloutMethod          string        `env:"SMQ_AUTH_CALLOUT_METHOD"           envDefault:"POST"`
-	AuthCalloutTLSVerification bool          `env:"SMQ_AUTH_CALLOUT_TLS_VERIFICATION" envDefault:"true"`
-	AuthCalloutTimeout         time.Duration `env:"SMQ_AUTH_CALLOUT_TIMEOUT"          envDefault:"10s"`
-	AuthCalloutCACert          string        `env:"SMQ_AUTH_CALLOUT_CA_CERT"          envDefault:""`
-	AuthCalloutCert            string        `env:"SMQ_AUTH_CALLOUT_CERT"             envDefault:""`
-	AuthCalloutKey             string        `env:"SMQ_AUTH_CALLOUT_KEY"              envDefault:""`
-	AuthCalloutPermissions     []string      `env:"SMQ_AUTH_CALLOUT_INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
+	LogLevel            string  `env:"SMQ_GROUPS_LOG_LEVEL"          envDefault:"info"`
+	InstanceID          string  `env:"SMQ_GROUPS_INSTANCE_ID"        envDefault:""`
+	JaegerURL           url.URL `env:"SMQ_JAEGER_URL"                envDefault:"http://localhost:4318/v1/traces"`
+	SendTelemetry       bool    `env:"SMQ_SEND_TELEMETRY"            envDefault:"true"`
+	ESURL               string  `env:"SMQ_ES_URL"                    envDefault:"nats://localhost:4222"`
+	ESConsumerName      string  `env:"SMQ_GROUPS_EVENT_CONSUMER"     envDefault:"groups"`
+	TraceRatio          float64 `env:"SMQ_JAEGER_TRACE_RATIO"        envDefault:"1.0"`
+	SpicedbHost         string  `env:"SMQ_SPICEDB_HOST"              envDefault:"localhost"`
+	SpicedbPort         string  `env:"SMQ_SPICEDB_PORT"              envDefault:"50051"`
+	SpicedbSchemaFile   string  `env:"SMQ_SPICEDB_SCHEMA_FILE"       envDefault:"schema.zed"`
+	SpicedbPreSharedKey string  `env:"SMQ_SPICEDB_PRE_SHARED_KEY"    envDefault:"12345678"`
 }
 
 func main() {
@@ -184,14 +177,19 @@ func main() {
 	}
 	defer domainsHandler.Close()
 
-	client, err := authsvcAuthz.NewCalloutClient(cfg.AuthCalloutTLSVerification, cfg.AuthCalloutCACert, cfg.AuthCalloutKey, cfg.AuthCalloutCACert, cfg.AuthCalloutTimeout)
+	callCfg := callback.Config{}
+	if err := env.Parse(&callCfg); err != nil {
+		log.Fatalf("failed to load %s configuration : %s", svcName, err)
+	}
+
+	client, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
 	if err != nil {
 		logger.Error(err.Error())
 		exitCode = 1
 		return
 	}
 
-	authz, authzHandler, err := authsvcAuthz.NewAuthorization(ctx, authClientConfig, domAuthz, client, cfg.AuthCalloutMethod, cfg.AuthCalloutURLs, cfg.AuthCalloutPermissions)
+	authz, authzHandler, err := authsvcAuthz.NewAuthorization(ctx, authClientConfig, domAuthz)
 	if err != nil {
 		logger.Error("failed to create authz " + err.Error())
 		exitCode = 1
@@ -238,7 +236,8 @@ func main() {
 	defer clientsHandler.Close()
 	logger.Info("Clients gRPC client successfully connected to clients gRPC server " + clientsHandler.Secure())
 
-	svc, psvc, err := newService(ctx, authz, policyService, db, dbConfig, channelsClient, clientsClient, tracer, logger, cfg)
+	svc, psvc, err := newService(ctx, authz, policyService, db, dbConfig, channelsClient, clientsClient, tracer, logger, cfg,
+		client, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to setup service: %s", err))
 		exitCode = 1
@@ -300,7 +299,11 @@ func main() {
 	}
 }
 
-func newService(ctx context.Context, authz smqauthz.Authorization, policy policies.Service, db *sqlx.DB, dbConfig pgclient.Config, channels grpcChannelsV1.ChannelsServiceClient, clients grpcClientsV1.ClientsServiceClient, tracer trace.Tracer, logger *slog.Logger, c config) (groups.Service, pgroups.Service, error) {
+func newService(ctx context.Context, authz smqauthz.Authorization, policy policies.Service, db *sqlx.DB,
+	dbConfig pgclient.Config, channels grpcChannelsV1.ChannelsServiceClient,
+	clients grpcClientsV1.ClientsServiceClient, tracer trace.Tracer, logger *slog.Logger, c config,
+	client *http.Client, AuthCalloutMethod string, AuthCalloutURLs []string, AuthCalloutPermissions []string,
+) (groups.Service, pgroups.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	idp := uuid.New()
 	sid, err := sid.New()
@@ -324,7 +327,8 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, err
 	}
 
-	svc, err = middleware.AuthorizationMiddleware(policies.GroupType, svc, repo, authz, groups.NewOperationPermissionMap(), groups.NewRolesOperationPermissionMap(), groups.NewExternalOperationPermissionMap())
+	svc, err = middleware.AuthorizationMiddleware(policies.GroupType, svc, repo, authz, groups.NewOperationPermissionMap(), groups.NewRolesOperationPermissionMap(), 
+	groups.NewExternalOperationPermissionMap(),client, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
 	if err != nil {
 		return nil, nil, err
 	}

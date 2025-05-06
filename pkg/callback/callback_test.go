@@ -1,7 +1,7 @@
 // Copyright (c) Abstract Machines
 // SPDX-License-Identifier: Apache-2.0
 
-package authsvc_test
+package callback_test
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"fmt"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -19,21 +18,29 @@ import (
 	"time"
 
 	"github.com/absmach/supermq/auth/mocks"
-	"github.com/absmach/supermq/pkg/authz/authsvc"
+	"github.com/absmach/supermq/pkg/callback"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
-	"github.com/absmach/supermq/pkg/grpcclient"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	port           = 5050
 	permission     = "test_permission"
 	entityType     = "client"
 	userID         = "user_id"
 	domainID       = "domain_id"
 	filePermission = 0o644
+)
+
+var (
+	pl = map[string]interface{}{
+		"entity_type": entityType,
+		"sender":      userID,
+		"domain":      domainID,
+		"time":        time.Now().String(),
+		"permission":  permission,
+	}
 )
 
 var svc *mocks.Service
@@ -96,7 +103,7 @@ func TestNewCalloutClient(t *testing.T) {
 				}()
 			}
 
-			client, err := authsvc.NewCalloutClient(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout)
+			client, err := callback.NewCalloutClient(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout)
 			if tc.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, client)
@@ -182,13 +189,13 @@ func TestCallback_MakeRequest(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
+	client, err := callback.NewCalloutClient(false, "", "", "", time.Second)
 	assert.NoError(t, err)
 
-	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodPost, []string{ts.URL}, []string{permission})
+	cb, err := callback.NewCallback(client, http.MethodPost, []string{ts.URL}, []string{permission})
 	assert.NoError(t, err)
 
-	err = auth.Callback(context.Background(), entityType, userID, domainID, time.Now(), permission)
+	err = cb.Callback(context.Background(), pl)
 	assert.NoError(t, err)
 }
 
@@ -198,25 +205,25 @@ func TestCallback_MakeRequest_Error(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
+	client, err := callback.NewCalloutClient(false, "", "", "", time.Second)
 	assert.NoError(t, err)
 
-	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodPost, []string{ts.URL}, []string{permission})
+	cb, err := callback.NewCallback(client, http.MethodPost, []string{ts.URL}, []string{permission})
 	assert.NoError(t, err)
 
-	err = auth.Callback(context.Background(), entityType, userID, domainID, time.Now(), permission)
+	err = cb.Callback(context.Background(), pl)
 	assert.Error(t, err)
 	assert.True(t, errors.Contains(err, svcerr.ErrAuthorization))
 }
 
 func TestCallback_MakeRequest_InvalidURL(t *testing.T) {
-	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
+	client, err := callback.NewCalloutClient(false, "", "", "", time.Second)
 	assert.NoError(t, err)
 
-	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodGet, []string{"http://invalid-url"}, []string{permission})
+	cb, err := callback.NewCallback(client, http.MethodGet, []string{"http://invalid-url"}, []string{permission})
 	assert.NoError(t, err)
 
-	err = auth.Callback(context.Background(), entityType, userID, domainID, time.Now(), permission)
+	err = cb.Callback(context.Background(), pl)
 	assert.Error(t, err)
 }
 
@@ -226,15 +233,15 @@ func TestCallback_MakeRequest_CancelledContext(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	client, err := authsvc.NewCalloutClient(false, "", "", "", time.Second)
+	client, err := callback.NewCalloutClient(false, "", "", "", time.Second)
 	assert.NoError(t, err)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	auth, _, err := authsvc.NewAuthorization(context.Background(), grpcclient.Config{URL: fmt.Sprintf("localhost:%d", port), Timeout: 1 * time.Second}, nil, client, http.MethodGet, []string{ts.URL}, []string{permission})
+	cb, err := callback.NewCallback(client, http.MethodGet, []string{ts.URL}, []string{permission})
 	assert.NoError(t, err)
 
-	err = auth.Callback(ctx, entityType, userID, domainID, time.Now(), permission)
+	err = cb.Callback(ctx, pl)
 	assert.Error(t, err)
 }

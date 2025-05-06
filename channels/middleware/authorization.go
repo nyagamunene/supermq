@@ -6,12 +6,15 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/channels"
 	"github.com/absmach/supermq/pkg/authn"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
+	"github.com/absmach/supermq/pkg/callback"
+	pkgcallback "github.com/absmach/supermq/pkg/callback"
 	"github.com/absmach/supermq/pkg/connections"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
@@ -40,23 +43,21 @@ var (
 	errClientConnectChannels    = errors.New("not authorized to connect channel for client")
 )
 
-const (
-	createPerm = "channel.create"
-)
-
 var _ channels.Service = (*authorizationMiddleware)(nil)
 
 type authorizationMiddleware struct {
-	svc    channels.Service
-	repo   channels.Repository
-	authz  smqauthz.Authorization
-	opp    svcutil.OperationPerm
-	extOpp svcutil.ExternalOperationPerm
+	svc      channels.Service
+	repo     channels.Repository
+	authz    smqauthz.Authorization
+	opp      svcutil.OperationPerm
+	extOpp   svcutil.ExternalOperationPerm
+	callback pkgcallback.CallBack
 	rmMW.RoleManagerAuthorizationMiddleware
 }
 
 // AuthorizationMiddleware adds authorization to the channels service.
-func AuthorizationMiddleware(svc channels.Service, repo channels.Repository, authz smqauthz.Authorization, channelsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission, extOpPerm map[svcutil.ExternalOperation]svcutil.Permission) (channels.Service, error) {
+func AuthorizationMiddleware(svc channels.Service, repo channels.Repository, authz smqauthz.Authorization, channelsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission,
+	extOpPerm map[svcutil.ExternalOperation]svcutil.Permission, httpClient *http.Client, method string, urls []string, permissions []string) (channels.Service, error) {
 	opp := channels.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(channelsOpPerm); err != nil {
 		return nil, err
@@ -77,6 +78,11 @@ func AuthorizationMiddleware(svc channels.Service, repo channels.Repository, aut
 		return nil, err
 	}
 
+	call, err := pkgcallback.NewCallback(httpClient, method, urls, permissions)
+	if err != nil {
+		return nil, err
+	}
+
 	return &authorizationMiddleware{
 		svc:                                svc,
 		repo:                               repo,
@@ -84,6 +90,7 @@ func AuthorizationMiddleware(svc channels.Service, repo channels.Repository, aut
 		RoleManagerAuthorizationMiddleware: ram,
 		opp:                                opp,
 		extOpp:                             extOpp,
+		callback:                           call,
 	}, nil
 }
 
@@ -101,8 +108,8 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 		}
 	}
 
-	if err := am.Callback(ctx, session, createPerm); err != nil {
-		return []channels.Channel{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateChannels)
+	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
+		return []channels.Channel{}, []roles.RoleProvision{}, err
 	}
 
 	if err := am.extAuthorize(ctx, channels.DomainOpCreateChannel, smqauthz.PolicyReq{
@@ -312,6 +319,10 @@ func (am *authorizationMiddleware) RemoveChannel(ctx context.Context, session au
 		}); err != nil {
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
+		return err
 	}
 
 	if err := am.authorize(ctx, channels.OpDeleteChannel, smqauthz.PolicyReq{
@@ -556,7 +567,15 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, userID s
 }
 
 func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
-	if err := am.authz.Callback(ctx, policies.ChannelType, session.UserID, session.DomainID, time.Now(), perm); err != nil {
+	pl := map[string]interface{}{
+		"entity_type": policies.ChannelType,
+		"sender":      session.UserID,
+		"domain":      session.DomainID,
+		"time":        time.Now().String(),
+		"permission":  perm,
+	}
+
+	if err := am.callback.Callback(ctx, pl); err != nil {
 		return err
 	}
 

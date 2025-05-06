@@ -5,12 +5,15 @@ package middleware
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/clients"
 	"github.com/absmach/supermq/pkg/authn"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
+	"github.com/absmach/supermq/pkg/callback"
+	pkgcallback "github.com/absmach/supermq/pkg/callback"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/policies"
@@ -34,10 +37,6 @@ var (
 	errGroupRemoveChildClients = errors.New("not authorized to remove child thing for group")
 )
 
-const (
-	createPerm = "client.create"
-)
-
 var _ clients.Service = (*authorizationMiddleware)(nil)
 
 type authorizationMiddleware struct {
@@ -47,10 +46,11 @@ type authorizationMiddleware struct {
 	opp    svcutil.OperationPerm
 	extOpp svcutil.ExternalOperationPerm
 	rmMW.RoleManagerAuthorizationMiddleware
+	callback pkgcallback.CallBack
 }
 
 // AuthorizationMiddleware adds authorization to the clients service.
-func AuthorizationMiddleware(entityType string, svc clients.Service, authz smqauthz.Authorization, repo clients.Repository, thingsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission, extOpPerm map[svcutil.ExternalOperation]svcutil.Permission) (clients.Service, error) {
+func AuthorizationMiddleware(entityType string, svc clients.Service, authz smqauthz.Authorization, repo clients.Repository, thingsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission, extOpPerm map[svcutil.ExternalOperation]svcutil.Permission, httpClient *http.Client, method string, urls []string, permissions []string) (clients.Service, error) {
 	opp := clients.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(thingsOpPerm); err != nil {
 		return nil, err
@@ -69,6 +69,12 @@ func AuthorizationMiddleware(entityType string, svc clients.Service, authz smqau
 	if err := extOpp.Validate(); err != nil {
 		return nil, err
 	}
+
+	call, err := pkgcallback.NewCallback(httpClient, method, urls, permissions)
+	if err != nil {
+		return nil, err
+	}
+
 	return &authorizationMiddleware{
 		svc:                                svc,
 		authz:                              authz,
@@ -76,6 +82,7 @@ func AuthorizationMiddleware(entityType string, svc clients.Service, authz smqau
 		opp:                                opp,
 		extOpp:                             extOpp,
 		RoleManagerAuthorizationMiddleware: ram,
+		callback:                           call,
 	}, nil
 }
 
@@ -93,8 +100,8 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 		}
 	}
 
-	if err := am.Callback(ctx, session, createPerm); err != nil {
-		return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateClients)
+	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
+		return []clients.Client{}, []roles.RoleProvision{}, err
 	}
 
 	if err := am.extAuthorize(ctx, clients.DomainOpCreateClient, smqauthz.PolicyReq{
@@ -324,6 +331,11 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
+
+	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
+		return err
+	}
+
 	if err := am.authorize(ctx, clients.OpDeleteClient, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -461,7 +473,15 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, userID s
 }
 
 func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
-	if err := am.authz.Callback(ctx, policies.ClientType, session.UserID, session.DomainID, time.Now(), perm); err != nil {
+	pl := map[string]interface{}{
+		"entity_type": policies.ClientType,
+		"sender":      session.UserID,
+		"domain":      session.DomainID,
+		"time":        time.Now().String(),
+		"permission":  perm,
+	}
+
+	if err := am.callback.Callback(ctx, pl); err != nil {
 		return err
 	}
 

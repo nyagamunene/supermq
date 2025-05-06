@@ -5,9 +5,6 @@ package authsvc
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"time"
 
 	grpcAuthV1 "github.com/absmach/supermq/api/grpc/auth/v1"
 	"github.com/absmach/supermq/auth/api/grpc/auth"
@@ -24,12 +21,11 @@ import (
 type authorization struct {
 	authSvcClient grpcAuthV1.AuthServiceClient
 	domains       pkgDomians.Authorization
-	callback      callback
 }
 
 var _ authz.Authorization = (*authorization)(nil)
 
-func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz pkgDomians.Authorization, httpClient *http.Client, authCalloutMethod string, authCalloutURLs, authCalloutPermissions []string) (authz.Authorization, grpcclient.Handler, error) {
+func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz pkgDomians.Authorization) (authz.Authorization, grpcclient.Handler, error) {
 	client, err := grpcclient.NewHandler(cfg)
 	if err != nil {
 		return nil, nil, err
@@ -43,31 +39,10 @@ func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz p
 		return nil, nil, grpcclient.ErrSvcNotServing
 	}
 
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-
-	if authCalloutMethod != http.MethodPost && authCalloutMethod != http.MethodGet {
-		return nil, nil, fmt.Errorf("unsupported auth callback method: %s", authCalloutMethod)
-	}
-
-	allowedPermission := make(map[string]struct{})
-	for _, permission := range authCalloutPermissions {
-		allowedPermission[permission] = struct{}{}
-	}
-
-	c := callback{
-		httpClient:        httpClient,
-		urls:              authCalloutURLs,
-		method:            authCalloutMethod,
-		allowedPermission: allowedPermission,
-	}
-
 	authSvcClient := auth.NewAuthClient(client.Connection(), cfg.Timeout)
 	return authorization{
 		authSvcClient: authSvcClient,
 		domains:       domainsAuthz,
-		callback:      c,
 	}, client, nil
 }
 
@@ -104,40 +79,6 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 	if !res.GetAuthorized() {
 		return errors.ErrAuthorization
 	}
-	return nil
-}
-
-func (a authorization) Callback(ctx context.Context, entity, sender, domain string, time time.Time, permission string) error {
-	if len(a.callback.urls) == 0 {
-		return nil
-	}
-
-	// Check if the permission is in the allowed list
-	// Otherwise, only call webhook if the permission is in the map
-	if len(a.callback.allowedPermission) > 0 {
-		_, exists := a.callback.allowedPermission[permission]
-		if !exists {
-			return nil
-		}
-	}
-
-	payload := map[string]string{
-		"domain":      domain,
-		"sender":      sender,
-		"entity_type": entity,
-		"time":        time.String(),
-		"permission":  permission,
-	}
-
-	var err error
-	// We iterate through all URLs in sequence
-	// if any request fails, we return the error immediately
-	for _, url := range a.callback.urls {
-		if err = a.callback.makeRequest(ctx, url, payload); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 

@@ -6,12 +6,15 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/groups"
 	"github.com/absmach/supermq/pkg/authn"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
+	"github.com/absmach/supermq/pkg/callback"
+	pkgcallback "github.com/absmach/supermq/pkg/callback"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/policies"
@@ -40,23 +43,21 @@ var (
 	errDomainListGroups            = errors.New("not authorized to list groups in domain")
 )
 
-const (
-	createPerm = "group.create"
-)
-
 var _ groups.Service = (*authorizationMiddleware)(nil)
 
 type authorizationMiddleware struct {
-	svc    groups.Service
-	repo   groups.Repository
-	authz  smqauthz.Authorization
-	opp    svcutil.OperationPerm
-	extOpp svcutil.ExternalOperationPerm
+	svc      groups.Service
+	repo     groups.Repository
+	authz    smqauthz.Authorization
+	opp      svcutil.OperationPerm
+	extOpp   svcutil.ExternalOperationPerm
+	callback pkgcallback.CallBack
 	rmMW.RoleManagerAuthorizationMiddleware
 }
 
 // AuthorizationMiddleware adds authorization to the clients service.
-func AuthorizationMiddleware(entityType string, svc groups.Service, repo groups.Repository, authz smqauthz.Authorization, groupsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission, extOpPerm map[svcutil.ExternalOperation]svcutil.Permission) (groups.Service, error) {
+func AuthorizationMiddleware(entityType string, svc groups.Service, repo groups.Repository, authz smqauthz.Authorization, groupsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission,
+	extOpPerm map[svcutil.ExternalOperation]svcutil.Permission, httpClient *http.Client, method string, urls []string, permissions []string) (groups.Service, error) {
 	opp := groups.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(groupsOpPerm); err != nil {
 		return nil, err
@@ -77,6 +78,12 @@ func AuthorizationMiddleware(entityType string, svc groups.Service, repo groups.
 	if err != nil {
 		return nil, err
 	}
+
+	call, err := pkgcallback.NewCallback(httpClient, method, urls, permissions)
+	if err != nil {
+		return nil, err
+	}
+
 	return &authorizationMiddleware{
 		svc:                                svc,
 		repo:                               repo,
@@ -84,6 +91,7 @@ func AuthorizationMiddleware(entityType string, svc groups.Service, repo groups.
 		opp:                                opp,
 		extOpp:                             extOpp,
 		RoleManagerAuthorizationMiddleware: ram,
+		callback:                           call,
 	}, nil
 }
 
@@ -101,8 +109,8 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 		}
 	}
 
-	if err := am.Callback(ctx, session, createPerm); err != nil {
-		return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateGroups)
+	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
+		return groups.Group{}, []roles.RoleProvision{}, err
 	}
 
 	if err := am.extAuthorize(ctx, groups.DomainOpCreateGroup, smqauthz.PolicyReq{
@@ -331,6 +339,10 @@ func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session auth
 		}); err != nil {
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
+	}
+
+	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
+		return err
 	}
 
 	if err := am.authorize(ctx, groups.OpDeleteGroup, smqauthz.PolicyReq{
@@ -613,7 +625,15 @@ func (am *authorizationMiddleware) extAuthorize(ctx context.Context, extOp svcut
 }
 
 func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
-	if err := am.authz.Callback(ctx, policies.GroupType, session.UserID, session.DomainID, time.Now(), perm); err != nil {
+	pl := map[string]interface{}{
+		"entity_type": policies.GroupType,
+		"sender":      session.UserID,
+		"domain":      session.DomainID,
+		"time":        time.Now().String(),
+		"permission":  perm,
+	}
+
+	if err := am.callback.Callback(ctx, pl); err != nil {
 		return err
 	}
 
