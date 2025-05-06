@@ -44,13 +44,13 @@ type callback struct {
 	allowedPermission map[string]struct{}
 }
 
-// CallBack send auth request to an external service.
-type CallBack interface {
+// Callback send request to an external service.
+type Callback interface {
 	Callback(ctx context.Context, pl map[string]interface{}) error
 }
 
 // NewCallback creates a new instance of CallBack.
-func NewCallback(httpClient *http.Client, method string, urls []string, permissions []string) (CallBack, error) {
+func NewCallback(httpClient *http.Client, method string, urls []string, permissions []string) (Callback, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}

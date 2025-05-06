@@ -14,7 +14,6 @@ import (
 	"github.com/absmach/supermq/pkg/authn"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
 	"github.com/absmach/supermq/pkg/callback"
-	pkgcallback "github.com/absmach/supermq/pkg/callback"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/policies"
@@ -51,7 +50,7 @@ type authorizationMiddleware struct {
 	authz    smqauthz.Authorization
 	opp      svcutil.OperationPerm
 	extOpp   svcutil.ExternalOperationPerm
-	callback pkgcallback.CallBack
+	callback callback.Callback
 	rmMW.RoleManagerAuthorizationMiddleware
 }
 
@@ -88,7 +87,7 @@ func AuthorizationMiddleware(entityType string,
 		return nil, err
 	}
 
-	call, err := pkgcallback.NewCallback(httpClient, method, urls, permissions)
+	call, err := callback.NewCallback(httpClient, method, urls, permissions)
 	if err != nil {
 		return nil, err
 	}

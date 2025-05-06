@@ -137,7 +137,7 @@ packages:
       Repository:
   github.com/absmach/supermq/pkg/callback:
     interfaces:
-      CallBack:
+      Callback:
   github.com/absmach/supermq/readers:
     interfaces:
       MessageRepository:

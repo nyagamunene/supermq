@@ -13,7 +13,6 @@ import (
 	"github.com/absmach/supermq/pkg/authn"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
 	"github.com/absmach/supermq/pkg/callback"
-	pkgcallback "github.com/absmach/supermq/pkg/callback"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/absmach/supermq/pkg/policies"
@@ -40,13 +39,13 @@ var (
 var _ clients.Service = (*authorizationMiddleware)(nil)
 
 type authorizationMiddleware struct {
-	svc    clients.Service
-	repo   clients.Repository
-	authz  smqauthz.Authorization
-	opp    svcutil.OperationPerm
-	extOpp svcutil.ExternalOperationPerm
+	svc      clients.Service
+	repo     clients.Repository
+	authz    smqauthz.Authorization
+	opp      svcutil.OperationPerm
+	extOpp   svcutil.ExternalOperationPerm
+	callback callback.Callback
 	rmMW.RoleManagerAuthorizationMiddleware
-	callback pkgcallback.CallBack
 }
 
 // AuthorizationMiddleware adds authorization to the clients service.
@@ -70,7 +69,7 @@ func AuthorizationMiddleware(entityType string, svc clients.Service, authz smqau
 		return nil, err
 	}
 
-	call, err := pkgcallback.NewCallback(httpClient, method, urls, permissions)
+	call, err := callback.NewCallback(httpClient, method, urls, permissions)
 	if err != nil {
 		return nil, err
 	}
