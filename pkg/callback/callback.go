@@ -24,7 +24,7 @@ const (
 	DeletePerm = "delete.permission"
 )
 
-var limitExceeded = errors.New("limit exceeded")
+var errLimitExceeded = errors.New("limit exceeded")
 
 type Config struct {
 	AuthCalloutURLs            []string      `env:"SMQ_AUTH_CALLOUT_URLS"             envDefault:"" envSeparator:","`
@@ -147,8 +147,6 @@ func (c *callback) Callback(ctx context.Context, pl map[string]interface{}) erro
 		return nil
 	}
 
-	fmt.Printf("payload is %+v\n", pl)
-
 	// Check if the permission is in the allowed list
 	// Otherwise, only call webhook if the permission is in the map
 	if len(c.allowedPermission) > 0 {
@@ -174,7 +172,7 @@ func (c *callback) Callback(ctx context.Context, pl map[string]interface{}) erro
 	// if any request fails, we return the error immediately
 	for _, url := range c.urls {
 		if err = c.makeRequest(ctx, url, payload); err != nil {
-			return errors.Wrap(limitExceeded, err)
+			return errors.Wrap(errLimitExceeded, err)
 		}
 	}
 

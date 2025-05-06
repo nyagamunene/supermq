@@ -179,7 +179,9 @@ func main() {
 
 	callCfg := callback.Config{}
 	if err := env.Parse(&callCfg); err != nil {
-		log.Fatalf("failed to load %s configuration : %s", svcName, err)
+		logger.Error(err.Error())
+		exitCode = 1
+		return
 	}
 
 	client, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
@@ -327,8 +329,8 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, err
 	}
 
-	svc, err = middleware.AuthorizationMiddleware(policies.GroupType, svc, repo, authz, groups.NewOperationPermissionMap(), groups.NewRolesOperationPermissionMap(), 
-	groups.NewExternalOperationPermissionMap(),client, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
+	svc, err = middleware.AuthorizationMiddleware(policies.GroupType, svc, repo, authz, groups.NewOperationPermissionMap(), groups.NewRolesOperationPermissionMap(),
+		groups.NewExternalOperationPermissionMap(), client, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
 	if err != nil {
 		return nil, nil, err
 	}
