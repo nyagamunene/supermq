@@ -191,12 +191,12 @@ func main() {
 
 	callCfg := callback.Config{}
 	if err := env.Parse(&callCfg); err != nil {
-		logger.Error(err.Error())
+		logger.Error(fmt.Sprintf("failed to parse callback config : %s", err))
 		exitCode = 1
 		return
 	}
 
-	client, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
+	calloutClient, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
 	if err != nil {
 		logger.Error(err.Error())
 		exitCode = 1
@@ -244,7 +244,7 @@ func main() {
 
 	svc, psvc, err := newService(ctx, db, dbConfig, authz, policyEvaluator, policyService,
 		cfg, tracer, clientsClient, groupsClient, domAuthz, logger,
-		client, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
+		calloutClient, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create services: %s", err))
 		exitCode = 1
@@ -318,7 +318,7 @@ func main() {
 func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, authz smqauthz.Authorization,
 	pe policies.Evaluator, ps policies.Service, cfg config, tracer trace.Tracer, clientsClient grpcClientsV1.ClientsServiceClient,
 	groupsClient grpcGroupsV1.GroupsServiceClient, da pkgDomains.Authorization, logger *slog.Logger,
-	client *http.Client, AuthCalloutMethod string, AuthCalloutURLs []string, AuthCalloutPermissions []string,
+	calloutClient *http.Client, AuthCalloutMethod string, AuthCalloutURLs []string, AuthCalloutPermissions []string,
 ) (channels.Service, pChannels.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	repo := postgres.NewRepository(database)
@@ -350,7 +350,7 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, auth
 	svc = middleware.MetricsMiddleware(svc, counter, latency)
 
 	svc, err = middleware.AuthorizationMiddleware(svc, repo, authz, channels.NewOperationPermissionMap(), channels.NewRolesOperationPermissionMap(), channels.NewExternalOperationPermissionMap(),
-		client, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
+		calloutClient, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
 	if err != nil {
 		return nil, nil, err
 	}

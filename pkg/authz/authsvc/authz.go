@@ -75,7 +75,6 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 	if err != nil {
 		return errors.Wrap(errors.ErrAuthorization, err)
 	}
-
 	if !res.GetAuthorized() {
 		return errors.ErrAuthorization
 	}
