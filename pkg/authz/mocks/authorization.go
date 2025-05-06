@@ -9,7 +9,6 @@ package mocks
 
 import (
 	"context"
-	"time"
 
 	"github.com/absmach/supermq/pkg/authz"
 	mock "github.com/stretchr/testify/mock"
@@ -130,56 +129,6 @@ func (_c *Authorization_AuthorizePAT_Call) Return(err error) *Authorization_Auth
 }
 
 func (_c *Authorization_AuthorizePAT_Call) RunAndReturn(run func(ctx context.Context, pr authz.PatReq) error) *Authorization_AuthorizePAT_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Callback provides a mock function for the type Authorization
-func (_mock *Authorization) Callback(ctx context.Context, entity string, sender string, domain string, time1 time.Time, permission string) error {
-	ret := _mock.Called(ctx, entity, sender, domain, time1, permission)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Callback")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, time.Time, string) error); ok {
-		r0 = returnFunc(ctx, entity, sender, domain, time1, permission)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// Authorization_Callback_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Callback'
-type Authorization_Callback_Call struct {
-	*mock.Call
-}
-
-// Callback is a helper method to define mock.On call
-//   - ctx
-//   - entity
-//   - sender
-//   - domain
-//   - time1
-//   - permission
-func (_e *Authorization_Expecter) Callback(ctx interface{}, entity interface{}, sender interface{}, domain interface{}, time1 interface{}, permission interface{}) *Authorization_Callback_Call {
-	return &Authorization_Callback_Call{Call: _e.mock.On("Callback", ctx, entity, sender, domain, time1, permission)}
-}
-
-func (_c *Authorization_Callback_Call) Run(run func(ctx context.Context, entity string, sender string, domain string, time1 time.Time, permission string)) *Authorization_Callback_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(string), args[4].(time.Time), args[5].(string))
-	})
-	return _c
-}
-
-func (_c *Authorization_Callback_Call) Return(err error) *Authorization_Callback_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *Authorization_Callback_Call) RunAndReturn(run func(ctx context.Context, entity string, sender string, domain string, time1 time.Time, permission string) error) *Authorization_Callback_Call {
 	_c.Call.Return(run)
 	return _c
 }
