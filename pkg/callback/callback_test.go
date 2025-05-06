@@ -32,15 +32,13 @@ const (
 	filePermission = 0o644
 )
 
-var (
-	pl = map[string]interface{}{
-		"entity_type": entityType,
-		"sender":      userID,
-		"domain":      domainID,
-		"time":        time.Now().String(),
-		"permission":  permission,
-	}
-)
+var pl = map[string]interface{}{
+	"entity_type": entityType,
+	"sender":      userID,
+	"domain":      domainID,
+	"time":        time.Now().String(),
+	"permission":  permission,
+}
 
 func TestNewCalloutClient(t *testing.T) {
 	cases := []struct {

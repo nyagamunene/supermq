@@ -331,9 +331,23 @@ func main() {
 	}
 }
 
-func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, authz smqauthz.Authorization, pe policies.Evaluator, ps policies.Service,
-	cacheClient *redis.Client, cfg config, channels grpcChannelsV1.ChannelsServiceClient, groups grpcGroupsV1.GroupsServiceClient, tracer trace.Tracer, logger *slog.Logger,
-	client *http.Client, AuthCalloutMethod string, AuthCalloutURLs []string, AuthCalloutPermissions []string) (clients.Service, pClients.Service, error) {
+func newService(ctx context.Context,
+	db *sqlx.DB,
+	dbConfig pgclient.Config,
+	authz smqauthz.Authorization,
+	pe policies.Evaluator,
+	ps policies.Service,
+	cacheClient *redis.Client,
+	cfg config,
+	channels grpcChannelsV1.ChannelsServiceClient,
+	groups grpcGroupsV1.GroupsServiceClient,
+	tracer trace.Tracer,
+	logger *slog.Logger,
+	client *http.Client,
+	authCalloutMethod string,
+	authCalloutURLs []string,
+	authCalloutPermissions []string,
+) (clients.Service, pClients.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	repo := postgres.NewRepository(database)
 
@@ -368,7 +382,7 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, auth
 	csvc = middleware.MetricsMiddleware(csvc, counter, latency)
 
 	csvc, err = middleware.AuthorizationMiddleware(policies.ClientType, csvc, authz, repo, clients.NewOperationPermissionMap(), clients.NewRolesOperationPermissionMap(), clients.NewExternalOperationPermissionMap(),
-		client, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
+		client, authCalloutMethod, authCalloutURLs, authCalloutPermissions)
 	if err != nil {
 		return nil, nil, err
 	}
