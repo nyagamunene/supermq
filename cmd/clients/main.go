@@ -207,12 +207,12 @@ func main() {
 
 	callCfg := callback.Config{}
 	if err := env.Parse(&callCfg); err != nil {
-		logger.Error(err.Error())
+		logger.Error(fmt.Sprintf("failed to parse callback config : %s", err))
 		exitCode = 1
 		return
 	}
 
-	client, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
+	calloutClient, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
 	if err != nil {
 		logger.Error(err.Error())
 		exitCode = 1
@@ -260,7 +260,7 @@ func main() {
 
 	svc, psvc, err := newService(ctx, db, dbConfig, authz, policyEvaluator, policyService, cacheclient,
 		cfg, channelsgRPC, groupsClient, tracer, logger,
-		client, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
+		calloutClient, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create services: %s", err))
 		exitCode = 1
@@ -343,7 +343,7 @@ func newService(ctx context.Context,
 	groups grpcGroupsV1.GroupsServiceClient,
 	tracer trace.Tracer,
 	logger *slog.Logger,
-	client *http.Client,
+	calloutClient *http.Client,
 	authCalloutMethod string,
 	authCalloutURLs []string,
 	authCalloutPermissions []string,
@@ -382,7 +382,7 @@ func newService(ctx context.Context,
 	csvc = middleware.MetricsMiddleware(csvc, counter, latency)
 
 	csvc, err = middleware.AuthorizationMiddleware(policies.ClientType, csvc, authz, repo, clients.NewOperationPermissionMap(), clients.NewRolesOperationPermissionMap(), clients.NewExternalOperationPermissionMap(),
-		client, authCalloutMethod, authCalloutURLs, authCalloutPermissions)
+		calloutClient, authCalloutMethod, authCalloutURLs, authCalloutPermissions)
 	if err != nil {
 		return nil, nil, err
 	}

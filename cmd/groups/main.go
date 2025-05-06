@@ -179,12 +179,12 @@ func main() {
 
 	callCfg := callback.Config{}
 	if err := env.Parse(&callCfg); err != nil {
-		logger.Error(err.Error())
+		logger.Error(fmt.Sprintf("failed to parse callback config : %s", err))
 		exitCode = 1
 		return
 	}
 
-	client, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
+	calloutClient, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
 	if err != nil {
 		logger.Error(err.Error())
 		exitCode = 1
@@ -239,7 +239,7 @@ func main() {
 	logger.Info("Clients gRPC client successfully connected to clients gRPC server " + clientsHandler.Secure())
 
 	svc, psvc, err := newService(ctx, authz, policyService, db, dbConfig, channelsClient, clientsClient, tracer, logger, cfg,
-		client, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
+		calloutClient, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to setup service: %s", err))
 		exitCode = 1
@@ -304,7 +304,7 @@ func main() {
 func newService(ctx context.Context, authz smqauthz.Authorization, policy policies.Service, db *sqlx.DB,
 	dbConfig pgclient.Config, channels grpcChannelsV1.ChannelsServiceClient,
 	clients grpcClientsV1.ClientsServiceClient, tracer trace.Tracer, logger *slog.Logger, c config,
-	client *http.Client, AuthCalloutMethod string, AuthCalloutURLs []string, AuthCalloutPermissions []string,
+	calloutClient *http.Client, AuthCalloutMethod string, AuthCalloutURLs []string, AuthCalloutPermissions []string,
 ) (groups.Service, pgroups.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	idp := uuid.New()
@@ -330,7 +330,7 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 	}
 
 	svc, err = middleware.AuthorizationMiddleware(policies.GroupType, svc, repo, authz, groups.NewOperationPermissionMap(), groups.NewRolesOperationPermissionMap(),
-		groups.NewExternalOperationPermissionMap(), client, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
+		groups.NewExternalOperationPermissionMap(), calloutClient, AuthCalloutMethod, AuthCalloutURLs, AuthCalloutPermissions)
 	if err != nil {
 		return nil, nil, err
 	}
