@@ -57,7 +57,8 @@ type authorizationMiddleware struct {
 
 // AuthorizationMiddleware adds authorization to the channels service.
 func AuthorizationMiddleware(svc channels.Service, repo channels.Repository, authz smqauthz.Authorization, channelsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission,
-	extOpPerm map[svcutil.ExternalOperation]svcutil.Permission, httpClient *http.Client, method string, urls []string, permissions []string) (channels.Service, error) {
+	extOpPerm map[svcutil.ExternalOperation]svcutil.Permission, httpClient *http.Client, method string, urls []string, permissions []string,
+	) (channels.Service, error) {
 	opp := channels.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(channelsOpPerm); err != nil {
 		return nil, err
