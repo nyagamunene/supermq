@@ -191,7 +191,9 @@ func main() {
 
 	callCfg := callback.Config{}
 	if err := env.Parse(&callCfg); err != nil {
-		log.Fatalf("failed to load %s configuration : %s", svcName, err)
+		logger.Error(err.Error())
+		exitCode = 1
+		return
 	}
 
 	client, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
