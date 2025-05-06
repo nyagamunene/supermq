@@ -17,7 +17,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/absmach/supermq/auth/mocks"
 	"github.com/absmach/supermq/pkg/callback"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
@@ -42,8 +41,6 @@ var (
 		"permission":  permission,
 	}
 )
-
-var svc *mocks.Service
 
 func TestNewCalloutClient(t *testing.T) {
 	cases := []struct {
