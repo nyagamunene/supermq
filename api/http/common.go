@@ -49,6 +49,7 @@ const (
 	ParentKey     = "parent_id"
 	LevelKey      = "level"
 	RootGroupKey  = "root_group"
+	NoParentGroup = "no_parent_group"
 
 	TokenKey   = "token"
 	SubjectKey = "subject"
