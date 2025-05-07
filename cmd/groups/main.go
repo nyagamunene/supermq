@@ -186,7 +186,7 @@ func main() {
 
 	calloutClient, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error(fmt.Sprintf("failed to create callout client: %s", err))
 		exitCode = 1
 		return
 	}
