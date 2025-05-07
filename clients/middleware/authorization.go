@@ -98,11 +98,6 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 			return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
-
-	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
-		return []clients.Client{}, []roles.RoleProvision{}, err
-	}
-
 	if err := am.extAuthorize(ctx, clients.DomainOpCreateClient, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -111,6 +106,9 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 		Object:      session.DomainID,
 	}); err != nil {
 		return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateClients)
+	}
+	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
+		return []clients.Client{}, []roles.RoleProvision{}, err
 	}
 
 	return am.svc.CreateClients(ctx, session, client...)
@@ -330,11 +328,6 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
-
-	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
-		return err
-	}
-
 	if err := am.authorize(ctx, clients.OpDeleteClient, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -343,6 +336,9 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 		Object:      id,
 	}); err != nil {
 		return errors.Wrap(err, errDelete)
+	}
+	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
+		return err
 	}
 
 	return am.svc.Delete(ctx, session, id)

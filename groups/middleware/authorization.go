@@ -117,10 +117,6 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 		}
 	}
 
-	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
-		return groups.Group{}, []roles.RoleProvision{}, err
-	}
-
 	if err := am.extAuthorize(ctx, groups.DomainOpCreateGroup, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -143,6 +139,9 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 		}); err != nil {
 			return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(errParentGroupSetChildGroup, err)
 		}
+	}
+	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
+		return groups.Group{}, []roles.RoleProvision{}, err
 	}
 
 	return am.svc.CreateGroup(ctx, session, g)
@@ -348,11 +347,6 @@ func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session auth
 			return errors.Wrap(svcerr.ErrUnauthorizedPAT, err)
 		}
 	}
-
-	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
-		return err
-	}
-
 	if err := am.authorize(ctx, groups.OpDeleteGroup, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
@@ -361,6 +355,9 @@ func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session auth
 		ObjectType:  policies.GroupType,
 	}); err != nil {
 		return errors.Wrap(errDelete, err)
+	}
+	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
+		return err
 	}
 
 	return am.svc.DeleteGroup(ctx, session, id)
