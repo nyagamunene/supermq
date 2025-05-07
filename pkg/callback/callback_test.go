@@ -177,7 +177,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 		contextSetup  func() context.Context
 		urls          []string
 		permissions   []string
-		nilClient     bool
+		client        *http.Client
 		expectError   bool
 		err           error
 	}{
@@ -188,6 +188,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 				assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
 				w.WriteHeader(http.StatusOK)
 			}),
+			client:       http.DefaultClient,
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
@@ -201,6 +202,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 				assert.Equal(t, userID, r.URL.Query().Get("sender"))
 				w.WriteHeader(http.StatusOK)
 			}),
+			client:       http.DefaultClient,
 			method:       http.MethodGet,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
@@ -212,6 +214,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 				w.WriteHeader(http.StatusForbidden)
 			}),
 			method:       http.MethodPost,
+			client:       http.DefaultClient,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
 			expectError:  true,
@@ -219,6 +222,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 		},
 		{
 			desc:         "invalid URL",
+			client:       http.DefaultClient,
 			method:       http.MethodGet,
 			contextSetup: func() context.Context { return context.Background() },
 			urls:         []string{"http://invalid-url"},
@@ -230,6 +234,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			}),
+			client: http.DefaultClient,
 			method: http.MethodGet,
 			contextSetup: func() context.Context {
 				ctx, cancel := context.WithCancel(context.Background())
@@ -244,6 +249,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			}),
+			client:       http.DefaultClient,
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
@@ -254,9 +260,9 @@ func TestCallback_MakeRequest(t *testing.T) {
 			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			}),
+			client:       nil,
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
-			nilClient:    true,
 			permissions:  []string{permission},
 			expectError:  false,
 		},
@@ -272,14 +278,10 @@ func TestCallback_MakeRequest(t *testing.T) {
 			} else {
 				if tc.desc == "multiple URLs all succeed" {
 					for i := 0; i < 2; i++ {
-						server := httptest.NewServer(tc.serverHandler)
-						servers = append(servers, server)
-						urls = append(urls, server.URL)
+						servers, urls = newServer(tc.serverHandler)
 					}
 				} else {
-					server := httptest.NewServer(tc.serverHandler)
-					servers = append(servers, server)
-					urls = append(urls, server.URL)
+					servers, urls = newServer(tc.serverHandler)
 				}
 			}
 
@@ -289,17 +291,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 				}
 			}()
 
-			var client *http.Client
-			var err error
-
-			if tc.nilClient {
-				client = nil
-			} else {
-				client, err = callback.NewCalloutClient(false, "", "", "", time.Second)
-				assert.NoError(t, err)
-			}
-
-			cb, err := callback.NewCallback(client, tc.method, urls, tc.permissions)
+			cb, err := callback.NewCallback(tc.client, tc.method, urls, tc.permissions)
 			assert.NoError(t, err)
 
 			ctx := tc.contextSetup()
@@ -315,6 +307,17 @@ func TestCallback_MakeRequest(t *testing.T) {
 			}
 		})
 	}
+}
+
+func newServer(serverHandler http.HandlerFunc) ([]*httptest.Server, []string) {
+	var servers []*httptest.Server
+	var urls []string
+
+	server := httptest.NewServer(serverHandler)
+	servers = append(servers, server)
+	urls = append(urls, server.URL)
+
+	return servers, urls
 }
 
 func TestCallback_InvalidMethod(t *testing.T) {
