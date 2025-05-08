@@ -295,7 +295,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 			assert.NoError(t, err)
 
 			ctx := tc.contextSetup()
-			err = cb.Callback(ctx, pl)
+			err = cb.Callback(ctx, permission, pl)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -420,7 +420,7 @@ func TestCallback_Permissions(t *testing.T) {
 			cb, err := callback.NewCallback(client, http.MethodPost, []string{ts.URL}, tc.permissions)
 			assert.NoError(t, err)
 
-			err = cb.Callback(context.Background(), tc.payload)
+			err = cb.Callback(context.Background(), permission, tc.payload)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.serverCalled, serverCalled, "Server call status does not match expected")
 		})
@@ -434,6 +434,6 @@ func TestCallback_NoURLs(t *testing.T) {
 	cb, err := callback.NewCallback(client, http.MethodPost, []string{}, []string{permission})
 	assert.NoError(t, err)
 
-	err = cb.Callback(context.Background(), pl)
+	err = cb.Callback(context.Background(), permission, pl)
 	assert.NoError(t, err, "No error should be returned when URL list is empty")
 }
