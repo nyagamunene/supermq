@@ -41,16 +41,16 @@ func (_m *Callback) EXPECT() *Callback_Expecter {
 }
 
 // Callback provides a mock function for the type Callback
-func (_mock *Callback) Callback(ctx context.Context, pl map[string]interface{}) error {
-	ret := _mock.Called(ctx, pl)
+func (_mock *Callback) Callback(ctx context.Context, perm string, pl map[string]interface{}) error {
+	ret := _mock.Called(ctx, perm, pl)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Callback")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, map[string]interface{}) error); ok {
-		r0 = returnFunc(ctx, pl)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, map[string]interface{}) error); ok {
+		r0 = returnFunc(ctx, perm, pl)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -64,14 +64,15 @@ type Callback_Callback_Call struct {
 
 // Callback is a helper method to define mock.On call
 //   - ctx
+//   - perm
 //   - pl
-func (_e *Callback_Expecter) Callback(ctx interface{}, pl interface{}) *Callback_Callback_Call {
-	return &Callback_Callback_Call{Call: _e.mock.On("Callback", ctx, pl)}
+func (_e *Callback_Expecter) Callback(ctx interface{}, perm interface{}, pl interface{}) *Callback_Callback_Call {
+	return &Callback_Callback_Call{Call: _e.mock.On("Callback", ctx, perm, pl)}
 }
 
-func (_c *Callback_Callback_Call) Run(run func(ctx context.Context, pl map[string]interface{})) *Callback_Callback_Call {
+func (_c *Callback_Callback_Call) Run(run func(ctx context.Context, perm string, pl map[string]interface{})) *Callback_Callback_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(map[string]interface{}))
+		run(args[0].(context.Context), args[1].(string), args[2].(map[string]interface{}))
 	})
 	return _c
 }
@@ -81,7 +82,7 @@ func (_c *Callback_Callback_Call) Return(err error) *Callback_Callback_Call {
 	return _c
 }
 
-func (_c *Callback_Callback_Call) RunAndReturn(run func(ctx context.Context, pl map[string]interface{}) error) *Callback_Callback_Call {
+func (_c *Callback_Callback_Call) RunAndReturn(run func(ctx context.Context, perm string, pl map[string]interface{}) error) *Callback_Callback_Call {
 	_c.Call.Return(run)
 	return _c
 }
