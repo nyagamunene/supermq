@@ -138,7 +138,7 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 			}
 		}
 	}
-	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
+	if err := am.Callback(ctx, session, channels.OpCreateChannel.String(channels.OperationNames)); err != nil {
 		return []channels.Channel{}, []roles.RoleProvision{}, err
 	}
 
@@ -336,7 +336,7 @@ func (am *authorizationMiddleware) RemoveChannel(ctx context.Context, session au
 	}); err != nil {
 		return errors.Wrap(err, errDelete)
 	}
-	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
+	if err := am.Callback(ctx, session, channels.OpDeleteChannel.String(channels.OperationNames)); err != nil {
 		return err
 	}
 
@@ -572,16 +572,15 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, userID s
 	return nil
 }
 
-func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
+func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, op string) error {
 	pl := map[string]interface{}{
 		"entity_type": policies.ChannelType,
 		"sender":      session.UserID,
 		"domain":      session.DomainID,
 		"time":        time.Now().String(),
-		"permission":  perm,
 	}
 
-	if err := am.callback.Callback(ctx, pl); err != nil {
+	if err := am.callback.Callback(ctx, op, pl); err != nil {
 		return err
 	}
 
