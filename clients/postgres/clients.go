@@ -1214,6 +1214,9 @@ func PageQuery(pm clients.Page) (string, error) {
 	if pm.Group != "" {
 		query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
 	}
+	if pm.NoParentGroup {
+		query = append(query, "c.parent_group_id = '' ")
+	}
 	if pm.Channel != "" {
 		query = append(query, "conn.channel_id = :channel_id ")
 		if pm.ConnectionType != "" {

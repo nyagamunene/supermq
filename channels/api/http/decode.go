@@ -146,7 +146,7 @@ func decodeListChannels(_ context.Context, r *http.Request) (interface{}, error)
 		return listChannelsReq{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
-	pg, err := apiutil.ReadBoolQuery(r, api.NoParentGroup, true)
+	pg, err := apiutil.ReadBoolQuery(r, api.NoParentGroup, false)
 	if err != nil {
 		return listChannelsReq{}, errors.Wrap(apiutil.ErrValidation, err)
 	}

@@ -127,6 +127,11 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 		return listClientsReq{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
+	pg, err := apiutil.ReadBoolQuery(r, api.NoParentGroup, false)
+	if err != nil {
+		return listClientsReq{}, errors.Wrap(apiutil.ErrValidation, err)
+	}
+
 	req := listClientsReq{
 		Page: clients.Page{
 			Name:           name,
@@ -145,6 +150,7 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 			Channel:        channelID,
 			ConnectionType: connType,
 			ID:             id,
+			NoParentGroup:  pg,
 		},
 		userID: userID,
 	}
