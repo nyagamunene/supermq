@@ -137,6 +137,10 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 	}); err != nil {
 		return clients.Client{}, errors.Wrap(err, errView)
 	}
+	if err := am.Callback(ctx, session, clients.OpViewClient.String(clients.OperationNames)); err != nil {
+		return clients.Client{},  err
+	}
+
 	return am.svc.View(ctx, session, id, withRoles)
 }
 
@@ -206,6 +210,10 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 		return clients.Client{}, errors.Wrap(err, errUpdate)
 	}
 
+	if err := am.Callback(ctx, session, clients.OpUpdateClient.String(clients.OperationNames)); err != nil {
+		return clients.Client{},  err
+	}
+
 	return am.svc.Update(ctx, session, client)
 }
 
@@ -231,6 +239,9 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 		Object:      client.ID,
 	}); err != nil {
 		return clients.Client{}, errors.Wrap(err, errUpdateTags)
+	}
+	if err := am.Callback(ctx, session, clients.OpUpdateClientTags.String(clients.OperationNames)); err != nil {
+		return clients.Client{},  err
 	}
 
 	return am.svc.UpdateTags(ctx, session, client)
@@ -259,6 +270,9 @@ func (am *authorizationMiddleware) UpdateSecret(ctx context.Context, session aut
 	}); err != nil {
 		return clients.Client{}, errors.Wrap(err, errUpdateSecret)
 	}
+	if err := am.Callback(ctx, session, clients.OpUpdateClientSecret.String(clients.OperationNames)); err != nil {
+		return clients.Client{},  err
+	}
 	return am.svc.UpdateSecret(ctx, session, id, key)
 }
 
@@ -286,6 +300,10 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 		return clients.Client{}, errors.Wrap(err, errEnable)
 	}
 
+	if err := am.Callback(ctx, session, clients.OpEnableClient.String(clients.OperationNames)); err != nil {
+		return clients.Client{},  err
+	}
+
 	return am.svc.Enable(ctx, session, id)
 }
 
@@ -311,6 +329,9 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 		Object:      id,
 	}); err != nil {
 		return clients.Client{}, errors.Wrap(err, errDisable)
+	}
+	if err := am.Callback(ctx, session, clients.OpDisableClient.String(clients.OperationNames)); err != nil {
+		return clients.Client{},  err
 	}
 	return am.svc.Disable(ctx, session, id)
 }
@@ -377,6 +398,9 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 	}); err != nil {
 		return errors.Wrap(err, errGroupSetChildClients)
 	}
+	if err := am.Callback(ctx, session, clients.OpSetParentGroup.String(clients.OperationNames)); err != nil {
+		return err
+	}
 	return am.svc.SetParentGroup(ctx, session, parentGroupID, id)
 }
 
@@ -418,6 +442,9 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 			Object:      th.ParentGroup,
 		}); err != nil {
 			return errors.Wrap(err, errGroupRemoveChildClients)
+		}
+		if err := am.Callback(ctx, session, clients.OpRemoveParentGroup.String(clients.OperationNames)); err != nil {
+			return err
 		}
 		return am.svc.RemoveParentGroup(ctx, session, id)
 	}
