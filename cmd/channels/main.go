@@ -196,7 +196,7 @@ func main() {
 		return
 	}
 
-	calloutClient, err := callback.NewCalloutClient(callCfg.AuthCalloutTLSVerification, callCfg.AuthCalloutCACert, callCfg.AuthCalloutKey, callCfg.AuthCalloutCACert, callCfg.AuthCalloutTimeout)
+	calloutClient, err := callback.NewCalloutClient(callCfg.CalloutTLSVerification, callCfg.CalloutCACert, callCfg.CalloutKey, callCfg.CalloutCACert, callCfg.CalloutTimeout)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create callout client: %s", err))
 		exitCode = 1
@@ -244,7 +244,7 @@ func main() {
 
 	svc, psvc, err := newService(ctx, db, dbConfig, authz, policyEvaluator, policyService,
 		cfg, tracer, clientsClient, groupsClient, domAuthz, logger,
-		calloutClient, callCfg.AuthCalloutMethod, callCfg.AuthCalloutURLs, callCfg.AuthCalloutPermissions)
+		calloutClient, callCfg.CalloutMethod, callCfg.CalloutURLs, callCfg.CalloutPermissions)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create services: %s", err))
 		exitCode = 1
