@@ -237,9 +237,6 @@ func (am *authorizationMiddleware) ListGroups(ctx context.Context, session authn
 	}); err != nil {
 		return groups.Page{}, errors.Wrap(errDomainListGroups, err)
 	}
-	if err := am.Callback(ctx, session, groups.DomainOpListGroups.String(groups.OperationNames)); err != nil {
-		return groups.Page{}, err
-	}
 
 	return am.svc.ListGroups(ctx, session, gm)
 }
@@ -259,9 +256,6 @@ func (am *authorizationMiddleware) ListUserGroups(ctx context.Context, session a
 		ObjectType:  policies.DomainType,
 	}); err != nil {
 		return groups.Page{}, errors.Wrap(errDomainListGroups, err)
-	}
-	if err := am.Callback(ctx, session, groups.UserOpListGroups.String(groups.OperationNames)); err != nil {
-		return groups.Page{}, err
 	}
 	return am.svc.ListUserGroups(ctx, session, userID, pm)
 }
@@ -596,7 +590,7 @@ func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, sessi
 	}
 
 	if err := am.Callback(ctx, session, groups.OpListChildrenGroups.String(groups.OperationNames)); err != nil {
-		return groups.Page{},err
+		return groups.Page{}, err
 	}
 
 	return am.svc.ListChildrenGroups(ctx, session, id, startLevel, endLevel, pm)
