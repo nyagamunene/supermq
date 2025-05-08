@@ -107,7 +107,7 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 	}); err != nil {
 		return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateClients)
 	}
-	if err := am.Callback(ctx, session, callback.CreatePerm); err != nil {
+	if err := am.Callback(ctx, session, clients.OpCreateClient.String(clients.OperationNames)); err != nil {
 		return []clients.Client{}, []roles.RoleProvision{}, err
 	}
 
@@ -337,7 +337,7 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 	}); err != nil {
 		return errors.Wrap(err, errDelete)
 	}
-	if err := am.Callback(ctx, session, callback.DeletePerm); err != nil {
+	if err := am.Callback(ctx, session, clients.OpDeleteClient.String(clients.OperationNames)); err != nil {
 		return err
 	}
 
@@ -467,16 +467,15 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, userID s
 	return nil
 }
 
-func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, perm string) error {
+func (am *authorizationMiddleware) Callback(ctx context.Context, session authn.Session, op string) error {
 	pl := map[string]interface{}{
 		"entity_type": policies.ClientType,
 		"sender":      session.UserID,
 		"domain":      session.DomainID,
 		"time":        time.Now().String(),
-		"permission":  perm,
 	}
 
-	if err := am.callback.Callback(ctx, pl); err != nil {
+	if err := am.callback.Callback(ctx, op, pl); err != nil {
 		return err
 	}
 

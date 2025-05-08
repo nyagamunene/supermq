@@ -19,22 +19,17 @@ import (
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 )
 
-const (
-	CreatePerm = "create.permission"
-	DeletePerm = "delete.permission"
-)
-
 var errLimitExceeded = errors.New("limit exceeded")
 
 type Config struct {
-	AuthCalloutURLs            []string      `env:"SMQ_AUTH_CALLOUT_URLS"             envDefault:"" envSeparator:","`
-	AuthCalloutMethod          string        `env:"SMQ_AUTH_CALLOUT_METHOD"           envDefault:"POST"`
-	AuthCalloutTLSVerification bool          `env:"SMQ_AUTH_CALLOUT_TLS_VERIFICATION" envDefault:"true"`
-	AuthCalloutTimeout         time.Duration `env:"SMQ_AUTH_CALLOUT_TIMEOUT"          envDefault:"10s"`
-	AuthCalloutCACert          string        `env:"SMQ_AUTH_CALLOUT_CA_CERT"          envDefault:""`
-	AuthCalloutCert            string        `env:"SMQ_AUTH_CALLOUT_CERT"             envDefault:""`
-	AuthCalloutKey             string        `env:"SMQ_AUTH_CALLOUT_KEY"              envDefault:""`
-	AuthCalloutPermissions     []string      `env:"SMQ_AUTH_CALLOUT_INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
+	CalloutURLs            []string      `env:"SMQ_CALLOUT_URLS"             envDefault:"" envSeparator:","`
+	CalloutMethod          string        `env:"SMQ_CALLOUT_METHOD"           envDefault:"POST"`
+	CalloutTLSVerification bool          `env:"SMQ_CALLOUT_TLS_VERIFICATION" envDefault:"true"`
+	CalloutTimeout         time.Duration `env:"SMQ_CALLOUT_TIMEOUT"          envDefault:"10s"`
+	CalloutCACert          string        `env:"SMQ_CALLOUT_CA_CERT"          envDefault:""`
+	CalloutCert            string        `env:"SMQ_CALLOUT_CERT"             envDefault:""`
+	CalloutKey             string        `env:"SMQ_CALLOUT_KEY"              envDefault:""`
+	CalloutPermissions     []string      `env:"SMQ_CALLOUT_INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
 }
 
 type callback struct {
@@ -46,7 +41,7 @@ type callback struct {
 
 // Callback send request to an external service.
 type Callback interface {
-	Callback(ctx context.Context, pl map[string]interface{}) error
+	Callback(ctx context.Context, perm string, pl map[string]interface{}) error
 }
 
 // NewCallback creates a new instance of CallBack.
@@ -105,7 +100,7 @@ func NewCalloutClient(ctls bool, certPath, keyPath, caPath string, timeout time.
 	return httpClient, nil
 }
 
-func (c *callback) makeRequest(ctx context.Context, urlStr string, params map[string]string) error {
+func (c *callback) makeRequest(ctx context.Context, urlStr string, params map[string]interface{}) error {
 	var req *http.Request
 	var err error
 
@@ -113,7 +108,9 @@ func (c *callback) makeRequest(ctx context.Context, urlStr string, params map[st
 	case http.MethodGet:
 		query := url.Values{}
 		for key, value := range params {
-			query.Set(key, value)
+			if v, ok := value.(string); ok {
+				query.Set(key, v)
+			}
 		}
 		req, err = http.NewRequestWithContext(ctx, c.method, urlStr+"?"+query.Encode(), nil)
 	case http.MethodPost:
@@ -142,7 +139,7 @@ func (c *callback) makeRequest(ctx context.Context, urlStr string, params map[st
 	return nil
 }
 
-func (c *callback) Callback(ctx context.Context, pl map[string]interface{}) error {
+func (c *callback) Callback(ctx context.Context, op string, pl map[string]interface{}) error {
 	if len(c.urls) == 0 {
 		return nil
 	}
@@ -150,28 +147,18 @@ func (c *callback) Callback(ctx context.Context, pl map[string]interface{}) erro
 	// Check if the permission is in the allowed list
 	// Otherwise, only call webhook if the permission is in the map
 	if len(c.allowedPermission) > 0 {
-		val, ok := pl["permission"].(string)
-		if ok {
-			_, exists := c.allowedPermission[val]
-			if !exists {
-				return nil
-			}
+		_, exists := c.allowedPermission[op]
+		if !exists {
+			return nil
 		}
 	}
-
-	payload := map[string]string{
-		"domain":      pl["domain"].(string),
-		"sender":      pl["sender"].(string),
-		"entity_type": pl["entity_type"].(string),
-		"time":        pl["time"].(string),
-		"permission":  pl["permission"].(string),
-	}
+	pl["permission"] = op
 
 	var err error
 	// We iterate through all URLs in sequence
 	// if any request fails, we return the error immediately
 	for _, url := range c.urls {
-		if err = c.makeRequest(ctx, url, payload); err != nil {
+		if err = c.makeRequest(ctx, url, pl); err != nil {
 			return errors.Wrap(errLimitExceeded, err)
 		}
 	}
