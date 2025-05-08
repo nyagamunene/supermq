@@ -44,7 +44,7 @@ type Callback interface {
 	Callback(ctx context.Context, perm string, pl map[string]interface{}) error
 }
 
-// NewCallback creates a new instance of CallBack.
+// NewCallback creates a new instance of Callback.
 func NewCallback(httpClient *http.Client, method string, urls []string, permissions []string) (Callback, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
