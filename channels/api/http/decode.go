@@ -131,9 +131,14 @@ func decodeListChannels(_ context.Context, r *http.Request) (interface{}, error)
 		return listChannelsReq{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
+	var groupPtr *string
 	groupID, err := apiutil.ReadStringQuery(r, api.GroupKey, "")
 	if err != nil {
 		return listChannelsReq{}, errors.Wrap(apiutil.ErrValidation, err)
+	}
+
+	if r.URL.Query().Has(api.GroupKey) {
+		groupPtr = &groupID
 	}
 
 	clientID, err := apiutil.ReadStringQuery(r, api.ClientKey, "")
@@ -146,29 +151,23 @@ func decodeListChannels(_ context.Context, r *http.Request) (interface{}, error)
 		return listChannelsReq{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
-	pg, err := apiutil.ReadBoolQuery(r, api.NoParentGroup, false)
-	if err != nil {
-		return listChannelsReq{}, errors.Wrap(apiutil.ErrValidation, err)
-	}
-
 	req := listChannelsReq{
 		Page: channels.Page{
-			Name:          name,
-			Tag:           tag,
-			Status:        status,
-			Metadata:      meta,
-			RoleName:      roleName,
-			RoleID:        roleID,
-			Actions:       actions,
-			AccessType:    accessType,
-			Order:         order,
-			Dir:           dir,
-			Offset:        offset,
-			Limit:         limit,
-			Group:         groupID,
-			Client:        clientID,
-			ID:            id,
-			NoParentGroup: pg,
+			Name:       name,
+			Tag:        tag,
+			Status:     status,
+			Metadata:   meta,
+			RoleName:   roleName,
+			RoleID:     roleID,
+			Actions:    actions,
+			AccessType: accessType,
+			Order:      order,
+			Dir:        dir,
+			Offset:     offset,
+			Limit:      limit,
+			Group:      groupPtr,
+			Client:     clientID,
+			ID:         id,
 		},
 		userID: userID,
 	}

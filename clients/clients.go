@@ -207,8 +207,7 @@ type Page struct {
 	Tag            string   `json:"tag,omitempty"`
 	Status         Status   `json:"status,omitempty"`
 	Identity       string   `json:"identity,omitempty"`
-	Group          string   `json:"group,omitempty"`
-	NoParentGroup  bool     `json:"no_parent_group,omitempty"`
+	Group          *string  `json:"group,omitempty"`
 	Channel        string   `json:"channel,omitempty"`
 	ConnectionType string   `json:"connection_type,omitempty"`
 	RoleName       string   `json:"role_name,omitempty"`

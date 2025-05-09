@@ -107,9 +107,14 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 		return listClientsReq{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
 
+	var groupPtr *string
 	groupID, err := apiutil.ReadStringQuery(r, api.GroupKey, "")
 	if err != nil {
 		return listClientsReq{}, errors.Wrap(apiutil.ErrValidation, err)
+	}
+
+	if r.URL.Query().Has(api.GroupKey) {
+		groupPtr = &groupID
 	}
 
 	channelID, err := apiutil.ReadStringQuery(r, api.ChannelKey, "")
@@ -123,11 +128,6 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 	}
 
 	id, err := apiutil.ReadStringQuery(r, api.IDOrder, "")
-	if err != nil {
-		return listClientsReq{}, errors.Wrap(apiutil.ErrValidation, err)
-	}
-
-	pg, err := apiutil.ReadBoolQuery(r, api.NoParentGroup, false)
 	if err != nil {
 		return listClientsReq{}, errors.Wrap(apiutil.ErrValidation, err)
 	}
@@ -146,11 +146,10 @@ func decodeListClients(_ context.Context, r *http.Request) (interface{}, error) 
 			Dir:            dir,
 			Offset:         offset,
 			Limit:          limit,
-			Group:          groupID,
+			Group:          groupPtr,
 			Channel:        channelID,
 			ConnectionType: connType,
 			ID:             id,
-			NoParentGroup:  pg,
 		},
 		userID: userID,
 	}

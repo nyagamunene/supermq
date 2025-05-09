@@ -1148,7 +1148,7 @@ func ToDBClientsPage(pm clients.Page) (dbClientsPage, error) {
 		Domain:     pm.Domain,
 		Status:     pm.Status,
 		Tag:        pm.Tag,
-		GroupID:    pm.Group,
+		GroupID:    *pm.Group,
 		ChannelID:  pm.Channel,
 		RoleName:   pm.RoleName,
 		ConnType:   pm.ConnectionType,
@@ -1211,11 +1211,13 @@ func PageQuery(pm clients.Page) (string, error) {
 	if pm.Domain != "" {
 		query = append(query, "c.domain_id = :domain_id")
 	}
-	if pm.Group != "" {
+	switch {
+	case pm.Group != nil && *pm.Group != "":
 		query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
-	}
-	if pm.NoParentGroup {
+
+	case pm.Group != nil && *pm.Group == "":
 		query = append(query, "c.parent_group_id = '' ")
+	default:
 	}
 	if pm.Channel != "" {
 		query = append(query, "conn.channel_id = :channel_id ")
