@@ -135,9 +135,9 @@ packages:
       Provisioner:
       RoleManager:
       Repository:
-  github.com/absmach/supermq/pkg/callback:
+  github.com/absmach/supermq/pkg/callout:
     interfaces:
-      Callback:
+      Callout:
   github.com/absmach/supermq/readers:
     interfaces:
       MessageRepository:
