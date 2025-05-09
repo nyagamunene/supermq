@@ -35,7 +35,7 @@ import (
 	authsvcAuthn "github.com/absmach/supermq/pkg/authn/authsvc"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
 	authsvcAuthz "github.com/absmach/supermq/pkg/authz/authsvc"
-	"github.com/absmach/supermq/pkg/callback"
+	"github.com/absmach/supermq/pkg/callout"
 	dconsumer "github.com/absmach/supermq/pkg/domains/events/consumer"
 	domainsAuthz "github.com/absmach/supermq/pkg/domains/grpcclient"
 	gconsumer "github.com/absmach/supermq/pkg/groups/events/consumer"
@@ -205,14 +205,14 @@ func main() {
 	}
 	defer domainsHandler.Close()
 
-	callCfg := callback.Config{}
+	callCfg := callout.Config{}
 	if err := env.Parse(&callCfg); err != nil {
-		logger.Error(fmt.Sprintf("failed to parse callback config : %s", err))
+		logger.Error(fmt.Sprintf("failed to parse callout config : %s", err))
 		exitCode = 1
 		return
 	}
 
-	calloutClient, err := callback.NewCalloutClient(callCfg.CalloutTLSVerification, callCfg.CalloutCACert, callCfg.CalloutKey, callCfg.CalloutCACert, callCfg.CalloutTimeout)
+	calloutClient, err := callout.NewCalloutClient(callCfg.CalloutTLSVerification, callCfg.CalloutCACert, callCfg.CalloutKey, callCfg.CalloutCACert, callCfg.CalloutTimeout)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create callout client: %s", err))
 		exitCode = 1

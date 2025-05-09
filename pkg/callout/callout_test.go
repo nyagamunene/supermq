@@ -1,7 +1,7 @@
 // Copyright (c) Abstract Machines
 // SPDX-License-Identifier: Apache-2.0
 
-package callback_test
+package callout_test
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/absmach/supermq/pkg/callback"
+	"github.com/absmach/supermq/pkg/callout"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	"github.com/stretchr/testify/assert"
@@ -97,7 +97,7 @@ func TestNewCalloutClient(t *testing.T) {
 				}()
 			}
 
-			client, err := callback.NewCalloutClient(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout)
+			client, err := callout.NewCalloutClient(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			if err == nil {
 				assert.NotNil(t, client)
@@ -291,11 +291,11 @@ func TestCallback_MakeRequest(t *testing.T) {
 				}
 			}()
 
-			cb, err := callback.NewCallback(tc.client, tc.method, urls, tc.permissions)
+			cb, err := callout.NewCallback(tc.client, tc.method, urls, tc.permissions)
 			assert.NoError(t, err)
 
 			ctx := tc.contextSetup()
-			err = cb.Callback(ctx, permission, pl)
+			err = cb.Callout(ctx, permission, pl)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -345,13 +345,13 @@ func TestCallback_InvalidMethod(t *testing.T) {
 			method:      "INVALID-METHOD",
 			urls:        []string{"http://example.com"},
 			permissions: []string{},
-			err:         errors.New("unsupported auth callback method: INVALID-METHOD"),
+			err:         errors.New("unsupported auth callout method: INVALID-METHOD"),
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			cb, err := callback.NewCallback(http.DefaultClient, tc.method, tc.urls, tc.permissions)
+			cb, err := callout.NewCallback(http.DefaultClient, tc.method, tc.urls, tc.permissions)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			if tc.err == nil {
 				assert.NotNil(t, cb)
@@ -414,13 +414,13 @@ func TestCallback_Permissions(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			client, err := callback.NewCalloutClient(false, "", "", "", time.Second)
+			client, err := callout.NewCalloutClient(false, "", "", "", time.Second)
 			assert.NoError(t, err)
 
-			cb, err := callback.NewCallback(client, http.MethodPost, []string{ts.URL}, tc.permissions)
+			cb, err := callout.NewCallback(client, http.MethodPost, []string{ts.URL}, tc.permissions)
 			assert.NoError(t, err)
 
-			err = cb.Callback(context.Background(), permission, tc.payload)
+			err = cb.Callout(context.Background(), permission, tc.payload)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.serverCalled, serverCalled, "Server call status does not match expected")
 		})
@@ -428,12 +428,12 @@ func TestCallback_Permissions(t *testing.T) {
 }
 
 func TestCallback_NoURLs(t *testing.T) {
-	client, err := callback.NewCalloutClient(false, "", "", "", time.Second)
+	client, err := callout.NewCalloutClient(false, "", "", "", time.Second)
 	assert.NoError(t, err)
 
-	cb, err := callback.NewCallback(client, http.MethodPost, []string{}, []string{permission})
+	cb, err := callout.NewCallback(client, http.MethodPost, []string{}, []string{permission})
 	assert.NoError(t, err)
 
-	err = cb.Callback(context.Background(), permission, pl)
+	err = cb.Callout(context.Background(), permission, pl)
 	assert.NoError(t, err, "No error should be returned when URL list is empty")
 }
