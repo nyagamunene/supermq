@@ -1319,7 +1319,7 @@ func toDBChannelsPage(pm channels.Page) (dbChannelsPage, error) {
 		Metadata:   data,
 		Tag:        pm.Tag,
 		Status:     pm.Status,
-		GroupID:    *pm.Group,
+		GroupID:    pm.Group,
 		ClientID:   pm.Client,
 		ConnType:   pm.ConnectionType,
 		RoleName:   pm.RoleName,
@@ -1338,7 +1338,7 @@ type dbChannelsPage struct {
 	Metadata   []byte          `db:"metadata"`
 	Tag        string          `db:"tag"`
 	Status     channels.Status `db:"status"`
-	GroupID    string          `db:"group_id"`
+	GroupID    *string         `db:"group_id"`
 	ClientID   string          `db:"client_id"`
 	ConnType   string          `db:"type"`
 	RoleName   string          `db:"role_name"`
