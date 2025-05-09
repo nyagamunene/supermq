@@ -1,7 +1,7 @@
 // Copyright (c) Abstract Machines
 // SPDX-License-Identifier: Apache-2.0
 
-package callback
+package callout
 
 import (
 	"bytes"
@@ -32,25 +32,25 @@ type Config struct {
 	CalloutPermissions     []string      `env:"SMQ_CALLOUT_INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
 }
 
-type callback struct {
+type callout struct {
 	httpClient        *http.Client
 	urls              []string
 	method            string
 	allowedPermission map[string]struct{}
 }
 
-// Callback send request to an external service.
-type Callback interface {
-	Callback(ctx context.Context, perm string, pl map[string]interface{}) error
+// Callout send request to an external service.
+type Callout interface {
+	Callout(ctx context.Context, perm string, pl map[string]interface{}) error
 }
 
-// NewCallback creates a new instance of Callback.
-func NewCallback(httpClient *http.Client, method string, urls []string, permissions []string) (Callback, error) {
+// NewCallback creates a new instance of Callout.
+func NewCallback(httpClient *http.Client, method string, urls []string, permissions []string) (Callout, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 	if method != http.MethodPost && method != http.MethodGet {
-		return nil, fmt.Errorf("unsupported auth callback method: %s", method)
+		return nil, fmt.Errorf("unsupported auth callout method: %s", method)
 	}
 
 	allowedPermission := make(map[string]struct{})
@@ -58,7 +58,7 @@ func NewCallback(httpClient *http.Client, method string, urls []string, permissi
 		allowedPermission[permission] = struct{}{}
 	}
 
-	return &callback{
+	return &callout{
 		httpClient:        httpClient,
 		urls:              urls,
 		method:            method,
@@ -100,7 +100,7 @@ func NewCalloutClient(ctls bool, certPath, keyPath, caPath string, timeout time.
 	return httpClient, nil
 }
 
-func (c *callback) makeRequest(ctx context.Context, urlStr string, params map[string]interface{}) error {
+func (c *callout) makeRequest(ctx context.Context, urlStr string, params map[string]interface{}) error {
 	var req *http.Request
 	var err error
 
@@ -139,7 +139,7 @@ func (c *callback) makeRequest(ctx context.Context, urlStr string, params map[st
 	return nil
 }
 
-func (c *callback) Callback(ctx context.Context, op string, pl map[string]interface{}) error {
+func (c *callout) Callout(ctx context.Context, op string, pl map[string]interface{}) error {
 	if len(c.urls) == 0 {
 		return nil
 	}
