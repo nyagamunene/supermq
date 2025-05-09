@@ -1211,19 +1211,19 @@ func PageQuery(pm clients.Page) (string, error) {
 	if pm.Domain != "" {
 		query = append(query, "c.domain_id = :domain_id")
 	}
-	// switch {
-	// case pm.Group != nil && *pm.Group != "":
-	// 	query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
+	switch {
+	case pm.Group != nil && *pm.Group != "":
+		query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
 
-	// case pm.Group != nil && *pm.Group == "":
-	// 	query = append(query, "c.parent_group_id = '' ")
-	// }
+	case pm.Group != nil && *pm.Group == "":
+		query = append(query, "c.parent_group_id = '' ")
+	}
 
-	// if pm.Group != nil && *pm.Group != "" {
-	// 	query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
-	// } else if pm.Group != nil && *pm.Group == "" {
-	// 	query = append(query, "c.parent_group_id = '' ")
-	// }
+	if pm.Group != nil && *pm.Group != "" {
+		query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
+	} else if pm.Group != nil && *pm.Group == "" {
+		query = append(query, "c.parent_group_id = '' ")
+	}
 
 	if pm.Channel != "" {
 		query = append(query, "conn.channel_id = :channel_id ")
