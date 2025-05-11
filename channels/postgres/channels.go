@@ -1251,13 +1251,14 @@ func PageQuery(pm channels.Page) (string, error) {
 		query = append(query, "c.domain_id = :domain_id")
 	}
 
-	switch {
-	case pm.Group != nil && *pm.Group != "":
-		query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
+	if pm.Group != nil {
+		switch *pm.Group {
+		case "":
+			query = append(query, "c.parent_group_id = '' ")
+		default:
+			query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
 
-	case pm.Group != nil && *pm.Group == "":
-		query = append(query, "c.parent_group_id = '' ")
-	default:
+		}
 	}
 
 	if pm.Client != "" {
