@@ -1257,7 +1257,6 @@ func PageQuery(pm channels.Page) (string, error) {
 			query = append(query, "c.parent_group_id = '' ")
 		default:
 			query = append(query, "c.parent_group_path <@ (SELECT path from groups where id = :group_id) ")
-
 		}
 	}
 
