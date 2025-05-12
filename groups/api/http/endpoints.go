@@ -110,7 +110,6 @@ func updateGroupTagsEndpoint(svc groups.Service) endpoint.Endpoint {
 	}
 }
 
-
 func EnableGroupEndpoint(svc groups.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(changeGroupStatusReq)
