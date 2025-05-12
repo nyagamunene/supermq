@@ -433,7 +433,7 @@ func (repo groupRepository) RetrieveAll(ctx context.Context, pm groups.PageMeta)
 
 	cq := fmt.Sprintf(`	SELECT COUNT(*) AS total_count
 						FROM (
-							SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.description,
+							SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.tags, g.description,
 							g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g %s
 						) AS subquery;
 						`, query)
@@ -456,7 +456,7 @@ func (repo groupRepository) RetrieveByIDs(ctx context.Context, pm groups.PageMet
 	}
 	query := buildQuery(pm, ids...)
 
-	q = fmt.Sprintf(`SELECT DISTINCT g.id, g.domain_id, tags, COALESCE(g.parent_id, '') AS parent_id, g.name, g.description,
+	q = fmt.Sprintf(`SELECT DISTINCT g.id, g.domain_id, tags, COALESCE(g.parent_id, '') AS parent_id, g.name, g.tags, g.description,
 		g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g %s ORDER BY g.created_at LIMIT :limit OFFSET :offset;`, query)
 
 	dbPageMeta, err := toDBGroupPageMeta(pm)
@@ -476,7 +476,7 @@ func (repo groupRepository) RetrieveByIDs(ctx context.Context, pm groups.PageMet
 
 	cq := fmt.Sprintf(`	SELECT COUNT(*) AS total_count
 						FROM (
-							SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.description,
+							SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.tags, g.description,
 							g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g %s
 						) AS subquery;
 						`, query)
@@ -527,6 +527,7 @@ func (repo groupRepository) RetrieveHierarchy(ctx context.Context, id string, hm
 			COALESCE(g.parent_id, '') AS parent_id,
 			g.domain_id,
 			g.name,
+			g.tags,
 			g.description,
 			g.metadata,
 			g.created_at,
@@ -978,6 +979,7 @@ direct_indirect_groups as (
 		parent_id,
 		domain_id,
 		"name",
+		tags,
 		description,
 		metadata,
 		created_at,
@@ -1001,6 +1003,7 @@ direct_indirect_groups as (
 		parent_id,
 		domain_id,
 		"name",
+		tags,
 		description,
 		metadata,
 		created_at,
@@ -1025,6 +1028,7 @@ final_groups AS (
 		dig.parent_id,
 		dig.domain_id,
 		dig."name",
+		dig.tags,
 		dig.description,
 		dig.metadata,
 		dig.created_at,
@@ -1048,6 +1052,7 @@ final_groups AS (
 		dg.parent_id,
 		dg.domain_id,
 		dg."name",
+		dg.tags,
 		dg.description,
 		dg.metadata,
 		dg.created_at,
@@ -1327,10 +1332,10 @@ func (repo groupRepository) getInsertQuery(c context.Context, g groups.Group) (s
 		}
 		return fmt.Sprintf(`INSERT INTO groups (name, description, tags, id, domain_id, parent_id, metadata, created_at, status, path)
 		VALUES (:name, :description, :tags, :id, :domain_id, :parent_id, :metadata, :created_at, :status, '%s')
-		RETURNING id, name, description, domain_id, COALESCE(parent_id, '') AS parent_id, metadata, created_at, status, path, nlevel(path) as level;`, path), nil
+		RETURNING id, name, description, tags, domain_id, COALESCE(parent_id, '') AS parent_id, metadata, created_at, status, path, nlevel(path) as level;`, path), nil
 	default:
 		return `INSERT INTO groups (name, description, tags, id, domain_id, metadata, created_at, status, path)
 		VALUES (:name, :description, :tags, :id, :domain_id, :metadata, :created_at, :status, :id)
-		RETURNING id, name, description, domain_id, COALESCE(parent_id, '') AS parent_id, metadata, created_at, status, path, nlevel(path) as level;`, nil
+		RETURNING id, name, description, tags, domain_id, COALESCE(parent_id, '') AS parent_id, metadata, created_at, status, path, nlevel(path) as level;`, nil
 	}
 }
