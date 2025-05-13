@@ -474,6 +474,146 @@ func TestUpdateGroupEndpoint(t *testing.T) {
 	}
 }
 
+func TestUpdateGroupTagsEndpoint(t *testing.T) {
+	gs, svc, authn := newGroupsServer()
+	defer gs.Close()
+
+	newTag := "newtag"
+
+	cases := []struct {
+		desc        string
+		token       string
+		id          string
+		domainID    string
+		data        string
+		contentType string
+		session     smqauthn.Session
+		svcResp     groups.Group
+		svcErr      error
+		resp        groups.Group
+		status      int
+		authnErr    error
+		err         error
+	}{
+		{
+			desc:        "update group tags successfully",
+			token:       validToken,
+			domainID:    validID,
+			id:          validID,
+			data:        fmt.Sprintf(`{"tags":["%s"]}`, newTag),
+			contentType: contentType,
+			svcResp:     validGroupResp,
+			status:      http.StatusOK,
+			err:         nil,
+		},
+		{
+			desc:        "update group tags with invalid token",
+			token:       invalidToken,
+			session:     smqauthn.Session{},
+			domainID:    validID,
+			id:          validID,
+			data:        fmt.Sprintf(`{"tags":["%s"]}`, newTag),
+			contentType: contentType,
+			authnErr:    svcerr.ErrAuthentication,
+			status:      http.StatusUnauthorized,
+			err:         svcerr.ErrAuthentication,
+		},
+		{
+			desc:        "update group tags with empty token",
+			token:       "",
+			session:     smqauthn.Session{},
+			domainID:    validID,
+			id:          validID,
+			data:        fmt.Sprintf(`{"tags":["%s"]}`, newTag),
+			contentType: contentType,
+			status:      http.StatusUnauthorized,
+			err:         apiutil.ErrBearerToken,
+		},
+		{
+			desc:        "update group tags with empty domainID",
+			token:       validToken,
+			id:          validID,
+			data:        fmt.Sprintf(`{"tags":["%s"]}`, newTag),
+			contentType: contentType,
+			status:      http.StatusBadRequest,
+			err:         apiutil.ErrMissingDomainID,
+		},
+		{
+			desc:        "update group tags with invalid content type",
+			token:       validToken,
+			id:          validID,
+			domainID:    validID,
+			data:        fmt.Sprintf(`{"tags":["%s"]}`, newTag),
+			contentType: "application/xml",
+			svcResp:     validGroupResp,
+			status:      http.StatusUnsupportedMediaType,
+			err:         apiutil.ErrUnsupportedContentType,
+		},
+		{
+			desc:        "update group tags with service error",
+			token:       validToken,
+			id:          validID,
+			domainID:    validID,
+			data:        fmt.Sprintf(`{"tags":["%s"]}`, newTag),
+			contentType: contentType,
+			svcResp:     groups.Group{},
+			svcErr:      svcerr.ErrAuthorization,
+			status:      http.StatusForbidden,
+			err:         svcerr.ErrAuthorization,
+		},
+		{
+			desc:        "update group with malformed request",
+			token:       validToken,
+			id:          validID,
+			domainID:    validID,
+			contentType: contentType,
+			data:        fmt.Sprintf(`{"tags":["%s"}`, newTag),
+			status:      http.StatusBadRequest,
+			err:         errors.ErrMalformedEntity,
+		},
+		{
+			desc:        "update group with empty id",
+			token:       validToken,
+			id:          "",
+			domainID:    validID,
+			contentType: contentType,
+			data:        fmt.Sprintf(`{"tags":["%s"]}`, newTag),
+			status:      http.StatusBadRequest,
+			err:         apiutil.ErrMissingID,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			req := testRequest{
+				client:      gs.Client(),
+				method:      http.MethodPatch,
+				url:         fmt.Sprintf("%s/%s/groups/%s/tags", gs.URL, tc.domainID, tc.id),
+				contentType: tc.contentType,
+				token:       tc.token,
+				body:        strings.NewReader(tc.data),
+			}
+			if tc.token == validToken {
+				tc.session = smqauthn.Session{DomainUserID: validID + "_" + validID, UserID: validID, DomainID: validID}
+			}
+			authCall := authn.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authnErr)
+			svcCall := svc.On("UpdateGroupTags", mock.Anything, tc.session, groups.Group{ID: tc.id, Tags: []string{newTag}}).Return(tc.svcResp, tc.svcErr)
+			res, err := req.make()
+			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+			var errRes respBody
+			err = json.NewDecoder(res.Body).Decode(&errRes)
+			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error while decoding response body: %s", tc.desc, err))
+			if errRes.Err != "" || errRes.Message != "" {
+				err = errors.Wrap(errors.New(errRes.Err), errors.New(errRes.Message))
+			}
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+			assert.Equal(t, tc.status, res.StatusCode, fmt.Sprintf("%s: expected status code %d got %d", tc.desc, tc.status, res.StatusCode))
+			svcCall.Unset()
+			authCall.Unset()
+		})
+	}
+}
+
 func TestEnableGroupEndpoint(t *testing.T) {
 	gs, svc, authn := newGroupsServer()
 	defer gs.Close()
