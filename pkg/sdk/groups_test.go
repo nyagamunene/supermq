@@ -881,7 +881,7 @@ func TestUpdateGroupTags(t *testing.T) {
 		err             errors.SDKError
 	}{
 		{
-			desc:           "update channel tags successfully",
+			desc:           "update group tags successfully",
 			domainID:       domainID,
 			token:          validToken,
 			updateGroupReq: updateGroupReq,
@@ -892,7 +892,7 @@ func TestUpdateGroupTags(t *testing.T) {
 			err:            nil,
 		},
 		{
-			desc:            "update channel tags with an invalid token",
+			desc:            "update group tags with an invalid token",
 			domainID:        domainID,
 			token:           invalidToken,
 			updateGroupReq:  updateGroupReq,
@@ -903,7 +903,7 @@ func TestUpdateGroupTags(t *testing.T) {
 			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
 		},
 		{
-			desc:           "update channel tags with empty token",
+			desc:           "update group tags with empty token",
 			domainID:       domainID,
 			token:          "",
 			updateGroupReq: updateGroupReq,
@@ -914,7 +914,7 @@ func TestUpdateGroupTags(t *testing.T) {
 			err:            errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
 		},
 		{
-			desc:     "update channel tags with an invalid channel id",
+			desc:     "update group tags with an invalid group id",
 			domainID: domainID,
 			token:    validToken,
 			updateGroupReq: sdk.Group{
@@ -931,7 +931,7 @@ func TestUpdateGroupTags(t *testing.T) {
 			err:      errors.NewSDKErrorWithStatus(svcerr.ErrUpdateEntity, http.StatusUnprocessableEntity),
 		},
 		{
-			desc:     "update channel tags with empty channel id",
+			desc:     "update group tags with empty group id",
 			domainID: domainID,
 			token:    validToken,
 			updateGroupReq: sdk.Group{
@@ -948,7 +948,7 @@ func TestUpdateGroupTags(t *testing.T) {
 			err:      errors.NewSDKError(apiutil.ErrMissingID),
 		},
 		{
-			desc:     "update channel tags with a request that can't be marshalled",
+			desc:     "update group tags with a request that can't be marshalled",
 			domainID: domainID,
 			token:    validToken,
 			updateGroupReq: sdk.Group{
@@ -964,7 +964,7 @@ func TestUpdateGroupTags(t *testing.T) {
 			err:      errors.NewSDKError(errors.New("json: unsupported type: chan int")),
 		},
 		{
-			desc:           "update channel tags with a response that can't be unmarshalled",
+			desc:           "update group tags with a response that can't be unmarshalled",
 			domainID:       domainID,
 			token:          validToken,
 			updateGroupReq: updateGroupReq,

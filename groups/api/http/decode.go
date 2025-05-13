@@ -74,7 +74,7 @@ func decodeUpdateGroupTags(_ context.Context, r *http.Request) (interface{}, err
 	}
 
 	req := updateGroupTagsReq{
-		id: chi.URLParam(r, "channelID"),
+		id: chi.URLParam(r, "groupID"),
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(errors.ErrMalformedEntity, err))

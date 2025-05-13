@@ -362,16 +362,16 @@ func TestUpdateTags(t *testing.T) {
 	repo := postgres.New(database)
 
 	_, err := repo.Save(context.Background(), validGroup)
-	require.Nil(t, err, fmt.Sprintf("save channel unexpected error: %s", err))
+	require.Nil(t, err, fmt.Sprintf("save group unexpected error: %s", err))
 
 	cases := []struct {
-		desc    string
-		channel groups.Group
-		err     error
+		desc  string
+		group groups.Group
+		err   error
 	}{
 		{
-			desc: "update channel tags",
-			channel: groups.Group{
+			desc: "update group tags",
+			group: groups.Group{
 				ID:        validGroup.ID,
 				Tags:      []string{"tag3", "tag4"},
 				UpdatedAt: validTimestamp,
@@ -380,8 +380,8 @@ func TestUpdateTags(t *testing.T) {
 			err: nil,
 		},
 		{
-			desc: "update channel with invalid ID",
-			channel: groups.Group{
+			desc: "update group with invalid ID",
+			group: groups.Group{
 				ID:        testsutil.GenerateUUID(t),
 				Tags:      []string{"tag3", "tag4"},
 				UpdatedAt: validTimestamp,
@@ -390,8 +390,8 @@ func TestUpdateTags(t *testing.T) {
 			err: repoerr.ErrNotFound,
 		},
 		{
-			desc: "update channel with empty ID",
-			channel: groups.Group{
+			desc: "update group with empty ID",
+			group: groups.Group{
 				Tags:      []string{"tag3", "tag4"},
 				UpdatedAt: validTimestamp,
 				UpdatedBy: testsutil.GenerateUUID(t),
@@ -402,13 +402,13 @@ func TestUpdateTags(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			channel, err := repo.UpdateTags(context.Background(), tc.channel)
+			group, err := repo.UpdateTags(context.Background(), tc.group)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			if err == nil {
-				assert.Equal(t, tc.channel.ID, channel.ID, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.channel.ID, channel.ID))
-				assert.Equal(t, tc.channel.UpdatedAt, channel.UpdatedAt, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.channel.UpdatedAt, channel.UpdatedAt))
-				assert.Equal(t, tc.channel.UpdatedBy, channel.UpdatedBy, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.channel.UpdatedBy, channel.UpdatedBy))
-				assert.Equal(t, tc.channel.Tags, channel.Tags, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.channel.Tags, channel.Tags))
+				assert.Equal(t, tc.group.ID, group.ID, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.group.ID, group.ID))
+				assert.Equal(t, tc.group.UpdatedAt, group.UpdatedAt, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.group.UpdatedAt, group.UpdatedAt))
+				assert.Equal(t, tc.group.UpdatedBy, group.UpdatedBy, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.group.UpdatedBy, group.UpdatedBy))
+				assert.Equal(t, tc.group.Tags, group.Tags, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.group.Tags, group.Tags))
 			}
 		})
 	}

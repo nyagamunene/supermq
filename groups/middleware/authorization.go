@@ -172,7 +172,7 @@ func (am *authorizationMiddleware) UpdateGroupTags(ctx context.Context, session 
 		ObjectType:  policies.GroupType,
 		Object:      group.ID,
 	}); err != nil {
-		return groups.Group{}, errors.Wrap(err, errUpdateTags)
+		return groups.Group{}, errors.Wrap(errUpdateTags, err)
 	}
 	return am.svc.UpdateGroupTags(ctx, session, group)
 }

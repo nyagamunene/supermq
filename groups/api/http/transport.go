@@ -64,7 +64,7 @@ func MakeHandler(svc groups.Service, authn authn.Authentication, mux *chi.Mux, l
 				decodeUpdateGroupTags,
 				api.EncodeResponse,
 				opts...,
-			), "update_group_tag").ServeHTTP)
+			), "update_group_tags").ServeHTTP)
 
 			r.Delete("/", otelhttp.NewHandler(kithttp.NewServer(
 				DeleteGroupEndpoint(svc),

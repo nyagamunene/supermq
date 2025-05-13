@@ -196,6 +196,10 @@ func TestUpdategroupCmd(t *testing.T) {
 	groupCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupCmd)
 
+	tagUpdateType := "tags"
+	newTagsJson := "[\"tag1\", \"tag2\"]"
+	newTagString := []string{"tag1", "tag2"}
+
 	newGroupJson := fmt.Sprintf("{\"id\":\"%s\",\"name\" : \"newgroup\"}", group.ID)
 	cases := []struct {
 		desc          string
@@ -250,11 +254,56 @@ func TestUpdategroupCmd(t *testing.T) {
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.New("unexpected end of JSON input")),
 			logType:       errLog,
 		},
+		{
+			desc: "update group tags successfully",
+			args: []string{
+				tagUpdateType,
+				group.ID,
+				newTagsJson,
+				domainID,
+				token,
+			},
+			group: smqsdk.Group{
+				Name:     group.Name,
+				ID:       group.ID,
+				DomainID: group.DomainID,
+				Status:   group.Status,
+				Tags:     newTagString,
+			},
+			logType: entityLog,
+		},
+		{
+			desc: "update group with invalid tags",
+			args: []string{
+				tagUpdateType,
+				group.ID,
+				"[\"tag1\", \"tag2\"",
+				domainID,
+				token,
+			},
+			logType:       errLog,
+			sdkErr:        errors.NewSDKError(errors.New("unexpected end of JSON input")),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.New("unexpected end of JSON input")),
+		},
+		{
+			desc: "update group tags with invalid group id",
+			args: []string{
+				tagUpdateType,
+				invalidID,
+				newTagsJson,
+				domainID,
+				token,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			var ch smqsdk.Group
 			sdkCall := sdkMock.On("UpdateGroup", mock.Anything, mock.Anything, tc.args[1], tc.args[2]).Return(tc.group, tc.sdkErr)
+			sdkCall1 := sdkMock.On("UpdateGroupTags", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.group, tc.sdkErr)
 			out := executeCommand(t, rootCmd, append([]string{updCmd}, tc.args...)...)
 
 			switch tc.logType {
@@ -268,6 +317,7 @@ func TestUpdategroupCmd(t *testing.T) {
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			}
 			sdkCall.Unset()
+			sdkCall1.Unset()
 		})
 	}
 }

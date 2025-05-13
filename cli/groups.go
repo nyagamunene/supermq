@@ -38,18 +38,35 @@ var cmdGroups = []cobra.Command{
 		},
 	},
 	{
-		Use:   "update <JSON_group> <domain_id> <user_auth_token>",
+		Use:   "update [<JSON_group> <domain_id> | tags <group_id> <tags> ] <user_auth_token>",
 		Short: "Update group",
 		Long: "Updates group\n" +
 			"Usage:\n" +
-			"\tsupermq-cli groups update '{\"id\":\"<group_id>\", \"name\":\"new group\", \"description\":\"new group description\", \"metadata\":{\"key\": \"value\"}}' $DOMAINID $USERTOKEN\n",
+			"\tsupermq-cli groups update '{\"id\":\"<group_id>\", \"name\":\"new group\", \"description\":\"new group description\", \"metadata\":{\"key\": \"value\"}}' $DOMAINID $USERTOKEN\n" +
+			"\tsupermq-cli groups update tags <group_id> '{\"tag1\":\"value1\", \"tag2\":\"value2\"}' $DOMAINID $USERTOKEN\n",
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) != 3 {
+			if len(args) != 3 && len(args) != 5 {
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
 
 			var group smqsdk.Group
+			if args[0] == "tags" {
+				if err := json.Unmarshal([]byte(args[2]), &group.Tags); err != nil {
+					logErrorCmd(*cmd, err)
+					return
+				}
+				group.ID = args[1]
+				group, err := sdk.UpdateGroupTags(cmd.Context(), group, args[3], args[4])
+				if err != nil {
+					logErrorCmd(*cmd, err)
+					return
+				}
+
+				logJSONCmd(*cmd, group)
+				return
+			}
+
 			if err := json.Unmarshal([]byte(args[0]), &group); err != nil {
 				logErrorCmd(*cmd, err)
 				return

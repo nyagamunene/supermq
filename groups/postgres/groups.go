@@ -120,9 +120,9 @@ func (repo groupRepository) Update(ctx context.Context, g groups.Group) (groups.
 }
 
 func (repo groupRepository) UpdateTags(ctx context.Context, group groups.Group) (groups.Group, error) {
-	q := `UPDATE channels SET tags = :tags, updated_at = :updated_at, updated_by = :updated_by
+	q := `UPDATE groups SET tags = :tags, updated_at = :updated_at, updated_by = :updated_by
 	WHERE id = :id AND status = :status
-	RETURNING id, name, tags,  metadata, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_group_id, '') AS parent_group_id, status, created_at, updated_at, updated_by`
+	RETURNING id, name, tags,  metadata, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_id, '') AS parent_id, status, created_at, updated_at, updated_by`
 	group.Status = groups.EnabledStatus
 	return repo.update(ctx, group, q)
 }

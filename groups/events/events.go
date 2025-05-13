@@ -105,6 +105,7 @@ func (uge updateGroupEvent) Encode() (map[string]interface{}, error) {
 		"updated_by":  uge.UpdatedBy,
 		"domain":      uge.DomainID,
 		"user_id":     uge.UserID,
+		"tags":        uge.Tags,
 		"token_type":  uge.Type.String(),
 		"super_admin": uge.SuperAdmin,
 		"request_id":  uge.requestID,
