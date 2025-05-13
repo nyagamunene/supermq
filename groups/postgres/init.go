@@ -29,7 +29,6 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 						domain_id	VARCHAR(36) NOT NULL,
 						name		VARCHAR(1024) NOT NULL,
 						description	VARCHAR(1024),
-						tags        TEXT[],
 						metadata	JSONB,
 						created_at	TIMESTAMP,
 						updated_at	TIMESTAMP,
@@ -63,6 +62,15 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 				},
 				Down: []string{
 					`ALTER TABLE groups ADD CONSTRAINT groups_domain_id_name_key UNIQUE (domain_id, name)`,
+				},
+			},
+			{
+				Id: "groups_04",
+				Up: []string{
+					`ALTER TABLE groups ADD COLUMN tags TEXT[]`,
+				},
+				Down: []string{
+					`ALTER TABLE groups DROP COLUMN tags`,
 				},
 			},
 		},
