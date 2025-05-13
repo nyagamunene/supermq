@@ -20,6 +20,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+const (
+	tagUpdateType = "tags"
+	newTagsJson   = "[\"tag1\", \"tag2\"]"
+)
+
 var group = smqsdk.Group{
 	ID:   testsutil.GenerateUUID(&testing.T{}),
 	Name: "testgroup",
@@ -196,8 +201,6 @@ func TestUpdategroupCmd(t *testing.T) {
 	groupCmd := cli.NewGroupsCmd()
 	rootCmd := setFlags(groupCmd)
 
-	tagUpdateType := "tags"
-	newTagsJson := "[\"tag1\", \"tag2\"]"
 	newTagString := []string{"tag1", "tag2"}
 
 	newGroupJson := fmt.Sprintf("{\"id\":\"%s\",\"name\" : \"newgroup\"}", group.ID)

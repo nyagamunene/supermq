@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const tags = "tags"
+
 var cmdGroups = []cobra.Command{
 	{
 		Use:   "create <JSON_group> <domain_id> <user_auth_token>",
@@ -51,7 +53,7 @@ var cmdGroups = []cobra.Command{
 			}
 
 			var group smqsdk.Group
-			if args[0] == "tags" {
+			if args[0] == tags {
 				if err := json.Unmarshal([]byte(args[2]), &group.Tags); err != nil {
 					logErrorCmd(*cmd, err)
 					return
