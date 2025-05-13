@@ -124,16 +124,13 @@ func (repo groupRepository) UpdateTags(ctx context.Context, group groups.Group) 
 	WHERE id = :id AND status = :status
 	RETURNING id, name, tags,  metadata, COALESCE(domain_id, '') AS domain_id, COALESCE(parent_id, '') AS parent_id, status, created_at, updated_at, updated_by`
 	group.Status = groups.EnabledStatus
-	return repo.update(ctx, group, q)
-}
 
-func (repo groupRepository) update(ctx context.Context, g groups.Group, query string) (groups.Group, error) {
-	dbg, err := toDBGroup(g)
+	dbg, err := toDBGroup(group)
 	if err != nil {
 		return groups.Group{}, errors.Wrap(repoerr.ErrUpdateEntity, err)
 	}
 
-	row, err := repo.db.NamedQueryContext(ctx, query, dbg)
+	row, err := repo.db.NamedQueryContext(ctx, q, dbg)
 	if err != nil {
 		return groups.Group{}, postgres.HandleError(repoerr.ErrUpdateEntity, err)
 	}

@@ -197,6 +197,44 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
+  /{domainID}/groups/{groupID}/tags:
+    patch:
+      operationId: updateGroupTags
+      summary: Updates group tags.
+      description: |
+        Update is performed by replacing the current resource data with values
+        provided in a request payload. Note that the group's ID will not be
+        affected.
+      tags:
+        - Groups
+      parameters:
+        - $ref: "auth.yaml#/components/parameters/DomainID"
+        - $ref: "#/components/parameters/GroupID"
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/GroupUpdateTagsReq"
+      responses:
+        "200":
+          $ref: "#/components/responses/GroupRes"
+        "400":
+          description: Failed due to malformed query parameters.
+        "401":
+          description: Missing or invalid access token provided.
+        "403":
+          description: Failed to perform authorization over the entity.
+        "404":
+          description: Group does not exist.
+        "409":
+          description: Failed due to using an existing identity.
+        "415":
+          description: Missing or invalid content type.
+        "422":
+          description: Database can't process request.
+        "500":
+          $ref: "#/components/responses/ServiceError"
+
+
   /{domainID}/groups/{groupID}/enable:
     post:
       operationId: enableGroup
@@ -1484,6 +1522,14 @@ components:
 
     GroupUpdateReq:
       description: JSON-formated document describing the metadata and name of group to be update
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GroupUpdate"
+
+    GroupUpdateTagsReq:
+      description: JSON-formated document describing the tags of group to be updated.
       required: true
       content:
         application/json:
