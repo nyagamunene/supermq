@@ -1076,6 +1076,12 @@ components:
           type: string
           example: long group description
           description: Group description, free form text.
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["tag1", "tag2"]
+          description: Group tags.
         metadata:
           type: object
           example: { "role": "general" }
@@ -1256,6 +1262,19 @@ components:
         - name
         - metadata
         - description
+
+    GroupUpdateTags:
+      type: object
+      properties:
+        tags:
+          type: array
+          minItems: 0
+          items:
+            type: string
+          example: ["tag1", "tag2"]
+          description: Group tags.
+      required:
+        - tags
 
     ParentGroupReqObj:
       type: object
@@ -1534,7 +1553,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/GroupUpdate"
+            $ref: "#/components/schemas/GroupUpdateTags"
 
     GroupParentReq:
       description: JSON-formated document describing the parent group to be set to or removed from a group.
