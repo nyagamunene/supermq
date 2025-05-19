@@ -48,7 +48,8 @@ type authorizationMiddleware struct {
 }
 
 // AuthorizationMiddleware adds authorization to the clients service.
-func AuthorizationMiddleware(entityType string,
+func AuthorizationMiddleware(
+	entityType string,
 	svc clients.Service,
 	authz smqauthz.Authorization,
 	repo clients.Repository,
@@ -59,7 +60,8 @@ func AuthorizationMiddleware(entityType string,
 	timeout time.Duration,
 	method string,
 	urls []string,
-	permissions []string) (clients.Service, error) {
+	permissions []string,
+) (clients.Service, error) {
 	opp := clients.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(thingsOpPerm); err != nil {
 		return nil, err
