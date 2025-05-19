@@ -60,12 +60,7 @@ func AuthorizationMiddleware(entityType string,
 	authz smqauthz.Authorization,
 	groupsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission,
 	extOpPerm map[svcutil.ExternalOperation]svcutil.Permission,
-	ctls bool,
-	certPath, keyPath, caPath string,
-	timeout time.Duration,
-	method string,
-	urls []string,
-	permissions []string,
+	callout callout.Callout,
 ) (groups.Service, error) {
 	opp := groups.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(groupsOpPerm); err != nil {
@@ -88,11 +83,6 @@ func AuthorizationMiddleware(entityType string,
 		return nil, err
 	}
 
-	call, err := callout.NewCallout(ctls, certPath, keyPath, caPath, timeout, method, urls, permissions)
-	if err != nil {
-		return nil, err
-	}
-
 	return &authorizationMiddleware{
 		svc:                                svc,
 		repo:                               repo,
@@ -100,7 +90,7 @@ func AuthorizationMiddleware(entityType string,
 		opp:                                opp,
 		extOpp:                             extOpp,
 		RoleManagerAuthorizationMiddleware: ram,
-		callout:                            call,
+		callout:                            callout,
 	}, nil
 }
 

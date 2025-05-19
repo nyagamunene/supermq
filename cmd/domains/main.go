@@ -30,6 +30,7 @@ import (
 	authsvcAuthn "github.com/absmach/supermq/pkg/authn/authsvc"
 	"github.com/absmach/supermq/pkg/authz"
 	authsvcAuthz "github.com/absmach/supermq/pkg/authz/authsvc"
+	"github.com/absmach/supermq/pkg/callout"
 	domainsAuthz "github.com/absmach/supermq/pkg/domains/psvc"
 	"github.com/absmach/supermq/pkg/grpcclient"
 	"github.com/absmach/supermq/pkg/jaeger"
@@ -57,14 +58,15 @@ import (
 )
 
 const (
-	svcName        = "domains"
-	envPrefixHTTP  = "SMQ_DOMAINS_HTTP_"
-	envPrefixGrpc  = "SMQ_DOMAINS_GRPC_"
-	envPrefixDB    = "SMQ_DOMAINS_DB_"
-	envPrefixAuth  = "SMQ_AUTH_GRPC_"
-	defDB          = "domains"
-	defSvcHTTPPort = "9004"
-	defSvcGRPCPort = "7004"
+	svcName                = "domains"
+	envPrefixHTTP          = "SMQ_DOMAINS_HTTP_"
+	envPrefixGrpc          = "SMQ_DOMAINS_GRPC_"
+	envPrefixDB            = "SMQ_DOMAINS_DB_"
+	envPrefixAuth          = "SMQ_AUTH_GRPC_"
+	envPrefixDomainCallout = "SMQ_DOMAINS_CALLOUT_"
+	defDB                  = "domains"
+	defSvcHTTPPort         = "9004"
+	defSvcGRPCPort         = "7004"
 )
 
 type config struct {
@@ -191,7 +193,21 @@ func main() {
 	}
 	logger.Info("Policy client successfully connected to spicedb gRPC server")
 
-	svc, err := newDomainService(ctx, domainsRepo, cache, tracer, cfg, authz, policyService, logger)
+	callOp := callout.Operations{}
+	if err := env.ParseWithOptions(&callOp, env.Options{Prefix: envPrefixDomainCallout}); err != nil {
+		logger.Error(fmt.Sprintf("failed to parse callout config : %s", err))
+		exitCode = 1
+		return
+	}
+
+	call, err := callout.New(callOp)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to create new callout: %s", err))
+		exitCode = 1
+		return
+	}
+
+	svc, err := newDomainService(ctx, domainsRepo, cache, tracer, cfg, authz, policyService, logger, call)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create %s service: %s", svcName, err.Error()))
 		exitCode = 1
@@ -243,7 +259,7 @@ func main() {
 	}
 }
 
-func newDomainService(ctx context.Context, domainsRepo domainsSvc.Repository, cache domainsSvc.Cache, tracer trace.Tracer, cfg config, authz authz.Authorization, policiessvc policies.Service, logger *slog.Logger) (domains.Service, error) {
+func newDomainService(ctx context.Context, domainsRepo domainsSvc.Repository, cache domainsSvc.Cache, tracer trace.Tracer, cfg config, authz authz.Authorization, policiessvc policies.Service, logger *slog.Logger, callout callout.Callout) (domains.Service, error) {
 	idProvider := uuid.New()
 	sidProvider, err := sid.New()
 	if err != nil {
@@ -264,7 +280,7 @@ func newDomainService(ctx context.Context, domainsRepo domainsSvc.Repository, ca
 		return nil, fmt.Errorf("failed to init domain event store middleware: %w", err)
 	}
 
-	svc, err = dmw.AuthorizationMiddleware(policies.DomainType, svc, authz, domains.NewOperationPermissionMap(), domains.NewRolesOperationPermissionMap())
+	svc, err = dmw.AuthorizationMiddleware(policies.DomainType, svc, authz, domains.NewOperationPermissionMap(), domains.NewRolesOperationPermissionMap(), callout)
 	if err != nil {
 		return nil, err
 	}

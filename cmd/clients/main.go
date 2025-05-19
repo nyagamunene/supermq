@@ -205,8 +205,8 @@ func main() {
 	}
 	defer domainsHandler.Close()
 
-	callCfg := callout.Config{}
-	if err := env.ParseWithOptions(&callCfg, env.Options{Prefix: envPrefixClientCallout}); err != nil {
+	callOp := callout.Operations{}
+	if err := env.ParseWithOptions(&callOp, env.Options{Prefix: envPrefixClientCallout}); err != nil {
 		logger.Error(fmt.Sprintf("failed to parse callout config : %s", err))
 		exitCode = 1
 		return
@@ -251,9 +251,15 @@ func main() {
 	defer groupsHandler.Close()
 	logger.Info("Groups gRPC client successfully connected to groups gRPC server " + groupsHandler.Secure())
 
+	callout, err := callout.New(callOp)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to create new callout: %s", err))
+		exitCode = 1
+		return
+	}
+
 	svc, psvc, err := newService(ctx, db, dbConfig, authz, policyEvaluator, policyService, cacheclient,
-		cfg, channelsgRPC, groupsClient, tracer, logger,
-		callCfg.CalloutTLSVerification, callCfg.CalloutCert, callCfg.CalloutKey, callCfg.CalloutCACert, callCfg.CalloutTimeout, callCfg.CalloutMethod, callCfg.CalloutURLs, callCfg.CalloutPermissions)
+		cfg, channelsgRPC, groupsClient, tracer, logger, callout)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create services: %s", err))
 		exitCode = 1
@@ -336,12 +342,7 @@ func newService(ctx context.Context,
 	groups grpcGroupsV1.GroupsServiceClient,
 	tracer trace.Tracer,
 	logger *slog.Logger,
-	calloutTLSVerification bool,
-	calloutCert, calloutKey, calloutCACert string,
-	calloutTimeout time.Duration,
-	calloutMethod string,
-	calloutURLs []string,
-	calloutPermissions []string,
+	callout callout.Callout,
 ) (clients.Service, pClients.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	repo := postgres.NewRepository(database)
@@ -376,8 +377,7 @@ func newService(ctx context.Context,
 	csvc = middleware.MetricsMiddleware(csvc, counter, latency)
 	csvc = middleware.MetricsMiddleware(csvc, counter, latency)
 
-	csvc, err = middleware.AuthorizationMiddleware(policies.ClientType, csvc, authz, repo, clients.NewOperationPermissionMap(), clients.NewRolesOperationPermissionMap(), clients.NewExternalOperationPermissionMap(),
-		calloutTLSVerification, calloutCert, calloutKey, calloutCACert, calloutTimeout, calloutMethod, calloutURLs, calloutPermissions)
+	csvc, err = middleware.AuthorizationMiddleware(policies.ClientType, csvc, authz, repo, clients.NewOperationPermissionMap(), clients.NewRolesOperationPermissionMap(), clients.NewExternalOperationPermissionMap(), callout)
 	if err != nil {
 		return nil, nil, err
 	}

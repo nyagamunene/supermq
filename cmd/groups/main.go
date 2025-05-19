@@ -11,7 +11,6 @@ import (
 	"log/slog"
 	"net/url"
 	"os"
-	"time"
 
 	chclient "github.com/absmach/callhome/pkg/client"
 	"github.com/absmach/supermq"
@@ -178,8 +177,8 @@ func main() {
 	}
 	defer domainsHandler.Close()
 
-	callCfg := callout.Config{}
-	if err := env.ParseWithOptions(&callCfg, env.Options{Prefix: envPrefixGroupCallout}); err != nil {
+	callOp := callout.Operations{}
+	if err := env.ParseWithOptions(&callOp, env.Options{Prefix: envPrefixGroupCallout}); err != nil {
 		logger.Error(fmt.Sprintf("failed to parse callout config : %s", err))
 		exitCode = 1
 		return
@@ -232,8 +231,14 @@ func main() {
 	defer clientsHandler.Close()
 	logger.Info("Clients gRPC client successfully connected to clients gRPC server " + clientsHandler.Secure())
 
-	svc, psvc, err := newService(ctx, authz, policyService, db, dbConfig, channelsClient, clientsClient, tracer, logger, cfg,
-		callCfg.CalloutTLSVerification, callCfg.CalloutCert, callCfg.CalloutKey, callCfg.CalloutCACert, callCfg.CalloutTimeout, callCfg.CalloutMethod, callCfg.CalloutURLs, callCfg.CalloutPermissions)
+	callout, err := callout.New(callOp)
+	if err != nil {
+		logger.Error(fmt.Sprintf("failed to create new callout: %s", err))
+		exitCode = 1
+		return
+	}
+
+	svc, psvc, err := newService(ctx, authz, policyService, db, dbConfig, channelsClient, clientsClient, tracer, logger, cfg, callout)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to setup service: %s", err))
 		exitCode = 1
@@ -298,9 +303,7 @@ func main() {
 func newService(ctx context.Context, authz smqauthz.Authorization, policy policies.Service, db *sqlx.DB,
 	dbConfig pgclient.Config, channels grpcChannelsV1.ChannelsServiceClient,
 	clients grpcClientsV1.ClientsServiceClient, tracer trace.Tracer, logger *slog.Logger, c config,
-	calloutTLSVerification bool,
-	calloutCert, calloutKey, calloutCACert string,
-	calloutTimeout time.Duration, calloutMethod string, calloutURLs []string, calloutPermissions []string,
+	callout callout.Callout,
 ) (groups.Service, pgroups.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	idp := uuid.New()
@@ -326,7 +329,7 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 	}
 
 	svc, err = middleware.AuthorizationMiddleware(policies.GroupType, svc, repo, authz, groups.NewOperationPermissionMap(), groups.NewRolesOperationPermissionMap(),
-		groups.NewExternalOperationPermissionMap(), calloutTLSVerification, calloutCert, calloutKey, calloutCACert, calloutTimeout, calloutMethod, calloutURLs, calloutPermissions)
+		groups.NewExternalOperationPermissionMap(), callout)
 	if err != nil {
 		return nil, nil, err
 	}

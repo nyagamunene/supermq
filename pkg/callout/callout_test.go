@@ -118,7 +118,16 @@ func TestNewCallout(t *testing.T) {
 				}()
 			}
 
-			client, err := callout.NewCallout(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout, tc.method, tc.urls, tc.permissions)
+			client, err := callout.New(callout.Operations{
+				TLSVerification: tc.ctls,
+				Cert:            tc.certPath,
+				Key:             tc.keyPath,
+				CACert:          tc.caPath,
+				Timeout:         tc.timeout,
+				Method:          tc.method,
+				URLs:            tc.urls,
+				Permissions:     tc.permissions,
+			})
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			if err == nil {
 				assert.NotNil(t, client)
@@ -300,7 +309,17 @@ func TestCallout_MakeRequest(t *testing.T) {
 			}()
 
 			// Create a callout with a short timeout for tests
-			cb, err := callout.NewCallout(false, "", "", "", time.Second, tc.method, urls, tc.permissions)
+			cb, err := callout.New(
+				callout.Operations{
+					TLSVerification: false,
+					Cert:            "",
+					Key:             "",
+					CACert:          "",
+					Timeout:         time.Second,
+					Method:          tc.method,
+					URLs:            urls,
+					Permissions:     tc.permissions,
+				})
 			assert.NoError(t, err)
 
 			ctx := tc.contextSetup()
@@ -372,7 +391,16 @@ func TestCallout_Permissions(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			cb, err := callout.NewCallout(false, "", "", "", time.Second, http.MethodPost, []string{ts.URL}, tc.permissions)
+			cb, err := callout.New(callout.Operations{
+				TLSVerification: false,
+				Cert:            "",
+				Key:             "",
+				CACert:          "",
+				Timeout:         time.Second,
+				Method:          http.MethodPost,
+				URLs:            []string{ts.URL},
+				Permissions:     tc.permissions,
+			})
 			assert.NoError(t, err)
 
 			err = cb.Callout(context.Background(), permission, tc.payload)
@@ -383,7 +411,16 @@ func TestCallout_Permissions(t *testing.T) {
 }
 
 func TestCallout_NoURLs(t *testing.T) {
-	cb, err := callout.NewCallout(false, "", "", "", time.Second, http.MethodPost, []string{}, []string{permission})
+	cb, err := callout.New(callout.Operations{
+		TLSVerification: false,
+		Cert:            "",
+		Key:             "",
+		CACert:          "",
+		Timeout:         time.Second,
+		Method:          http.MethodPost,
+		URLs:            []string{},
+		Permissions:     []string{permission},
+	})
 	assert.NoError(t, err)
 
 	err = cb.Callout(context.Background(), permission, pl)

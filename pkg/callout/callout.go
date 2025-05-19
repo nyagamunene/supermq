@@ -21,15 +21,15 @@ import (
 
 var errLimitExceeded = errors.New("limit exceeded")
 
-type Config struct {
-	CalloutURLs            []string      `env:"URLS"             envDefault:"" envSeparator:","`
-	CalloutMethod          string        `env:"METHOD"           envDefault:"POST"`
-	CalloutTLSVerification bool          `env:"TLS_VERIFICATION" envDefault:"true"`
-	CalloutTimeout         time.Duration `env:"TIMEOUT"          envDefault:"10s"`
-	CalloutCACert          string        `env:"CA_CERT"          envDefault:""`
-	CalloutCert            string        `env:"CERT"             envDefault:""`
-	CalloutKey             string        `env:"KEY"              envDefault:""`
-	CalloutPermissions     []string      `env:"INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
+type Operations struct {
+	URLs            []string      `env:"URLS"             envDefault:"" envSeparator:","`
+	Method          string        `env:"METHOD"           envDefault:"POST"`
+	TLSVerification bool          `env:"TLS_VERIFICATION" envDefault:"true"`
+	Timeout         time.Duration `env:"TIMEOUT"          envDefault:"10s"`
+	CACert          string        `env:"CA_CERT"          envDefault:""`
+	Cert            string        `env:"CERT"             envDefault:""`
+	Key             string        `env:"KEY"              envDefault:""`
+	Permissions     []string      `env:"INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
 }
 
 type callout struct {
@@ -44,26 +44,26 @@ type Callout interface {
 	Callout(ctx context.Context, perm string, pl map[string]interface{}) error
 }
 
-// NewCallback creates a new instance of Callout.
-func NewCallout(ctls bool, certPath, keyPath, caPath string, timeout time.Duration, method string, urls []string, permissions []string) (Callout, error) {
-	httpClient, err := newCalloutClient(ctls, certPath, keyPath, caPath, timeout)
+// New creates a new instance of Callout.
+func New(cfg Operations) (Callout, error) {
+	httpClient, err := newCalloutClient(cfg.TLSVerification, cfg.Cert, cfg.Key, cfg.CACert, cfg.Timeout)
 	if err != nil {
 		return nil, fmt.Errorf("failied to initialize http client: %w", err)
 	}
 
-	if method != http.MethodPost && method != http.MethodGet {
-		return nil, fmt.Errorf("unsupported auth callout method: %s", method)
+	if cfg.Method != http.MethodPost && cfg.Method != http.MethodGet {
+		return nil, fmt.Errorf("unsupported auth callout method: %s", cfg.Method)
 	}
 
 	allowedPermission := make(map[string]struct{})
-	for _, permission := range permissions {
+	for _, permission := range cfg.Permissions {
 		allowedPermission[permission] = struct{}{}
 	}
 
 	return &callout{
 		httpClient:        httpClient,
-		urls:              urls,
-		method:            method,
+		urls:              cfg.URLs,
+		method:            cfg.Method,
 		allowedPermission: allowedPermission,
 	}, nil
 }
