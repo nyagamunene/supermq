@@ -48,8 +48,18 @@ type authorizationMiddleware struct {
 }
 
 // AuthorizationMiddleware adds authorization to the clients service.
-func AuthorizationMiddleware(entityType string, svc clients.Service, authz smqauthz.Authorization, repo clients.Repository, thingsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission, extOpPerm map[svcutil.ExternalOperation]svcutil.Permission, ctls bool,
-	certPath, keyPath, caPath string, timeout time.Duration, method string, urls []string, permissions []string) (clients.Service, error) {
+func AuthorizationMiddleware(entityType string,
+	svc clients.Service,
+	authz smqauthz.Authorization,
+	repo clients.Repository,
+	thingsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission,
+	extOpPerm map[svcutil.ExternalOperation]svcutil.Permission,
+	ctls bool,
+	certPath, keyPath, caPath string,
+	timeout time.Duration,
+	method string,
+	urls []string,
+	permissions []string) (clients.Service, error) {
 	opp := clients.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(thingsOpPerm); err != nil {
 		return nil, err
