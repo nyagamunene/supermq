@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"net/http"
 	"net/url"
 	"os"
 	"time"
@@ -67,17 +66,18 @@ import (
 )
 
 const (
-	svcName            = "clients"
-	envPrefixDB        = "SMQ_CLIENTS_DB_"
-	envPrefixHTTP      = "SMQ_CLIENTS_HTTP_"
-	envPrefixGRPC      = "SMQ_CLIENTS_GRPC_"
-	envPrefixAuth      = "SMQ_AUTH_GRPC_"
-	envPrefixChannels  = "SMQ_CHANNELS_GRPC_"
-	envPrefixGroups    = "SMQ_GROUPS_GRPC_"
-	envPrefixDomains   = "SMQ_DOMAINS_GRPC_"
-	defDB              = "clients"
-	defSvcHTTPPort     = "9000"
-	defSvcAuthGRPCPort = "7000"
+	svcName                = "clients"
+	envPrefixDB            = "SMQ_CLIENTS_DB_"
+	envPrefixHTTP          = "SMQ_CLIENTS_HTTP_"
+	envPrefixGRPC          = "SMQ_CLIENTS_GRPC_"
+	envPrefixAuth          = "SMQ_AUTH_GRPC_"
+	envPrefixChannels      = "SMQ_CHANNELS_GRPC_"
+	envPrefixGroups        = "SMQ_GROUPS_GRPC_"
+	envPrefixDomains       = "SMQ_DOMAINS_GRPC_"
+	envPrefixClientCallout = "SMQ_CLIENTS_CALLOUT_"
+	defDB                  = "clients"
+	defSvcHTTPPort         = "9000"
+	defSvcAuthGRPCPort     = "7000"
 )
 
 type config struct {
@@ -206,15 +206,8 @@ func main() {
 	defer domainsHandler.Close()
 
 	callCfg := callout.Config{}
-	if err := env.Parse(&callCfg); err != nil {
+	if err := env.ParseWithOptions(&callCfg, env.Options{Prefix: envPrefixClientCallout}); err != nil {
 		logger.Error(fmt.Sprintf("failed to parse callout config : %s", err))
-		exitCode = 1
-		return
-	}
-
-	calloutClient, err := callout.NewCalloutClient(callCfg.CalloutTLSVerification, callCfg.CalloutCACert, callCfg.CalloutKey, callCfg.CalloutCACert, callCfg.CalloutTimeout)
-	if err != nil {
-		logger.Error(fmt.Sprintf("failed to create callout client: %s", err))
 		exitCode = 1
 		return
 	}
@@ -260,7 +253,7 @@ func main() {
 
 	svc, psvc, err := newService(ctx, db, dbConfig, authz, policyEvaluator, policyService, cacheclient,
 		cfg, channelsgRPC, groupsClient, tracer, logger,
-		calloutClient, callCfg.CalloutMethod, callCfg.CalloutURLs, callCfg.CalloutPermissions)
+		callCfg.CalloutTLSVerification, callCfg.CalloutCert, callCfg.CalloutKey, callCfg.CalloutCACert, callCfg.CalloutTimeout, callCfg.CalloutMethod, callCfg.CalloutURLs, callCfg.CalloutPermissions)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create services: %s", err))
 		exitCode = 1
@@ -343,10 +336,12 @@ func newService(ctx context.Context,
 	groups grpcGroupsV1.GroupsServiceClient,
 	tracer trace.Tracer,
 	logger *slog.Logger,
-	calloutClient *http.Client,
-	authCalloutMethod string,
-	authCalloutURLs []string,
-	authCalloutPermissions []string,
+	calloutTLSVerification bool,
+	calloutCert, calloutKey, calloutCACert string,
+	calloutTimeout time.Duration,
+	calloutMethod string,
+	calloutURLs []string,
+	calloutPermissions []string,
 ) (clients.Service, pClients.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	repo := postgres.NewRepository(database)
@@ -382,7 +377,7 @@ func newService(ctx context.Context,
 	csvc = middleware.MetricsMiddleware(csvc, counter, latency)
 
 	csvc, err = middleware.AuthorizationMiddleware(policies.ClientType, csvc, authz, repo, clients.NewOperationPermissionMap(), clients.NewRolesOperationPermissionMap(), clients.NewExternalOperationPermissionMap(),
-		calloutClient, authCalloutMethod, authCalloutURLs, authCalloutPermissions)
+		calloutTLSVerification, calloutCert, calloutKey, calloutCACert, calloutTimeout, calloutMethod, calloutURLs, calloutPermissions)
 	if err != nil {
 		return nil, nil, err
 	}

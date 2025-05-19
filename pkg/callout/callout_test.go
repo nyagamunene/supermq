@@ -41,43 +41,64 @@ var pl = map[string]interface{}{
 	"permission":  permission,
 }
 
-func TestNewCalloutClient(t *testing.T) {
+func TestNewCallout(t *testing.T) {
 	cases := []struct {
-		desc     string
-		ctls     bool
-		certPath string
-		keyPath  string
-		caPath   string
-		timeout  time.Duration
-		err      error
+		desc        string
+		ctls        bool
+		certPath    string
+		keyPath     string
+		caPath      string
+		timeout     time.Duration
+		method      string
+		urls        []string
+		permissions []string
+		err         error
 	}{
 		{
-			desc:    "successful client creation without TLS",
-			ctls:    false,
-			timeout: time.Second,
+			desc:        "successful callout creation without TLS",
+			ctls:        false,
+			timeout:     time.Second,
+			method:      http.MethodPost,
+			urls:        []string{"http://example.com"},
+			permissions: []string{},
 		},
 		{
-			desc:     "successful client creation with TLS",
-			ctls:     true,
-			certPath: "client.crt",
-			keyPath:  "client.key",
-			caPath:   "ca.crt",
-			timeout:  time.Second,
+			desc:        "successful callout creation with TLS",
+			ctls:        true,
+			certPath:    "client.crt",
+			keyPath:     "client.key",
+			caPath:      "ca.crt",
+			timeout:     time.Second,
+			method:      http.MethodPost,
+			urls:        []string{"http://example.com"},
+			permissions: []string{},
 		},
 		{
-			desc:     "failed client creation with invalid cert",
-			ctls:     true,
-			certPath: "invalid.crt",
-			keyPath:  "invalid.key",
-			caPath:   "invalid.ca",
-			timeout:  time.Second,
-			err:      errors.New("tls: failed to find any PEM data in certificate input"),
+			desc:        "failed callout creation with invalid cert",
+			ctls:        true,
+			certPath:    "invalid.crt",
+			keyPath:     "invalid.key",
+			caPath:      "invalid.ca",
+			timeout:     time.Second,
+			method:      http.MethodPost,
+			urls:        []string{"http://example.com"},
+			permissions: []string{},
+			err:         errors.New("failied to initialize http client: tls: failed to find any PEM data in certificate input"),
+		},
+		{
+			desc:        "invalid method",
+			ctls:        false,
+			timeout:     time.Second,
+			method:      "INVALID-METHOD",
+			urls:        []string{"http://example.com"},
+			permissions: []string{},
+			err:         errors.New("unsupported auth callout method: INVALID-METHOD"),
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.desc == "successful client creation with TLS" {
+			if tc.desc == "successful callout creation with TLS" {
 				generateAndWriteCertificates(t, tc.caPath, tc.certPath, tc.keyPath)
 
 				defer func() {
@@ -85,7 +106,7 @@ func TestNewCalloutClient(t *testing.T) {
 					os.Remove(tc.keyPath)
 					os.Remove(tc.caPath)
 				}()
-			} else if tc.desc == "failed client creation with invalid cert" {
+			} else if tc.desc == "failed callout creation with invalid cert" {
 				writeFile(t, tc.certPath, []byte("invalid cert content"))
 				writeFile(t, tc.keyPath, []byte("invalid key content"))
 				writeFile(t, tc.caPath, []byte("invalid ca content"))
@@ -97,7 +118,7 @@ func TestNewCalloutClient(t *testing.T) {
 				}()
 			}
 
-			client, err := callout.NewCalloutClient(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout)
+			client, err := callout.NewCallout(tc.ctls, tc.certPath, tc.keyPath, tc.caPath, tc.timeout, tc.method, tc.urls, tc.permissions)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			if err == nil {
 				assert.NotNil(t, client)
@@ -169,7 +190,7 @@ func writeFile(t *testing.T, path string, content []byte) {
 	require.NoError(t, err, "Failed to write file: %s", path)
 }
 
-func TestCallback_MakeRequest(t *testing.T) {
+func TestCallout_MakeRequest(t *testing.T) {
 	cases := []struct {
 		desc          string
 		serverHandler http.HandlerFunc
@@ -177,7 +198,6 @@ func TestCallback_MakeRequest(t *testing.T) {
 		contextSetup  func() context.Context
 		urls          []string
 		permissions   []string
-		client        *http.Client
 		expectError   bool
 		err           error
 	}{
@@ -188,7 +208,6 @@ func TestCallback_MakeRequest(t *testing.T) {
 				assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
 				w.WriteHeader(http.StatusOK)
 			}),
-			client:       http.DefaultClient,
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
@@ -202,7 +221,6 @@ func TestCallback_MakeRequest(t *testing.T) {
 				assert.Equal(t, userID, r.URL.Query().Get("sender"))
 				w.WriteHeader(http.StatusOK)
 			}),
-			client:       http.DefaultClient,
 			method:       http.MethodGet,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
@@ -214,7 +232,6 @@ func TestCallback_MakeRequest(t *testing.T) {
 				w.WriteHeader(http.StatusForbidden)
 			}),
 			method:       http.MethodPost,
-			client:       http.DefaultClient,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
 			expectError:  true,
@@ -222,7 +239,6 @@ func TestCallback_MakeRequest(t *testing.T) {
 		},
 		{
 			desc:         "invalid URL",
-			client:       http.DefaultClient,
 			method:       http.MethodGet,
 			contextSetup: func() context.Context { return context.Background() },
 			urls:         []string{"http://invalid-url"},
@@ -234,7 +250,6 @@ func TestCallback_MakeRequest(t *testing.T) {
 			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			}),
-			client: http.DefaultClient,
 			method: http.MethodGet,
 			contextSetup: func() context.Context {
 				ctx, cancel := context.WithCancel(context.Background())
@@ -249,18 +264,6 @@ func TestCallback_MakeRequest(t *testing.T) {
 			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 			}),
-			client:       http.DefaultClient,
-			method:       http.MethodPost,
-			contextSetup: func() context.Context { return context.Background() },
-			permissions:  []string{permission},
-			expectError:  false,
-		},
-		{
-			desc: "use default client when nil is provided",
-			serverHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-			}),
-			client:       nil,
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
 			permissions:  []string{permission},
@@ -277,11 +280,16 @@ func TestCallback_MakeRequest(t *testing.T) {
 				urls = tc.urls
 			} else {
 				if tc.desc == "multiple URLs all succeed" {
+					// Create multiple test servers
 					for i := 0; i < 2; i++ {
-						servers, urls = newServer(tc.serverHandler)
+						server := httptest.NewServer(tc.serverHandler)
+						servers = append(servers, server)
+						urls = append(urls, server.URL)
 					}
 				} else {
-					servers, urls = newServer(tc.serverHandler)
+					server := httptest.NewServer(tc.serverHandler)
+					servers = append(servers, server)
+					urls = append(urls, server.URL)
 				}
 			}
 
@@ -291,7 +299,8 @@ func TestCallback_MakeRequest(t *testing.T) {
 				}
 			}()
 
-			cb, err := callout.NewCallback(tc.client, tc.method, urls, tc.permissions)
+			// Create a callout with a short timeout for tests
+			cb, err := callout.NewCallout(false, "", "", "", time.Second, tc.method, urls, tc.permissions)
 			assert.NoError(t, err)
 
 			ctx := tc.contextSetup()
@@ -309,58 +318,7 @@ func TestCallback_MakeRequest(t *testing.T) {
 	}
 }
 
-func newServer(serverHandler http.HandlerFunc) ([]*httptest.Server, []string) {
-	var servers []*httptest.Server
-	var urls []string
-
-	server := httptest.NewServer(serverHandler)
-	servers = append(servers, server)
-	urls = append(urls, server.URL)
-
-	return servers, urls
-}
-
-func TestCallback_InvalidMethod(t *testing.T) {
-	cases := []struct {
-		desc        string
-		method      string
-		urls        []string
-		permissions []string
-		err         error
-	}{
-		{
-			desc:        "valid POST method",
-			method:      http.MethodPost,
-			urls:        []string{"http://example.com"},
-			permissions: []string{},
-		},
-		{
-			desc:        "valid GET method",
-			method:      http.MethodGet,
-			urls:        []string{"http://example.com"},
-			permissions: []string{},
-		},
-		{
-			desc:        "invalid method",
-			method:      "INVALID-METHOD",
-			urls:        []string{"http://example.com"},
-			permissions: []string{},
-			err:         errors.New("unsupported auth callout method: INVALID-METHOD"),
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			cb, err := callout.NewCallback(http.DefaultClient, tc.method, tc.urls, tc.permissions)
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			if tc.err == nil {
-				assert.NotNil(t, cb)
-			}
-		})
-	}
-}
-
-func TestCallback_Permissions(t *testing.T) {
+func TestCallout_Permissions(t *testing.T) {
 	cases := []struct {
 		desc         string
 		permissions  []string
@@ -414,10 +372,7 @@ func TestCallback_Permissions(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			client, err := callout.NewCalloutClient(false, "", "", "", time.Second)
-			assert.NoError(t, err)
-
-			cb, err := callout.NewCallback(client, http.MethodPost, []string{ts.URL}, tc.permissions)
+			cb, err := callout.NewCallout(false, "", "", "", time.Second, http.MethodPost, []string{ts.URL}, tc.permissions)
 			assert.NoError(t, err)
 
 			err = cb.Callout(context.Background(), permission, tc.payload)
@@ -427,11 +382,8 @@ func TestCallback_Permissions(t *testing.T) {
 	}
 }
 
-func TestCallback_NoURLs(t *testing.T) {
-	client, err := callout.NewCalloutClient(false, "", "", "", time.Second)
-	assert.NoError(t, err)
-
-	cb, err := callout.NewCallback(client, http.MethodPost, []string{}, []string{permission})
+func TestCallout_NoURLs(t *testing.T) {
+	cb, err := callout.NewCallout(false, "", "", "", time.Second, http.MethodPost, []string{}, []string{permission})
 	assert.NoError(t, err)
 
 	err = cb.Callout(context.Background(), permission, pl)

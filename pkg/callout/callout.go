@@ -22,14 +22,14 @@ import (
 var errLimitExceeded = errors.New("limit exceeded")
 
 type Config struct {
-	CalloutURLs            []string      `env:"SMQ_CALLOUT_URLS"             envDefault:"" envSeparator:","`
-	CalloutMethod          string        `env:"SMQ_CALLOUT_METHOD"           envDefault:"POST"`
-	CalloutTLSVerification bool          `env:"SMQ_CALLOUT_TLS_VERIFICATION" envDefault:"true"`
-	CalloutTimeout         time.Duration `env:"SMQ_CALLOUT_TIMEOUT"          envDefault:"10s"`
-	CalloutCACert          string        `env:"SMQ_CALLOUT_CA_CERT"          envDefault:""`
-	CalloutCert            string        `env:"SMQ_CALLOUT_CERT"             envDefault:""`
-	CalloutKey             string        `env:"SMQ_CALLOUT_KEY"              envDefault:""`
-	CalloutPermissions     []string      `env:"SMQ_CALLOUT_INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
+	CalloutURLs            []string      `env:"URLS"             envDefault:"" envSeparator:","`
+	CalloutMethod          string        `env:"METHOD"           envDefault:"POST"`
+	CalloutTLSVerification bool          `env:"TLS_VERIFICATION" envDefault:"true"`
+	CalloutTimeout         time.Duration `env:"TIMEOUT"          envDefault:"10s"`
+	CalloutCACert          string        `env:"CA_CERT"          envDefault:""`
+	CalloutCert            string        `env:"CERT"             envDefault:""`
+	CalloutKey             string        `env:"KEY"              envDefault:""`
+	CalloutPermissions     []string      `env:"INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
 }
 
 type callout struct {
@@ -45,10 +45,12 @@ type Callout interface {
 }
 
 // NewCallback creates a new instance of Callout.
-func NewCallback(httpClient *http.Client, method string, urls []string, permissions []string) (Callout, error) {
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func NewCallout(ctls bool, certPath, keyPath, caPath string, timeout time.Duration, method string, urls []string, permissions []string) (Callout, error) {
+	httpClient, err := newCalloutClient(ctls, certPath, keyPath, caPath, timeout)
+	if err != nil {
+		return nil, fmt.Errorf("failied to initialize http client: %w", err)
 	}
+
 	if method != http.MethodPost && method != http.MethodGet {
 		return nil, fmt.Errorf("unsupported auth callout method: %s", method)
 	}
@@ -66,7 +68,7 @@ func NewCallback(httpClient *http.Client, method string, urls []string, permissi
 	}, nil
 }
 
-func NewCalloutClient(ctls bool, certPath, keyPath, caPath string, timeout time.Duration) (*http.Client, error) {
+func newCalloutClient(ctls bool, certPath, keyPath, caPath string, timeout time.Duration) (*http.Client, error) {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: !ctls,
 	}

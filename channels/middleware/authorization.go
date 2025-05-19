@@ -6,7 +6,6 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/absmach/supermq/auth"
@@ -61,7 +60,9 @@ func AuthorizationMiddleware(
 	authz smqauthz.Authorization,
 	channelsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission,
 	extOpPerm map[svcutil.ExternalOperation]svcutil.Permission,
-	httpClient *http.Client,
+	ctls bool,
+	certPath, keyPath, caPath string,
+	timeout time.Duration,
 	method string,
 	urls []string,
 	permissions []string,
@@ -86,7 +87,7 @@ func AuthorizationMiddleware(
 		return nil, err
 	}
 
-	call, err := callout.NewCallback(httpClient, method, urls, permissions)
+	call, err := callout.NewCallout(ctls, certPath, keyPath, caPath, timeout, method, urls, permissions)
 	if err != nil {
 		return nil, err
 	}
