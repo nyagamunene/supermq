@@ -21,7 +21,7 @@ import (
 
 var errLimitExceeded = errors.New("limit exceeded")
 
-type Operations struct {
+type Config struct {
 	URLs            []string      `env:"URLS"             envDefault:"" envSeparator:","`
 	Method          string        `env:"METHOD"           envDefault:"POST"`
 	TLSVerification bool          `env:"TLS_VERIFICATION" envDefault:"true"`
@@ -29,7 +29,7 @@ type Operations struct {
 	CACert          string        `env:"CA_CERT"          envDefault:""`
 	Cert            string        `env:"CERT"             envDefault:""`
 	Key             string        `env:"KEY"              envDefault:""`
-	Permissions     []string      `env:"INVOKE_PERMISSIONS" envDefault:"" envSeparator:","`
+	Operations      []string      `env:"OPERATIONS" envDefault:"" envSeparator:","`
 }
 
 type callout struct {
@@ -45,7 +45,7 @@ type Callout interface {
 }
 
 // New creates a new instance of Callout.
-func New(cfg Operations) (Callout, error) {
+func New(cfg Config) (Callout, error) {
 	httpClient, err := newCalloutClient(cfg.TLSVerification, cfg.Cert, cfg.Key, cfg.CACert, cfg.Timeout)
 	if err != nil {
 		return nil, fmt.Errorf("failied to initialize http client: %w", err)
@@ -56,7 +56,7 @@ func New(cfg Operations) (Callout, error) {
 	}
 
 	allowedPermission := make(map[string]struct{})
-	for _, permission := range cfg.Permissions {
+	for _, permission := range cfg.Operations {
 		allowedPermission[permission] = struct{}{}
 	}
 

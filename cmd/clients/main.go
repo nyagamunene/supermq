@@ -205,8 +205,8 @@ func main() {
 	}
 	defer domainsHandler.Close()
 
-	callOp := callout.Operations{}
-	if err := env.ParseWithOptions(&callOp, env.Options{Prefix: envPrefixClientCallout}); err != nil {
+	callCfg := callout.Config{}
+	if err := env.ParseWithOptions(&callCfg, env.Options{Prefix: envPrefixClientCallout}); err != nil {
 		logger.Error(fmt.Sprintf("failed to parse callout config : %s", err))
 		exitCode = 1
 		return
@@ -251,7 +251,7 @@ func main() {
 	defer groupsHandler.Close()
 	logger.Info("Groups gRPC client successfully connected to groups gRPC server " + groupsHandler.Secure())
 
-	callout, err := callout.New(callOp)
+	callout, err := callout.New(callCfg)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create new callout: %s", err))
 		exitCode = 1

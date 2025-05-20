@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	permission     = "test_permission"
+	operation      = "test_operation"
 	entityType     = "client"
 	userID         = "user_id"
 	domainID       = "domain_id"
@@ -38,61 +38,61 @@ var pl = map[string]interface{}{
 	"sender":      userID,
 	"domain":      domainID,
 	"time":        time.Now().String(),
-	"permission":  permission,
+	"operation":   operation,
 }
 
 func TestNewCallout(t *testing.T) {
 	cases := []struct {
-		desc        string
-		ctls        bool
-		certPath    string
-		keyPath     string
-		caPath      string
-		timeout     time.Duration
-		method      string
-		urls        []string
-		permissions []string
-		err         error
+		desc       string
+		ctls       bool
+		certPath   string
+		keyPath    string
+		caPath     string
+		timeout    time.Duration
+		method     string
+		urls       []string
+		operations []string
+		err        error
 	}{
 		{
-			desc:        "successful callout creation without TLS",
-			ctls:        false,
-			timeout:     time.Second,
-			method:      http.MethodPost,
-			urls:        []string{"http://example.com"},
-			permissions: []string{},
+			desc:       "successful callout creation without TLS",
+			ctls:       false,
+			timeout:    time.Second,
+			method:     http.MethodPost,
+			urls:       []string{"http://example.com"},
+			operations: []string{},
 		},
 		{
-			desc:        "successful callout creation with TLS",
-			ctls:        true,
-			certPath:    "client.crt",
-			keyPath:     "client.key",
-			caPath:      "ca.crt",
-			timeout:     time.Second,
-			method:      http.MethodPost,
-			urls:        []string{"http://example.com"},
-			permissions: []string{},
+			desc:       "successful callout creation with TLS",
+			ctls:       true,
+			certPath:   "client.crt",
+			keyPath:    "client.key",
+			caPath:     "ca.crt",
+			timeout:    time.Second,
+			method:     http.MethodPost,
+			urls:       []string{"http://example.com"},
+			operations: []string{},
 		},
 		{
-			desc:        "failed callout creation with invalid cert",
-			ctls:        true,
-			certPath:    "invalid.crt",
-			keyPath:     "invalid.key",
-			caPath:      "invalid.ca",
-			timeout:     time.Second,
-			method:      http.MethodPost,
-			urls:        []string{"http://example.com"},
-			permissions: []string{},
-			err:         errors.New("failied to initialize http client: tls: failed to find any PEM data in certificate input"),
+			desc:       "failed callout creation with invalid cert",
+			ctls:       true,
+			certPath:   "invalid.crt",
+			keyPath:    "invalid.key",
+			caPath:     "invalid.ca",
+			timeout:    time.Second,
+			method:     http.MethodPost,
+			urls:       []string{"http://example.com"},
+			operations: []string{},
+			err:        errors.New("failied to initialize http client: tls: failed to find any PEM data in certificate input"),
 		},
 		{
-			desc:        "invalid method",
-			ctls:        false,
-			timeout:     time.Second,
-			method:      "INVALID-METHOD",
-			urls:        []string{"http://example.com"},
-			permissions: []string{},
-			err:         errors.New("unsupported auth callout method: INVALID-METHOD"),
+			desc:       "invalid method",
+			ctls:       false,
+			timeout:    time.Second,
+			method:     "INVALID-METHOD",
+			urls:       []string{"http://example.com"},
+			operations: []string{},
+			err:        errors.New("unsupported auth callout method: INVALID-METHOD"),
 		},
 	}
 
@@ -118,7 +118,7 @@ func TestNewCallout(t *testing.T) {
 				}()
 			}
 
-			client, err := callout.New(callout.Operations{
+			client, err := callout.New(callout.Config{
 				TLSVerification: tc.ctls,
 				Cert:            tc.certPath,
 				Key:             tc.keyPath,
@@ -126,7 +126,7 @@ func TestNewCallout(t *testing.T) {
 				Timeout:         tc.timeout,
 				Method:          tc.method,
 				URLs:            tc.urls,
-				Permissions:     tc.permissions,
+				Operations:      tc.operations,
 			})
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			if err == nil {
@@ -206,7 +206,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 		method        string
 		contextSetup  func() context.Context
 		urls          []string
-		permissions   []string
+		operations    []string
 		expectError   bool
 		err           error
 	}{
@@ -219,7 +219,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 			}),
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
-			permissions:  []string{permission},
+			operations:   []string{operation},
 			expectError:  false,
 		},
 		{
@@ -232,7 +232,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 			}),
 			method:       http.MethodGet,
 			contextSetup: func() context.Context { return context.Background() },
-			permissions:  []string{permission},
+			operations:   []string{operation},
 			expectError:  false,
 		},
 		{
@@ -242,7 +242,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 			}),
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
-			permissions:  []string{permission},
+			operations:   []string{operation},
 			expectError:  true,
 			err:          svcerr.ErrAuthorization,
 		},
@@ -251,7 +251,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 			method:       http.MethodGet,
 			contextSetup: func() context.Context { return context.Background() },
 			urls:         []string{"http://invalid-url"},
-			permissions:  []string{permission},
+			operations:   []string{operation},
 			expectError:  true,
 		},
 		{
@@ -265,7 +265,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 				cancel()
 				return ctx
 			},
-			permissions: []string{permission},
+			operations:  []string{operation},
 			expectError: true,
 		},
 		{
@@ -275,7 +275,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 			}),
 			method:       http.MethodPost,
 			contextSetup: func() context.Context { return context.Background() },
-			permissions:  []string{permission},
+			operations:   []string{operation},
 			expectError:  false,
 		},
 	}
@@ -310,7 +310,7 @@ func TestCallout_MakeRequest(t *testing.T) {
 
 			// Create a callout with a short timeout for tests
 			cb, err := callout.New(
-				callout.Operations{
+				callout.Config{
 					TLSVerification: false,
 					Cert:            "",
 					Key:             "",
@@ -318,12 +318,12 @@ func TestCallout_MakeRequest(t *testing.T) {
 					Timeout:         time.Second,
 					Method:          tc.method,
 					URLs:            urls,
-					Permissions:     tc.permissions,
+					Operations:      tc.operations,
 				})
 			assert.NoError(t, err)
 
 			ctx := tc.contextSetup()
-			err = cb.Callout(ctx, permission, pl)
+			err = cb.Callout(ctx, operation, pl)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -337,46 +337,46 @@ func TestCallout_MakeRequest(t *testing.T) {
 	}
 }
 
-func TestCallout_Permissions(t *testing.T) {
+func TestCallout_Operations(t *testing.T) {
 	cases := []struct {
 		desc         string
-		permissions  []string
+		operations   []string
 		payload      map[string]interface{}
 		serverCalled bool
 	}{
 		{
-			desc:        "matching permission is called",
-			permissions: []string{permission},
+			desc:       "matching operation is called",
+			operations: []string{operation},
 			payload: map[string]interface{}{
 				"entity_type": entityType,
 				"sender":      userID,
 				"domain":      domainID,
 				"time":        time.Now().String(),
-				"permission":  permission,
+				"operation":   operation,
 			},
 			serverCalled: true,
 		},
 		{
-			desc:        "non-matching permission is not called",
-			permissions: []string{"other_permission"},
+			desc:       "non-matching operation is not called",
+			operations: []string{"other_operation"},
 			payload: map[string]interface{}{
 				"entity_type": entityType,
 				"sender":      userID,
 				"domain":      domainID,
 				"time":        time.Now().String(),
-				"permission":  permission,
+				"operation":   operation,
 			},
 			serverCalled: false,
 		},
 		{
-			desc:        "empty permissions list calls always",
-			permissions: []string{},
+			desc:       "empty operations list calls always",
+			operations: []string{},
 			payload: map[string]interface{}{
 				"entity_type": entityType,
 				"sender":      userID,
 				"domain":      domainID,
 				"time":        time.Now().String(),
-				"permission":  permission,
+				"operation":   operation,
 			},
 			serverCalled: true,
 		},
@@ -391,7 +391,7 @@ func TestCallout_Permissions(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			cb, err := callout.New(callout.Operations{
+			cb, err := callout.New(callout.Config{
 				TLSVerification: false,
 				Cert:            "",
 				Key:             "",
@@ -399,11 +399,11 @@ func TestCallout_Permissions(t *testing.T) {
 				Timeout:         time.Second,
 				Method:          http.MethodPost,
 				URLs:            []string{ts.URL},
-				Permissions:     tc.permissions,
+				Operations:      tc.operations,
 			})
 			assert.NoError(t, err)
 
-			err = cb.Callout(context.Background(), permission, tc.payload)
+			err = cb.Callout(context.Background(), operation, tc.payload)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.serverCalled, serverCalled, "Server call status does not match expected")
 		})
@@ -411,7 +411,7 @@ func TestCallout_Permissions(t *testing.T) {
 }
 
 func TestCallout_NoURLs(t *testing.T) {
-	cb, err := callout.New(callout.Operations{
+	cb, err := callout.New(callout.Config{
 		TLSVerification: false,
 		Cert:            "",
 		Key:             "",
@@ -419,10 +419,10 @@ func TestCallout_NoURLs(t *testing.T) {
 		Timeout:         time.Second,
 		Method:          http.MethodPost,
 		URLs:            []string{},
-		Permissions:     []string{permission},
+		Operations:      []string{operation},
 	})
 	assert.NoError(t, err)
 
-	err = cb.Callout(context.Background(), permission, pl)
+	err = cb.Callout(context.Background(), operation, pl)
 	assert.NoError(t, err, "No error should be returned when URL list is empty")
 }

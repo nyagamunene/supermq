@@ -193,14 +193,14 @@ func main() {
 	}
 	logger.Info("Policy client successfully connected to spicedb gRPC server")
 
-	callOp := callout.Operations{}
-	if err := env.ParseWithOptions(&callOp, env.Options{Prefix: envPrefixDomainCallout}); err != nil {
+	callCfg := callout.Config{}
+	if err := env.ParseWithOptions(&callCfg, env.Options{Prefix: envPrefixDomainCallout}); err != nil {
 		logger.Error(fmt.Sprintf("failed to parse callout config : %s", err))
 		exitCode = 1
 		return
 	}
 
-	call, err := callout.New(callOp)
+	call, err := callout.New(callCfg)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to create new callout: %s", err))
 		exitCode = 1
