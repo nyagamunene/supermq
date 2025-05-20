@@ -298,7 +298,7 @@ func (am *authorizationMiddleware) extAuthorize(ctx context.Context, subj, perm,
 
 func (am *authorizationMiddleware) Callout(ctx context.Context, session authn.Session, op string) error {
 	pl := map[string]interface{}{
-		"entity_type": policies.ChannelType,
+		"entity_type": policies.DomainType,
 		"sender":      session.UserID,
 		"domain":      session.DomainID,
 		"time":        time.Now().String(),
