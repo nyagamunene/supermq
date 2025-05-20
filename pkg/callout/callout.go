@@ -154,7 +154,7 @@ func (c *callout) Callout(ctx context.Context, op string, pl map[string]interfac
 			return nil
 		}
 	}
-	pl["permission"] = op
+	pl["operation"] = op
 
 	var err error
 	// We iterate through all URLs in sequence
