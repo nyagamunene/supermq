@@ -29,14 +29,14 @@ type Config struct {
 	CACert          string        `env:"CA_CERT"          envDefault:""`
 	Cert            string        `env:"CERT"             envDefault:""`
 	Key             string        `env:"KEY"              envDefault:""`
-	Operations      []string      `env:"OPERATIONS" envDefault:"" envSeparator:","`
+	Operations      []string      `env:"OPERATIONS"       envDefault:"" envSeparator:","`
 }
 
 type callout struct {
-	httpClient        *http.Client
-	urls              []string
-	method            string
-	allowedPermission map[string]struct{}
+	httpClient       *http.Client
+	urls             []string
+	method           string
+	allowedOperation map[string]struct{}
 }
 
 // Callout send request to an external service.
@@ -55,16 +55,16 @@ func New(cfg Config) (Callout, error) {
 		return nil, fmt.Errorf("unsupported auth callout method: %s", cfg.Method)
 	}
 
-	allowedPermission := make(map[string]struct{})
-	for _, permission := range cfg.Operations {
-		allowedPermission[permission] = struct{}{}
+	allowedOperation := make(map[string]struct{})
+	for _, operation := range cfg.Operations {
+		allowedOperation[operation] = struct{}{}
 	}
 
 	return &callout{
-		httpClient:        httpClient,
-		urls:              cfg.URLs,
-		method:            cfg.Method,
-		allowedPermission: allowedPermission,
+		httpClient:       httpClient,
+		urls:             cfg.URLs,
+		method:           cfg.Method,
+		allowedOperation: allowedOperation,
 	}, nil
 }
 
@@ -146,10 +146,10 @@ func (c *callout) Callout(ctx context.Context, op string, pl map[string]interfac
 		return nil
 	}
 
-	// Check if the permission is in the allowed list
-	// Otherwise, only call webhook if the permission is in the map
-	if len(c.allowedPermission) > 0 {
-		_, exists := c.allowedPermission[op]
+	// Check if the operation is in the allowed list
+	// Otherwise, only call webhook if the operation is in the map
+	if len(c.allowedOperation) > 0 {
+		_, exists := c.allowedOperation[op]
 		if !exists {
 			return nil
 		}
