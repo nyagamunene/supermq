@@ -418,7 +418,7 @@ func (am *authorizationMiddleware) RetrieveGroupHierarchy(ctx context.Context, s
 	}
 	params := map[string]any{
 		"entity_id":          id,
-		"hierarchy_pageMeta": hm,
+		"hierarchy_pagemeta": hm,
 	}
 	if err := am.callOut(ctx, session, groups.OpRetrieveGroupHierarchy.String(groups.OperationNames), params); err != nil {
 		return groups.HierarchyPage{}, err
@@ -659,7 +659,7 @@ func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, sessi
 		"entity_id":   id,
 		"start_level": startLevel,
 		"end_level":   endLevel,
-		"page_meta":   pm,
+		"pagemeta":    pm,
 	}
 	if err := am.callOut(ctx, session, groups.OpListChildrenGroups.String(groups.OperationNames), params); err != nil {
 		return groups.Page{}, err
