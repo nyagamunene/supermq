@@ -131,7 +131,11 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 			return groups.Group{}, []roles.RoleProvision{}, errors.Wrap(errParentGroupSetChildGroup, err)
 		}
 	}
-	if err := am.Callout(ctx, session, groups.OpCreateGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"quantity": 1,
+		"entity":   g,
+	}
+	if err := am.Callout(ctx, session, groups.OpCreateGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, []roles.RoleProvision{}, err
 	}
 
@@ -162,7 +166,12 @@ func (am *authorizationMiddleware) UpdateGroup(ctx context.Context, session auth
 	}); err != nil {
 		return groups.Group{}, errors.Wrap(errUpdate, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpUpdateGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": g.ID,
+		"quantity":  1,
+		"entity":    g,
+	}
+	if err := am.Callout(ctx, session, groups.OpUpdateGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
 	}
 
@@ -219,7 +228,11 @@ func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.
 	}); err != nil {
 		return groups.Group{}, errors.Wrap(errView, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpViewGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": id,
+		"quantity":  1,
+	}
+	if err := am.Callout(ctx, session, groups.OpViewGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
 	}
 
@@ -301,7 +314,11 @@ func (am *authorizationMiddleware) EnableGroup(ctx context.Context, session auth
 	}); err != nil {
 		return groups.Group{}, errors.Wrap(errEnable, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpEnableGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": id,
+		"quantity":  1,
+	}
+	if err := am.Callout(ctx, session, groups.OpEnableGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
 	}
 
@@ -331,7 +348,11 @@ func (am *authorizationMiddleware) DisableGroup(ctx context.Context, session aut
 	}); err != nil {
 		return groups.Group{}, errors.Wrap(errDisable, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpDisableGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": id,
+		"quantity":  1,
+	}
+	if err := am.Callout(ctx, session, groups.OpDisableGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
 	}
 
@@ -360,7 +381,11 @@ func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session auth
 	}); err != nil {
 		return errors.Wrap(errDelete, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpDeleteGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": id,
+		"quantity":  1,
+	}
+	if err := am.Callout(ctx, session, groups.OpDeleteGroup.String(groups.OperationNames), params); err != nil {
 		return err
 	}
 
@@ -390,7 +415,12 @@ func (am *authorizationMiddleware) RetrieveGroupHierarchy(ctx context.Context, s
 	}); err != nil {
 		return groups.HierarchyPage{}, errors.Wrap(errViewHierarchy, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpRetrieveGroupHierarchy.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id":          id,
+		"quantity":           1,
+		"hierarchy_pageMeta": hm,
+	}
+	if err := am.Callout(ctx, session, groups.OpRetrieveGroupHierarchy.String(groups.OperationNames), params); err != nil {
 		return groups.HierarchyPage{}, err
 	}
 	return am.svc.RetrieveGroupHierarchy(ctx, session, id, hm)
@@ -429,7 +459,12 @@ func (am *authorizationMiddleware) AddParentGroup(ctx context.Context, session a
 	}); err != nil {
 		return errors.Wrap(errParentGroupSetChildGroup, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpAddParentGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": id,
+		"quantity":  1,
+		"parent_id": parentID,
+	}
+	if err := am.Callout(ctx, session, groups.OpAddParentGroup.String(groups.OperationNames), params); err != nil {
 		return err
 	}
 	return am.svc.AddParentGroup(ctx, session, id, parentID)
@@ -475,7 +510,12 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 			return errors.Wrap(errParentGroupRemoveChildGroup, err)
 		}
 	}
-	if err := am.Callout(ctx, session, groups.OpRemoveParentGroup.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": id,
+		"quantity":  1,
+		"parent_id": group.Parent,
+	}
+	if err := am.Callout(ctx, session, groups.OpRemoveParentGroup.String(groups.OperationNames), params); err != nil {
 		return err
 	}
 	return am.svc.RemoveParentGroup(ctx, session, id)
@@ -516,7 +556,12 @@ func (am *authorizationMiddleware) AddChildrenGroups(ctx context.Context, sessio
 			return errors.Wrap(errChildGroupSetParentGroup, errors.Wrap(fmt.Errorf("child group id: %s", childID), err))
 		}
 	}
-	if err := am.Callout(ctx, session, groups.OpAddChildrenGroups.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id":          id,
+		"quantity":           1,
+		"children_group_ids": childrenGroupIDs,
+	}
+	if err := am.Callout(ctx, session, groups.OpAddChildrenGroups.String(groups.OperationNames), params); err != nil {
 		return err
 	}
 
@@ -546,7 +591,12 @@ func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, ses
 	}); err != nil {
 		return errors.Wrap(errRemoveChildrenGroups, err)
 	}
-	if err := am.Callout(ctx, session, groups.OpRemoveChildrenGroups.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id":          id,
+		"quantity":           1,
+		"children_group_ids": childrenGroupIDs,
+	}
+	if err := am.Callout(ctx, session, groups.OpRemoveChildrenGroups.String(groups.OperationNames), params); err != nil {
 		return err
 	}
 
@@ -576,7 +626,11 @@ func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, 
 	}); err != nil {
 		return err
 	}
-	if err := am.Callout(ctx, session, groups.OpRemoveAllChildrenGroups.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id": id,
+		"quantity":  1,
+	}
+	if err := am.Callout(ctx, session, groups.OpRemoveAllChildrenGroups.String(groups.OperationNames), params); err != nil {
 		return err
 	}
 
@@ -606,8 +660,14 @@ func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, sessi
 	}); err != nil {
 		return groups.Page{}, errors.Wrap(errListChildrenGroups, err)
 	}
-
-	if err := am.Callout(ctx, session, groups.OpListChildrenGroups.String(groups.OperationNames)); err != nil {
+	params := map[string]interface{}{
+		"entity_id":   id,
+		"quantity":    1,
+		"start_level": startLevel,
+		"end_level":   endLevel,
+		"page_meta":   pm,
+	}
+	if err := am.Callout(ctx, session, groups.OpListChildrenGroups.String(groups.OperationNames), params); err != nil {
 		return groups.Page{}, err
 	}
 
@@ -655,12 +715,16 @@ func (am *authorizationMiddleware) extAuthorize(ctx context.Context, extOp svcut
 	return nil
 }
 
-func (am *authorizationMiddleware) Callout(ctx context.Context, session authn.Session, op string) error {
+func (am *authorizationMiddleware) Callout(ctx context.Context, session authn.Session, op string, params map[string]interface{}) error {
 	pl := map[string]interface{}{
 		"entity_type": policies.GroupType,
 		"sender":      session.UserID,
 		"domain":      session.DomainID,
 		"time":        time.Now().String(),
+	}
+
+	for k, v := range params {
+		pl[k] = v
 	}
 
 	if err := am.callout.Callout(ctx, op, pl); err != nil {

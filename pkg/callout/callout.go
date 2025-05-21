@@ -110,9 +110,7 @@ func (c *callout) makeRequest(ctx context.Context, urlStr string, params map[str
 	case http.MethodGet:
 		query := url.Values{}
 		for key, value := range params {
-			if v, ok := value.(string); ok {
-				query.Set(key, v)
-			}
+			query.Set(key, fmt.Sprintf("%v", value))
 		}
 		req, err = http.NewRequestWithContext(ctx, c.method, urlStr+"?"+query.Encode(), nil)
 	case http.MethodPost:

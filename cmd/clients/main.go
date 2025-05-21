@@ -330,20 +330,7 @@ func main() {
 	}
 }
 
-func newService(ctx context.Context,
-	db *sqlx.DB,
-	dbConfig pgclient.Config,
-	authz smqauthz.Authorization,
-	pe policies.Evaluator,
-	ps policies.Service,
-	cacheClient *redis.Client,
-	cfg config,
-	channels grpcChannelsV1.ChannelsServiceClient,
-	groups grpcGroupsV1.GroupsServiceClient,
-	tracer trace.Tracer,
-	logger *slog.Logger,
-	callout callout.Callout,
-) (clients.Service, pClients.Service, error) {
+func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, authz smqauthz.Authorization, pe policies.Evaluator, ps policies.Service, cacheClient *redis.Client, cfg config, channels grpcChannelsV1.ChannelsServiceClient, groups grpcGroupsV1.GroupsServiceClient, tracer trace.Tracer, logger *slog.Logger, callout callout.Callout) (clients.Service, pClients.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	repo := postgres.NewRepository(database)
 
