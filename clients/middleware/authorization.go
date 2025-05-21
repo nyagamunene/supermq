@@ -111,8 +111,7 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 	}
 
 	params := map[string]interface{}{
-		"quantity": len(client),
-		"entity":   client,
+		"entities": client,
 	}
 
 	if err := am.Callout(ctx, session, clients.OpCreateClient.String(clients.OperationNames), params); err != nil {
@@ -148,7 +147,6 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 
 	if err := am.Callout(ctx, session, clients.OpViewClient.String(clients.OperationNames), params); err != nil {
@@ -226,8 +224,7 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 
 	params := map[string]interface{}{
 		"entity_id": client.ID,
-		"quantity":  1,
-		"entity":    client,
+		"entities":  []clients.Client{client},
 	}
 
 	if err := am.Callout(ctx, session, clients.OpUpdateClient.String(clients.OperationNames), params); err != nil {
@@ -263,8 +260,7 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 
 	params := map[string]interface{}{
 		"entity_id": client.ID,
-		"quantity":  1,
-		"entity":    client,
+		"entities":  []clients.Client{client},
 	}
 
 	if err := am.Callout(ctx, session, clients.OpUpdateClientTags.String(clients.OperationNames), params); err != nil {
@@ -300,7 +296,6 @@ func (am *authorizationMiddleware) UpdateSecret(ctx context.Context, session aut
 
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 
 	if err := am.Callout(ctx, session, clients.OpUpdateClientSecret.String(clients.OperationNames), params); err != nil {
@@ -335,7 +330,6 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 
 	if err := am.Callout(ctx, session, clients.OpEnableClient.String(clients.OperationNames), params); err != nil {
@@ -371,7 +365,6 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 
 	if err := am.Callout(ctx, session, clients.OpDisableClient.String(clients.OperationNames), params); err != nil {
@@ -406,7 +399,6 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 
 	if err := am.Callout(ctx, session, clients.OpDeleteClient.String(clients.OperationNames), params); err != nil {
@@ -453,7 +445,6 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 	params := map[string]interface{}{
 		"entity_id": id,
 		"parent_id": parentGroupID,
-		"quantity":  1,
 	}
 
 	if err := am.Callout(ctx, session, clients.OpSetParentGroup.String(clients.OperationNames), params); err != nil {
@@ -504,7 +495,6 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 
 		params := map[string]interface{}{
 			"entity_id": id,
-			"quantity":  1,
 			"parent_id": th.ParentGroup,
 		}
 

@@ -132,8 +132,7 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 		}
 	}
 	params := map[string]interface{}{
-		"quantity": 1,
-		"entity":   g,
+		"entities": []groups.Group{g},
 	}
 	if err := am.Callout(ctx, session, groups.OpCreateGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, []roles.RoleProvision{}, err
@@ -168,8 +167,7 @@ func (am *authorizationMiddleware) UpdateGroup(ctx context.Context, session auth
 	}
 	params := map[string]interface{}{
 		"entity_id": g.ID,
-		"quantity":  1,
-		"entity":    g,
+		"entities":  []groups.Group{g},
 	}
 	if err := am.Callout(ctx, session, groups.OpUpdateGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
@@ -230,7 +228,6 @@ func (am *authorizationMiddleware) ViewGroup(ctx context.Context, session authn.
 	}
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 	if err := am.Callout(ctx, session, groups.OpViewGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
@@ -316,7 +313,6 @@ func (am *authorizationMiddleware) EnableGroup(ctx context.Context, session auth
 	}
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 	if err := am.Callout(ctx, session, groups.OpEnableGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
@@ -350,7 +346,6 @@ func (am *authorizationMiddleware) DisableGroup(ctx context.Context, session aut
 	}
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 	if err := am.Callout(ctx, session, groups.OpDisableGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, err
@@ -383,7 +378,6 @@ func (am *authorizationMiddleware) DeleteGroup(ctx context.Context, session auth
 	}
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 	if err := am.Callout(ctx, session, groups.OpDeleteGroup.String(groups.OperationNames), params); err != nil {
 		return err
@@ -417,7 +411,6 @@ func (am *authorizationMiddleware) RetrieveGroupHierarchy(ctx context.Context, s
 	}
 	params := map[string]interface{}{
 		"entity_id":          id,
-		"quantity":           1,
 		"hierarchy_pageMeta": hm,
 	}
 	if err := am.Callout(ctx, session, groups.OpRetrieveGroupHierarchy.String(groups.OperationNames), params); err != nil {
@@ -461,7 +454,6 @@ func (am *authorizationMiddleware) AddParentGroup(ctx context.Context, session a
 	}
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 		"parent_id": parentID,
 	}
 	if err := am.Callout(ctx, session, groups.OpAddParentGroup.String(groups.OperationNames), params); err != nil {
@@ -512,7 +504,6 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 	}
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 		"parent_id": group.Parent,
 	}
 	if err := am.Callout(ctx, session, groups.OpRemoveParentGroup.String(groups.OperationNames), params); err != nil {
@@ -558,7 +549,6 @@ func (am *authorizationMiddleware) AddChildrenGroups(ctx context.Context, sessio
 	}
 	params := map[string]interface{}{
 		"entity_id":          id,
-		"quantity":           1,
 		"children_group_ids": childrenGroupIDs,
 	}
 	if err := am.Callout(ctx, session, groups.OpAddChildrenGroups.String(groups.OperationNames), params); err != nil {
@@ -593,7 +583,6 @@ func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, ses
 	}
 	params := map[string]interface{}{
 		"entity_id":          id,
-		"quantity":           1,
 		"children_group_ids": childrenGroupIDs,
 	}
 	if err := am.Callout(ctx, session, groups.OpRemoveChildrenGroups.String(groups.OperationNames), params); err != nil {
@@ -628,7 +617,6 @@ func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, 
 	}
 	params := map[string]interface{}{
 		"entity_id": id,
-		"quantity":  1,
 	}
 	if err := am.Callout(ctx, session, groups.OpRemoveAllChildrenGroups.String(groups.OperationNames), params); err != nil {
 		return err
@@ -662,7 +650,6 @@ func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, sessi
 	}
 	params := map[string]interface{}{
 		"entity_id":   id,
-		"quantity":    1,
 		"start_level": startLevel,
 		"end_level":   endLevel,
 		"page_meta":   pm,
