@@ -5,6 +5,7 @@ package middleware
 
 import (
 	"context"
+	"maps"
 	"time"
 
 	"github.com/absmach/supermq/auth"
@@ -110,12 +111,12 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 		return []clients.Client{}, []roles.RoleProvision{}, errors.Wrap(err, errDomainCreateClients)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entities": client,
 		"count":    len(client),
 	}
 
-	if err := am.Callout(ctx, session, clients.OpCreateClient.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpCreateClient.String(clients.OperationNames), params); err != nil {
 		return []clients.Client{}, []roles.RoleProvision{}, err
 	}
 
@@ -146,11 +147,11 @@ func (am *authorizationMiddleware) View(ctx context.Context, session authn.Sessi
 		return clients.Client{}, errors.Wrap(err, errView)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": id,
 	}
 
-	if err := am.Callout(ctx, session, clients.OpViewClient.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpViewClient.String(clients.OperationNames), params); err != nil {
 		return clients.Client{}, err
 	}
 
@@ -223,12 +224,11 @@ func (am *authorizationMiddleware) Update(ctx context.Context, session authn.Ses
 		return clients.Client{}, errors.Wrap(err, errUpdate)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": client.ID,
-		"entities":  []clients.Client{client},
 	}
 
-	if err := am.Callout(ctx, session, clients.OpUpdateClient.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpUpdateClient.String(clients.OperationNames), params); err != nil {
 		return clients.Client{}, err
 	}
 
@@ -259,12 +259,11 @@ func (am *authorizationMiddleware) UpdateTags(ctx context.Context, session authn
 		return clients.Client{}, errors.Wrap(err, errUpdateTags)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": client.ID,
-		"entities":  []clients.Client{client},
 	}
 
-	if err := am.Callout(ctx, session, clients.OpUpdateClientTags.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpUpdateClientTags.String(clients.OperationNames), params); err != nil {
 		return clients.Client{}, err
 	}
 
@@ -295,11 +294,11 @@ func (am *authorizationMiddleware) UpdateSecret(ctx context.Context, session aut
 		return clients.Client{}, errors.Wrap(err, errUpdateSecret)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": id,
 	}
 
-	if err := am.Callout(ctx, session, clients.OpUpdateClientSecret.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpUpdateClientSecret.String(clients.OperationNames), params); err != nil {
 		return clients.Client{}, err
 	}
 	return am.svc.UpdateSecret(ctx, session, id, key)
@@ -329,11 +328,11 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 		return clients.Client{}, errors.Wrap(err, errEnable)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": id,
 	}
 
-	if err := am.Callout(ctx, session, clients.OpEnableClient.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpEnableClient.String(clients.OperationNames), params); err != nil {
 		return clients.Client{}, err
 	}
 
@@ -364,11 +363,11 @@ func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Se
 		return clients.Client{}, errors.Wrap(err, errDisable)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": id,
 	}
 
-	if err := am.Callout(ctx, session, clients.OpDisableClient.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpDisableClient.String(clients.OperationNames), params); err != nil {
 		return clients.Client{}, err
 	}
 
@@ -398,11 +397,11 @@ func (am *authorizationMiddleware) Delete(ctx context.Context, session authn.Ses
 		return errors.Wrap(err, errDelete)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": id,
 	}
 
-	if err := am.Callout(ctx, session, clients.OpDeleteClient.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpDeleteClient.String(clients.OperationNames), params); err != nil {
 		return err
 	}
 
@@ -443,12 +442,12 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 		return errors.Wrap(err, errGroupSetChildClients)
 	}
 
-	params := map[string]interface{}{
+	params := map[string]any{
 		"entity_id": id,
 		"parent_id": parentGroupID,
 	}
 
-	if err := am.Callout(ctx, session, clients.OpSetParentGroup.String(clients.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, clients.OpSetParentGroup.String(clients.OperationNames), params); err != nil {
 		return err
 	}
 	return am.svc.SetParentGroup(ctx, session, parentGroupID, id)
@@ -494,12 +493,12 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 			return errors.Wrap(err, errGroupRemoveChildClients)
 		}
 
-		params := map[string]interface{}{
+		params := map[string]any{
 			"entity_id": id,
 			"parent_id": th.ParentGroup,
 		}
 
-		if err := am.Callout(ctx, session, clients.OpRemoveParentGroup.String(clients.OperationNames), params); err != nil {
+		if err := am.callOut(ctx, session, clients.OpRemoveParentGroup.String(clients.OperationNames), params); err != nil {
 			return err
 		}
 
@@ -551,19 +550,18 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, userID s
 	return nil
 }
 
-func (am *authorizationMiddleware) Callout(ctx context.Context, session authn.Session, op string, params map[string]interface{}) error {
-	pl := map[string]interface{}{
-		"entity_type": policies.ClientType,
-		"sender":      session.UserID,
-		"domain":      session.DomainID,
-		"time":        time.Now().String(),
+func (am *authorizationMiddleware) callOut(ctx context.Context, session authn.Session, op string, params map[string]interface{}) error {
+	pl := map[string]any{
+		"entity_type":  policies.ClientType,
+		"subject_type": policies.UserType,
+		"subject_id":   session.UserID,
+		"domain":       session.DomainID,
+		"time":         time.Now().UTC(),
 	}
 
-	for k, v := range params {
-		pl[k] = v
-	}
+	maps.Copy(params, pl)
 
-	if err := am.callout.Callout(ctx, op, pl); err != nil {
+	if err := am.callout.Callout(ctx, op, params); err != nil {
 		return err
 	}
 

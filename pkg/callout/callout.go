@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
 	"os"
@@ -37,6 +38,13 @@ type callout struct {
 	urls             []string
 	method           string
 	allowedOperation map[string]struct{}
+}
+
+type CallOutReq struct {
+	Operation   string         `json:"operation"`
+	SubjectID   string         `json:"subject_id"`
+	SubjectType string         `json:"subject_type"`
+	Payload     map[string]any `json:"payload"`
 }
 
 // Callout send request to an external service.
@@ -102,7 +110,7 @@ func newCalloutClient(ctls bool, certPath, keyPath, caPath string, timeout time.
 	return httpClient, nil
 }
 
-func (c *callout) makeRequest(ctx context.Context, urlStr string, params map[string]interface{}) error {
+func (c *callout) makeRequest(ctx context.Context, urlStr string, params map[string]any) error {
 	var req *http.Request
 	var err error
 
@@ -114,7 +122,24 @@ func (c *callout) makeRequest(ctx context.Context, urlStr string, params map[str
 		}
 		req, err = http.NewRequestWithContext(ctx, c.method, urlStr+"?"+query.Encode(), nil)
 	case http.MethodPost:
-		data, jsonErr := json.Marshal(params)
+		payload := make(map[string]any)
+		maps.Copy(payload, params)
+		operation, _ := params["operation"].(string)
+		subjectID, _ := params["subject_id"].(string)
+		subjectType, _ := params["subject_type"].(string)
+
+		delete(payload, "subject_id")
+		delete(payload, "subject_type")
+		delete(payload, "operation")
+
+		calloutReq := CallOutReq{
+			Operation:   operation,
+			SubjectID:   subjectID,
+			SubjectType: subjectType,
+			Payload:     payload,
+		}
+
+		data, jsonErr := json.Marshal(calloutReq)
 		if jsonErr != nil {
 			return jsonErr
 		}
@@ -147,8 +172,7 @@ func (c *callout) Callout(ctx context.Context, op string, pl map[string]interfac
 	// Check if the operation is in the allowed list
 	// Otherwise, only call webhook if the operation is in the map
 	if len(c.allowedOperation) > 0 {
-		_, exists := c.allowedOperation[op]
-		if !exists {
+		if _, exists := c.allowedOperation[op]; !exists {
 			return nil
 		}
 	}

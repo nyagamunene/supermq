@@ -302,8 +302,7 @@ func main() {
 
 func newService(ctx context.Context, authz smqauthz.Authorization, policy policies.Service, db *sqlx.DB,
 	dbConfig pgclient.Config, channels grpcChannelsV1.ChannelsServiceClient,
-	clients grpcClientsV1.ClientsServiceClient, tracer trace.Tracer, logger *slog.Logger, c config,
-	callout callout.Callout,
+	clients grpcClientsV1.ClientsServiceClient, tracer trace.Tracer, logger *slog.Logger, c config, callout callout.Callout,
 ) (groups.Service, pgroups.Service, error) {
 	database := pg.NewDatabase(db, dbConfig, tracer)
 	idp := uuid.New()

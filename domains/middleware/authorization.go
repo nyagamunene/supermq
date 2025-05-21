@@ -5,6 +5,7 @@ package middleware
 
 import (
 	"context"
+	"maps"
 	"time"
 
 	"github.com/absmach/supermq/auth"
@@ -76,11 +77,11 @@ func (am *authorizationMiddleware) RetrieveDomain(ctx context.Context, session a
 	}); err != nil {
 		return domains.Domain{}, err
 	}
-	params := map[string]interface{}{
+	params := map[string]any{
 		"domain":     id,
 		"with_roles": withRoles,
 	}
-	if err := am.Callout(ctx, session, domains.OpRetrieveDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpRetrieveDomain.String(domains.OperationNames), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.RetrieveDomain(ctx, session, id, withRoles)
@@ -96,11 +97,11 @@ func (am *authorizationMiddleware) UpdateDomain(ctx context.Context, session aut
 	}); err != nil {
 		return domains.Domain{}, err
 	}
-	params := map[string]interface{}{
+	params := map[string]any{
 		"domain":     id,
 		"domain_req": d,
 	}
-	if err := am.Callout(ctx, session, domains.OpUpdateDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpUpdateDomain.String(domains.OperationNames), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.UpdateDomain(ctx, session, id, d)
@@ -116,10 +117,10 @@ func (am *authorizationMiddleware) EnableDomain(ctx context.Context, session aut
 	}); err != nil {
 		return domains.Domain{}, err
 	}
-	params := map[string]interface{}{
+	params := map[string]any{
 		"domain": id,
 	}
-	if err := am.Callout(ctx, session, domains.OpEnableDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpEnableDomain.String(domains.OperationNames), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.EnableDomain(ctx, session, id)
@@ -135,10 +136,10 @@ func (am *authorizationMiddleware) DisableDomain(ctx context.Context, session au
 	}); err != nil {
 		return domains.Domain{}, err
 	}
-	params := map[string]interface{}{
+	params := map[string]any{
 		"domain": id,
 	}
-	if err := am.Callout(ctx, session, domains.OpDisableDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpDisableDomain.String(domains.OperationNames), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.DisableDomain(ctx, session, id)
@@ -177,11 +178,11 @@ func (am *authorizationMiddleware) SendInvitation(ctx context.Context, session a
 	if err := am.checkAdmin(ctx, session); err != nil {
 		return err
 	}
-	params := map[string]interface{}{
+	params := map[string]any{
 		"invitation": invitation,
 		"domain":     invitation.DomainID,
 	}
-	if err := am.Callout(ctx, session, domains.OpSendInvitation.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpSendInvitation.String(domains.OperationNames), params); err != nil {
 		return err
 	}
 
@@ -221,10 +222,10 @@ func (am *authorizationMiddleware) ListInvitations(ctx context.Context, session 
 }
 
 func (am *authorizationMiddleware) AcceptInvitation(ctx context.Context, session authn.Session, domainID string) (inv domains.Invitation, err error) {
-	params := map[string]interface{}{
+	params := map[string]any{
 		"domain": domainID,
 	}
-	if err := am.Callout(ctx, session, domains.OpAcceptInvitation.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpAcceptInvitation.String(domains.OperationNames), params); err != nil {
 		return domains.Invitation{}, err
 	}
 	return am.svc.AcceptInvitation(ctx, session, domainID)
@@ -316,18 +317,17 @@ func (am *authorizationMiddleware) extAuthorize(ctx context.Context, subj, perm,
 	return nil
 }
 
-func (am *authorizationMiddleware) Callout(ctx context.Context, session authn.Session, op string, params map[string]interface{}) error {
-	pl := map[string]interface{}{
-		"entity_type": policies.DomainType,
-		"sender":      session.UserID,
-		"time":        time.Now().String(),
+func (am *authorizationMiddleware) callOut(ctx context.Context, session authn.Session, op string, params map[string]interface{}) error {
+	pl := map[string]any{
+		"entity_type":  policies.DomainType,
+		"subject_type": policies.UserType,
+		"subject_id":   session.UserID,
+		"time":         time.Now().UTC(),
 	}
 
-	for k, v := range params {
-		pl[k] = v
-	}
+	maps.Copy(params, pl)
 
-	if err := am.callout.Callout(ctx, op, pl); err != nil {
+	if err := am.callout.Callout(ctx, op, params); err != nil {
 		return err
 	}
 
