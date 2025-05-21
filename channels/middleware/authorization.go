@@ -131,6 +131,7 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 	}
 	params := map[string]interface{}{
 		"entities": chs,
+		"count":    len(chs),
 	}
 	if err := am.Callout(ctx, session, channels.OpCreateChannel.String(channels.OperationNames), params); err != nil {
 		return []channels.Channel{}, []roles.RoleProvision{}, err

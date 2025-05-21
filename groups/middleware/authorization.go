@@ -133,6 +133,7 @@ func (am *authorizationMiddleware) CreateGroup(ctx context.Context, session auth
 	}
 	params := map[string]interface{}{
 		"entities": []groups.Group{g},
+		"count":    1,
 	}
 	if err := am.Callout(ctx, session, groups.OpCreateGroup.String(groups.OperationNames), params); err != nil {
 		return groups.Group{}, []roles.RoleProvision{}, err

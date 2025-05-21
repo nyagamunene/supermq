@@ -112,6 +112,7 @@ func (am *authorizationMiddleware) CreateClients(ctx context.Context, session au
 
 	params := map[string]interface{}{
 		"entities": client,
+		"count":    len(client),
 	}
 
 	if err := am.Callout(ctx, session, clients.OpCreateClient.String(clients.OperationNames), params); err != nil {
