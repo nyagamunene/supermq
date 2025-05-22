@@ -15,6 +15,13 @@ const (
 	OpDisableDomain
 	OpSendInvitation
 	OpAcceptInvitation
+	OpCreateDomain
+	OpFreezeDomain
+	OpListDomains
+	OpViewInvitation
+	OpListInvitations
+	OpRejectInvitation
+	OpDeleteInvitation
 )
 
 var expectedOperations = []svcutil.Operation{
@@ -31,6 +38,13 @@ var OperationNames = []string{
 	"OpDisableDomain",
 	"OpSendInvitation",
 	"OpAcceptInvitation",
+	"OpCreateDomain",
+	"OpFreezeDomain",
+	"OpListDomains",
+	"OpViewInvitation",
+	"OpListInvitations",
+	"OpRejectInvitation",
+	"OpDeleteInvitation",
 }
 
 func NewOperationPerm() svcutil.OperationPerm {
