@@ -171,18 +171,16 @@ func (c *callout) Callout(ctx context.Context, op string, pl map[string]interfac
 
 	// Check if the operation is in the allowed list
 	// Otherwise, only call webhook if the operation is in the map
-	if len(c.allowedOperation) > 0 {
-		if _, exists := c.allowedOperation[op]; !exists {
-			return nil
-		}
+	if _, exists := c.allowedOperation[op]; !exists {
+		return nil
 	}
+
 	pl["operation"] = op
 
-	var err error
 	// We iterate through all URLs in sequence
 	// if any request fails, we return the error immediately
 	for _, url := range c.urls {
-		if err = c.makeRequest(ctx, url, pl); err != nil {
+		if err := c.makeRequest(ctx, url, pl); err != nil {
 			return errors.Wrap(errLimitExceeded, err)
 		}
 	}
