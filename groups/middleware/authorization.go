@@ -273,6 +273,13 @@ func (am *authorizationMiddleware) ListGroups(ctx context.Context, session authn
 		return groups.Page{}, errors.Wrap(errDomainListGroups, err)
 	}
 
+	params := map[string]any{
+		"pagemeta": gm,
+	}
+	if err := am.callOut(ctx, session, groups.OpListGroups.String(groups.OperationNames), params); err != nil {
+		return groups.Page{}, err
+	}
+
 	return am.svc.ListGroups(ctx, session, gm)
 }
 
@@ -291,6 +298,13 @@ func (am *authorizationMiddleware) ListUserGroups(ctx context.Context, session a
 		ObjectType:  policies.DomainType,
 	}); err != nil {
 		return groups.Page{}, errors.Wrap(errDomainListGroups, err)
+	}
+	params := map[string]any{
+		"user_id":  userID,
+		"pagemeta": pm,
+	}
+	if err := am.callOut(ctx, session, groups.OpListUserGroups.String(groups.OperationNames), params); err != nil {
+		return groups.Page{}, err
 	}
 	return am.svc.ListUserGroups(ctx, session, userID, pm)
 }

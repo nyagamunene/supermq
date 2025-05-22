@@ -190,6 +190,12 @@ func (am *authorizationMiddleware) ListChannels(ctx context.Context, session aut
 	if err := am.checkSuperAdmin(ctx, session.UserID); err == nil {
 		session.SuperAdmin = true
 	}
+	params := map[string]any{
+		"pagemeta": pm,
+	}
+	if err := am.callOut(ctx, session, channels.OpListChannels.String(channels.OperationNames), params); err != nil {
+		return channels.ChannelsPage{}, err
+	}
 	return am.svc.ListChannels(ctx, session, pm)
 }
 
@@ -208,6 +214,13 @@ func (am *authorizationMiddleware) ListUserChannels(ctx context.Context, session
 	}
 	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
 		return channels.ChannelsPage{}, errors.Wrap(err, errList)
+	}
+	params := map[string]any{
+		"user_id":  userID,
+		"pagemeta": pm,
+	}
+	if err := am.callOut(ctx, session, channels.OpListUserChannels.String(channels.OperationNames), params); err != nil {
+		return channels.ChannelsPage{}, err
 	}
 	return am.svc.ListUserChannels(ctx, session, userID, pm)
 }

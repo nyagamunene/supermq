@@ -176,6 +176,13 @@ func (am *authorizationMiddleware) ListClients(ctx context.Context, session auth
 		session.SuperAdmin = true
 	}
 
+	params := map[string]any{
+		"pagemeta": pm,
+	}
+	if err := am.callOut(ctx, session, clients.OpListClients.String(clients.OperationNames), params); err != nil {
+		return clients.ClientsPage{}, err
+	}
+
 	return am.svc.ListClients(ctx, session, pm)
 }
 
@@ -194,6 +201,13 @@ func (am *authorizationMiddleware) ListUserClients(ctx context.Context, session 
 	}
 
 	if err := am.checkSuperAdmin(ctx, session.UserID); err != nil {
+		return clients.ClientsPage{}, err
+	}
+	params := map[string]any{
+		"user_id":  userID,
+		"pagemeta": pm,
+	}
+	if err := am.callOut(ctx, session, clients.OpListUserClients.String(clients.OperationNames), params); err != nil {
 		return clients.ClientsPage{}, err
 	}
 

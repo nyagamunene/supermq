@@ -22,6 +22,8 @@ const (
 	OpConnectClient
 	OpDisconnectClient
 	OpCreateChannel
+	OpListChannels
+	OpListUserChannels
 )
 
 var expectedOperations = []svcutil.Operation{
@@ -49,6 +51,8 @@ var OperationNames = []string{
 	"OpConnectClient",
 	"OpDisconnectClient",
 	"OpCreateChannel",
+	"OpListChannels",
+	"OpListUserChannels",
 }
 
 func NewOperationPerm() svcutil.OperationPerm {

@@ -25,6 +25,8 @@ const (
 	OpListChildrenGroups
 	OpDeleteGroup
 	OpCreateGroup
+	OpListGroups
+	OpListUserGroups
 )
 
 var expectedOperations = []svcutil.Operation{
@@ -58,6 +60,8 @@ var OperationNames = []string{
 	"OpListChildrenGroups",
 	"OpDeleteGroup",
 	"OpCreateGroup",
+	"OpListGroups",
+	"OpListUserGroups",
 }
 
 func NewOperationPerm() svcutil.OperationPerm {
