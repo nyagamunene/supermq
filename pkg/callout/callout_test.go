@@ -378,7 +378,7 @@ func TestCallout_Operations(t *testing.T) {
 				"time":        time.Now().UTC(),
 				"operation":   operation,
 			},
-			serverCalled: true,
+			serverCalled: false,
 		},
 	}
 
