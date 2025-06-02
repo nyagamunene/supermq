@@ -21,6 +21,23 @@ const (
 	OpListUserClients
 )
 
+const (
+	OpViewClientStr            = "OpViewClient"
+	OpUpdateClientStr          = "OpUpdateClient"
+	OpUpdateClientTagsStr      = "OpUpdateClientTags"
+	OpUpdateClientSecretStr    = "OpUpdateClientSecret"
+	OpEnableClientStr          = "OpEnableClient"
+	OpDisableClientStr         = "OpDisableClient"
+	OpDeleteClientStr          = "OpDeleteClient"
+	OpSetParentGroupStr        = "OpSetParentGroup"
+	OpRemoveParentGroupStr     = "OpRemoveParentGroup"
+	OpConnectToChannelStr      = "OpConnectToChannel"
+	OpDisconnectFromChannelStr = "OpDisconnectFromChannel"
+	OpCreateClientStr          = "OpCreateClient"
+	OpListClientsStr           = "OpListClients"
+	OpListUserClientsStr       = "OpListUserClients"
+)
+
 var expectedOperations = []Operation{
 	OpViewClient,
 	OpUpdateClient,
@@ -35,25 +52,8 @@ var expectedOperations = []Operation{
 	OpDisconnectFromChannel,
 }
 
-var OperationNames = []string{
-	"OpViewClient",
-	"OpUpdateClient",
-	"OpUpdateClientTags",
-	"OpUpdateClientSecret",
-	"OpEnableClient",
-	"OpDisableClient",
-	"OpDeleteClient",
-	"OpSetParentGroup",
-	"OpRemoveParentGroup",
-	"OpConnectToChannel",
-	"OpDisconnectFromChannel",
-	"OpCreateClient",
-	"OpListClients",
-	"OpListUserClients",
-}
-
 func NewOperationPerm() OperationPerm {
-	return newOperationPerm(expectedOperations, OperationNames)
+	return newOperationPerm(expectedOperations)
 }
 
 // External Operations.
@@ -66,6 +66,15 @@ const (
 	ChannelsOpDisconnectChannel
 )
 
+const (
+	DomainOpCreateClientStr        = "DomainOpCreateClient"
+	DomainOpListClientsStr         = "DomainOpListClients"
+	GroupOpSetChildClientStr       = "GroupOpSetChildClient"
+	GroupsOpRemoveChildClientStr   = "GroupsOpRemoveChildClient"
+	ChannelsOpConnectChannelStr    = "ChannelsOpConnectChannel"
+	ChannelsOpDisconnectChannelStr = "ChannelsOpDisconnectChannel"
+)
+
 var expectedExternalOperations = []ExternalOperation{
 	DomainOpCreateClient,
 	DomainOpListClients,
@@ -75,17 +84,8 @@ var expectedExternalOperations = []ExternalOperation{
 	ChannelsOpDisconnectChannel,
 }
 
-var externalOperationNames = []string{
-	"DomainOpCreateClient",
-	"DomainOpListClients",
-	"GroupOpSetChildClient",
-	"GroupsOpRemoveChildClient",
-	"ChannelsOpConnectChannel",
-	"ChannelsOpDisconnectChannel",
-}
-
 func NewExternalOperationPerm() ExternalOperationPerm {
-	return newExternalOperationPerm(expectedExternalOperations, externalOperationNames)
+	return newExternalOperationPerm(expectedExternalOperations)
 }
 
 // Below codes should moved out of service, may be can be kept in `cmd/<svc>/main.go`
