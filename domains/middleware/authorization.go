@@ -30,13 +30,13 @@ var ErrMemberExist = errors.New("user is already a member of the domain")
 type authorizationMiddleware struct {
 	svc     domains.Service
 	authz   smqauthz.Authorization
-	opp     svcutil.OperationPerm
+	opp     domains.OperationPerm
 	callout callout.Callout
 	rmMW.RoleManagerAuthorizationMiddleware
 }
 
 // AuthorizationMiddleware adds authorization to the clients service.
-func AuthorizationMiddleware(entityType string, svc domains.Service, authz smqauthz.Authorization, domainsOpPerm, rolesOpPerm map[svcutil.Operation]svcutil.Permission, callout callout.Callout) (domains.Service, error) {
+func AuthorizationMiddleware(entityType string, svc domains.Service, authz smqauthz.Authorization, domainsOpPerm, rolesOpPerm map[domains.Operation]domains.Permission, callout callout.Callout) (domains.Service, error) {
 	opp := domains.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(domainsOpPerm); err != nil {
 		return nil, err
@@ -45,7 +45,12 @@ func AuthorizationMiddleware(entityType string, svc domains.Service, authz smqau
 		return nil, err
 	}
 
-	ram, err := rmMW.NewRoleManagerAuthorizationMiddleware(entityType, svc, authz, rolesOpPerm, callout)
+	res := make(map[svcutil.Operation]svcutil.Permission, len(rolesOpPerm))
+	for op, perm := range rolesOpPerm {
+		res[svcutil.Operation(op)] = svcutil.Permission(perm)
+	}
+
+	ram, err := rmMW.NewRoleManagerAuthorizationMiddleware(entityType, svc, authz, res, callout)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +67,7 @@ func (am *authorizationMiddleware) CreateDomain(ctx context.Context, session aut
 	params := map[string]any{
 		"domain": d,
 	}
-	if err := am.callOut(ctx, session, domains.OpCreateDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpCreateDomain.String(), params); err != nil {
 		return domains.Domain{}, nil, err
 	}
 	return am.svc.CreateDomain(ctx, session, d)
@@ -87,7 +92,7 @@ func (am *authorizationMiddleware) RetrieveDomain(ctx context.Context, session a
 		"domain":     id,
 		"with_roles": withRoles,
 	}
-	if err := am.callOut(ctx, session, domains.OpRetrieveDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpRetrieveDomain.String(), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.RetrieveDomain(ctx, session, id, withRoles)
@@ -107,7 +112,7 @@ func (am *authorizationMiddleware) UpdateDomain(ctx context.Context, session aut
 		"domain":     id,
 		"domain_req": d,
 	}
-	if err := am.callOut(ctx, session, domains.OpUpdateDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpUpdateDomain.String(), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.UpdateDomain(ctx, session, id, d)
@@ -126,7 +131,7 @@ func (am *authorizationMiddleware) EnableDomain(ctx context.Context, session aut
 	params := map[string]any{
 		"domain": id,
 	}
-	if err := am.callOut(ctx, session, domains.OpEnableDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpEnableDomain.String(), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.EnableDomain(ctx, session, id)
@@ -145,7 +150,7 @@ func (am *authorizationMiddleware) DisableDomain(ctx context.Context, session au
 	params := map[string]any{
 		"domain": id,
 	}
-	if err := am.callOut(ctx, session, domains.OpDisableDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpDisableDomain.String(), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.DisableDomain(ctx, session, id)
@@ -166,7 +171,7 @@ func (am *authorizationMiddleware) FreezeDomain(ctx context.Context, session aut
 	params := map[string]any{
 		"domain": id,
 	}
-	if err := am.callOut(ctx, session, domains.OpFreezeDomain.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpFreezeDomain.String(), params); err != nil {
 		return domains.Domain{}, err
 	}
 	return am.svc.FreezeDomain(ctx, session, id)
@@ -179,7 +184,7 @@ func (am *authorizationMiddleware) ListDomains(ctx context.Context, session auth
 	params := map[string]any{
 		"page": page,
 	}
-	if err := am.callOut(ctx, session, domains.OpListDomains.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpListDomains.String(), params); err != nil {
 		return domains.DomainsPage{}, err
 	}
 	return am.svc.ListDomains(ctx, session, page)
@@ -199,7 +204,7 @@ func (am *authorizationMiddleware) SendInvitation(ctx context.Context, session a
 		"invitation": invitation,
 		"domain":     invitation.DomainID,
 	}
-	if err := am.callOut(ctx, session, domains.OpSendInvitation.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpSendInvitation.String(), params); err != nil {
 		return err
 	}
 
@@ -218,7 +223,7 @@ func (am *authorizationMiddleware) ViewInvitation(ctx context.Context, session a
 		"invitee_user_id": inviteeUserID,
 		"domain":          domain,
 	}
-	if err := am.callOut(ctx, session, domains.OpViewInvitation.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpViewInvitation.String(), params); err != nil {
 		return domains.Invitation{}, err
 	}
 
@@ -246,7 +251,7 @@ func (am *authorizationMiddleware) ListInvitations(ctx context.Context, session 
 	params := map[string]any{
 		"page": page,
 	}
-	if err := am.callOut(ctx, session, domains.OpListInvitations.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpListInvitations.String(), params); err != nil {
 		return domains.InvitationPage{}, err
 	}
 
@@ -257,7 +262,7 @@ func (am *authorizationMiddleware) AcceptInvitation(ctx context.Context, session
 	params := map[string]any{
 		"domain": domainID,
 	}
-	if err := am.callOut(ctx, session, domains.OpAcceptInvitation.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpAcceptInvitation.String(), params); err != nil {
 		return domains.Invitation{}, err
 	}
 	return am.svc.AcceptInvitation(ctx, session, domainID)
@@ -267,7 +272,7 @@ func (am *authorizationMiddleware) RejectInvitation(ctx context.Context, session
 	params := map[string]any{
 		"domain": domainID,
 	}
-	if err := am.callOut(ctx, session, domains.OpRejectInvitation.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpRejectInvitation.String(), params); err != nil {
 		return err
 	}
 	return am.svc.RejectInvitation(ctx, session, domainID)
@@ -283,14 +288,14 @@ func (am *authorizationMiddleware) DeleteInvitation(ctx context.Context, session
 		"invitee_user_id": inviteeUserID,
 		"domain":          domainID,
 	}
-	if err := am.callOut(ctx, session, domains.OpDeleteInvitation.String(domains.OperationNames), params); err != nil {
+	if err := am.callOut(ctx, session, domains.OpDeleteInvitation.String(), params); err != nil {
 		return err
 	}
 
 	return am.svc.DeleteInvitation(ctx, session, inviteeUserID, domainID)
 }
 
-func (am *authorizationMiddleware) authorize(ctx context.Context, op svcutil.Operation, authReq authz.PolicyReq) error {
+func (am *authorizationMiddleware) authorize(ctx context.Context, op domains.Operation, authReq authz.PolicyReq) error {
 	perm, err := am.opp.GetPermission(op)
 	if err != nil {
 		return err
