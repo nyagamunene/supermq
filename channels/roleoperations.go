@@ -3,8 +3,7 @@
 
 package channels
 
-// Internal Operations
-
+// Internal Operations.
 const (
 	OpViewChannel Operation = iota
 	OpUpdateChannel
