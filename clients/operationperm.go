@@ -113,13 +113,6 @@ func (p Permission) String() string {
 
 type ExternalOperation int
 
-// func (op ExternalOperation) String(operations []string) string {
-// 	if (int(op) < 0) || (int(op) == len(operations)) {
-// 		return fmt.Sprintf("UnknownOperation(%d)", op)
-// 	}
-// 	return operations[op]
-// }
-
 func (op ExternalOperation) String() string {
 	switch op {
 	case DomainOpCreateClient:
