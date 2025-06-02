@@ -3,7 +3,7 @@
 
 package clients
 
-// Internal Operations
+// Internal Operations.
 const (
 	OpViewClient Operation = iota
 	OpUpdateClient
@@ -137,42 +137,6 @@ const (
 	OpRoleRemoveMembers
 	OpRoleRemoveAllMembers
 )
-
-var rolesExpectedOperations = []Operation{
-	OpAddRole,
-	OpRemoveRole,
-	OpUpdateRoleName,
-	OpRetrieveRole,
-	OpRetrieveAllRoles,
-	OpRoleAddActions,
-	OpRoleListActions,
-	OpRoleCheckActionsExists,
-	OpRoleRemoveActions,
-	OpRoleRemoveAllActions,
-	OpRoleAddMembers,
-	OpRoleListMembers,
-	OpRoleCheckMembersExists,
-	OpRoleRemoveMembers,
-	OpRoleRemoveAllMembers,
-}
-
-var operationNames = []string{
-	"OpAddRole",
-	"OpRemoveRole",
-	"OpUpdateRoleName",
-	"OpRetrieveRole",
-	"OpRetrieveAllRoles",
-	"OpRoleAddActions",
-	"OpRoleListActions",
-	"OpRoleCheckActionsExists",
-	"OpRoleRemoveActions",
-	"OpRoleRemoveAllActions",
-	"OpRoleAddMembers",
-	"OpRoleListMembers",
-	"OpRoleCheckMembersExists",
-	"OpRoleRemoveMembers",
-	"OpRoleRemoveAllMembers",
-}
 
 func NewRolesOperationPermissionMap() map[Operation]Permission {
 	opPerm := map[Operation]Permission{
