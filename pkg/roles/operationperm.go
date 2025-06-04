@@ -23,6 +23,7 @@ const (
 	OpRoleCheckMembersExists
 	OpRoleRemoveMembers
 	OpRoleRemoveAllMembers
+	OpListAvailableActions
 )
 
 var expectedOperations = []Operation{
@@ -41,6 +42,7 @@ var expectedOperations = []Operation{
 	OpRoleCheckMembersExists,
 	OpRoleRemoveMembers,
 	OpRoleRemoveAllMembers,
+	OpListAvailableActions,
 }
 
 const (
@@ -59,6 +61,7 @@ const (
 	OpRoleCheckMembersExistsStr = "OpRoleCheckMembersExists"
 	OpRoleRemoveMembersStr      = "OpRoleRemoveMembers"
 	OpRoleRemoveAllMembersStr   = "OpRoleRemoveAllMembers"
+	OpListAvailableActionsStr   = "OpListAvailableActions"
 )
 
 func (op Operation) String() string {
@@ -93,6 +96,8 @@ func (op Operation) String() string {
 		return OpRoleRemoveMembersStr
 	case OpRoleRemoveAllMembers:
 		return OpRoleRemoveAllMembersStr
+	case OpListAvailableActions:
+		return OpListAvailableActionsStr
 	default:
 		return fmt.Sprintf("unknown operation: %d", op)
 	}

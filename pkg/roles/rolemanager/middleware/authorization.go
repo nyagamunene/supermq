@@ -5,21 +5,15 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"maps"
 	"time"
 
-	"github.com/absmach/supermq/channels"
-	"github.com/absmach/supermq/clients"
-	"github.com/absmach/supermq/domains"
-	"github.com/absmach/supermq/groups"
 	"github.com/absmach/supermq/pkg/authn"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
 	"github.com/absmach/supermq/pkg/callout"
 	"github.com/absmach/supermq/pkg/errors"
 	"github.com/absmach/supermq/pkg/policies"
 	"github.com/absmach/supermq/pkg/roles"
-	"github.com/absmach/supermq/pkg/svcutil"
 )
 
 var _ roles.RoleManager = (*RoleManagerAuthorizationMiddleware)(nil)
@@ -47,55 +41,7 @@ func NewRoleManagerAuthorizationMiddleware(entityType string, svc roles.RoleMana
 		authz:      authz,
 		opp:        opp,
 	}
-	if err := ram.validate(); err != nil {
-		return RoleManagerAuthorizationMiddleware{}, err
-	}
 	return ram, nil
-}
-
-func addOperationPermissionMap(OperationPerm *any, rolesOpMap any) error {
-	switch op := (*OperationPerm).(type) {
-	case *channels.OperationPerm:
-		mp, ok := rolesOpMap.(map[channels.Operation]channels.Permission)
-		if !ok {
-			return fmt.Errorf("invalid type")
-		}
-		err := op.AddOperationPermissionMap(mp)
-		if err != nil {
-			return fmt.Errorf("failed adding channels operation permission map")
-		}
-	case *domains.OperationPerm:
-		mp, ok := rolesOpMap.(map[domains.Operation]domains.Permission)
-		if !ok {
-			return fmt.Errorf("invalid type")
-		}
-		err := op.AddOperationPermissionMap(mp)
-		if err != nil {
-			return fmt.Errorf("failed adding domains operation permission map")
-		}
-	case *clients.OperationPerm:
-		mp, ok := rolesOpMap.(map[clients.Operation]clients.Permission)
-		if !ok {
-			return fmt.Errorf("invalid type")
-		}
-		err := op.AddOperationPermissionMap(mp)
-		if err != nil {
-			return fmt.Errorf("failed adding clients operation permission map")
-		}
-	case *groups.OperationPerm:
-		mp, ok := rolesOpMap.(map[groups.Operation]groups.Permission)
-		if !ok {
-			return fmt.Errorf("invalid type")
-		}
-		err := op.AddOperationPermissionMap(mp)
-		if err != nil {
-			return fmt.Errorf("failed adding groups operation permission map")
-		}
-	default:
-		return fmt.Errorf("opp does not implement AddOperationPermissionMap method")
-	}
-
-	return nil
 }
 
 func (ram RoleManagerAuthorizationMiddleware) AddRole(ctx context.Context, session authn.Session, entityID, roleName string, optionalActions []string, optionalMembers []string) (roles.RoleProvision, error) {
@@ -119,7 +65,7 @@ func (ram RoleManagerAuthorizationMiddleware) AddRole(ctx context.Context, sessi
 		"optional_members": optionalMembers,
 		"count":            1,
 	}
-	if err := ram.callOut(ctx, session, roles.OpAddRole.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpAddRole.String(), params); err != nil {
 		return roles.RoleProvision{}, err
 	}
 	return ram.svc.AddRole(ctx, session, entityID, roleName, optionalActions, optionalMembers)
@@ -140,7 +86,7 @@ func (ram RoleManagerAuthorizationMiddleware) RemoveRole(ctx context.Context, se
 		"entity_id": entityID,
 		"role_id":   roleID,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRemoveRole.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRemoveRole.String(), params); err != nil {
 		return err
 	}
 	return ram.svc.RemoveRole(ctx, session, entityID, roleID)
@@ -162,7 +108,7 @@ func (ram RoleManagerAuthorizationMiddleware) UpdateRoleName(ctx context.Context
 		"role_id":       roleID,
 		"new_role_name": newRoleName,
 	}
-	if err := ram.callOut(ctx, session, roles.OpUpdateRoleName.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpUpdateRoleName.String(), params); err != nil {
 		return roles.Role{}, err
 	}
 	return ram.svc.UpdateRoleName(ctx, session, entityID, roleID, newRoleName)
@@ -183,7 +129,7 @@ func (ram RoleManagerAuthorizationMiddleware) RetrieveRole(ctx context.Context, 
 		"entity_id": entityID,
 		"role_id":   roleID,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRetrieveRole.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRetrieveRole.String(), params); err != nil {
 		return roles.Role{}, err
 	}
 	return ram.svc.RetrieveRole(ctx, session, entityID, roleID)
@@ -205,7 +151,7 @@ func (ram RoleManagerAuthorizationMiddleware) RetrieveAllRoles(ctx context.Conte
 		"limit":     limit,
 		"offset":    offset,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRetrieveAllRoles.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRetrieveAllRoles.String(), params); err != nil {
 		return roles.RolePage{}, err
 	}
 	return ram.svc.RetrieveAllRoles(ctx, session, entityID, limit, offset)
@@ -213,7 +159,7 @@ func (ram RoleManagerAuthorizationMiddleware) RetrieveAllRoles(ctx context.Conte
 
 func (ram RoleManagerAuthorizationMiddleware) ListAvailableActions(ctx context.Context, session authn.Session) ([]string, error) {
 	params := map[string]any{}
-	if err := ram.callOut(ctx, session, roles.OpListAvailableActions.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpListAvailableActions.String(), params); err != nil {
 		return []string{}, err
 	}
 	return ram.svc.ListAvailableActions(ctx, session)
@@ -236,7 +182,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleAddActions(ctx context.Context
 		"role_id":   roleID,
 		"actions":   actions,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleAddActions.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleAddActions.String(), params); err != nil {
 		return []string{}, err
 	}
 
@@ -259,7 +205,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleListActions(ctx context.Contex
 		"entity_id": entityID,
 		"role_id":   roleID,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleListActions.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleListActions.String(), params); err != nil {
 		return []string{}, err
 	}
 
@@ -282,7 +228,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleCheckActionsExists(ctx context
 		"role_id":   roleID,
 		"actions":   actions,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleCheckActionsExists.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleCheckActionsExists.String(), params); err != nil {
 		return false, err
 	}
 	return ram.svc.RoleCheckActionsExists(ctx, session, entityID, roleID, actions)
@@ -304,7 +250,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleRemoveActions(ctx context.Cont
 		"role_id":   roleID,
 		"actions":   actions,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleRemoveActions.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleRemoveActions.String(), params); err != nil {
 		return err
 	}
 
@@ -326,7 +272,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleRemoveAllActions(ctx context.C
 		"entity_id": entityID,
 		"role_id":   roleID,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleRemoveAllActions.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleRemoveAllActions.String(), params); err != nil {
 		return err
 	}
 	return ram.svc.RoleRemoveAllActions(ctx, session, entityID, roleID)
@@ -352,7 +298,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleAddMembers(ctx context.Context
 		"role_id":   roleID,
 		"members":   members,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleAddMembers.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleAddMembers.String(), params); err != nil {
 		return []string{}, err
 	}
 	return ram.svc.RoleAddMembers(ctx, session, entityID, roleID, members)
@@ -375,7 +321,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleListMembers(ctx context.Contex
 		"limit":     limit,
 		"offset":    offset,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleListMembers.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleListMembers.String(), params); err != nil {
 		return roles.MembersPage{}, err
 	}
 	return ram.svc.RoleListMembers(ctx, session, entityID, roleID, limit, offset)
@@ -397,7 +343,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleCheckMembersExists(ctx context
 		"role_id":   roleID,
 		"members":   members,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleCheckMembersExists.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleCheckMembersExists.String(), params); err != nil {
 		return false, err
 	}
 	return ram.svc.RoleCheckMembersExists(ctx, session, entityID, roleID, members)
@@ -418,7 +364,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleRemoveAllMembers(ctx context.C
 		"entity_id": entityID,
 		"role_id":   roleID,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleRemoveAllMembers.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleRemoveAllMembers.String(), params); err != nil {
 		return err
 	}
 	return ram.svc.RoleRemoveAllMembers(ctx, session, entityID, roleID)
@@ -439,7 +385,7 @@ func (ram RoleManagerAuthorizationMiddleware) ListEntityMembers(ctx context.Cont
 		"entity_id":  entityID,
 		"page_query": pageQuery,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleListMembers.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleListMembers.String(), params); err != nil {
 		return roles.MembersRolePage{}, err
 	}
 	return ram.svc.ListEntityMembers(ctx, session, entityID, pageQuery)
@@ -460,7 +406,7 @@ func (ram RoleManagerAuthorizationMiddleware) RemoveEntityMembers(ctx context.Co
 		"entity_id": entityID,
 		"members":   members,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleRemoveAllMembers.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleRemoveAllMembers.String(), params); err != nil {
 		return err
 	}
 	return ram.svc.RemoveEntityMembers(ctx, session, entityID, members)
@@ -482,7 +428,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleRemoveMembers(ctx context.Cont
 		"role_id":   roleID,
 		"members":   members,
 	}
-	if err := ram.callOut(ctx, session, roles.OpRoleRemoveMembers.String(roles.OperationNames), params); err != nil {
+	if err := ram.callOut(ctx, session, roles.OpRoleRemoveMembers.String(), params); err != nil {
 		return err
 	}
 	return ram.svc.RoleRemoveMembers(ctx, session, entityID, roleID, members)
