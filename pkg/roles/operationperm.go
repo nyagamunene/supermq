@@ -42,7 +42,6 @@ var expectedOperations = []Operation{
 	OpRoleCheckMembersExists,
 	OpRoleRemoveMembers,
 	OpRoleRemoveAllMembers,
-	OpListAvailableActions,
 }
 
 const (

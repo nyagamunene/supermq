@@ -40,6 +40,7 @@ func NewRoleManagerAuthorizationMiddleware(entityType string, svc roles.RoleMana
 		svc:        svc,
 		authz:      authz,
 		opp:        opp,
+		callout:    callout,
 	}
 	return ram, nil
 }
@@ -68,6 +69,7 @@ func (ram RoleManagerAuthorizationMiddleware) AddRole(ctx context.Context, sessi
 	if err := ram.callOut(ctx, session, roles.OpAddRole.String(), params); err != nil {
 		return roles.RoleProvision{}, err
 	}
+
 	return ram.svc.AddRole(ctx, session, entityID, roleName, optionalActions, optionalMembers)
 }
 
