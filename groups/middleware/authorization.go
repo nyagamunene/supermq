@@ -19,7 +19,6 @@ import (
 	"github.com/absmach/supermq/pkg/policies"
 	"github.com/absmach/supermq/pkg/roles"
 	rmMW "github.com/absmach/supermq/pkg/roles/rolemanager/middleware"
-	"github.com/absmach/supermq/pkg/svcutil"
 )
 
 var (
@@ -59,7 +58,8 @@ func AuthorizationMiddleware(entityType string,
 	svc groups.Service,
 	repo groups.Repository,
 	authz smqauthz.Authorization,
-	groupsOpPerm, rolesOpPerm map[groups.Operation]groups.Permission,
+	groupsOpPerm map[groups.Operation]groups.Permission,
+	rolesOpPerm map[roles.Operation]roles.Permission,
 	extOpPerm map[groups.ExternalOperation]groups.Permission,
 	callout callout.Callout,
 ) (groups.Service, error) {
@@ -79,12 +79,7 @@ func AuthorizationMiddleware(entityType string,
 		return nil, err
 	}
 
-	res := make(map[svcutil.Operation]svcutil.Permission, len(rolesOpPerm))
-	for op, perm := range rolesOpPerm {
-		res[svcutil.Operation(op)] = svcutil.Permission(perm)
-	}
-
-	ram, err := rmMW.NewRoleManagerAuthorizationMiddleware(entityType, svc, authz, res, callout)
+	ram, err := rmMW.NewRoleManagerAuthorizationMiddleware(entityType, svc, authz, rolesOpPerm, callout)
 	if err != nil {
 		return nil, err
 	}

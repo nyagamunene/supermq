@@ -5,9 +5,14 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"maps"
 	"time"
 
+	"github.com/absmach/supermq/channels"
+	"github.com/absmach/supermq/clients"
+	"github.com/absmach/supermq/domains"
+	"github.com/absmach/supermq/groups"
 	"github.com/absmach/supermq/pkg/authn"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
 	"github.com/absmach/supermq/pkg/callout"
@@ -24,11 +29,10 @@ type RoleManagerAuthorizationMiddleware struct {
 	svc        roles.RoleManager
 	authz      smqauthz.Authorization
 	callout    callout.Callout
-	opp        svcutil.OperationPerm
+	opp        roles.OperationPerm
 }
 
-// AuthorizationMiddleware adds authorization to the clients service.
-func NewRoleManagerAuthorizationMiddleware(entityType string, svc roles.RoleManager, authz smqauthz.Authorization, opPerm map[svcutil.Operation]svcutil.Permission, callout callout.Callout) (RoleManagerAuthorizationMiddleware, error) {
+func NewRoleManagerAuthorizationMiddleware(entityType string, svc roles.RoleManager, authz smqauthz.Authorization, opPerm map[roles.Operation]roles.Permission, callout callout.Callout) (RoleManagerAuthorizationMiddleware, error) {
 	opp := roles.NewOperationPerm()
 	if err := opp.AddOperationPermissionMap(opPerm); err != nil {
 		return RoleManagerAuthorizationMiddleware{}, err
@@ -42,7 +46,6 @@ func NewRoleManagerAuthorizationMiddleware(entityType string, svc roles.RoleMana
 		svc:        svc,
 		authz:      authz,
 		opp:        opp,
-		callout:    callout,
 	}
 	if err := ram.validate(); err != nil {
 		return RoleManagerAuthorizationMiddleware{}, err
@@ -50,10 +53,48 @@ func NewRoleManagerAuthorizationMiddleware(entityType string, svc roles.RoleMana
 	return ram, nil
 }
 
-func (ram RoleManagerAuthorizationMiddleware) validate() error {
-	if err := ram.opp.Validate(); err != nil {
-		return err
+func addOperationPermissionMap(OperationPerm *any, rolesOpMap any) error {
+	switch op := (*OperationPerm).(type) {
+	case *channels.OperationPerm:
+		mp, ok := rolesOpMap.(map[channels.Operation]channels.Permission)
+		if !ok {
+			return fmt.Errorf("invalid type")
+		}
+		err := op.AddOperationPermissionMap(mp)
+		if err != nil {
+			return fmt.Errorf("failed adding channels operation permission map")
+		}
+	case *domains.OperationPerm:
+		mp, ok := rolesOpMap.(map[domains.Operation]domains.Permission)
+		if !ok {
+			return fmt.Errorf("invalid type")
+		}
+		err := op.AddOperationPermissionMap(mp)
+		if err != nil {
+			return fmt.Errorf("failed adding domains operation permission map")
+		}
+	case *clients.OperationPerm:
+		mp, ok := rolesOpMap.(map[clients.Operation]clients.Permission)
+		if !ok {
+			return fmt.Errorf("invalid type")
+		}
+		err := op.AddOperationPermissionMap(mp)
+		if err != nil {
+			return fmt.Errorf("failed adding clients operation permission map")
+		}
+	case *groups.OperationPerm:
+		mp, ok := rolesOpMap.(map[groups.Operation]groups.Permission)
+		if !ok {
+			return fmt.Errorf("invalid type")
+		}
+		err := op.AddOperationPermissionMap(mp)
+		if err != nil {
+			return fmt.Errorf("failed adding groups operation permission map")
+		}
+	default:
+		return fmt.Errorf("opp does not implement AddOperationPermissionMap method")
 	}
+
 	return nil
 }
 
@@ -106,7 +147,7 @@ func (ram RoleManagerAuthorizationMiddleware) RemoveRole(ctx context.Context, se
 }
 
 func (ram RoleManagerAuthorizationMiddleware) UpdateRoleName(ctx context.Context, session authn.Session, entityID, roleID, newRoleName string) (roles.Role, error) {
-	if err := ram.authorize(ctx, roles.OpUpdateRoleName, smqauthz.PolicyReq{
+	if err := ram.authorize(ctx, roles.OpAddRole, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
@@ -447,7 +488,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleRemoveMembers(ctx context.Cont
 	return ram.svc.RoleRemoveMembers(ctx, session, entityID, roleID, members)
 }
 
-func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, op svcutil.Operation, pr smqauthz.PolicyReq) error {
+func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, op roles.Operation, pr smqauthz.PolicyReq) error {
 	perm, err := ram.opp.GetPermission(op)
 	if err != nil {
 		return err

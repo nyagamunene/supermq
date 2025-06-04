@@ -3,6 +3,8 @@
 
 package groups
 
+import "github.com/absmach/supermq/pkg/roles"
+
 // Internal Operations.
 const (
 	OpViewGroup Operation = iota
@@ -125,41 +127,23 @@ func NewOperationPermissionMap() map[Operation]Permission {
 	return opPerm
 }
 
-const (
-	OpAddRole Operation = iota
-	OpRemoveRole
-	OpUpdateRoleName
-	OpRetrieveRole
-	OpRetrieveAllRoles
-	OpRoleAddActions
-	OpRoleListActions
-	OpRoleCheckActionsExists
-	OpRoleRemoveActions
-	OpRoleRemoveAllActions
-	OpRoleAddMembers
-	OpRoleListMembers
-	OpRoleCheckMembersExists
-	OpRoleRemoveMembers
-	OpRoleRemoveAllMembers
-)
-
-func NewRolesOperationPermissionMap() map[Operation]Permission {
-	opPerm := map[Operation]Permission{
-		OpAddRole:                manageRolePermission,
-		OpRemoveRole:             manageRolePermission,
-		OpUpdateRoleName:         manageRolePermission,
-		OpRetrieveRole:           manageRolePermission,
-		OpRetrieveAllRoles:       manageRolePermission,
-		OpRoleAddActions:         manageRolePermission,
-		OpRoleListActions:        manageRolePermission,
-		OpRoleCheckActionsExists: manageRolePermission,
-		OpRoleRemoveActions:      manageRolePermission,
-		OpRoleRemoveAllActions:   manageRolePermission,
-		OpRoleAddMembers:         addRoleUsersPermission,
-		OpRoleListMembers:        viewRoleUsersPermission,
-		OpRoleCheckMembersExists: viewRoleUsersPermission,
-		OpRoleRemoveMembers:      removeRoleUsersPermission,
-		OpRoleRemoveAllMembers:   manageRolePermission,
+func NewRolesOperationPermissionMap() map[roles.Operation]roles.Permission {
+	opPerm := map[roles.Operation]roles.Permission{
+		roles.OpAddRole:                manageRolePermission,
+		roles.OpRemoveRole:             manageRolePermission,
+		roles.OpUpdateRoleName:         manageRolePermission,
+		roles.OpRetrieveRole:           manageRolePermission,
+		roles.OpRetrieveAllRoles:       manageRolePermission,
+		roles.OpRoleAddActions:         manageRolePermission,
+		roles.OpRoleListActions:        manageRolePermission,
+		roles.OpRoleCheckActionsExists: manageRolePermission,
+		roles.OpRoleRemoveActions:      manageRolePermission,
+		roles.OpRoleRemoveAllActions:   manageRolePermission,
+		roles.OpRoleAddMembers:         addRoleUsersPermission,
+		roles.OpRoleListMembers:        viewRoleUsersPermission,
+		roles.OpRoleCheckMembersExists: viewRoleUsersPermission,
+		roles.OpRoleRemoveMembers:      removeRoleUsersPermission,
+		roles.OpRoleRemoveAllMembers:   manageRolePermission,
 	}
 	return opPerm
 }
