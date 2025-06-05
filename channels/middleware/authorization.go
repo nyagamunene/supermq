@@ -59,7 +59,8 @@ func AuthorizationMiddleware(
 	svc channels.Service,
 	repo channels.Repository,
 	authz smqauthz.Authorization,
-	channelsOpPerm, rolesOpPerm map[channels.Operation]channels.Permission,
+	channelsOpPerm map[channels.Operation]channels.Permission,
+	rolesOpPerm map[svcutil.Operation]svcutil.Permission,
 	extOpPerm map[channels.ExternalOperation]channels.Permission,
 	callout callout.Callout,
 ) (channels.Service, error) {
