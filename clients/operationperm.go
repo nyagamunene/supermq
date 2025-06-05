@@ -135,7 +135,6 @@ func (op ExternalOperation) String() string {
 type ExternalOperationPerm struct {
 	opPerm      map[ExternalOperation]Permission
 	expectedOps []ExternalOperation
-	// opNames     []string
 }
 
 func newExternalOperationPerm(expectedOps []ExternalOperation) ExternalOperationPerm {
