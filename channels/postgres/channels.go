@@ -424,12 +424,6 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
 					%s
 					`, connJoinQuery, pageQuery)
 
-	cq := fmt.Sprintf(`SELECT COUNT(*) AS total_count
-				FROM (
-					%s
-				) AS sub_query;
-				`, comQuery)
-
 	q := applyOrdering(comQuery, pm)
 
 	q = applyLimitOffset(q)
@@ -462,6 +456,12 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
 		}
 	}
 
+	cq := fmt.Sprintf(`SELECT COUNT(*) AS total_count
+				FROM (
+					%s
+				) AS sub_query;
+				`, comQuery)
+
 	total, err := postgres.Total(ctx, cr.db, cq, dbPage)
 	if err != nil {
 		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
@@ -470,12 +470,10 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
 	page := channels.ChannelsPage{
 		Channels: items,
 		Page: channels.Page{
-			Total: total,
+			Total:  total,
+			Offset: pm.Offset,
+			Limit:  pm.Limit,
 		},
-	}
-	if !pm.OnlyTotal {
-		page.Offset = pm.Offset
-		page.Limit = pm.Limit
 	}
 	return page, nil
 }
@@ -543,36 +541,6 @@ func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, u
 				%s
 	`, bq, connJoinQuery, pageQuery)
 
-	cq := fmt.Sprintf(`%s
-						SELECT COUNT(*) AS total_count
-						FROM (
-							SELECT
-								c.id,
-								c.name,
-								c.domain_id,
-								c.parent_group_id,
-								c.route,
-								c.tags,
-								c.metadata,
-								c.created_by,
-								c.created_at,
-								c.updated_at,
-								c.updated_by,
-								c.status,
-								c.parent_group_path,
-								c.role_id,
-								c.role_name,
-								c.actions,
-								c.access_type,
-								c.access_provider_id,
-								c.access_provider_role_id,
-								c.access_provider_role_name,
-								c.access_provider_role_actions
-							%s
-							%s
-						) AS subquery;
-			`, bq, connJoinQuery, pageQuery)
-
 	q = applyOrdering(q, pm)
 
 	q = applyLimitOffset(q)
@@ -606,6 +574,36 @@ func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, u
 		}
 	}
 
+	cq := fmt.Sprintf(`%s
+						SELECT COUNT(*) AS total_count
+						FROM (
+							SELECT
+								c.id,
+								c.name,
+								c.domain_id,
+								c.parent_group_id,
+								c.route,
+								c.tags,
+								c.metadata,
+								c.created_by,
+								c.created_at,
+								c.updated_at,
+								c.updated_by,
+								c.status,
+								c.parent_group_path,
+								c.role_id,
+								c.role_name,
+								c.actions,
+								c.access_type,
+								c.access_provider_id,
+								c.access_provider_role_id,
+								c.access_provider_role_name,
+								c.access_provider_role_actions
+							%s
+							%s
+						) AS subquery;
+			`, bq, connJoinQuery, pageQuery)
+
 	total, err := postgres.Total(ctx, repo.db, cq, dbPage)
 	if err != nil {
 		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
@@ -614,13 +612,10 @@ func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, u
 	page := channels.ChannelsPage{
 		Channels: items,
 		Page: channels.Page{
-			Total: total,
+			Total:  total,
+			Offset: pm.Offset,
+			Limit:  pm.Limit,
 		},
-	}
-
-	if !pm.OnlyTotal {
-		page.Offset = pm.Offset
-		page.Limit = pm.Limit
 	}
 
 	return page, nil
