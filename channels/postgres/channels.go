@@ -439,39 +439,27 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
 		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
-	if pm.OnlyTotal {
-		total, err := postgres.Total(ctx, cr.db, cq, dbPage)
-		if err != nil {
-			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		return channels.ChannelsPage{
-			Channels: nil,
-			Page: channels.Page{
-				Total: total,
-			},
-		}, nil
-	}
-
-	rows, err := cr.db.NamedQueryContext(ctx, q, dbPage)
-	if err != nil {
-		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
-	defer rows.Close()
-
 	var items []channels.Channel
-	for rows.Next() {
-		dbch := dbChannel{}
-		if err := rows.StructScan(&dbch); err != nil {
-			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		ch, err := toChannel(dbch)
+	if !pm.OnlyTotal {
+		rows, err := cr.db.NamedQueryContext(ctx, q, dbPage)
 		if err != nil {
-			return channels.ChannelsPage{}, err
+			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 		}
+		defer rows.Close()
 
-		items = append(items, ch)
+		for rows.Next() {
+			dbch := dbChannel{}
+			if err := rows.StructScan(&dbch); err != nil {
+				return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			}
+
+			ch, err := toChannel(dbch)
+			if err != nil {
+				return channels.ChannelsPage{}, err
+			}
+
+			items = append(items, ch)
+		}
 	}
 
 	total, err := postgres.Total(ctx, cr.db, cq, dbPage)
@@ -482,10 +470,12 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
 	page := channels.ChannelsPage{
 		Channels: items,
 		Page: channels.Page{
-			Total:  total,
-			Offset: pm.Offset,
-			Limit:  pm.Limit,
+			Total: total,
 		},
+	}
+	if !pm.OnlyTotal {
+		page.Offset = pm.Offset
+		page.Limit = pm.Limit
 	}
 	return page, nil
 }
@@ -592,39 +582,29 @@ func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, u
 		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 	}
 
-	if pm.OnlyTotal {
-		total, err := postgres.Total(ctx, repo.db, cq, dbPage)
-		if err != nil {
-			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		return channels.ChannelsPage{
-			Channels: nil,
-			Page: channels.Page{
-				Total: total,
-			},
-		}, nil
-	}
-
-	rows, err := repo.db.NamedQueryContext(ctx, q, dbPage)
-	if err != nil {
-		return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
-	}
-	defer rows.Close()
-
 	var items []channels.Channel
-	for rows.Next() {
-		dbc := dbChannel{}
-		if err := rows.StructScan(&dbc); err != nil {
+
+	if !pm.OnlyTotal {
+
+		rows, err := repo.db.NamedQueryContext(ctx, q, dbPage)
+		if err != nil {
 			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
 		}
+		defer rows.Close()
 
-		c, err := toChannel(dbc)
-		if err != nil {
-			return channels.ChannelsPage{}, err
+		for rows.Next() {
+			dbc := dbChannel{}
+			if err := rows.StructScan(&dbc); err != nil {
+				return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			}
+
+			c, err := toChannel(dbc)
+			if err != nil {
+				return channels.ChannelsPage{}, err
+			}
+
+			items = append(items, c)
 		}
-
-		items = append(items, c)
 	}
 
 	total, err := postgres.Total(ctx, repo.db, cq, dbPage)
@@ -635,10 +615,13 @@ func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, u
 	page := channels.ChannelsPage{
 		Channels: items,
 		Page: channels.Page{
-			Total:  total,
-			Offset: pm.Offset,
-			Limit:  pm.Limit,
+			Total: total,
 		},
+	}
+
+	if !pm.OnlyTotal {
+		page.Offset = pm.Offset
+		page.Limit = pm.Limit
 	}
 
 	return page, nil

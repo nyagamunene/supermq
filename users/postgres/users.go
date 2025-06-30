@@ -128,39 +128,27 @@ func (repo *userRepo) RetrieveAll(ctx context.Context, pm users.Page) (users.Use
 		return users.UsersPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
-	if pm.OnlyTotal {
-		total, err := postgres.Total(ctx, repo.Repository.DB, cq, dbPage)
-		if err != nil {
-			return users.UsersPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		return users.UsersPage{
-			Users: nil,
-			Page: users.Page{
-				Total: total,
-			},
-		}, nil
-	}
-
-	rows, err := repo.Repository.DB.NamedQueryContext(ctx, q, dbPage)
-	if err != nil {
-		return users.UsersPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
-	defer rows.Close()
-
 	var items []users.User
-	for rows.Next() {
-		dbu := DBUser{}
-		if err := rows.StructScan(&dbu); err != nil {
-			return users.UsersPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		c, err := ToUser(dbu)
+	if pm.OnlyTotal {
+		rows, err := repo.Repository.DB.NamedQueryContext(ctx, q, dbPage)
 		if err != nil {
-			return users.UsersPage{}, err
+			return users.UsersPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 		}
+		defer rows.Close()
 
-		items = append(items, c)
+		for rows.Next() {
+			dbu := DBUser{}
+			if err := rows.StructScan(&dbu); err != nil {
+				return users.UsersPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			}
+
+			c, err := ToUser(dbu)
+			if err != nil {
+				return users.UsersPage{}, err
+			}
+
+			items = append(items, c)
+		}
 	}
 
 	total, err := postgres.Total(ctx, repo.Repository.DB, cq, dbPage)
@@ -170,11 +158,14 @@ func (repo *userRepo) RetrieveAll(ctx context.Context, pm users.Page) (users.Use
 
 	page := users.UsersPage{
 		Page: users.Page{
-			Total:  total,
-			Offset: pm.Offset,
-			Limit:  pm.Limit,
+			Total: total,
 		},
 		Users: items,
+	}
+
+	if !pm.OnlyTotal {
+		page.Offset = pm.Offset
+		page.Limit = pm.Limit
 	}
 
 	return page, nil
