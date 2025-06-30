@@ -585,7 +585,6 @@ func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, u
 	var items []channels.Channel
 
 	if !pm.OnlyTotal {
-
 		rows, err := repo.db.NamedQueryContext(ctx, q, dbPage)
 		if err != nil {
 			return channels.ChannelsPage{}, errors.Wrap(repoerr.ErrViewEntity, err)
