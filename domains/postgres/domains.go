@@ -355,32 +355,22 @@ func (repo domainRepo) ListDomains(ctx context.Context, pm domains.Page) (domain
 	if err != nil {
 		return domains.DomainsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
+	var doms []domains.Domain
+	if !pm.OnlyTotal {
+		rows, err := repo.db.NamedQueryContext(ctx, q, dbPage)
+		if err != nil {
+			return domains.DomainsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+		}
+		defer rows.Close()
 
-	if pm.OnlyTotal {
-		total, err := postgres.Total(ctx, repo.db, cq, dbPage)
+		doms, err = repo.processRows(rows)
 		if err != nil {
 			return domains.DomainsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 		}
 
-		return domains.DomainsPage{
-			Total:   total,
-			Domains: nil,
-		}, nil
-	}
-
-	rows, err := repo.db.NamedQueryContext(ctx, q, dbPage)
-	if err != nil {
-		return domains.DomainsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
-	defer rows.Close()
-
-	doms, err := repo.processRows(rows)
-	if err != nil {
-		return domains.DomainsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
-
-	if pm.UserID != "" {
-		cq = repo.userDomainsBaseQuery() + cq
+		if pm.UserID != "" {
+			cq = repo.userDomainsBaseQuery() + cq
+		}
 	}
 
 	total, err := postgres.Total(ctx, repo.db, cq, dbPage)
@@ -388,12 +378,16 @@ func (repo domainRepo) ListDomains(ctx context.Context, pm domains.Page) (domain
 		return domains.DomainsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
-	return domains.DomainsPage{
+	page := domains.DomainsPage{
 		Total:   total,
-		Offset:  pm.Offset,
-		Limit:   pm.Limit,
 		Domains: doms,
-	}, nil
+	}
+
+	if !pm.OnlyTotal {
+		page.Offset = pm.Offset
+		page.Limit = pm.Limit
+	}
+	return page, nil
 }
 
 // UpdateDomain updates the client name and metadata.

@@ -88,31 +88,22 @@ func (repo domainRepo) RetrieveAllInvitations(ctx context.Context, pm domains.In
 			dr.id = i.role_id   %s
 		`, query)
 
+	var items []domains.Invitation
+
 	if pm.OnlyTotal {
-		total, err := postgres.Total(ctx, repo.db, tq, pm)
+		rows, err := repo.db.NamedQueryContext(ctx, q, pm)
 		if err != nil {
 			return domains.InvitationPage{}, postgres.HandleError(repoerr.ErrViewEntity, err)
 		}
+		defer rows.Close()
 
-		return domains.InvitationPage{
-			Total:       total,
-			Invitations: nil,
-		}, nil
-	}
-
-	rows, err := repo.db.NamedQueryContext(ctx, q, pm)
-	if err != nil {
-		return domains.InvitationPage{}, postgres.HandleError(repoerr.ErrViewEntity, err)
-	}
-	defer rows.Close()
-
-	var items []domains.Invitation
-	for rows.Next() {
-		var dbinv dbInvitation
-		if err = rows.StructScan(&dbinv); err != nil {
-			return domains.InvitationPage{}, postgres.HandleError(repoerr.ErrViewEntity, err)
+		for rows.Next() {
+			var dbinv dbInvitation
+			if err = rows.StructScan(&dbinv); err != nil {
+				return domains.InvitationPage{}, postgres.HandleError(repoerr.ErrViewEntity, err)
+			}
+			items = append(items, toInvitation(dbinv))
 		}
-		items = append(items, toInvitation(dbinv))
 	}
 
 	total, err := postgres.Total(ctx, repo.db, tq, pm)
@@ -122,9 +113,11 @@ func (repo domainRepo) RetrieveAllInvitations(ctx context.Context, pm domains.In
 
 	invPage := domains.InvitationPage{
 		Total:       total,
-		Offset:      pm.Offset,
-		Limit:       pm.Limit,
 		Invitations: items,
+	}
+	if !pm.OnlyTotal {
+		invPage.Offset = pm.Offset
+		invPage.Limit = pm.Limit
 	}
 
 	return invPage, nil

@@ -426,28 +426,18 @@ func (repo groupRepository) RetrieveAll(ctx context.Context, pm groups.PageMeta)
 		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
-	if pm.OnlyTotal {
-		total, err := postgres.Total(ctx, repo.db, cq, dbPageMeta)
+	var items []groups.Group
+	if !pm.OnlyTotal {
+		rows, err := repo.db.NamedQueryContext(ctx, q, dbPageMeta)
 		if err != nil {
-			return groups.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
+			return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 		}
+		defer rows.Close()
 
-		return groups.Page{
-			Groups: nil,
-			PageMeta: groups.PageMeta{
-				Total: total,
-			},
-		}, nil
-	}
-	rows, err := repo.db.NamedQueryContext(ctx, q, dbPageMeta)
-	if err != nil {
-		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
-	defer rows.Close()
-
-	items, err := repo.processRows(rows)
-	if err != nil {
-		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+		items, err = repo.processRows(rows)
+		if err != nil {
+			return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+		}
 	}
 
 	total, err := postgres.Total(ctx, repo.db, cq, dbPageMeta)
@@ -455,9 +445,16 @@ func (repo groupRepository) RetrieveAll(ctx context.Context, pm groups.PageMeta)
 		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
-	page := groups.Page{PageMeta: pm}
-	page.Total = total
-	page.Groups = items
+	page := groups.Page{
+		PageMeta: groups.PageMeta{
+			Total: total,
+		},
+		Groups: items,
+	}
+	if !pm.OnlyTotal {
+		page.Offset = pm.Offset
+		page.Limit = pm.Limit
+	}
 	return page, nil
 }
 
