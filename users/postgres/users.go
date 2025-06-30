@@ -121,7 +121,6 @@ func (repo *userRepo) RetrieveAll(ctx context.Context, pm users.Page) (users.Use
     u.created_at, u.updated_at, u.profile_picture, COALESCE(u.updated_by, '') AS updated_by
     FROM users u %s ORDER BY u.created_at LIMIT :limit OFFSET :offset;`, query)
 
-	cq := fmt.Sprintf(`SELECT COUNT(*) FROM users u %s;`, query)
 
 	dbPage, err := ToDBUsersPage(pm)
 	if err != nil {
@@ -150,6 +149,8 @@ func (repo *userRepo) RetrieveAll(ctx context.Context, pm users.Page) (users.Use
 			items = append(items, c)
 		}
 	}
+
+	cq := fmt.Sprintf(`SELECT COUNT(*) FROM users u %s;`, query)
 
 	total, err := postgres.Total(ctx, repo.Repository.DB, cq, dbPage)
 	if err != nil {

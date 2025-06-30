@@ -77,19 +77,7 @@ func (repo domainRepo) RetrieveAllInvitations(ctx context.Context, pm domains.In
 		LIMIT :limit OFFSET :offset;
 		`, query)
 
-	tq := fmt.Sprintf(`
-		SELECT
-			COUNT(*)
-		FROM
-			invitations i
-		LEFT JOIN domains d ON
-			i.domain_id = d.id
-		LEFT JOIN domains_roles dr ON
-			dr.id = i.role_id   %s
-		`, query)
-
 	var items []domains.Invitation
-
 	if pm.OnlyTotal {
 		rows, err := repo.db.NamedQueryContext(ctx, q, pm)
 		if err != nil {
@@ -106,6 +94,17 @@ func (repo domainRepo) RetrieveAllInvitations(ctx context.Context, pm domains.In
 		}
 	}
 
+	tq := fmt.Sprintf(`
+		SELECT
+			COUNT(*)
+		FROM
+			invitations i
+		LEFT JOIN domains d ON
+			i.domain_id = d.id
+		LEFT JOIN domains_roles dr ON
+			dr.id = i.role_id   %s
+		`, query)
+
 	total, err := postgres.Total(ctx, repo.db, tq, pm)
 	if err != nil {
 		return domains.InvitationPage{}, postgres.HandleError(repoerr.ErrViewEntity, err)
@@ -113,11 +112,9 @@ func (repo domainRepo) RetrieveAllInvitations(ctx context.Context, pm domains.In
 
 	invPage := domains.InvitationPage{
 		Total:       total,
+		Offset:      pm.Offset,
+		Limit:       pm.Limit,
 		Invitations: items,
-	}
-	if !pm.OnlyTotal {
-		invPage.Offset = pm.Offset
-		invPage.Limit = pm.Limit
 	}
 
 	return invPage, nil

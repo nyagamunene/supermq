@@ -414,13 +414,6 @@ func (repo groupRepository) RetrieveAll(ctx context.Context, pm groups.PageMeta)
 	q = fmt.Sprintf(`SELECT DISTINCT g.id, g.domain_id, tags, COALESCE(g.parent_id, '') AS parent_id, g.name, g.description,
 		g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g %s ORDER BY g.created_at LIMIT :limit OFFSET :offset;`, query)
 
-	cq := fmt.Sprintf(`	SELECT COUNT(*) AS total_count
-						FROM (
-							SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.tags, g.description,
-							g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g %s
-						) AS subquery;
-						`, query)
-
 	dbPageMeta, err := toDBGroupPageMeta(pm)
 	if err != nil {
 		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
@@ -440,21 +433,21 @@ func (repo groupRepository) RetrieveAll(ctx context.Context, pm groups.PageMeta)
 		}
 	}
 
+	cq := fmt.Sprintf(`	SELECT COUNT(*) AS total_count
+						FROM (
+							SELECT DISTINCT g.id, g.domain_id, COALESCE(g.parent_id, '') AS parent_id, g.name, g.tags, g.description,
+							g.metadata, g.created_at, g.updated_at, g.updated_by, g.status FROM groups g %s
+						) AS subquery;
+						`, query)
+
 	total, err := postgres.Total(ctx, repo.db, cq, dbPageMeta)
 	if err != nil {
 		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
 
-	page := groups.Page{
-		PageMeta: groups.PageMeta{
-			Total: total,
-		},
-		Groups: items,
-	}
-	if !pm.OnlyTotal {
-		page.Offset = pm.Offset
-		page.Limit = pm.Limit
-	}
+	page := groups.Page{PageMeta: pm}
+	page.Total = total
+	page.Groups = items
 	return page, nil
 }
 
@@ -872,6 +865,25 @@ func (repo groupRepository) retrieveGroups(ctx context.Context, domainID, userID
 					`,
 		baseQuery, query)
 
+	dbPageMeta, err := toDBGroupPageMeta(pm)
+	if err != nil {
+		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+	}
+
+	var items []groups.Group
+	if !pm.OnlyTotal {
+		rows, err := repo.db.NamedQueryContext(ctx, q, dbPageMeta)
+		if err != nil {
+			return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+		}
+		defer rows.Close()
+
+		items, err = repo.processRows(rows)
+		if err != nil {
+			return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
+		}
+	}
+
 	cq := fmt.Sprintf(`%s
 						SELECT COUNT(*) AS total_count
 						FROM (
@@ -901,35 +913,6 @@ func (repo groupRepository) retrieveGroups(ctx context.Context, domainID, userID
 							%s
 						) AS subquery;
 						`, baseQuery, query)
-
-	dbPageMeta, err := toDBGroupPageMeta(pm)
-	if err != nil {
-		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
-	if pm.OnlyTotal {
-		total, err := postgres.Total(ctx, repo.db, cq, dbPageMeta)
-		if err != nil {
-			return groups.Page{}, errors.Wrap(repoerr.ErrViewEntity, err)
-		}
-
-		return groups.Page{
-			Groups: nil,
-			PageMeta: groups.PageMeta{
-				Total: total,
-			},
-		}, nil
-	}
-
-	rows, err := repo.db.NamedQueryContext(ctx, q, dbPageMeta)
-	if err != nil {
-		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
-	defer rows.Close()
-
-	items, err := repo.processRows(rows)
-	if err != nil {
-		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
-	}
 
 	total, err := postgres.Total(ctx, repo.db, cq, dbPageMeta)
 	if err != nil {
