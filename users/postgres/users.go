@@ -121,7 +121,6 @@ func (repo *userRepo) RetrieveAll(ctx context.Context, pm users.Page) (users.Use
     u.created_at, u.updated_at, u.profile_picture, COALESCE(u.updated_by, '') AS updated_by
     FROM users u %s ORDER BY u.created_at LIMIT :limit OFFSET :offset;`, query)
 
-
 	dbPage, err := ToDBUsersPage(pm)
 	if err != nil {
 		return users.UsersPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
