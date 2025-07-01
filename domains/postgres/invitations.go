@@ -78,7 +78,7 @@ func (repo domainRepo) RetrieveAllInvitations(ctx context.Context, pm domains.In
 		`, query)
 
 	var items []domains.Invitation
-	if pm.OnlyTotal {
+	if !pm.OnlyTotal {
 		rows, err := repo.db.NamedQueryContext(ctx, q, pm)
 		if err != nil {
 			return domains.InvitationPage{}, postgres.HandleError(repoerr.ErrViewEntity, err)

@@ -158,14 +158,11 @@ func (repo *userRepo) RetrieveAll(ctx context.Context, pm users.Page) (users.Use
 
 	page := users.UsersPage{
 		Page: users.Page{
-			Total: total,
+			Total:  total,
+			Offset: pm.Offset,
+			Limit:  pm.Limit,
 		},
 		Users: items,
-	}
-
-	if !pm.OnlyTotal {
-		page.Offset = pm.Offset
-		page.Limit = pm.Limit
 	}
 
 	return page, nil

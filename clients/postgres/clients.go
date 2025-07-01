@@ -494,12 +494,10 @@ func (repo *clientRepo) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 	page := clients.ClientsPage{
 		Clients: items,
 		Page: clients.Page{
-			Total: total,
+			Total:  total,
+			Offset: pm.Offset,
+			Limit:  pm.Limit,
 		},
-	}
-	if !pm.OnlyTotal {
-		page.Offset = pm.Offset
-		page.Limit = pm.Limit
 	}
 	return page, nil
 }
@@ -637,13 +635,10 @@ func (repo *clientRepo) retrieveClients(ctx context.Context, domainID, userID st
 	page := clients.ClientsPage{
 		Clients: items,
 		Page: clients.Page{
-			Total: total,
+			Total:  total,
+			Offset: pm.Offset,
+			Limit:  pm.Limit,
 		},
-	}
-
-	if !pm.OnlyTotal {
-		page.Offset = pm.Offset
-		page.Limit = pm.Limit
 	}
 
 	return page, nil
