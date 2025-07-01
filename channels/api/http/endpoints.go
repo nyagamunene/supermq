@@ -117,14 +117,13 @@ func listChannelsEndpoint(svc channels.Service) endpoint.Endpoint {
 
 		res := channelsPageRes{
 			pageRes: pageRes{
-				Total: page.Total,
+				Total:  page.Total,
+				Offset: page.Offset,
+				Limit:  page.Limit,
 			},
 			Channels: []viewChannelRes{},
 		}
-		if !req.Page.OnlyTotal {
-			res.Offset = page.Offset
-			res.Limit = page.Limit
-		}
+
 		for _, c := range page.Channels {
 			res.Channels = append(res.Channels, viewChannelRes{Channel: c})
 		}

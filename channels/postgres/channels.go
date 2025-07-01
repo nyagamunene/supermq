@@ -457,10 +457,10 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
 	}
 
 	cq := fmt.Sprintf(`SELECT COUNT(*) AS total_count
-				FROM (
-					%s
-				) AS sub_query;
-				`, comQuery)
+			FROM (
+				%s
+			) AS sub_query;
+			`, comQuery)
 
 	total, err := postgres.Total(ctx, cr.db, cq, dbPage)
 	if err != nil {

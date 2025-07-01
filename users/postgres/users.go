@@ -127,7 +127,7 @@ func (repo *userRepo) RetrieveAll(ctx context.Context, pm users.Page) (users.Use
 	}
 
 	var items []users.User
-	if pm.OnlyTotal {
+	if !pm.OnlyTotal {
 		rows, err := repo.Repository.DB.NamedQueryContext(ctx, q, dbPage)
 		if err != nil {
 			return users.UsersPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
