@@ -123,7 +123,6 @@ func listClientsEndpoint(svc clients.Service) endpoint.Endpoint {
 			},
 			Clients: []viewClientRes{},
 		}
-
 		for _, c := range page.Clients {
 			res.Clients = append(res.Clients, viewClientRes{Client: c})
 		}

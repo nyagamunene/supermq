@@ -864,7 +864,6 @@ func (repo groupRepository) retrieveGroups(ctx context.Context, domainID, userID
 					OFFSET :offset;
 					`,
 		baseQuery, query)
-
 	dbPageMeta, err := toDBGroupPageMeta(pm)
 	if err != nil {
 		return groups.Page{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)

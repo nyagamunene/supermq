@@ -123,7 +123,6 @@ func listChannelsEndpoint(svc channels.Service) endpoint.Endpoint {
 			},
 			Channels: []viewChannelRes{},
 		}
-
 		for _, c := range page.Channels {
 			res.Channels = append(res.Channels, viewChannelRes{Channel: c})
 		}
