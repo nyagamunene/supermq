@@ -289,14 +289,15 @@ func TestRetrieveAllInvitations(t *testing.T) {
 		{
 			desc: "retrieve invitations successfully",
 			page: domains.InvitationPageMeta{
-				Offset: 0,
-				Limit:  10,
+				Offset:    0,
+				Limit:     1,
+				OnlyTotal: false,
 			},
 			response: domains.InvitationPage{
 				Total:       uint64(num),
 				Offset:      0,
-				Limit:       10,
-				Invitations: items[:10],
+				Limit:       1,
+				Invitations: items[:1],
 			},
 			err: nil,
 		},
