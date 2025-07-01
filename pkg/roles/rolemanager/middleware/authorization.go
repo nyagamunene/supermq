@@ -24,7 +24,7 @@ type RoleManagerAuthorizationMiddleware struct {
 	svc        roles.RoleManager
 	authz      smqauthz.Authorization
 	callout    callout.Callout
-	opp        svcutil.OperationPerm
+	opp        svcutil.Operations[svcutil.RoleOperation]
 }
 
 // AuthorizationMiddleware adds authorization to the clients service.
