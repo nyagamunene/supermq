@@ -499,6 +499,7 @@ func (repo *clientRepo) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 			Limit:  pm.Limit,
 		},
 	}
+
 	return page, nil
 }
 
