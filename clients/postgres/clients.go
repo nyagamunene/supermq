@@ -456,7 +456,6 @@ func (repo *clientRepo) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 	if err != nil {
 		return clients.ClientsPage{}, errors.Wrap(repoerr.ErrFailedToRetrieveAllGroups, err)
 	}
-
 	var items []clients.Client
 	if !pm.OnlyTotal {
 		rows, err := repo.DB.NamedQueryContext(ctx, q, dbPage)
@@ -479,7 +478,6 @@ func (repo *clientRepo) RetrieveAll(ctx context.Context, pm clients.Page) (clien
 			items = append(items, c)
 		}
 	}
-
 	cq := fmt.Sprintf(`SELECT COUNT(*) AS total_count
 			FROM (
 				%s
