@@ -14,12 +14,9 @@ import (
 	api "github.com/absmach/supermq/api/http"
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/groups"
-	"github.com/absmach/supermq/internal/nullable"
 	"github.com/absmach/supermq/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
-
-var description = "random"
 
 func TestDecodeListGroupsRequest(t *testing.T) {
 	cases := []struct {
@@ -298,8 +295,6 @@ func TestDecodePageMeta(t *testing.T) {
 }
 
 func TestDecodeGroupCreate(t *testing.T) {
-	desc = nullable.Value[string]{Set: true, Value: description}
-
 	cases := []struct {
 		desc   string
 		body   string
@@ -355,8 +350,6 @@ func TestDecodeGroupCreate(t *testing.T) {
 }
 
 func TestDecodeGroupUpdate(t *testing.T) {
-	desc = nullable.Value[string]{Set: true, Value: description}
-
 	cases := []struct {
 		desc   string
 		body   string

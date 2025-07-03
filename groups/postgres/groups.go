@@ -1184,16 +1184,12 @@ func toDBGroup(g groups.Group) (dbGroup, error) {
 	if g.UpdatedBy != "" {
 		updatedBy = &g.UpdatedBy
 	}
-	var desc sql.NullString
-	if g.Description.Set {
-		desc = sql.NullString{String: g.Description.Value, Valid: true}
-	}
 	return dbGroup{
 		ID:          g.ID,
 		Name:        g.Name,
 		ParentID:    parentID,
 		DomainID:    g.Domain,
-		Description: desc,
+		Description: sql.NullString{String: g.Description.Value, Valid: g.Description.Set},
 		Tags:        tags,
 		Metadata:    data,
 		Path:        g.Path,
@@ -1235,17 +1231,12 @@ func toGroup(g dbGroup) (groups.Group, error) {
 		}
 	}
 
-	var desc nullable.Value[string]
-	if g.Description.Valid {
-		desc = nullable.Value[string]{Value: g.Description.String, Set: g.Description.Valid}
-	}
-
 	return groups.Group{
 		ID:                        g.ID,
 		Name:                      g.Name,
 		Parent:                    parentID,
 		Domain:                    g.DomainID,
-		Description:               desc,
+		Description:               nullable.Value[string]{Value: g.Description.String, Set: g.Description.Valid},
 		Tags:                      tags,
 		Metadata:                  metadata,
 		Level:                     g.Level,
