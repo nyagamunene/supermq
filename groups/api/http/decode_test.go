@@ -359,7 +359,7 @@ func TestDecodeGroupUpdate(t *testing.T) {
 	}{
 		{
 			desc: "valid request",
-			body: `{"name": "random", "description": "random"}`,
+			body: `{"name": "random", "description": "valid"}`,
 			header: map[string][]string{
 				"Authorization": {"Bearer 123"},
 				"Content-Type":  {api.ContentType},
@@ -372,7 +372,7 @@ func TestDecodeGroupUpdate(t *testing.T) {
 		},
 		{
 			desc: "invalid content type",
-			body: `{"name": "random", "description": "random"}`,
+			body: `{"name": "random", "description": "valid"}`,
 			header: map[string][]string{
 				"Authorization": {"Bearer 123"},
 				"Content-Type":  {"text/plain"},
