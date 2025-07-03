@@ -455,7 +455,6 @@ func (cr *channelRepository) RetrieveAll(ctx context.Context, pm channels.Page) 
 			items = append(items, ch)
 		}
 	}
-
 	cq := fmt.Sprintf(`SELECT COUNT(*) AS total_count
 			FROM (
 				%s
@@ -551,7 +550,6 @@ func (repo *channelRepository) retrieveChannels(ctx context.Context, domainID, u
 	}
 
 	var items []channels.Channel
-
 	if !pm.OnlyTotal {
 		rows, err := repo.db.NamedQueryContext(ctx, q, dbPage)
 		if err != nil {
