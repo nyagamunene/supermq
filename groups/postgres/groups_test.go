@@ -23,12 +23,15 @@ import (
 )
 
 var (
-	namegen        = namegenerator.NewGenerator()
-	invalidID      = strings.Repeat("a", 37)
-	validTimestamp = time.Now().UTC().Truncate(time.Millisecond)
-	description    = strings.Repeat("a", 64)
-	desc           = nullable.Value[string]{Set: true, Value: description}
-	validGroup     = groups.Group{
+	namegen            = namegenerator.NewGenerator()
+	invalidID          = strings.Repeat("a", 37)
+	validTimestamp     = time.Now().UTC().Truncate(time.Millisecond)
+	description        = strings.Repeat("a", 64)
+	desc               = nullable.Value[string]{Set: true, Value: description}
+	invalidDescription = strings.Repeat("a", 1025)
+	invalidDesc        = nullable.Value[string]{Set: true, Value: invalidDescription}
+
+	validGroup = groups.Group{
 		ID:          testsutil.GenerateUUID(&testing.T{}),
 		Domain:      testsutil.GenerateUUID(&testing.T{}),
 		Name:        namegen.Generate(),
@@ -87,9 +90,6 @@ func TestSave(t *testing.T) {
 	validChildGroupRes.Path = fmt.Sprintf("%s.%s", pgroup.Path, validChildGroupRes.ID)
 	validChildGroupRes.Level = 2
 	duplicateGroupID := testsutil.GenerateUUID(t)
-
-	invalidDescription := strings.Repeat("a", 1025)
-	invalidDesc := nullable.Value[string]{Set: true,Value: invalidDescription}
 
 	cases := []struct {
 		desc  string
