@@ -109,10 +109,7 @@ func convertGroup(g sdk.Group) groups.Group {
 	}
 	var desc nullable.Value[string]
 	if g.Description != "" {
-		desc, err = nullable.ParseString(g.Description)
-		if err != nil {
-			return groups.Group{}
-		}
+		desc, _ = nullable.ParseString(g.Description)
 	}
 
 	return groups.Group{

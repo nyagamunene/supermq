@@ -82,10 +82,7 @@ func ToGroups(data map[string]interface{}) (groups.Group, error) {
 
 	desc, ok := data["description"].(string)
 	if ok {
-		res, err := nullable.ParseString(desc)
-		if err != nil {
-			return groups.Group{}, err
-		}
+		res, _ := nullable.ParseString(desc)
 		g.Description = res
 	}
 

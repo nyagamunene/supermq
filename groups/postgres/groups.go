@@ -1236,11 +1236,8 @@ func toGroup(g dbGroup) (groups.Group, error) {
 	}
 
 	var desc nullable.Value[string]
-	var err error
 	if g.Description.Valid {
-		if desc, err = nullable.ParseString(g.Description.String); err != nil {
-			return groups.Group{}, errors.Wrap(errors.ErrMalformedEntity, err)
-		}
+		desc = nullable.Value[string]{Value: g.Description.String, Set: g.Description.Valid}
 	}
 
 	return groups.Group{

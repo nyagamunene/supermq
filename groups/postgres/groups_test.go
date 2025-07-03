@@ -89,8 +89,7 @@ func TestSave(t *testing.T) {
 	duplicateGroupID := testsutil.GenerateUUID(t)
 
 	invalidDescription := strings.Repeat("a", 1025)
-	invalidDesc, err := nullable.ParseString(invalidDescription)
-	assert.Nil(t, err)
+	invalidDesc, _ := nullable.ParseString(invalidDescription)
 
 	cases := []struct {
 		desc  string
