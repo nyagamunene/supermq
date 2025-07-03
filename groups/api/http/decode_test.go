@@ -298,8 +298,7 @@ func TestDecodePageMeta(t *testing.T) {
 }
 
 func TestDecodeGroupCreate(t *testing.T) {
-	desc, err := nullable.ParseString(description)
-	assert.Nil(t, err)
+	desc = nullable.Value[string]{Set: true, Value: description}
 
 	cases := []struct {
 		desc   string
@@ -356,8 +355,7 @@ func TestDecodeGroupCreate(t *testing.T) {
 }
 
 func TestDecodeGroupUpdate(t *testing.T) {
-	desc, err := nullable.ParseString(description)
-	assert.Nil(t, err)
+	desc = nullable.Value[string]{Set: true, Value: description}
 
 	cases := []struct {
 		desc   string

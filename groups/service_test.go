@@ -36,7 +36,7 @@ var (
 	idProvider  = uuid.New()
 	namegen     = namegenerator.NewGenerator()
 	description = namegen.Generate()
-	desc, _     = nullable.ParseString(description)
+	desc        = nullable.Value[string]{Set: true, Value: description}
 	validGroup  = groups.Group{
 		ID:          testsutil.GenerateUUID(&testing.T{}),
 		Name:        namegen.Generate(),

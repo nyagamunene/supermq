@@ -77,7 +77,7 @@ func TestCreateGroup(t *testing.T) {
 		"key": make(chan int),
 	}
 
-	desc, _ := nullable.ParseString(description)
+	desc := nullable.Value[string]{Set: true, Value: description}
 
 	cases := []struct {
 		desc            string
@@ -681,8 +681,7 @@ func TestUpdateGroup(t *testing.T) {
 
 	group.ID = generateUUID(t)
 
-	updatedDesc, err := nullable.ParseString(updatedDescription)
-	assert.Nil(t, err)
+	updatedDesc := nullable.Value[string]{Set: true, Value: updatedDescription}
 
 	cases := []struct {
 		desc            string

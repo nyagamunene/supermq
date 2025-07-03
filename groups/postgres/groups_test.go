@@ -27,7 +27,7 @@ var (
 	invalidID      = strings.Repeat("a", 37)
 	validTimestamp = time.Now().UTC().Truncate(time.Millisecond)
 	description    = strings.Repeat("a", 64)
-	desc, _        = nullable.ParseString(description)
+	desc           = nullable.Value[string]{Set: true, Value: description}
 	validGroup     = groups.Group{
 		ID:          testsutil.GenerateUUID(&testing.T{}),
 		Domain:      testsutil.GenerateUUID(&testing.T{}),
@@ -89,7 +89,7 @@ func TestSave(t *testing.T) {
 	duplicateGroupID := testsutil.GenerateUUID(t)
 
 	invalidDescription := strings.Repeat("a", 1025)
-	invalidDesc, _ := nullable.ParseString(invalidDescription)
+	invalidDesc := nullable.Value[string]{Set: true,Value: invalidDescription}
 
 	cases := []struct {
 		desc  string

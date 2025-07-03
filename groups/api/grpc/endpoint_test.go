@@ -30,7 +30,7 @@ const port = 7004
 var (
 	validID        = testsutil.GenerateUUID(&testing.T{})
 	valid          = "valid"
-	desc, _        = nullable.ParseString(valid)
+	desc           = nullable.Value[string]{Set: true, Value: valid}
 	validGroupResp = groups.Group{
 		ID:          testsutil.GenerateUUID(&testing.T{}),
 		Name:        valid,
