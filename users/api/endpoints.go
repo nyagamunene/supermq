@@ -113,14 +113,13 @@ func listUsersEndpoint(svc users.Service) endpoint.Endpoint {
 
 		res := usersPageRes{
 			pageRes: pageRes{
-				Total: page.Total,
+				Offset: page.Offset,
+				Limit:  page.Limit,
+				Total:  page.Total,
 			},
 			Users: []viewUserRes{},
 		}
-		if !req.onlyTotal {
-			res.Offset = page.Offset
-			res.Limit = page.Limit
-		}
+
 		for _, user := range page.Users {
 			res.Users = append(res.Users, viewUserRes{User: user})
 		}
