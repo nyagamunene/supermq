@@ -136,7 +136,7 @@ func TestCreateUser(t *testing.T) {
 			svcRes:   users.User{},
 			svcErr:   nil,
 			response: sdk.User{},
-			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingUsername), http.StatusBadRequest),
+			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingUsernameEmail), http.StatusBadRequest),
 		},
 		{
 			desc:  "register user with first name too long",
@@ -171,7 +171,7 @@ func TestCreateUser(t *testing.T) {
 			svcRes:   users.User{},
 			svcErr:   nil,
 			response: sdk.User{},
-			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingUsername), http.StatusBadRequest),
+			err:      errors.NewSDKErrorWithStatus(errors.Wrap(apiutil.ErrValidation, apiutil.ErrMissingUsernameEmail), http.StatusBadRequest),
 		},
 		{
 			desc:  "register user with empty secret",
