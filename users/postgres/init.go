@@ -26,8 +26,8 @@ func Migration() *migrate.MemoryMigrationSource {
 						secret      TEXT NOT NULL,
 						tags        TEXT[],
 						metadata    JSONB,
-						created_at  TIMESTAMP,
-						updated_at  TIMESTAMP,
+						created_at  TIMESTAMPZ,
+						updated_at  TIMESTAMPZ,
 						updated_by  VARCHAR(254),
 						status      SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
 						role        SMALLINT DEFAULT 0 CHECK (status >= 0)
