@@ -32,7 +32,7 @@ var (
 		Route:           testsutil.GenerateUUID(&testing.T{}),
 		Tags:            []string{"tag1", "tag2"},
 		Metadata:        map[string]interface{}{"key": "value"},
-		CreatedAt:       time.Now().UTC().Truncate(time.Microsecond),
+		CreatedAt:       time.Now().Truncate(time.Microsecond),
 		Status:          channels.EnabledStatus,
 		ConnectionTypes: []connections.ConnType{},
 	}
@@ -42,7 +42,7 @@ var (
 		DomainID:  validChannel.Domain,
 		Type:      connections.Publish,
 	}
-	validTimestamp = time.Now().UTC().Truncate(time.Millisecond)
+	validTimestamp = time.Now().Truncate(time.Millisecond)
 )
 
 func TestSave(t *testing.T) {
@@ -93,7 +93,7 @@ func TestSave(t *testing.T) {
 				Domain:    testsutil.GenerateUUID(t),
 				Name:      namegen.Generate(),
 				Metadata:  map[string]interface{}{"key": "value"},
-				CreatedAt: time.Now().UTC().Truncate(time.Microsecond),
+				CreatedAt: time.Now().Truncate(time.Microsecond),
 				Status:    channels.EnabledStatus,
 			},
 			resp: []channels.Channel{},
@@ -106,7 +106,7 @@ func TestSave(t *testing.T) {
 				Domain:    invalidID,
 				Name:      namegen.Generate(),
 				Metadata:  map[string]interface{}{"key": "value"},
-				CreatedAt: time.Now().UTC().Truncate(time.Microsecond),
+				CreatedAt: time.Now().Truncate(time.Microsecond),
 				Status:    channels.EnabledStatus,
 			},
 			resp: []channels.Channel{},
@@ -119,7 +119,7 @@ func TestSave(t *testing.T) {
 				Domain:    testsutil.GenerateUUID(t),
 				Name:      strings.Repeat("a", 1025),
 				Metadata:  map[string]interface{}{"key": "value"},
-				CreatedAt: time.Now().UTC().Truncate(time.Microsecond),
+				CreatedAt: time.Now().Truncate(time.Microsecond),
 				Status:    channels.EnabledStatus,
 			},
 			resp: []channels.Channel{},

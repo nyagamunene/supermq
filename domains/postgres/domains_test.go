@@ -23,6 +23,7 @@ const invalid = "invalid"
 var (
 	domainID = testsutil.GenerateUUID(&testing.T{})
 	userID   = testsutil.GenerateUUID(&testing.T{})
+	now      = time.Now().Truncate(time.Millisecond)
 )
 
 func TestSaveDomain(t *testing.T) {
@@ -48,8 +49,8 @@ func TestSaveDomain(t *testing.T) {
 				Metadata: map[string]interface{}{
 					"test": "test",
 				},
-				CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
-				UpdatedAt: time.Now().UTC().Truncate(time.Millisecond),
+				CreatedAt: time.Now().Truncate(time.Millisecond),
+				UpdatedAt: time.Now().Truncate(time.Millisecond),
 				CreatedBy: userID,
 				UpdatedBy: userID,
 				Status:    domains.EnabledStatus,
@@ -66,8 +67,8 @@ func TestSaveDomain(t *testing.T) {
 				Metadata: map[string]interface{}{
 					"test": "test",
 				},
-				CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
-				UpdatedAt: time.Now().UTC().Truncate(time.Millisecond),
+				CreatedAt: time.Now().Truncate(time.Millisecond),
+				UpdatedAt: time.Now().Truncate(time.Millisecond),
 				CreatedBy: userID,
 				UpdatedBy: userID,
 				Status:    domains.EnabledStatus,
@@ -84,8 +85,8 @@ func TestSaveDomain(t *testing.T) {
 				Metadata: map[string]interface{}{
 					"test": "test",
 				},
-				CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
-				UpdatedAt: time.Now().UTC().Truncate(time.Millisecond),
+				CreatedAt: time.Now().Truncate(time.Millisecond),
+				UpdatedAt: time.Now().Truncate(time.Millisecond),
 				CreatedBy: userID,
 				UpdatedBy: userID,
 				Status:    domains.EnabledStatus,
@@ -159,8 +160,8 @@ func TestRetrieveByID(t *testing.T) {
 		},
 		CreatedBy: userID,
 		UpdatedBy: userID,
-		CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
-		UpdatedAt: time.Now().UTC().Truncate(time.Millisecond),
+		CreatedAt: time.Now().Truncate(time.Millisecond),
+		UpdatedAt: time.Now().Truncate(time.Millisecond),
 		Status:    domains.EnabledStatus,
 	}
 
@@ -221,8 +222,8 @@ func TestRetrieveByRoute(t *testing.T) {
 		},
 		CreatedBy: userID,
 		UpdatedBy: userID,
-		CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
-		UpdatedAt: time.Now().UTC().Truncate(time.Millisecond),
+		CreatedAt: time.Now().Truncate(time.Millisecond),
+		UpdatedAt: time.Now().Truncate(time.Millisecond),
 		Status:    domains.EnabledStatus,
 	}
 
@@ -283,6 +284,7 @@ func TestRetrieveAllByIDs(t *testing.T) {
 				"test": "test",
 			},
 			CreatedBy: userID,
+			CreatedAt: now,
 			UpdatedBy: userID,
 			Status:    domains.EnabledStatus,
 		}
@@ -525,6 +527,7 @@ func TestUpdate(t *testing.T) {
 			"test": "test",
 		},
 		CreatedBy: userID,
+		CreatedAt: now,
 		UpdatedBy: userID,
 		Status:    domains.EnabledStatus,
 	}
@@ -555,6 +558,7 @@ func TestUpdate(t *testing.T) {
 					"test1": "test1",
 				},
 				CreatedBy: userID,
+				CreatedAt: now,
 				UpdatedBy: userID,
 				Status:    domains.EnabledStatus,
 				UpdatedAt: time.Now(),
@@ -579,6 +583,7 @@ func TestUpdate(t *testing.T) {
 					"test1": "test1",
 				},
 				CreatedBy: userID,
+				CreatedAt: now,
 				UpdatedBy: userID,
 				Status:    domains.DisabledStatus,
 				UpdatedAt: time.Now(),
@@ -700,6 +705,7 @@ func TestListDomains(t *testing.T) {
 				"test": "test",
 			},
 			CreatedBy: userID,
+			CreatedAt: now,
 			UpdatedBy: userID,
 			Status:    domains.EnabledStatus,
 		}
