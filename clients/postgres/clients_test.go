@@ -75,9 +75,8 @@ func TestClientsSave(t *testing.T) {
 						Identity: clientIdentity,
 						Secret:   secret,
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 			},
 			err: nil,
@@ -92,9 +91,8 @@ func TestClientsSave(t *testing.T) {
 					Credentials: clients.Credentials{
 						Secret: testsutil.GenerateUUID(t),
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 				{
 					ID:     testsutil.GenerateUUID(t),
@@ -103,9 +101,8 @@ func TestClientsSave(t *testing.T) {
 					Credentials: clients.Credentials{
 						Secret: testsutil.GenerateUUID(t),
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 				{
 					ID:     testsutil.GenerateUUID(t),
@@ -114,9 +111,8 @@ func TestClientsSave(t *testing.T) {
 					Credentials: clients.Credentials{
 						Secret: testsutil.GenerateUUID(t),
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 			},
 			err: nil,
@@ -132,9 +128,8 @@ func TestClientsSave(t *testing.T) {
 						Identity: clientIdentity,
 						Secret:   secret,
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 			},
 			err: repoerr.ErrConflict,
@@ -149,9 +144,8 @@ func TestClientsSave(t *testing.T) {
 					Credentials: clients.Credentials{
 						Secret: testsutil.GenerateUUID(t),
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 				{
 					ID:     testsutil.GenerateUUID(t),
@@ -161,9 +155,8 @@ func TestClientsSave(t *testing.T) {
 						Identity: clientIdentity,
 						Secret:   secret,
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 			},
 			err: repoerr.ErrConflict,
@@ -178,9 +171,8 @@ func TestClientsSave(t *testing.T) {
 						Identity: "withoutdomain-client@example.com",
 						Secret:   testsutil.GenerateUUID(t),
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 			},
 			err: nil,
@@ -196,9 +188,8 @@ func TestClientsSave(t *testing.T) {
 						Identity: "invalidid-client@example.com",
 						Secret:   testsutil.GenerateUUID(t),
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
-					Status:    clients.EnabledStatus,
+					Metadata: clients.Metadata{},
+					Status:   clients.EnabledStatus,
 				},
 			},
 			err: repoerr.ErrMalformedEntity,
@@ -289,8 +280,7 @@ func TestClientsSave(t *testing.T) {
 						Identity: "",
 						Secret:   testsutil.GenerateUUID(t),
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
+					Metadata: clients.Metadata{},
 				},
 			},
 			err: nil,
@@ -305,8 +295,7 @@ func TestClientsSave(t *testing.T) {
 						Identity: "missing-client-secret@example.com",
 						Secret:   "",
 					},
-					Metadata:  clients.Metadata{},
-					CreatedAt: validTimestamp,
+					Metadata: clients.Metadata{},
 				},
 			},
 			err: nil,
@@ -344,16 +333,14 @@ func TestClientsSave(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			rClients, err := repo.Save(context.Background(), tc.clients...)
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			if err == nil {
-				for i := range rClients {
-					tc.clients[i].Credentials.Secret = rClients[i].Credentials.Secret
-				}
-				assert.Equal(t, tc.clients, rClients, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.clients, rClients))
+		rClients, err := repo.Save(context.Background(), tc.clients...)
+		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		if err == nil {
+			for i := range rClients {
+				tc.clients[i].Credentials.Secret = rClients[i].Credentials.Secret
 			}
-		})
+			assert.Equal(t, tc.clients, rClients, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.clients, rClients))
+		}
 	}
 }
 
@@ -371,9 +358,8 @@ func TestClientsRetrieveBySecret(t *testing.T) {
 			Identity: clientIdentity,
 			Secret:   testsutil.GenerateUUID(t),
 		},
-		Metadata:  clients.Metadata{},
-		CreatedAt: validTimestamp,
-		Status:    clients.EnabledStatus,
+		Metadata: clients.Metadata{},
+		Status:   clients.EnabledStatus,
 	}
 
 	_, err := repo.Save(context.Background(), client)
@@ -406,11 +392,9 @@ func TestClientsRetrieveBySecret(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			res, err := repo.RetrieveBySecret(context.Background(), tc.secret)
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			assert.Equal(t, res, tc.response, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, res))
-		})
+		res, err := repo.RetrieveBySecret(context.Background(), tc.secret)
+		assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+		assert.Equal(t, res, tc.response, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, res))
 	}
 }
 
@@ -428,9 +412,8 @@ func TestRetrieveByID(t *testing.T) {
 			Identity: clientIdentity,
 			Secret:   testsutil.GenerateUUID(t),
 		},
-		Metadata:  clients.Metadata{},
-		CreatedAt: validTimestamp,
-		Status:    clients.EnabledStatus,
+		Metadata: clients.Metadata{},
+		Status:   clients.EnabledStatus,
 	}
 
 	_, err := repo.Save(context.Background(), client)
@@ -623,7 +606,7 @@ func TestUpdateTags(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.desc, func(t *testing.T) {
-			c.client.UpdatedAt = time.Now().Truncate(time.Millisecond)
+			c.client.UpdatedAt = time.Now().UTC().Truncate(time.Millisecond)
 			c.client.UpdatedBy = testsutil.GenerateUUID(t)
 			expected, err := repo.UpdateTags(context.Background(), c.client)
 			assert.True(t, errors.Contains(err, c.err), fmt.Sprintf("expected %s to contain %s\n", err, c.err))
@@ -690,7 +673,7 @@ func TestUpdateIdentity(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.desc, func(t *testing.T) {
-			c.client.UpdatedAt = time.Now().Truncate(time.Millisecond)
+			c.client.UpdatedAt = time.Now().UTC().Truncate(time.Millisecond)
 			c.client.UpdatedBy = testsutil.GenerateUUID(t)
 			expected, err := repo.UpdateIdentity(context.Background(), c.client)
 			assert.True(t, errors.Contains(err, c.err), fmt.Sprintf("expected %s to contain %s\n", err, c.err))
@@ -757,7 +740,7 @@ func TestUpdateSecret(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.desc, func(t *testing.T) {
-			c.client.UpdatedAt = time.Now().Truncate(time.Millisecond)
+			c.client.UpdatedAt = time.Now().UTC().Truncate(time.Millisecond)
 			c.client.UpdatedBy = testsutil.GenerateUUID(t)
 			_, err := repo.UpdateSecret(context.Background(), c.client)
 			assert.True(t, errors.Contains(err, c.err), fmt.Sprintf("expected %s to contain %s\n", err, c.err))
@@ -821,7 +804,7 @@ func TestChangeStatus(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.desc, func(t *testing.T) {
-			c.client.UpdatedAt = time.Now().Truncate(time.Millisecond)
+			c.client.UpdatedAt = time.Now().UTC().Truncate(time.Millisecond)
 			c.client.UpdatedBy = testsutil.GenerateUUID(t)
 			expected, err := repo.ChangeStatus(context.Background(), c.client)
 			assert.True(t, errors.Contains(err, c.err), fmt.Sprintf("expected %s to contain %s\n", err, c.err))
@@ -860,7 +843,7 @@ func TestRetrieveAll(t *testing.T) {
 				"department": namegen.Generate(),
 			},
 			Status:    clients.EnabledStatus,
-			CreatedAt: time.Now(),
+			CreatedAt: time.Now().UTC(),
 		}
 		if i%50 == 0 {
 			client.Status = clients.DisabledStatus
@@ -1336,7 +1319,7 @@ func TestSearchClients(t *testing.T) {
 			},
 			Metadata:  clients.Metadata{},
 			Status:    clients.EnabledStatus,
-			CreatedAt: time.Now().Truncate(time.Millisecond),
+			CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
 		}
 		_, err := repo.Save(context.Background(), client)
 		require.Nil(t, err, fmt.Sprintf("save client unexpected error: %s", err))
@@ -1716,7 +1699,7 @@ func TestRetrieveByIDs(t *testing.T) {
 			},
 			Tags:      namegen.GenerateMultiple(5),
 			Metadata:  map[string]interface{}{"name": name},
-			CreatedAt: time.Now().Truncate(time.Microsecond),
+			CreatedAt: time.Now().UTC().Truncate(time.Microsecond),
 			Status:    clients.EnabledStatus,
 		}
 		_, err := repo.Save(context.Background(), client)
@@ -2346,7 +2329,7 @@ func TestRetrieveParentGroupClients(t *testing.T) {
 			ParentGroup: parentID,
 			Name:        name,
 			Metadata:    map[string]interface{}{"name": name},
-			CreatedAt:   time.Now().Truncate(time.Microsecond),
+			CreatedAt:   time.Now().UTC().Truncate(time.Microsecond),
 			Status:      clients.EnabledStatus,
 		}
 		items = append(items, client)
@@ -2413,7 +2396,7 @@ func TestUnsetParentGroupFromClients(t *testing.T) {
 			ParentGroup: parentID,
 			Name:        name,
 			Metadata:    map[string]interface{}{"name": name},
-			CreatedAt:   time.Now().Truncate(time.Microsecond),
+			CreatedAt:   time.Now().UTC().Truncate(time.Microsecond),
 			Status:      clients.EnabledStatus,
 		}
 		items = append(items, client)
@@ -2465,7 +2448,7 @@ func generateClient(t *testing.T, status clients.Status, repo clients.Repository
 			"name": namegen.Generate(),
 		},
 		Status:    status,
-		CreatedAt: time.Now().Truncate(time.Millisecond),
+		CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
 	}
 	_, err := repo.Save(context.Background(), client)
 	require.Nil(t, err, fmt.Sprintf("add new client: expected nil got %s\n", err))

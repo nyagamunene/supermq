@@ -173,7 +173,7 @@ func TestRetrieveInvitation(t *testing.T) {
 		InviteeUserID: testsutil.GenerateUUID(t),
 		DomainID:      dom.ID,
 		RoleID:        testsutil.GenerateUUID(t),
-		CreatedAt:     time.Now().Truncate(time.Microsecond),
+		CreatedAt:     time.Now().UTC().Truncate(time.Microsecond),
 	}
 
 	err := repo.SaveInvitation(context.Background(), invitation)
@@ -266,13 +266,13 @@ func TestRetrieveAllInvitations(t *testing.T) {
 			DomainID:      dom.ID,
 			DomainName:    dom.Name,
 			RoleID:        testsutil.GenerateUUID(t),
-			CreatedAt:     time.Now().Truncate(time.Microsecond),
+			CreatedAt:     time.Now().UTC().Truncate(time.Microsecond),
 		}
 		err := repo.SaveInvitation(context.Background(), invitation)
 		require.Nil(t, err, fmt.Sprintf("create invitation unexpected error: %s", err))
 		items = append(items, invitation)
 	}
-	items[100].ConfirmedAt = time.Now().Truncate(time.Microsecond)
+	items[100].ConfirmedAt = time.Now().UTC().Truncate(time.Microsecond)
 	err := repo.UpdateConfirmation(context.Background(), items[100])
 	require.Nil(t, err, fmt.Sprintf("update invitation unexpected error: %s", err))
 
