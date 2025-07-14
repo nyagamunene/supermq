@@ -413,12 +413,12 @@ CREATE TABLE IF NOT EXISTS pats (
     user_id         VARCHAR(36),
     description     TEXT,
     secret          TEXT,
-    issued_at       TIMESTAMPZ,
-    expires_at      TIMESTAMPZ,
-    updated_at      TIMESTAMPZ,
+    issued_at       TIMESTAMPTZ,
+    expires_at      TIMESTAMPTZ,
+    updated_at      TIMESTAMPTZ,
     revoked         BOOLEAN,
-    revoked_at      TIMESTAMPZ,
-    last_used_at    TIMESTAMPZ,
+    revoked_at      TIMESTAMPTZ,
+    last_used_at    TIMESTAMPTZ,
     UNIQUE          (id, name, secret)
 )
 

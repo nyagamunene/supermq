@@ -18,7 +18,7 @@ func Migration() *migrate.MemoryMigrationSource {
 						id          VARCHAR(36) PRIMARY KEY,
 						operation	VARCHAR NOT NULL,
 						domain		VARCHAR,
-						occurred_at	TIMESTAMPZ NOT NULL,
+						occurred_at	TIMESTAMPTZ NOT NULL,
 						attributes	JSONB NOT NULL,
 						metadata	JSONB,
 						UNIQUE(operation, occurred_at, attributes)
@@ -32,8 +32,8 @@ func Migration() *migrate.MemoryMigrationSource {
 						domain_id         VARCHAR(36) NOT NULL,
 						inbound_messages  BIGINT DEFAULT 0,
 						outbound_messages BIGINT DEFAULT 0,
-						first_seen        TIMESTAMPZ,
-						last_seen         TIMESTAMPZ
+						first_seen        TIMESTAMPTZ,
+						last_seen         TIMESTAMPTZ
 					)`,
 					`CREATE TABLE IF NOT EXISTS subscriptions (
 						id              VARCHAR(36) PRIMARY KEY,
