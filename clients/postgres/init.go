@@ -34,8 +34,8 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 						secret		       VARCHAR(4096) NOT NULL,
 						tags		       TEXT[],
 						metadata	       JSONB,
-						created_at	       TIMESTAMPTZ,
-						updated_at	       TIMESTAMPTZ,
+						created_at	       TIMESTAMP,
+						updated_at	       TIMESTAMP,
 						updated_by         VARCHAR(254),
 						status		       SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
 						UNIQUE		       (domain_id, secret),
@@ -63,6 +63,17 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 				},
 				Down: []string{
 					`ALTER TABLE clients ADD CONSTRAINT clients_domain_id_name_key UNIQUE (domain_id, name)`,
+				},
+			},
+			{
+				Id: "clients_03",
+				Up: []string{
+					`ALTER TABLE clients ALTER COLUMN created_at TYPE TIMESTAMPTZ;`,
+					`ALTER TABLE clients ALTER COLUMN updated_at TYPE TIMESTAMPTZ;`,
+				},
+				Down: []string{
+					`ALTER TABLE clients ALTER COLUMN created_at TYPE TIMESTAMP;`,
+					`ALTER TABLE clients ALTER COLUMN updated_at TYPE TIMESTAMP;`,
 				},
 			},
 		},

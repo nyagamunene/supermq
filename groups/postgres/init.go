@@ -30,8 +30,8 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 						name		VARCHAR(1024) NOT NULL,
 						description	VARCHAR(1024),
 						metadata	JSONB,
-						created_at	TIMESTAMPTZ,
-						updated_at	TIMESTAMPTZ,
+						created_at	TIMESTAMP,
+						updated_at	TIMESTAMP,
 						updated_by  VARCHAR(254),
 						status		SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
 						UNIQUE		(domain_id, name),
@@ -71,6 +71,17 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 				},
 				Down: []string{
 					`ALTER TABLE groups DROP COLUMN tags`,
+				},
+			},
+			{
+				Id: "groups_05",
+				Up: []string{
+					`ALTER TABLE groups ALTER COLUMN created_at TYPE TIMESTAMPTZ;`,
+					`ALTER TABLE groups ALTER COLUMN updated_at TYPE TIMESTAMPTZ;`,
+				},
+				Down: []string{
+					`ALTER TABLE groups ALTER COLUMN created_at TYPE TIMESTAMP;`,
+					`ALTER TABLE groups ALTER COLUMN updated_at TYPE TIMESTAMP;`,
 				},
 			},
 		},

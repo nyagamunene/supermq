@@ -18,7 +18,7 @@ func Migration() *migrate.MemoryMigrationSource {
 						id          VARCHAR(36) PRIMARY KEY,
 						operation	VARCHAR NOT NULL,
 						domain		VARCHAR,
-						occurred_at	TIMESTAMPTZ NOT NULL,
+						occurred_at	TIMESTAMP NOT NULL,
 						attributes	JSONB NOT NULL,
 						metadata	JSONB,
 						UNIQUE(operation, occurred_at, attributes)
@@ -32,8 +32,8 @@ func Migration() *migrate.MemoryMigrationSource {
 						domain_id         VARCHAR(36) NOT NULL,
 						inbound_messages  BIGINT DEFAULT 0,
 						outbound_messages BIGINT DEFAULT 0,
-						first_seen        TIMESTAMPTZ,
-						last_seen         TIMESTAMPTZ
+						first_seen        TIMESTAMP,
+						last_seen         TIMESTAMP
 					)`,
 					`CREATE TABLE IF NOT EXISTS subscriptions (
 						id              VARCHAR(36) PRIMARY KEY,
@@ -48,6 +48,19 @@ func Migration() *migrate.MemoryMigrationSource {
 					`DROP TABLE IF EXISTS clients_telemetry`,
 					`DROP TABLE IF EXISTS subscriptions`,
 					`DROP TABLE IF EXISTS journal`,
+				},
+			},
+			{
+				Id: "journal_02",
+				Up: []string{
+					`ALTER TABLE journal ALTER COLUMN occurred_at TYPE TIMESTAMPTZ;`,
+					`ALTER TABLE clients_telemetry ALTER COLUMN first_seen TYPE TIMESTAMPTZ;`,
+					`ALTER TABLE clients_telemetry ALTER COLUMN last_seen TYPE TIMESTAMPTZ;`,
+				},
+				Down: []string{
+					`ALTER TABLE journal ALTER COLUMN occurred_at TYPE TIMESTAMP;`,
+					`ALTER TABLE clients_telemetry ALTER COLUMN first_seen TYPE TIMESTAMP;`,
+					`ALTER TABLE clients_telemetry ALTER COLUMN last_seen TYPE TIMESTAMP;`,
 				},
 			},
 		},

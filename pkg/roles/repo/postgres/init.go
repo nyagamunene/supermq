@@ -25,8 +25,8 @@ func Migration(rolesTableNamePrefix, entityTableName, entityIDColumnName string)
                         id          VARCHAR(254) NOT NULL PRIMARY KEY,
                         name        varchar(200) NOT NULL,
                         entity_id   VARCHAR(36)  NOT NULL,
-						created_at  TIMESTAMPTZ,
-						updated_at  TIMESTAMPTZ,
+						created_at  TIMESTAMP,
+						updated_at  TIMESTAMP,
 						updated_by  VARCHAR(254),
 						created_by  VARCHAR(254),
                         CONSTRAINT  %s_roles_unique_role_name_entity_id_constraint UNIQUE (name, entity_id),
@@ -53,6 +53,17 @@ func Migration(rolesTableNamePrefix, entityTableName, entityIDColumnName string)
 					fmt.Sprintf(`DROP TABLE IF EXISTS %s_roles`, rolesTableNamePrefix),
 					fmt.Sprintf(`DROP TABLE IF EXISTS %s_role_actions`, rolesTableNamePrefix),
 					fmt.Sprintf(`DROP TABLE IF EXISTS %s_role_members`, rolesTableNamePrefix),
+				},
+			},
+			{
+				Id: fmt.Sprintf("%s_roles_2", rolesTableNamePrefix),
+				Up: []string{
+					fmt.Sprintf(`ALTER TABLE %s_roles ALTER COLUMN created_at TYPE TIMESTAMPTZ;`, rolesTableNamePrefix),
+					fmt.Sprintf(`ALTER TABLE %s_roles ALTER COLUMN updated_at TYPE TIMESTAMPTZ;`, rolesTableNamePrefix),
+				},
+				Down: []string{
+					fmt.Sprintf(`ALTER TABLE %s_roles ALTER COLUMN created_at TYPE TIMESTAMP;`, rolesTableNamePrefix),
+					fmt.Sprintf(`ALTER TABLE %s_roles ALTER COLUMN updated_at TYPE TIMESTAMP;`, rolesTableNamePrefix),
 				},
 			},
 		},

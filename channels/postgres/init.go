@@ -32,8 +32,8 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 						tags               TEXT[],
 						metadata           JSONB,
 						created_by         VARCHAR(254),
-						created_at         TIMESTAMPTZ,
-						updated_at         TIMESTAMPTZ,
+						created_at         TIMESTAMP,
+						updated_at         TIMESTAMP,
 						updated_by         VARCHAR(254),
 						status             SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
 						UNIQUE 			   (id, domain_id),
@@ -71,6 +71,17 @@ func Migration() (*migrate.MemoryMigrationSource, error) {
 				Down: []string{
 					`DROP INDEX IF EXISTS unique_domain_route_not_null;`,
 					`ALTER TABLE channels DROP COLUMN route;`,
+				},
+			},
+			{
+				Id: "channels_04",
+				Up: []string{
+					`ALTER TABLE channels ALTER COLUMN created_at TYPE TIMESTAMPTZ;`,
+					`ALTER TABLE channels ALTER COLUMN updated_at TYPE TIMESTAMPTZ;`,
+				},
+				Down: []string{
+					`ALTER TABLE channels ALTER COLUMN created_at TYPE TIMESTAMP;`,
+					`ALTER TABLE channels ALTER COLUMN updated_at TYPE TIMESTAMP;`,
 				},
 			},
 		},

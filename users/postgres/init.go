@@ -26,8 +26,8 @@ func Migration() *migrate.MemoryMigrationSource {
 						secret      TEXT NOT NULL,
 						tags        TEXT[],
 						metadata    JSONB,
-						created_at  TIMESTAMPTZ,
-						updated_at  TIMESTAMPTZ,
+						created_at  TIMESTAMP,
+						updated_at  TIMESTAMP,
 						updated_by  VARCHAR(254),
 						status      SMALLINT NOT NULL DEFAULT 0 CHECK (status >= 0),
 						role        SMALLINT DEFAULT 0 CHECK (status >= 0)
@@ -84,6 +84,17 @@ func Migration() *migrate.MemoryMigrationSource {
 				Down: []string{
 					`ALTER TABLE users ALTER COLUMN first_name SET DEFAULT ''`,
 					`ALTER TABLE users ALTER COLUMN last_name SET DEFAULT ''`,
+				},
+			},
+			{
+				Id: "clients_06",
+				Up: []string{
+					`ALTER TABLE users ALTER COLUMN created_at TYPE TIMESTAMPTZ;`,
+					`ALTER TABLE users ALTER COLUMN updated_at TYPE TIMESTAMPTZ;`,
+				},
+				Down: []string{
+					`ALTER TABLE users ALTER COLUMN created_at TYPE TIMESTAMP;`,
+					`ALTER TABLE users ALTER COLUMN updated_at TYPE TIMESTAMP;`,
 				},
 			},
 		},
