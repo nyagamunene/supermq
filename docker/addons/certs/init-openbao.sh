@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) Abstract Machines
+# SPDX-License-Identifier: Apache-2.0
 
 # OpenBao startup and initialization script for SuperMQ
 # This script starts OpenBao in dev mode and then sets up the PKI engine, 
