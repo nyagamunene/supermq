@@ -16,7 +16,7 @@ import (
 	"github.com/absmach/supermq"
 	"github.com/absmach/supermq/certs"
 	httpapi "github.com/absmach/supermq/certs/api"
-	pki "github.com/absmach/supermq/certs/pki/amcerts"
+	pki "github.com/absmach/supermq/certs/pki/openbao"
 	"github.com/absmach/supermq/certs/tracing"
 	smqlog "github.com/absmach/supermq/logger"
 	authsvcAuthn "github.com/absmach/supermq/pkg/authn/authsvc"
@@ -53,10 +53,13 @@ type config struct {
 	SignCAPath    string `env:"SMQ_CERTS_SIGN_CA_PATH"        envDefault:"ca.crt"`
 	SignCAKeyPath string `env:"SMQ_CERTS_SIGN_CA_KEY_PATH"    envDefault:"ca.key"`
 
-	// Amcerts SDK settings
-	SDKHost         string `env:"SMQ_CERTS_SDK_HOST"             envDefault:""`
-	SDKCertsURL     string `env:"SMQ_CERTS_SDK_CERTS_URL"        envDefault:"http://localhost:9010"`
-	TLSVerification bool   `env:"SMQ_CERTS_SDK_TLS_VERIFICATION" envDefault:"false"`
+	// OpenBao PKI settings
+	OpenBaoHost      string `env:"SMQ_CERTS_OPENBAO_HOST"         envDefault:"http://localhost:8200"`
+	OpenBaoAppRole   string `env:"SMQ_CERTS_OPENBAO_APP_ROLE"     envDefault:""`
+	OpenBaoAppSecret string `env:"SMQ_CERTS_OPENBAO_APP_SECRET"   envDefault:""`
+	OpenBaoNamespace string `env:"SMQ_CERTS_OPENBAO_NAMESPACE"    envDefault:""`
+	OpenBaoPKIPath   string `env:"SMQ_CERTS_OPENBAO_PKI_PATH"     envDefault:"pki"`
+	OpenBaoRole      string `env:"SMQ_CERTS_OPENBAO_ROLE"         envDefault:"supermq"`
 }
 
 func main() {
@@ -84,15 +87,21 @@ func main() {
 		}
 	}
 
-	if cfg.SDKHost == "" {
-		logger.Error("No host specified for PKI engine")
+	if cfg.OpenBaoHost == "" {
+		logger.Error("No host specified for OpenBao PKI engine")
 		exitCode = 1
 		return
 	}
 
-	pkiclient, err := pki.NewAgent(cfg.SDKHost, cfg.SDKCertsURL, cfg.TLSVerification)
+	if cfg.OpenBaoAppRole == "" || cfg.OpenBaoAppSecret == "" {
+		logger.Error("OpenBao AppRole credentials not specified")
+		exitCode = 1
+		return
+	}
+
+	pkiclient, err := pki.NewAgent(cfg.OpenBaoAppRole, cfg.OpenBaoAppSecret, cfg.OpenBaoHost, cfg.OpenBaoNamespace, cfg.OpenBaoPKIPath, cfg.OpenBaoRole, logger)
 	if err != nil {
-		logger.Error("failed to configure client for PKI engine")
+		logger.Error("failed to configure client for OpenBao PKI engine")
 		exitCode = 1
 		return
 	}

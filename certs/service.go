@@ -7,8 +7,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/absmach/certs/sdk"
-	pki "github.com/absmach/supermq/certs/pki/amcerts"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
 	mgsdk "github.com/absmach/supermq/pkg/sdk"
@@ -49,11 +47,11 @@ type Service interface {
 
 type certsService struct {
 	sdk mgsdk.SDK
-	pki pki.Agent
+	pki Agent
 }
 
 // New returns new Certs service.
-func New(sdk mgsdk.SDK, pkiAgent pki.Agent) Service {
+func New(sdk mgsdk.SDK, pkiAgent Agent) Service {
 	return &certsService{
 		sdk: sdk,
 		pki: pkiAgent,
@@ -97,7 +95,7 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 	}
 
-	cp, err := cs.pki.ListCerts(sdk.PageMetadata{Offset: 0, Limit: 10000, EntityID: client.ID})
+	cp, err := cs.pki.ListCerts(PageMetadata{Offset: 0, Limit: 10000, ClientID: client.ID})
 	if err != nil {
 		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 	}
@@ -114,7 +112,7 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 }
 
 func (cs *certsService) ListCerts(ctx context.Context, clientID string, pm PageMetadata) (CertPage, error) {
-	cp, err := cs.pki.ListCerts(sdk.PageMetadata{Offset: pm.Offset, Limit: pm.Limit, EntityID: clientID})
+	cp, err := cs.pki.ListCerts(PageMetadata{Offset: pm.Offset, Limit: pm.Limit, ClientID: clientID})
 	if err != nil {
 		return CertPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
@@ -141,7 +139,7 @@ func (cs *certsService) ListCerts(ctx context.Context, clientID string, pm PageM
 }
 
 func (cs *certsService) ListSerials(ctx context.Context, clientID string, pm PageMetadata) (CertPage, error) {
-	cp, err := cs.pki.ListCerts(sdk.PageMetadata{Offset: pm.Offset, Limit: pm.Limit, EntityID: clientID})
+	cp, err := cs.pki.ListCerts(PageMetadata{Offset: pm.Offset, Limit: pm.Limit, ClientID: clientID})
 	if err != nil {
 		return CertPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
