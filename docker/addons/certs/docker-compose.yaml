@@ -11,16 +11,17 @@ networks:
     name: supermq-base-net
     external: true
 
+# Volumes for OpenBao data and configuration
 volumes:
-  supermq-certs-db-volume:
-
+  openbao_data:
+  openbao_config:
 
 services:
   certs:
     image: supermq/certs:${SMQ_RELEASE_TAG}
     container_name: supermq-certs
     depends_on:
-      - am-certs
+      - openbao
     restart: on-failure
     networks:
       - supermq-base-net
@@ -30,12 +31,13 @@ services:
       SMQ_CERTS_LOG_LEVEL: ${SMQ_CERTS_LOG_LEVEL}
       SMQ_CERTS_SIGN_CA_PATH: ${SMQ_CERTS_SIGN_CA_PATH}
       SMQ_CERTS_SIGN_CA_KEY_PATH: ${SMQ_CERTS_SIGN_CA_KEY_PATH}
-      SMQ_CERTS_VAULT_HOST: ${SMQ_CERTS_VAULT_HOST}
-      SMQ_CERTS_VAULT_NAMESPACE: ${SMQ_CERTS_VAULT_NAMESPACE}
-      SMQ_CERTS_VAULT_APPROLE_ROLEID: ${SMQ_CERTS_VAULT_APPROLE_ROLEID}
-      SMQ_CERTS_VAULT_APPROLE_SECRET: ${SMQ_CERTS_VAULT_APPROLE_SECRET}
-      SMQ_CERTS_VAULT_CLIENTS_CERTS_PKI_PATH: ${SMQ_CERTS_VAULT_CLIENTS_CERTS_PKI_PATH}
-      SMQ_CERTS_VAULT_CLIENTS_CERTS_PKI_ROLE_NAME: ${SMQ_CERTS_VAULT_CLIENTS_CERTS_PKI_ROLE_NAME}
+      # OpenBao PKI configuration
+      SMQ_CERTS_OPENBAO_HOST: ${SMQ_CERTS_OPENBAO_HOST}
+      SMQ_CERTS_OPENBAO_APP_ROLE: ${SMQ_CERTS_OPENBAO_APP_ROLE}
+      SMQ_CERTS_OPENBAO_APP_SECRET: ${SMQ_CERTS_OPENBAO_APP_SECRET}
+      SMQ_CERTS_OPENBAO_NAMESPACE: ${SMQ_CERTS_OPENBAO_NAMESPACE}
+      SMQ_CERTS_OPENBAO_PKI_PATH: ${SMQ_CERTS_OPENBAO_PKI_PATH}
+      SMQ_CERTS_OPENBAO_ROLE: ${SMQ_CERTS_OPENBAO_ROLE}
       SMQ_CERTS_HTTP_HOST: ${SMQ_CERTS_HTTP_HOST}
       SMQ_CERTS_HTTP_PORT: ${SMQ_CERTS_HTTP_PORT}
       SMQ_CERTS_HTTP_SERVER_CERT: ${SMQ_CERTS_HTTP_SERVER_CERT}
@@ -49,9 +51,6 @@ services:
       SMQ_CERTS_DB_SSL_CERT: ${SMQ_CERTS_DB_SSL_CERT}
       SMQ_CERTS_DB_SSL_KEY: ${SMQ_CERTS_DB_SSL_KEY}
       SMQ_CERTS_DB_SSL_ROOT_CERT: ${SMQ_CERTS_DB_SSL_ROOT_CERT}
-      SMQ_CERTS_SDK_HOST: ${SMQ_CERTS_SDK_HOST}
-      SMQ_CERTS_SDK_CERTS_URL: ${SMQ_CERTS_SDK_CERTS_URL}
-      SMQ_CERTS_SDK_TLS_VERIFICATION: ${SMQ_CERTS_SDK_TLS_VERIFICATION}
       SMQ_AUTH_GRPC_URL: ${SMQ_AUTH_GRPC_URL}
       SMQ_AUTH_GRPC_TIMEOUT: ${SMQ_AUTH_GRPC_TIMEOUT}
       SMQ_AUTH_GRPC_CLIENT_CERT: ${SMQ_AUTH_GRPC_CLIENT_CERT:+/auth-grpc-client.crt}
@@ -81,46 +80,92 @@ services:
         bind:
           create_host_path: true
 
-  am-certs-db:
-    image: postgres:16.2-alpine
-    container_name: supermq-am-certs-db
+  openbao:
+    image: openbao/openbao:latest
+    container_name: supermq-openbao
     restart: on-failure
     networks:
       - supermq-base-net
-    command: postgres -c "max_connections=${SMQ_POSTGRES_MAX_CONNECTIONS}"
-    environment:
-      POSTGRES_USER: ${SMQ_CERTS_DB_USER}
-      POSTGRES_PASSWORD: ${SMQ_CERTS_DB_PASS}
-      POSTGRES_DB: ${SMQ_CERTS_DB_NAME}
     ports:
-      - 5454:5432
-    volumes:
-      - supermq-certs-db-volume:/var/lib/postgresql/data
-
-  am-certs:
-    image: ghcr.io/absmach/certs:${SMQ_RELEASE_TAG}
-    container_name: supermq-am-certs
-    depends_on:
-      - am-certs-db
-    restart: on-failure
-    networks:
-      - supermq-base-net
+      - "8200:8200"
     environment:
-      AM_CERTS_LOG_LEVEL: ${SMQ_CERTS_LOG_LEVEL}
-      AM_CERTS_DB_HOST: ${SMQ_CERTS_DB_HOST}
-      AM_CERTS_DB_PORT: ${SMQ_CERTS_DB_PORT}
-      AM_CERTS_DB_USER: ${SMQ_CERTS_DB_USER}
-      AM_CERTS_DB_PASS: ${SMQ_CERTS_DB_PASS}
-      AM_CERTS_DB: ${SMQ_CERTS_DB_NAME}
-      AM_CERTS_DB_SSL_MODE: ${SMQ_CERTS_DB_SSL_MODE}
-      AM_CERTS_HTTP_HOST: supermq-am-certs
-      AM_CERTS_HTTP_PORT: 9010
-      AM_CERTS_GRPC_HOST: supermq-am-certs
-      AM_CERTS_GRPC_PORT: 7012
-      AM_JAEGER_URL: ${SMQ_JAEGER_URL}
-      AM_JAEGER_TRACE_RATIO: ${SMQ_JAEGER_TRACE_RATIO}
+      - BAO_DEV_ROOT_TOKEN_ID=${SMQ_OPENBAO_ROOT_TOKEN:-openbao-root-token}
+      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      # Pass configuration to init script
+      - BAO_ADDR=http://localhost:8200
+      - SMQ_CERTS_OPENBAO_PKI_PATH=${SMQ_CERTS_OPENBAO_PKI_PATH:-pki}
+      - SMQ_CERTS_OPENBAO_ROLE=${SMQ_CERTS_OPENBAO_ROLE:-supermq}
+      - SMQ_CERTS_OPENBAO_APP_ROLE=${SMQ_CERTS_OPENBAO_APP_ROLE}
+      - SMQ_CERTS_OPENBAO_APP_SECRET=${SMQ_CERTS_OPENBAO_APP_SECRET}
+    cap_add:
+      - IPC_LOCK
+    mem_swappiness: 0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8200/v1/sys/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
     volumes:
-      - ./config.yaml:/config/config.yaml
-    ports:
-      - 9010:9010
-      - 7012:7012
+      # Mount a volume for OpenBao's data directory to persist data across container restarts
+      - openbao_data:/openbao/file
+      # Mount a volume for OpenBao's configuration directory
+      - openbao_config:/openbao/config
+    command: >
+      sh -c "
+        # Start OpenBao in background
+        bao server -dev -dev-root-token-id=\"$${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}\" -dev-listen-address=\"0.0.0.0:8200\" &
+        BAO_PID=\$$!
+        
+        # Wait for OpenBao to be ready
+        echo 'Waiting for OpenBao to be ready...'
+        for i in {1..30}; do
+          if curl -s -f http://localhost:8200/v1/sys/health >/dev/null 2>&1; then
+            echo 'OpenBao is ready!'
+            break
+          fi
+          sleep 2
+        done
+        
+        # Setup OpenBao
+        export BAO_ADDR=http://localhost:8200
+        export BAO_TOKEN=\"$${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}\"
+        
+        # Check if already configured
+        if ! (bao secrets list | grep -q '^pki/' && bao auth list | grep -q '^approle/'); then
+          echo 'Configuring OpenBao...'
+          
+          # Enable auth and secrets
+          bao auth enable approle || true
+          bao secrets enable -path=pki pki || true
+          bao secrets tune -max-lease-ttl=87600h pki
+          
+          # Generate CA
+          bao write -field=certificate pki/root/generate/internal common_name='SuperMQ Root CA' ttl=87600h > /tmp/ca.crt || true
+          bao write pki/config/urls issuing_certificates='http://localhost:8200/v1/pki/ca' crl_distribution_points='http://localhost:8200/v1/pki/crl'
+          
+          # Create role
+          bao write pki/roles/supermq allow_any_name=true enforce_hostnames=false allow_ip_sans=true allow_localhost=true max_ttl=720h ttl=720h
+          
+          # Create policy
+          echo 'path \"pki/issue/supermq\" { capabilities = [\"create\", \"update\"] }' > /tmp/policy.hcl
+          echo 'path \"pki/certs\" { capabilities = [\"list\"] }' >> /tmp/policy.hcl
+          echo 'path \"pki/cert/*\" { capabilities = [\"read\"] }' >> /tmp/policy.hcl
+          echo 'path \"pki/revoke\" { capabilities = [\"create\", \"update\"] }' >> /tmp/policy.hcl
+          echo 'path \"auth/token/renew-self\" { capabilities = [\"update\"] }' >> /tmp/policy.hcl
+          echo 'path \"auth/token/lookup-self\" { capabilities = [\"read\"] }' >> /tmp/policy.hcl
+          bao policy write pki-policy /tmp/policy.hcl
+          
+          # Create AppRole
+          bao write auth/approle/role/supermq token_policies=pki-policy token_ttl=1h token_max_ttl=4h bind_secret_id=true
+          bao write auth/approle/role/supermq/role-id role_id=\"\$$SMQ_CERTS_OPENBAO_APP_ROLE\"
+          bao write auth/approle/role/supermq/custom-secret-id secret_id=\"\$$SMQ_CERTS_OPENBAO_APP_SECRET\"
+          
+          echo 'OpenBao configuration complete!'
+        else
+          echo 'OpenBao already configured, skipping initialization'
+        fi
+        
+        echo 'OpenBao is ready for SuperMQ!'
+        wait \$$BAO_PID
+      "
