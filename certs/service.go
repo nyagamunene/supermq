@@ -116,6 +116,11 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 		revoke.RevocationTime = time.Now().UTC()
 	}
 
+	err = cs.certsRepo.Remove(ctx, client.ID)
+	if err != nil {
+		return revoke, errors.Wrap(ErrFailedToRemoveCertFromDB, err)
+	}
+
 	return revoke, nil
 }
 
@@ -161,7 +166,7 @@ func (cs *certsService) ViewCert(ctx context.Context, serialID string) (Cert, er
 		SerialNumber: cert.SerialNumber,
 		Certificate:  vcert.Certificate,
 		Key:          vcert.Key,
-		ExpiryTime:   cert.ExpiryTime,
+		ExpiryTime:   vcert.ExpiryTime,
 		ClientID:     cert.ClientID,
 	}, nil
 }
