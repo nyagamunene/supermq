@@ -15,13 +15,28 @@ networks:
 volumes:
   openbao_data:
   openbao_config:
+  supermq-certs-db-volume:
 
 services:
+  certs-db:
+    image: postgres:16.1-alpine
+    container_name: supermq-certs-db
+    restart: on-failure
+    environment:
+      POSTGRES_USER: ${SMQ_CERTS_DB_USER}
+      POSTGRES_PASSWORD: ${SMQ_CERTS_DB_PASS}
+      POSTGRES_DB: ${SMQ_CERTS_DB_NAME}
+    networks:
+      - supermq-base-net
+    volumes:
+      - supermq-certs-db-volume:/var/lib/postgresql/data
+
   certs:
     image: supermq/certs:${SMQ_RELEASE_TAG}
     container_name: supermq-certs
     depends_on:
       - openbao
+      - certs-db
     restart: on-failure
     networks:
       - supermq-base-net
@@ -87,12 +102,11 @@ services:
     networks:
       - supermq-base-net
     ports:
-      - "8200:8200"
+      - ${SMQ_OPENBAO_PORT}:8200
     environment:
       - BAO_DEV_ROOT_TOKEN_ID=${SMQ_OPENBAO_ROOT_TOKEN:-openbao-root-token}
       - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8200
-      # Pass configuration to init script
-      - BAO_ADDR=http://localhost:8200
+      - BAO_ADDR=http://127.0.0.1:${SMQ_OPENBAO_PORT}
       - SMQ_CERTS_OPENBAO_PKI_PATH=${SMQ_CERTS_OPENBAO_PKI_PATH:-pki}
       - SMQ_CERTS_OPENBAO_ROLE=${SMQ_CERTS_OPENBAO_ROLE:-supermq}
       - SMQ_CERTS_OPENBAO_APP_ROLE=${SMQ_CERTS_OPENBAO_APP_ROLE}
@@ -107,9 +121,7 @@ services:
       retries: 5
       start_period: 20s
     volumes:
-      # Mount a volume for OpenBao's data directory to persist data across container restarts
       - openbao_data:/openbao/file
-      # Mount a volume for OpenBao's configuration directory
       - openbao_config:/openbao/config
     command: >
       sh -c "

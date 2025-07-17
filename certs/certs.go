@@ -4,6 +4,7 @@
 package certs
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
@@ -27,6 +28,24 @@ type CertPage struct {
 	Offset       uint64 `json:"offset"`
 	Limit        uint64 `json:"limit"`
 	Certificates []Cert `json:"certificates,omitempty"`
+}
+
+// Repository specifies a Config persistence API.
+type Repository interface {
+	// Save  saves cert for client into database
+	Save(ctx context.Context, cert Cert) (string, error)
+
+	// RetrieveAll retrieve issued certificates for given owner ID
+	RetrieveAll(ctx context.Context, ownerID string, offset, limit uint64) (CertPage, error)
+
+	// Remove removes certificate from DB for a given client ID
+	Remove(ctx context.Context, ownerID, clientID string) error
+
+	// RetrieveByClient retrieves issued certificates for a given client ID
+	RetrieveByClient(ctx context.Context, ownerID, clientID string, offset, limit uint64) (CertPage, error)
+
+	// RetrieveBySerial retrieves a certificate for a given serial ID
+	RetrieveBySerial(ctx context.Context, ownerID, serialID string) (Cert, error)
 }
 
 type PageMetadata struct {
