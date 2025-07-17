@@ -94,7 +94,6 @@ func NewAgent(appRole, appSecret, host, namespace, path, role string, logger *sl
 	return &p, nil
 }
 
-// Issue generates a new certificate using OpenBao PKI
 func (va *openbaoPKIAgent) Issue(entityId, ttl string, ipAddrs []string) (certs.Cert, error) {
 	err := va.LoginAndRenew()
 	if err != nil {
@@ -102,9 +101,9 @@ func (va *openbaoPKIAgent) Issue(entityId, ttl string, ipAddrs []string) (certs.
 	}
 
 	secretValues := map[string]interface{}{
-		"common_name":         entityId,
-		"ttl":                ttl,
-		"ip_sans":             ipAddrs,
+		"common_name":          entityId,
+		"ttl":                  ttl,
+		"ip_sans":              ipAddrs,
 		"exclude_cn_from_sans": true,
 	}
 
@@ -122,10 +121,7 @@ func (va *openbaoPKIAgent) Issue(entityId, ttl string, ipAddrs []string) (certs.
 	}
 
 	cert := certs.Cert{
-		Certificate: "",
-		Key:         "",
-		Revoked:     false,
-		ClientID:    entityId,
+		ClientID: entityId,
 	}
 
 	if certData, ok := secret.Data["certificate"].(string); ok {
@@ -138,6 +134,16 @@ func (va *openbaoPKIAgent) Issue(entityId, ttl string, ipAddrs []string) (certs.
 
 	if serialNumber, ok := secret.Data["serial_number"].(string); ok {
 		cert.SerialNumber = serialNumber
+	}
+	if caChain, ok := secret.Data["ca_chain"].([]interface{}); ok {
+		for _, ca := range caChain {
+			if caStr, ok := ca.(string); ok {
+				cert.CAChain = append(cert.CAChain, caStr)
+			}
+		}
+	}
+	if issuingCA, ok := secret.Data["issuing_ca"].(string); ok {
+		cert.IssuingCA = issuingCA
 	}
 
 	if expirationInterface, ok := secret.Data["expiration"]; ok {
@@ -156,7 +162,6 @@ func (va *openbaoPKIAgent) Issue(entityId, ttl string, ipAddrs []string) (certs.
 	return cert, nil
 }
 
-// View retrieves a certificate by serial number from OpenBao
 func (va *openbaoPKIAgent) View(serialNumber string) (certs.Cert, error) {
 	err := va.LoginAndRenew()
 	if err != nil {
@@ -174,31 +179,15 @@ func (va *openbaoPKIAgent) View(serialNumber string) (certs.Cert, error) {
 
 	cert := certs.Cert{
 		SerialNumber: serialNumber,
-		Revoked:      false,
 	}
 
 	if certData, ok := secret.Data["certificate"].(string); ok {
 		cert.Certificate = certData
 	}
 
-	if revokedInterface, ok := secret.Data["revocation_time"]; ok {
-		// If revocation_time exists and is not 0, the cert is revoked
-		switch rev := revokedInterface.(type) {
-		case int64:
-			cert.Revoked = rev != 0
-		case float64:
-			cert.Revoked = rev != 0
-		case json.Number:
-			if revInt, err := rev.Int64(); err == nil {
-				cert.Revoked = revInt != 0
-			}
-		}
-	}
-
 	return cert, nil
 }
 
-// Revoke revokes a certificate by serial number in OpenBao
 func (va *openbaoPKIAgent) Revoke(serialNumber string) error {
 	err := va.LoginAndRenew()
 	if err != nil {
@@ -217,14 +206,12 @@ func (va *openbaoPKIAgent) Revoke(serialNumber string) error {
 	return nil
 }
 
-// ListCerts lists certificates with pagination from OpenBao PKI
 func (va *openbaoPKIAgent) ListCerts(pm certs.PageMetadata) (certs.CertPage, error) {
 	err := va.LoginAndRenew()
 	if err != nil {
 		return certs.CertPage{}, err
 	}
 
-	// OpenBao PKI typically lists certificates by serial numbers
 	secret, err := va.client.Logical().List(va.path + "/certs")
 	if err != nil {
 		return certs.CertPage{}, err
@@ -252,7 +239,6 @@ func (va *openbaoPKIAgent) ListCerts(pm certs.PageMetadata) (certs.CertPage, err
 
 	certPage.Total = uint64(len(serialNumbers))
 
-	// Apply pagination
 	start := pm.Offset
 	end := pm.Offset + pm.Limit
 	if start >= uint64(len(serialNumbers)) {
@@ -262,7 +248,6 @@ func (va *openbaoPKIAgent) ListCerts(pm certs.PageMetadata) (certs.CertPage, err
 		end = uint64(len(serialNumbers))
 	}
 
-	// Fetch certificate details for the paginated range
 	for i := start; i < end; i++ {
 		serialNumber := serialNumbers[i]
 		cert, err := va.View(serialNumber)
@@ -276,17 +261,14 @@ func (va *openbaoPKIAgent) ListCerts(pm certs.PageMetadata) (certs.CertPage, err
 	return certPage, nil
 }
 
-// LoginAndRenew handles authentication and token renewal for OpenBao
 func (va *openbaoPKIAgent) LoginAndRenew() error {
 	if va.secret != nil && va.secret.Auth != nil && va.secret.Auth.ClientToken != "" {
-		// Check if token is still valid by making a test call
 		_, err := va.client.Auth().Token().LookupSelf()
 		if err == nil {
-			return nil // Token is still valid
+			return nil
 		}
 	}
 
-	// Authenticate using AppRole
 	authData := map[string]interface{}{
 		"role_id":   va.appRole,
 		"secret_id": va.appSecret,
@@ -304,7 +286,6 @@ func (va *openbaoPKIAgent) LoginAndRenew() error {
 	va.secret = authResp
 	va.client.SetToken(authResp.Auth.ClientToken)
 
-	// Start token renewal if the token is renewable
 	if authResp.Auth.Renewable {
 		watcher, err := va.client.NewLifetimeWatcher(&api.LifetimeWatcherInput{
 			Secret: authResp,
@@ -319,7 +300,6 @@ func (va *openbaoPKIAgent) LoginAndRenew() error {
 	return nil
 }
 
-// renewToken runs in a separate goroutine to handle token renewal
 func (va *openbaoPKIAgent) renewToken(watcher *api.LifetimeWatcher) {
 	defer watcher.Stop()
 
@@ -336,4 +316,3 @@ func (va *openbaoPKIAgent) renewToken(watcher *api.LifetimeWatcher) {
 		}
 	}
 }
-

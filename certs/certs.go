@@ -16,9 +16,10 @@ import (
 
 type Cert struct {
 	SerialNumber string    `json:"serial_number"`
+	CAChain      []string  `json:"ca_chain,omitempty"`
+	IssuingCA    string    `json:"issuing_ca,omitempty"`
 	Certificate  string    `json:"certificate,omitempty"`
 	Key          string    `json:"key,omitempty"`
-	Revoked      bool      `json:"revoked"`
 	ExpiryTime   time.Time `json:"expiry_time"`
 	ClientID     string    `json:"entity_id"`
 }
@@ -35,17 +36,17 @@ type Repository interface {
 	// Save  saves cert for client into database
 	Save(ctx context.Context, cert Cert) (string, error)
 
-	// RetrieveAll retrieve issued certificates for given owner ID
-	RetrieveAll(ctx context.Context, ownerID string, offset, limit uint64) (CertPage, error)
+	// RetrieveAll retrieve issued certificates
+	RetrieveAll(ctx context.Context, offset, limit uint64) (CertPage, error)
 
 	// Remove removes certificate from DB for a given client ID
-	Remove(ctx context.Context, ownerID, clientID string) error
+	Remove(ctx context.Context, clientID string) error
 
 	// RetrieveByClient retrieves issued certificates for a given client ID
-	RetrieveByClient(ctx context.Context, ownerID, clientID string, offset, limit uint64) (CertPage, error)
+	RetrieveByClient(ctx context.Context, clientID string, offset, limit uint64) (CertPage, error)
 
 	// RetrieveBySerial retrieves a certificate for a given serial ID
-	RetrieveBySerial(ctx context.Context, ownerID, serialID string) (Cert, error)
+	RetrieveBySerial(ctx context.Context, serialID string) (Cert, error)
 }
 
 type PageMetadata struct {
@@ -55,7 +56,6 @@ type PageMetadata struct {
 	ClientID   string `json:"client_id,omitempty"`
 	Token      string `json:"token,omitempty"`
 	CommonName string `json:"common_name,omitempty"`
-	Revoked    string `json:"revoked,omitempty"`
 }
 
 var ErrMissingCerts = errors.New("CA path or CA key path not set")

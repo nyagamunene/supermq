@@ -19,13 +19,6 @@ import (
 
 var _ certs.Repository = (*certsRepository)(nil)
 
-// Cert holds info on expiration date for specific cert issued for specific Client.
-type Cert struct {
-	ClientID     string
-	SerialNumber string
-	ExpiryTime   time.Time
-}
-
 type certsRepository struct {
 	db  postgres.Database
 	log *slog.Logger
@@ -37,7 +30,7 @@ func NewRepository(db postgres.Database, log *slog.Logger) certs.Repository {
 	return &certsRepository{db: db, log: log}
 }
 
-func (cr certsRepository) RetrieveAll(ctx context.Context, ownerID string, offset, limit uint64) (certs.CertPage, error) {
+func (cr certsRepository) RetrieveAll(ctx context.Context, offset, limit uint64) (certs.CertPage, error) {
 	q := `SELECT client_id, serial_number, expiry_time FROM certs ORDER BY expiry_time LIMIT $1 OFFSET $2;`
 	rows, err := cr.db.QueryContext(ctx, q, limit, offset)
 	if err != nil {
@@ -94,8 +87,8 @@ func (cr certsRepository) Save(ctx context.Context, cert certs.Cert) (string, er
 	return cert.SerialNumber, nil
 }
 
-func (cr certsRepository) Remove(ctx context.Context, ownerID, serial string) error {
-	if _, err := cr.RetrieveBySerial(ctx, ownerID, serial); err != nil {
+func (cr certsRepository) Remove(ctx context.Context, serial string) error {
+	if _, err := cr.RetrieveBySerial(ctx, serial); err != nil {
 		return errors.Wrap(repoerr.ErrRemoveEntity, err)
 	}
 	q := `DELETE FROM certs WHERE serial_number = :serial_number`
@@ -108,7 +101,7 @@ func (cr certsRepository) Remove(ctx context.Context, ownerID, serial string) er
 	return nil
 }
 
-func (cr certsRepository) RetrieveByClient(ctx context.Context, ownerID, clientID string, offset, limit uint64) (certs.CertPage, error) {
+func (cr certsRepository) RetrieveByClient(ctx context.Context, clientID string, offset, limit uint64) (certs.CertPage, error) {
 	q := `SELECT client_id, serial_number, expiry_time FROM certs WHERE client_id = $1 ORDER BY expiry_time LIMIT $2 OFFSET $3;`
 	rows, err := cr.db.QueryContext(ctx, q, clientID, limit, offset)
 	if err != nil {
@@ -142,7 +135,7 @@ func (cr certsRepository) RetrieveByClient(ctx context.Context, ownerID, clientI
 	}, nil
 }
 
-func (cr certsRepository) RetrieveBySerial(ctx context.Context, ownerID, serial string) (certs.Cert, error) {
+func (cr certsRepository) RetrieveBySerial(ctx context.Context, serial string) (certs.Cert, error) {
 	q := `SELECT client_id, serial_number, expiry_time FROM certs WHERE serial_number = $1`
 	var dbcrt dbCert
 	var c certs.Cert
@@ -170,7 +163,7 @@ func (cr certsRepository) rollback(content string, tx *sqlx.Tx, err error) {
 type dbCert struct {
 	ClientID     string    `db:"client_id"`
 	SerialNumber string    `db:"serial_number"`
-	ExpiryTime   time.Time `db:"expire_time"`
+	ExpiryTime   time.Time `db:"expiry_time"`
 }
 
 func toDBCert(c certs.Cert) dbCert {

@@ -111,6 +111,8 @@ services:
       - SMQ_CERTS_OPENBAO_ROLE=${SMQ_CERTS_OPENBAO_ROLE:-supermq}
       - SMQ_CERTS_OPENBAO_APP_ROLE=${SMQ_CERTS_OPENBAO_APP_ROLE}
       - SMQ_CERTS_OPENBAO_APP_SECRET=${SMQ_CERTS_OPENBAO_APP_SECRET}
+      - SMQ_OPENBAO_PORT=${SMQ_OPENBAO_PORT}
+      - SMQ_OPENBAO_ROOT_TOKEN=${SMQ_OPENBAO_ROOT_TOKEN:-openbao-root-token}
     cap_add:
       - IPC_LOCK
     mem_swappiness: 0
@@ -123,61 +125,6 @@ services:
     volumes:
       - openbao_data:/openbao/file
       - openbao_config:/openbao/config
-    command: >
-      sh -c "
-        # Start OpenBao in background
-        bao server -dev -dev-root-token-id=\"$${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}\" -dev-listen-address=\"0.0.0.0:8200\" &
-        BAO_PID=\$$!
-        
-        # Wait for OpenBao to be ready
-        echo 'Waiting for OpenBao to be ready...'
-        for i in {1..30}; do
-          if curl -s -f http://localhost:8200/v1/sys/health >/dev/null 2>&1; then
-            echo 'OpenBao is ready!'
-            break
-          fi
-          sleep 2
-        done
-        
-        # Setup OpenBao
-        export BAO_ADDR=http://localhost:8200
-        export BAO_TOKEN=\"$${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}\"
-        
-        # Check if already configured
-        if ! (bao secrets list | grep -q '^pki/' && bao auth list | grep -q '^approle/'); then
-          echo 'Configuring OpenBao...'
-          
-          # Enable auth and secrets
-          bao auth enable approle || true
-          bao secrets enable -path=pki pki || true
-          bao secrets tune -max-lease-ttl=87600h pki
-          
-          # Generate CA
-          bao write -field=certificate pki/root/generate/internal common_name='SuperMQ Root CA' ttl=87600h > /tmp/ca.crt || true
-          bao write pki/config/urls issuing_certificates='http://localhost:8200/v1/pki/ca' crl_distribution_points='http://localhost:8200/v1/pki/crl'
-          
-          # Create role
-          bao write pki/roles/supermq allow_any_name=true enforce_hostnames=false allow_ip_sans=true allow_localhost=true max_ttl=720h ttl=720h
-          
-          # Create policy
-          echo 'path \"pki/issue/supermq\" { capabilities = [\"create\", \"update\"] }' > /tmp/policy.hcl
-          echo 'path \"pki/certs\" { capabilities = [\"list\"] }' >> /tmp/policy.hcl
-          echo 'path \"pki/cert/*\" { capabilities = [\"read\"] }' >> /tmp/policy.hcl
-          echo 'path \"pki/revoke\" { capabilities = [\"create\", \"update\"] }' >> /tmp/policy.hcl
-          echo 'path \"auth/token/renew-self\" { capabilities = [\"update\"] }' >> /tmp/policy.hcl
-          echo 'path \"auth/token/lookup-self\" { capabilities = [\"read\"] }' >> /tmp/policy.hcl
-          bao policy write pki-policy /tmp/policy.hcl
-          
-          # Create AppRole
-          bao write auth/approle/role/supermq token_policies=pki-policy token_ttl=1h token_max_ttl=4h bind_secret_id=true
-          bao write auth/approle/role/supermq/role-id role_id=\"\$$SMQ_CERTS_OPENBAO_APP_ROLE\"
-          bao write auth/approle/role/supermq/custom-secret-id secret_id=\"\$$SMQ_CERTS_OPENBAO_APP_SECRET\"
-          
-          echo 'OpenBao configuration complete!'
-        else
-          echo 'OpenBao already configured, skipping initialization'
-        fi
-        
-        echo 'OpenBao is ready for SuperMQ!'
-        wait \$$BAO_PID
-      "
+      - ./entrypoint.sh:/entrypoint.sh
+    entrypoint: /bin/sh
+    command: /entrypoint.sh
