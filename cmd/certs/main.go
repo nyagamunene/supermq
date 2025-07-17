@@ -17,17 +17,21 @@ import (
 	"github.com/absmach/supermq/certs"
 	httpapi "github.com/absmach/supermq/certs/api"
 	pki "github.com/absmach/supermq/certs/pki/openbao"
+	"github.com/absmach/supermq/certs/postgres"
 	"github.com/absmach/supermq/certs/tracing"
 	smqlog "github.com/absmach/supermq/logger"
 	authsvcAuthn "github.com/absmach/supermq/pkg/authn/authsvc"
 	"github.com/absmach/supermq/pkg/grpcclient"
 	jaegerclient "github.com/absmach/supermq/pkg/jaeger"
+	pg "github.com/absmach/supermq/pkg/postgres"
+	pgclient "github.com/absmach/supermq/pkg/postgres"
 	"github.com/absmach/supermq/pkg/prometheus"
 	mgsdk "github.com/absmach/supermq/pkg/sdk"
 	"github.com/absmach/supermq/pkg/server"
 	httpserver "github.com/absmach/supermq/pkg/server/http"
 	"github.com/absmach/supermq/pkg/uuid"
 	"github.com/caarlos0/env/v11"
+	"github.com/jmoiron/sqlx"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
@@ -112,6 +116,20 @@ func main() {
 		exitCode = 1
 		return
 	}
+
+	dbConfig := pgclient.Config{Name: defDB}
+	if err := env.ParseWithOptions(&dbConfig, env.Options{Prefix: envPrefixDB}); err != nil {
+		logger.Error(err.Error())
+	}
+	migrations := postgres.Migration()
+	db, err := pgclient.Setup(dbConfig, *migrations)
+	if err != nil {
+		logger.Error(err.Error())
+		exitCode = 1
+		return
+	}
+	defer db.Close()
+
 	authn, authnClient, err := authsvcAuthn.NewAuthentication(ctx, grpcCfg)
 	if err != nil {
 		logger.Error(err.Error())
@@ -134,7 +152,7 @@ func main() {
 	}()
 	tracer := tp.Tracer(svcName)
 
-	svc := newService(tracer, logger, cfg, pkiclient)
+	svc := newService(db, dbConfig, tracer, logger, cfg, pkiclient)
 
 	httpServerConfig := server.Config{Port: defSvcHTTPPort}
 	if err := env.ParseWithOptions(&httpServerConfig, env.Options{Prefix: envPrefixHTTP}); err != nil {
@@ -165,12 +183,14 @@ func main() {
 	}
 }
 
-func newService(tracer trace.Tracer, logger *slog.Logger, cfg config, pkiAgent pki.Agent) certs.Service {
+func newService(db *sqlx.DB, dbConfig pgclient.Config, tracer trace.Tracer, logger *slog.Logger, cfg config, pkiAgent pki.Agent) certs.Service {
+	database := pg.NewDatabase(db, dbConfig, tracer)
 	config := mgsdk.Config{
 		ClientsURL: cfg.ClientsURL,
 	}
 	sdk := mgsdk.NewSDK(config)
-	svc := certs.New(sdk, pkiAgent)
+	repo := postgres.NewRepository(database, logger)
+	svc := certs.New(sdk, repo, pkiAgent)
 	svc = httpapi.LoggingMiddleware(svc, logger)
 	counter, latency := prometheus.MakeMetrics(svcName, "api")
 	svc = httpapi.MetricsMiddleware(svc, counter, latency)

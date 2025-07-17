@@ -5,6 +5,7 @@ package certs
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/absmach/supermq/pkg/errors"
@@ -46,21 +47,23 @@ type Service interface {
 }
 
 type certsService struct {
-	sdk mgsdk.SDK
-	pki Agent
+	sdk       mgsdk.SDK
+	certsRepo Repository
+	pki       Agent
 }
 
 // New returns new Certs service.
-func New(sdk mgsdk.SDK, pkiAgent Agent) Service {
+func New(sdk mgsdk.SDK, certsRepo Repository, pkiAgent Agent) Service {
 	return &certsService{
-		sdk: sdk,
-		pki: pkiAgent,
+		sdk:       sdk,
+		pki:       pkiAgent,
+		certsRepo: certsRepo,
 	}
 }
 
 // Revoke defines the conditions to revoke a certificate.
 type Revoke struct {
-	RevocationTime time.Time `mapstructure:"revocation_time"`
+	RevocationTime time.Time `json:"revocation_time"`
 }
 
 func (cs *certsService) IssueCert(ctx context.Context, domainID, token, clientID, ttl string) (Cert, error) {
@@ -75,6 +78,9 @@ func (cs *certsService) IssueCert(ctx context.Context, domainID, token, clientID
 	if err != nil {
 		return Cert{}, errors.Wrap(ErrFailedCertCreation, err)
 	}
+
+	fmt.Printf("cert is %+v\n", cert)
+	_, err = cs.certsRepo.Save(ctx, cert)
 
 	return Cert{
 		SerialNumber: cert.SerialNumber,
