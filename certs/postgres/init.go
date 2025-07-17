@@ -14,10 +14,9 @@ func Migration() *migrate.MemoryMigrationSource {
 				Up: []string{
 					`CREATE TABLE IF NOT EXISTS certs (
 						client_id    		TEXT NOT NULL,
-						owner_id     		TEXT NOT NULL,
 						expiry_time  		TIMESTAMPTZ NOT NULL,
 						serial_number       TEXT NOT NULL,
-						PRIMARY KEY  (client_id, owner_id, serial_number)
+						PRIMARY KEY  (client_id, serial_number)
 					);`,
 				},
 				Down: []string{
