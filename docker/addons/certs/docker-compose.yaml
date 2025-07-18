@@ -102,26 +102,20 @@ services:
     networks:
       - supermq-base-net
     ports:
-      - ${SMQ_OPENBAO_PORT}:8200
+      - ${SMQ_OPENBAO_PORT}:${SMQ_OPENBAO_PORT}
     environment:
-      - BAO_DEV_ROOT_TOKEN_ID=${SMQ_OPENBAO_ROOT_TOKEN:-openbao-root-token}
-      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      - BAO_DEV_ROOT_TOKEN_ID=${SMQ_OPENBAO_ROOT_TOKEN}
+      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:${SMQ_OPENBAO_PORT}
       - BAO_ADDR=http://127.0.0.1:${SMQ_OPENBAO_PORT}
       - SMQ_CERTS_OPENBAO_PKI_PATH=${SMQ_CERTS_OPENBAO_PKI_PATH:-pki}
-      - SMQ_CERTS_OPENBAO_ROLE=${SMQ_CERTS_OPENBAO_ROLE:-supermq}
+      - SMQ_CERTS_OPENBAO_ROLE=${SMQ_CERTS_OPENBAO_ROLE}
       - SMQ_CERTS_OPENBAO_APP_ROLE=${SMQ_CERTS_OPENBAO_APP_ROLE}
       - SMQ_CERTS_OPENBAO_APP_SECRET=${SMQ_CERTS_OPENBAO_APP_SECRET}
       - SMQ_OPENBAO_PORT=${SMQ_OPENBAO_PORT}
-      - SMQ_OPENBAO_ROOT_TOKEN=${SMQ_OPENBAO_ROOT_TOKEN:-openbao-root-token}
+      - SMQ_OPENBAO_ROOT_TOKEN=${SMQ_OPENBAO_ROOT_TOKEN}
     cap_add:
       - IPC_LOCK
     mem_swappiness: 0
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8200/v1/sys/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
     volumes:
       - openbao_data:/openbao/file
       - openbao_config:/openbao/config

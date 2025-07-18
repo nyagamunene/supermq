@@ -18,16 +18,6 @@ echo "OpenBao started with PID: $BAO_PID"
 echo "Waiting for OpenBao to be ready..."
 sleep 10
 
-# Check if OpenBao is responding
-for i in $(seq 1 10); do
-  if curl -s http://localhost:8200/v1/sys/health >/dev/null 2>&1; then
-    echo "OpenBao is ready!"
-    break
-  fi
-  echo "Waiting... ($i/10)"
-  sleep 2
-done
-
 # Setup OpenBao configuration
 export BAO_ADDR=http://localhost:8200
 export BAO_TOKEN="${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}"
