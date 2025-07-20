@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Simple OpenBao entrypoint for SuperMQ
+# Development OpenBao entrypoint for SuperMQ
 set -e
 
-echo "=== Starting OpenBao for SuperMQ ==="
+echo "=== Starting OpenBao for SuperMQ (Development Mode) ==="
 
 # Start OpenBao in development mode in the background
 bao server -dev \
-  -dev-root-token-id="${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}" \
+  -dev-root-token-id="${BAO_DEV_ROOT_TOKEN_ID}" \
   -dev-listen-address="0.0.0.0:8200" \
   -log-level=info &
 
@@ -20,7 +20,7 @@ sleep 10
 
 # Setup OpenBao configuration
 export BAO_ADDR=http://localhost:8200
-export BAO_TOKEN="${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}"
+export BAO_TOKEN="${BAO_DEV_ROOT_TOKEN_ID}"
 
 echo "Configuring OpenBao..."
 
@@ -68,7 +68,8 @@ if [ -n "$SMQ_CERTS_OPENBAO_APP_SECRET" ]; then
 fi
 
 echo "OpenBao configuration completed successfully!"
-echo "OpenBao is ready for SuperMQ on port 8200"
+echo "OpenBao is ready for SuperMQ on port 8200 (Development Mode)"
+echo "Root Token: ${BAO_DEV_ROOT_TOKEN_ID:-openbao-root-token}"
 
 # Keep the process running
 wait $BAO_PID

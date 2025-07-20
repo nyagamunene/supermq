@@ -105,20 +105,23 @@ services:
       - ${SMQ_OPENBAO_PORT}:${SMQ_OPENBAO_PORT}
     environment:
       - BAO_DEV_ROOT_TOKEN_ID=${SMQ_OPENBAO_ROOT_TOKEN}
-      - BAO_DEV_LISTEN_ADDRESS=0.0.0.0:${SMQ_OPENBAO_PORT}
       - BAO_ADDR=http://127.0.0.1:${SMQ_OPENBAO_PORT}
       - SMQ_CERTS_OPENBAO_PKI_PATH=${SMQ_CERTS_OPENBAO_PKI_PATH:-pki}
       - SMQ_CERTS_OPENBAO_ROLE=${SMQ_CERTS_OPENBAO_ROLE}
       - SMQ_CERTS_OPENBAO_APP_ROLE=${SMQ_CERTS_OPENBAO_APP_ROLE}
       - SMQ_CERTS_OPENBAO_APP_SECRET=${SMQ_CERTS_OPENBAO_APP_SECRET}
       - SMQ_OPENBAO_PORT=${SMQ_OPENBAO_PORT}
-      - SMQ_OPENBAO_ROOT_TOKEN=${SMQ_OPENBAO_ROOT_TOKEN}
     cap_add:
       - IPC_LOCK
     mem_swappiness: 0
     volumes:
-      - openbao_data:/openbao/file
-      - openbao_config:/openbao/config
-      - ./entrypoint.sh:/entrypoint.sh
+      - openbao_data:/opt/openbao/data
+      - openbao_config:/opt/openbao/config
+      - ./prod-entrypoint.sh:/entrypoint.sh
     entrypoint: /bin/sh
     command: /entrypoint.sh
+    healthcheck:
+      test: ["CMD-SHELL", "bao status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
