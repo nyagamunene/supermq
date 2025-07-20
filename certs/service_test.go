@@ -32,12 +32,12 @@ const (
 	validID    = "d4ebb847-5d0e-4e46-bdd9-b6aceaaa3a22"
 )
 
-func newService(_ *testing.T) (certs.Service, *mocks.Agent, *sdkmocks.SDK) {
+func newService(_ *testing.T) (certs.Service, *mocks.Agent, *sdkmocks.SDK, *mocks.Repository) {
 	agent := new(mocks.Agent)
 	repo := new(mocks.Repository)
 	sdk := new(sdkmocks.SDK)
 
-	return certs.New(sdk, repo, agent), agent, sdk
+	return certs.New(sdk, repo, agent), agent, sdk, repo
 }
 
 var cert = certs.Cert{
@@ -47,7 +47,7 @@ var cert = certs.Cert{
 }
 
 func TestIssueCert(t *testing.T) {
-	svc, agent, sdk := newService(t)
+	svc, agent, sdk, repo := newService(t)
 	cases := []struct {
 		domainID     string
 		token        string
@@ -59,6 +59,7 @@ func TestIssueCert(t *testing.T) {
 		cert         certs.Cert
 		clientErr    errors.SDKError
 		issueCertErr error
+		saveErr      error
 		err          error
 	}{
 		{
@@ -107,42 +108,46 @@ func TestIssueCert(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdk.On("Client", mock.Anything, tc.clientID, tc.domainID, tc.token).Return(mgsdk.Client{ID: tc.clientID, Credentials: mgsdk.ClientCredentials{Secret: clientKey}}, tc.clientErr)
 			agentCall := agent.On("Issue", clientID, tc.ttl, tc.ipAddr).Return(tc.cert, tc.issueCertErr)
+			repoCall := repo.On("Save", mock.Anything, tc.cert).Return("", tc.saveErr)
 			resp, err := svc.IssueCert(context.Background(), tc.domainID, tc.token, tc.clientID, tc.ttl)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			assert.Equal(t, tc.cert.SerialNumber, resp.SerialNumber, fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.cert.SerialNumber, resp.SerialNumber))
 			sdkCall.Unset()
 			agentCall.Unset()
+			repoCall.Unset()
 		})
 	}
 }
 
 func TestRevokeCert(t *testing.T) {
-	svc, agent, sdk := newService(t)
+	svc, agent, sdk, repo := newService(t)
 	cases := []struct {
-		domainID  string
-		token     string
-		desc      string
-		clientID  string
-		page      certs.CertPage
-		authErr   error
-		clientErr errors.SDKError
-		revokeErr error
-		listErr   error
-		err       error
+		domainID    string
+		token       string
+		desc        string
+		clientID    string
+		page        certs.CertPage
+		authErr     error
+		clientErr   errors.SDKError
+		revokeErr   error
+		listErr     error
+		retrieveErr error
+		removeErr   error
+		err         error
 	}{
 		{
 			desc:     "revoke cert",
 			domainID: domain,
 			token:    token,
 			clientID: clientID,
-			page:     mgcrt.CertPage{Limit: 10000, Offset: 0, Total: 1, Certificates: []mgcrt.Cert{cert}},
+			page:     certs.CertPage{Limit: 10000, Offset: 0, Total: 1, Certificates: []certs.Cert{cert}},
 		},
 		{
 			desc:      "revoke cert for failed pki revoke",
 			domainID:  domain,
 			token:     token,
 			clientID:  clientID,
-			page:      mgcrt.CertPage{Limit: 10000, Offset: 0, Total: 1, Certificates: []mgcrt.Cert{cert}},
+			page:      certs.CertPage{Limit: 10000, Offset: 0, Total: 1, Certificates: []certs.Cert{cert}},
 			revokeErr: certs.ErrFailedCertRevocation,
 			err:       certs.ErrFailedCertRevocation,
 		},
@@ -151,29 +156,34 @@ func TestRevokeCert(t *testing.T) {
 			domainID:  domain,
 			token:     token,
 			clientID:  "2",
-			page:      mgcrt.CertPage{},
+			page:      certs.CertPage{},
 			clientErr: errors.NewSDKError(certs.ErrFailedCertCreation),
 			err:       certs.ErrFailedCertRevocation,
 		},
 		{
-			desc:     "revoke cert with failed to list certs",
-			domainID: domain,
-			token:    token,
-			clientID: clientID,
-			page:     mgcrt.CertPage{},
-			listErr:  certs.ErrFailedCertRevocation,
-			err:      certs.ErrFailedCertRevocation,
+			desc:        "revoke cert with failed to list certs",
+			domainID:    domain,
+			token:       token,
+			clientID:    clientID,
+			page:        certs.CertPage{},
+			retrieveErr: certs.ErrFailedCertRevocation, // Force fallback to agent
+			listErr:     certs.ErrFailedCertRevocation, // Make agent call fail too
+			err:         certs.ErrFailedCertRevocation,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdk.On("Client", mock.Anything, tc.clientID, tc.domainID, tc.token).Return(mgsdk.Client{ID: tc.clientID, Credentials: mgsdk.ClientCredentials{Secret: clientKey}}, tc.clientErr)
+			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, mock.Anything, mock.Anything).Return(tc.page, tc.retrieveErr)
+			repoCall1 := repo.On("Remove", mock.Anything, tc.clientID).Return(tc.removeErr)
 			agentCall := agent.On("Revoke", mock.Anything).Return(tc.revokeErr)
 			agentCall1 := agent.On("ListCerts", mock.Anything).Return(tc.page, tc.listErr)
 			_, err := svc.RevokeCert(context.Background(), tc.domainID, tc.token, tc.clientID)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			sdkCall.Unset()
+			repoCall.Unset()
+			repoCall1.Unset()
 			agentCall.Unset()
 			agentCall1.Unset()
 		})
@@ -181,10 +191,10 @@ func TestRevokeCert(t *testing.T) {
 }
 
 func TestListCerts(t *testing.T) {
-	svc, agent, _ := newService(t)
-	var mycerts []mgcrt.Cert
+	svc, agent, _, repo := newService(t)
+	var mycerts []certs.Cert
 	for i := 0; i < certNum; i++ {
-		c := mgcrt.Cert{
+		c := certs.Cert{
 			ClientID:     clientID,
 			SerialNumber: fmt.Sprintf("%d", i),
 			ExpiryTime:   time.Now().Add(time.Hour),
@@ -193,70 +203,72 @@ func TestListCerts(t *testing.T) {
 	}
 
 	cases := []struct {
-		desc     string
-		clientID string
-		page     mgcrt.CertPage
-		listErr  error
-		err      error
+		desc        string
+		clientID    string
+		page        certs.CertPage
+		listErr     error
+		retrieveErr error
+		err         error
 	}{
 		{
 			desc:     "list all certs successfully",
 			clientID: clientID,
-			page:     mgcrt.CertPage{Limit: certNum, Offset: 0, Total: certNum, Certificates: mycerts},
+			page:     certs.CertPage{Limit: certNum, Offset: 0, Total: certNum, Certificates: mycerts},
 		},
 		{
-			desc:     "list all certs with failed pki",
-			clientID: clientID,
-			page:     mgcrt.CertPage{},
-			listErr:  svcerr.ErrViewEntity,
-			err:      svcerr.ErrViewEntity,
+			desc:        "list all certs with failed pki",
+			clientID:    clientID,
+			page:        certs.CertPage{},
+			retrieveErr: svcerr.ErrViewEntity,
+			err:         svcerr.ErrViewEntity,
 		},
 		{
 			desc:     "list half certs successfully",
 			clientID: clientID,
-			page:     mgcrt.CertPage{Limit: certNum, Offset: certNum / 2, Total: certNum / 2, Certificates: mycerts[certNum/2:]},
+			page:     certs.CertPage{Limit: certNum, Offset: certNum / 2, Total: certNum / 2, Certificates: mycerts[certNum/2:]},
 		},
 		{
 			desc:     "list last cert successfully",
 			clientID: clientID,
-			page:     mgcrt.CertPage{Limit: certNum, Offset: certNum - 1, Total: 1, Certificates: []mgcrt.Cert{mycerts[certNum-1]}},
+			page:     certs.CertPage{Limit: certNum, Offset: certNum - 1, Total: 1, Certificates: []certs.Cert{mycerts[certNum-1]}},
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			agentCall := agent.On("ListCerts", mock.Anything).Return(tc.page, tc.listErr)
+			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, mock.Anything, mock.Anything).Return(tc.page, tc.retrieveErr)
+			agentCall := agent.On("View", mock.Anything).Return(certs.Cert{}, tc.listErr)
 			page, err := svc.ListCerts(context.Background(), tc.clientID, certs.PageMetadata{Offset: tc.page.Offset, Limit: tc.page.Limit})
 			size := uint64(len(page.Certificates))
 			assert.Equal(t, tc.page.Total, size, fmt.Sprintf("%s: expected %d got %d\n", tc.desc, tc.page.Total, size))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
 			agentCall.Unset()
 		})
 	}
 }
 
 func TestListSerials(t *testing.T) {
-	svc, agent, _ := newService(t)
+	svc, _, _, repo := newService(t)
 
-	var issuedCerts []mgcrt.Cert
+	var issuedCerts []certs.Cert
 	for i := 0; i < certNum; i++ {
-		crt := mgcrt.Cert{
+		crt := certs.Cert{
 			ClientID:     cert.ClientID,
 			SerialNumber: cert.SerialNumber,
 			ExpiryTime:   cert.ExpiryTime,
-			Revoked:      false,
 		}
 		issuedCerts = append(issuedCerts, crt)
 	}
 
 	cases := []struct {
-		desc     string
-		clientID string
-		offset   uint64
-		limit    uint64
-		certs    []mgcrt.Cert
-		listErr  error
-		err      error
+		desc        string
+		clientID    string
+		offset      uint64
+		limit       uint64
+		certs       []certs.Cert
+		retrieveErr error
+		err         error
 	}{
 		{
 			desc:     "list all certs successfully",
@@ -266,13 +278,13 @@ func TestListSerials(t *testing.T) {
 			certs:    issuedCerts,
 		},
 		{
-			desc:     "list all certs with failed pki",
-			clientID: clientID,
-			offset:   0,
-			limit:    certNum,
-			certs:    nil,
-			listErr:  svcerr.ErrViewEntity,
-			err:      svcerr.ErrViewEntity,
+			desc:        "list all certs with failed pki",
+			clientID:    clientID,
+			offset:      0,
+			limit:       certNum,
+			certs:       nil,
+			retrieveErr: svcerr.ErrViewEntity,
+			err:         svcerr.ErrViewEntity,
 		},
 		{
 			desc:     "list half certs successfully",
@@ -286,28 +298,28 @@ func TestListSerials(t *testing.T) {
 			clientID: clientID,
 			offset:   certNum - 1,
 			limit:    certNum,
-			certs:    []mgcrt.Cert{issuedCerts[certNum-1]},
+			certs:    []certs.Cert{issuedCerts[certNum-1]},
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			agentCall := agent.On("ListCerts", mock.Anything).Return(mgcrt.CertPage{Certificates: tc.certs}, tc.listErr)
+			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, tc.offset, tc.limit).Return(certs.CertPage{Certificates: tc.certs}, tc.retrieveErr)
 			page, err := svc.ListSerials(context.Background(), tc.clientID, certs.PageMetadata{Offset: tc.offset, Limit: tc.limit})
 			assert.Equal(t, len(tc.certs), len(page.Certificates), fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.certs, page.Certificates))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			agentCall.Unset()
+			repoCall.Unset()
 		})
 	}
 }
 
 func TestViewCert(t *testing.T) {
-	svc, agent, _ := newService(t)
+	svc, agent, _, repo := newService(t)
 
 	cases := []struct {
 		desc     string
 		serialID string
-		cert     mgcrt.Cert
+		cert     certs.Cert
 		repoErr  error
 		agentErr error
 		err      error
@@ -320,7 +332,7 @@ func TestViewCert(t *testing.T) {
 		{
 			desc:     "list cert with invalid serial",
 			serialID: invalid,
-			cert:     mgcrt.Cert{},
+			cert:     certs.Cert{},
 			agentErr: svcerr.ErrNotFound,
 			err:      svcerr.ErrNotFound,
 		},
@@ -328,10 +340,12 @@ func TestViewCert(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
+			repoCall := repo.On("RetrieveBySerial", mock.Anything, tc.serialID).Return(tc.cert, tc.repoErr)
 			agentCall := agent.On("View", tc.serialID).Return(tc.cert, tc.agentErr)
 			res, err := svc.ViewCert(context.Background(), tc.serialID)
 			assert.Equal(t, tc.cert.SerialNumber, res.SerialNumber, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.cert.SerialNumber, res.SerialNumber))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+			repoCall.Unset()
 			agentCall.Unset()
 		})
 	}
