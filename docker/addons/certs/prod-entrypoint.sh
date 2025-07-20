@@ -1,17 +1,11 @@
 #!/bin/sh
 
-# Production OpenBao entrypoint for SuperMQ
 set -e
 
-echo "=== Starting OpenBao for SuperMQ (Production Mode) ==="
-
-# Install jq for JSON processing
 apk add --no-cache jq
 
-# Create OpenBao configuration directory
 mkdir -p /opt/openbao/config /opt/openbao/data /opt/openbao/logs
 
-# Create production configuration file
 cat > /opt/openbao/config/config.hcl << 'EOF'
 storage "file" {
   path = "/opt/openbao/data"
@@ -31,14 +25,11 @@ default_lease_ttl = "168h"
 max_lease_ttl = "720h"
 EOF
 
-# Setup OpenBao configuration
 export BAO_ADDR=http://localhost:8200
 
-# Check if OpenBao is already initialized
 if [ ! -f /opt/openbao/data/init.json ]; then
   echo "Initializing OpenBao for first time..."
   
-  # Start OpenBao in the background
   bao server -config=/opt/openbao/config/config.hcl > /opt/openbao/logs/server.log 2>&1 &
   BAO_PID=$!
   echo "OpenBao started with PID: $BAO_PID"
