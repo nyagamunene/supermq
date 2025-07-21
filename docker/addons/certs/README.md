@@ -9,6 +9,26 @@ Two entrypoint scripts are provided:
 - **`dev-entrypoint.sh`**: Development mode with in-memory storage and simple setup
 - **`prod-entrypoint.sh`**: Production mode with persistent file storage and proper initialization
 
+Both scripts use environment variables for flexible configuration, allowing you to customize OpenBao behavior without modifying the scripts directly. All configuration is centralized in the `.env` file using the `SMQ_OPENBAO_*` naming convention.
+
+## Configuration Management
+
+### Environment-Based Configuration
+All OpenBao configuration is managed through environment variables defined in `/docker/.env`. This approach provides:
+
+- **Consistency**: All OpenBao variables use the `SMQ_OPENBAO_*` naming pattern
+- **Flexibility**: Easy customization without script modifications
+- **Security**: Sensitive values (tokens, keys) can be externally managed
+- **Development/Production Parity**: Same configuration approach for both environments
+
+### Variable Organization
+Variables are logically grouped by function:
+- **Core**: Basic OpenBao server configuration
+- **Authentication**: AppRole and token configuration  
+- **PKI Engine**: Certificate authority and PKI role settings
+- **PKI CA**: Certificate authority details (CN, organization, etc.)
+- **Unsealing**: Production unsealing keys and tokens
+
 ## Quick Start
 
 ### Development Mode (Default)
@@ -73,13 +93,10 @@ docker exec supermq-openbao jq -r '.root_token' /opt/openbao/data/init.json
 
 #### Manual Operations
 ```bash
-# Check status
 docker exec supermq-openbao bao status
 
-# Manual unseal (if needed)
 docker exec supermq-openbao bao operator unseal <unseal-key>
 
-# Seal vault
 docker exec supermq-openbao bao operator seal
 ```
 
@@ -112,21 +129,44 @@ docker exec supermq-openbao bao operator seal
 
 ## Environment Variables
 
-The following environment variables can be configured:
-
-- `SMQ_CERTS_OPENBAO_APP_ROLE`: Custom AppRole ID
-- `SMQ_CERTS_OPENBAO_APP_SECRET`: Custom AppRole secret
-- `SMQ_OPENBAO_PORT`: OpenBao port (default: 8200)
+### OpenBao Core Configuration
+- `SMQ_OPENBAO_HOST`: OpenBao server hostname (default: `supermq-openbao`)
+- `SMQ_OPENBAO_PORT`: OpenBao server port (default: `8200`)
+- `SMQ_OPENBAO_ADDR`: Full OpenBao server URL (default: `http://supermq-openbao:8200`)
+- `SMQ_OPENBAO_NAMESPACE`: OpenBao namespace (optional)
 - `SMQ_OPENBAO_ROOT_TOKEN`: Custom root token for development mode
+- `SMQ_OPENBAO_TOKEN`: Custom token for production mode
+- `SMQ_OPENBAO_UNSEAL_KEY_1`: First unseal key for production mode
+- `SMQ_OPENBAO_UNSEAL_KEY_2`: Second unseal key for production mode  
+- `SMQ_OPENBAO_UNSEAL_KEY_3`: Third unseal key for production mode
 
-## Additional Configuration Variables
+### OpenBao Authentication Configuration
+- `SMQ_OPENBAO_APP_ROLE`: AppRole role ID for service authentication
+- `SMQ_OPENBAO_APP_SECRET`: AppRole secret ID for service authentication
 
-- `SMQ_CERTS_OPENBAO_HOST`: OpenBao server URL (default: `http://supermq-openbao:8200`)
-- `SMQ_CERTS_OPENBAO_APP_ROLE`: AppRole role ID for authentication
-- `SMQ_CERTS_OPENBAO_APP_SECRET`: AppRole secret ID for authentication  
-- `SMQ_CERTS_OPENBAO_NAMESPACE`: OpenBao namespace (optional)
-- `SMQ_CERTS_OPENBAO_PKI_PATH`: PKI secrets engine path (default: `pki`)
-- `SMQ_CERTS_OPENBAO_ROLE`: PKI role name for certificate issuance (default: `supermq`)
+### OpenBao PKI Configuration
+- `SMQ_OPENBAO_PKI_PATH`: PKI secrets engine path (default: `pki`)
+- `SMQ_OPENBAO_PKI_ROLE`: PKI role name for certificate issuance (default: `supermq`)
+- `SMQ_OPENBAO_PKI_ROLE_NAME`: PKI role name for certificate generation (default: `supermq`)
+
+### OpenBao PKI Certificate Authority Configuration
+- `SMQ_OPENBAO_PKI_CA_CN`: Certificate Authority Common Name
+- `SMQ_OPENBAO_PKI_CA_OU`: Certificate Authority Organizational Unit
+- `SMQ_OPENBAO_PKI_CA_O`: Certificate Authority Organization
+- `SMQ_OPENBAO_PKI_CA_C`: Certificate Authority Country
+- `SMQ_OPENBAO_PKI_CA_L`: Certificate Authority Locality
+- `SMQ_OPENBAO_PKI_CA_ST`: Certificate Authority State/Province
+- `SMQ_OPENBAO_PKI_CA_ADDR`: Certificate Authority Street Address
+- `SMQ_OPENBAO_PKI_CA_PO`: Certificate Authority Postal Code
+
+### Certs Service OpenBao Integration
+For the SuperMQ certs service, the following variables are used internally:
+- `SMQ_CERTS_OPENBAO_HOST`: Maps to `SMQ_OPENBAO_HOST` and `SMQ_OPENBAO_PORT`
+- `SMQ_CERTS_OPENBAO_APP_ROLE`: Maps to `SMQ_OPENBAO_APP_ROLE`
+- `SMQ_CERTS_OPENBAO_APP_SECRET`: Maps to `SMQ_OPENBAO_APP_SECRET`
+- `SMQ_CERTS_OPENBAO_NAMESPACE`: Maps to `SMQ_OPENBAO_NAMESPACE`
+- `SMQ_CERTS_OPENBAO_PKI_PATH`: Maps to `SMQ_OPENBAO_PKI_PATH`
+- `SMQ_CERTS_OPENBAO_ROLE`: Maps to `SMQ_OPENBAO_PKI_ROLE`
 
 ## Switching Between Modes
 
@@ -188,10 +228,8 @@ docker restart supermq-openbao
 
 **OpenBao is sealed (Production)**:
 ```bash
-# Get unseal keys
 KEYS=$(docker exec supermq-openbao jq -r '.unseal_keys_b64[]' /opt/openbao/data/init.json)
 
-# Unseal (need 3 keys)
 docker exec supermq-openbao bao operator unseal <key1>
 docker exec supermq-openbao bao operator unseal <key2>
 docker exec supermq-openbao bao operator unseal <key3>
@@ -213,13 +251,10 @@ docker exec supermq-openbao bao operator unseal <key3>
 
 ### Logs and Debugging
 ```bash
-# View OpenBao logs
 docker logs supermq-openbao
 
-# Check OpenBao status
 docker exec supermq-openbao bao status
 
-# Debug container
 docker exec -it supermq-openbao sh
 ```
 
