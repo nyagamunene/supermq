@@ -51,11 +51,6 @@ type openbaoPKIAgent struct {
 	logger    *slog.Logger
 }
 
-type certReq struct {
-	CommonName string `json:"common_name"`
-	TTL        string `json:"ttl"`
-}
-
 // NewAgent instantiates an OpenBao PKI client.
 func NewAgent(appRole, appSecret, host, namespace, path, role string, logger *slog.Logger) (Agent, error) {
 	conf := api.DefaultConfig()
