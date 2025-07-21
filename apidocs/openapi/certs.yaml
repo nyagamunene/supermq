@@ -81,19 +81,18 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
-    
 
   /{domainID}/certs/{clientID}:
     delete:
       operationId: revokeCert
       summary: Revokes a certificate
       description: |
-        Revokes a certificate for a given cert ID.
+        Revokes a certificate for a given client ID.
       tags:
         - certs
       parameters:
         - $ref: "auth.yaml#/components/parameters/DomainID"
-        - $ref: "#/components/parameters/CertID"
+        - $ref: "#/components/parameters/ClientID"
       responses:
         "200":
           $ref: "#/components/responses/RevokeRes"
