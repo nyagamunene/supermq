@@ -247,7 +247,7 @@ components:
       description: |
         Issues a certificate that is required for mTLS. To create a certificate for a client
         provide a client id, data identifying particular client will be embedded into the Certificate.
-        x509 and ECC certificates are supported when using when Vault is used as PKI.
+        x509 and ECC certificates are supported when using when Openbao is used as PKI.
       content:
         application/json:
           schema:
