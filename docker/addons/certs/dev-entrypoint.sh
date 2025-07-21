@@ -14,7 +14,6 @@ BAO_PID=$!
 export BAO_ADDR=http://localhost:8200
 export BAO_TOKEN="${BAO_DEV_ROOT_TOKEN_ID}"
 
-# Set namespace if provided
 if [ -n "$SMQ_OPENBAO_NAMESPACE" ]; then
   export BAO_NAMESPACE=$SMQ_OPENBAO_NAMESPACE
 fi
