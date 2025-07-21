@@ -24,65 +24,83 @@ default_lease_ttl = "168h"
 max_lease_ttl = "720h"
 EOF
 
-export BAO_ADDR=http://localhost:8200
+export BAO_ADDR=http://127.0.0.1:8200
 
-if [ ! -f /opt/openbao/data/init.json ]; then
+if [ -n "$SMQ_OPENBAO_UNSEAL_KEY_1" ] && [ -n "$SMQ_OPENBAO_UNSEAL_KEY_2" ] && [ -n "$SMQ_OPENBAO_UNSEAL_KEY_3" ] && [ -n "$SMQ_OPENBAO_ROOT_TOKEN" ]; then
   bao server -config=/opt/openbao/config/config.hcl > /opt/openbao/logs/server.log 2>&1 &
   BAO_PID=$!
-
-  bao operator init -key-shares=5 -key-threshold=3 -format=json > /opt/openbao/data/init.json
-
-  UNSEAL_KEY_1=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[0]')
-  UNSEAL_KEY_2=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[1]')
-  UNSEAL_KEY_3=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[2]')
-  ROOT_TOKEN=$(cat /opt/openbao/data/init.json | jq -r '.root_token')
-
-  bao operator unseal $UNSEAL_KEY_1
-  bao operator unseal $UNSEAL_KEY_2
-  bao operator unseal $UNSEAL_KEY_3
-
-  export BAO_TOKEN=$ROOT_TOKEN
+  sleep 5
+  
+  bao operator unseal "$SMQ_OPENBAO_UNSEAL_KEY_1"
+  bao operator unseal "$SMQ_OPENBAO_UNSEAL_KEY_2"
+  bao operator unseal "$SMQ_OPENBAO_UNSEAL_KEY_3"
+  
+  export BAO_TOKEN=$SMQ_OPENBAO_ROOT_TOKEN
 else
-  bao server -config=/opt/openbao/config/config.hcl > /opt/openbao/logs/server.log 2>&1 &
-  BAO_PID=$!
+  if [ ! -f /opt/openbao/data/init.json ]; then
+    bao server -config=/opt/openbao/config/config.hcl > /opt/openbao/logs/server.log 2>&1 &
+    BAO_PID=$!
+    sleep 5
 
-  if bao status | grep -q "Sealed.*true"; then
+    bao operator init -key-shares=5 -key-threshold=3 -format=json > /opt/openbao/data/init.json
+
     UNSEAL_KEY_1=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[0]')
     UNSEAL_KEY_2=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[1]')
     UNSEAL_KEY_3=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[2]')
+    ROOT_TOKEN=$(cat /opt/openbao/data/init.json | jq -r '.root_token')
 
-    bao operator unseal $UNSEAL_KEY_1
-    bao operator unseal $UNSEAL_KEY_2
-    bao operator unseal $UNSEAL_KEY_3
+    bao operator unseal "$UNSEAL_KEY_1"
+    bao operator unseal "$UNSEAL_KEY_2"
+    bao operator unseal "$UNSEAL_KEY_3"
+
+    export BAO_TOKEN=$ROOT_TOKEN
+  else
+    bao server -config=/opt/openbao/config/config.hcl > /opt/openbao/logs/server.log 2>&1 &
+    BAO_PID=$!
+    sleep 5
+
+    if bao status | grep -q "Sealed.*true"; then
+      UNSEAL_KEY_1=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[0]')
+      UNSEAL_KEY_2=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[1]')
+      UNSEAL_KEY_3=$(cat /opt/openbao/data/init.json | jq -r '.unseal_keys_b64[2]')
+
+      bao operator unseal "$UNSEAL_KEY_1"
+      bao operator unseal "$UNSEAL_KEY_2"
+      bao operator unseal "$UNSEAL_KEY_3"
+    fi
+
+    ROOT_TOKEN=$(cat /opt/openbao/data/init.json | jq -r '.root_token')
+    export BAO_TOKEN=$ROOT_TOKEN
   fi
-
-  ROOT_TOKEN=$(cat /opt/openbao/data/init.json | jq -r '.root_token')
-  export BAO_TOKEN=$ROOT_TOKEN
 fi
 
 if [ ! -f /opt/openbao/data/configured ]; then
+  if bao namespace create "$SMQ_OPENBAO_NAMESPACE" 2>/dev/null; then
+    export BAO_NAMESPACE="$SMQ_OPENBAO_NAMESPACE"
+  fi
+
   bao auth enable approle || echo "AppRole already enabled"
   bao secrets enable -path=pki pki || echo "PKI already enabled"
   bao secrets tune -max-lease-ttl=87600h pki
 
   bao write -field=certificate pki/root/generate/internal \
-    common_name="$SMQ_OPENBAO_PKI_CA_CN" \
-    organization="$SMQ_OPENBAO_PKI_CA_O" \
-    ou="$SMQ_OPENBAO_PKI_CA_OU" \
-    country="$SMQ_OPENBAO_PKI_CA_C" \
-    locality="$SMQ_OPENBAO_PKI_CA_L" \
-    province="$SMQ_OPENBAO_PKI_CA_ST" \
-    street_address="$SMQ_OPENBAO_PKI_CA_ADDR" \
-    postal_code="$SMQ_OPENBAO_PKI_CA_PO" \
+    common_name="${SMQ_OPENBAO_PKI_CA_CN:-SuperMQ CA}" \
+    organization="${SMQ_OPENBAO_PKI_CA_O:-SuperMQ}" \
+    ou="${SMQ_OPENBAO_PKI_CA_OU:-SuperMQ Certificate Authority}" \
+    country="${SMQ_OPENBAO_PKI_CA_C:-US}" \
+    locality="${SMQ_OPENBAO_PKI_CA_L:-San Francisco}" \
+    province="${SMQ_OPENBAO_PKI_CA_ST:-California}" \
+    street_address="${SMQ_OPENBAO_PKI_CA_ADDR:-123 Main St}" \
+    postal_code="${SMQ_OPENBAO_PKI_CA_PO:-94102}" \
     ttl=87600h \
     key_bits=2048 \
     exclude_cn_from_sans=true
 
   bao write pki/config/urls \
-    issuing_certificates='http://localhost:8200/v1/pki/ca' \
-    crl_distribution_points='http://localhost:8200/v1/pki/crl'
+    issuing_certificates='http://127.0.0.1:8200/v1/pki/ca' \
+    crl_distribution_points='http://127.0.0.1:8200/v1/pki/crl'
 
-  bao write pki/roles/supermq \
+  bao write pki/roles/"${SMQ_OPENBAO_PKI_ROLE_NAME:-supermq}" \
     allow_any_name=true \
     enforce_hostnames=false \
     allow_ip_sans=true \
@@ -91,8 +109,8 @@ if [ ! -f /opt/openbao/data/configured ]; then
     ttl=720h \
     key_bits=2048
 
-  cat > /opt/openbao/config/pki-policy.hcl << 'EOF'
-path "pki/issue/supermq" {
+  cat > /opt/openbao/config/pki-policy.hcl << EOF
+path "pki/issue/${SMQ_OPENBAO_PKI_ROLE_NAME:-supermq}" {
   capabilities = ["create", "update"]
 }
 path "pki/certs" {
@@ -114,7 +132,7 @@ EOF
 
   bao policy write pki-policy /opt/openbao/config/pki-policy.hcl
 
-  bao write auth/approle/role/supermq \
+  bao write auth/approle/role/"${SMQ_OPENBAO_PKI_ROLE_NAME:-supermq}" \
     token_policies=pki-policy \
     token_ttl=1h \
     token_max_ttl=4h \
@@ -122,11 +140,11 @@ EOF
     secret_id_ttl=24h
 
   if [ -n "$SMQ_OPENBAO_APP_ROLE" ]; then
-    bao write auth/approle/role/supermq/role-id role_id="$SMQ_OPENBAO_APP_ROLE"
+    bao write auth/approle/role/"${SMQ_OPENBAO_PKI_ROLE_NAME:-supermq}"/role-id role_id="$SMQ_OPENBAO_APP_ROLE"
   fi
 
   if [ -n "$SMQ_OPENBAO_APP_SECRET" ]; then
-    bao write auth/approle/role/supermq/custom-secret-id secret_id="$SMQ_OPENBAO_APP_SECRET"
+    bao write auth/approle/role/"${SMQ_OPENBAO_PKI_ROLE_NAME:-supermq}"/custom-secret-id secret_id="$SMQ_OPENBAO_APP_SECRET"
   fi
 
   SERVICE_TOKEN=$(bao write -field=token auth/token/create \
@@ -136,16 +154,12 @@ EOF
     display_name="supermq-service")
 
   echo "SERVICE_TOKEN=$SERVICE_TOKEN" > /opt/openbao/data/service_token
-
-  # Mark configuration as complete
   touch /opt/openbao/data/configured
-
   echo "OpenBao configuration completed successfully!"
 else
   echo "OpenBao already configured, skipping setup..."
 fi
 
-# Display connection information
 echo "================================"
 echo "OpenBao Production Setup Complete"
 echo "================================"
@@ -158,6 +172,5 @@ echo "IMPORTANT: Store the init.json file securely!"
 echo "It contains unseal keys and root token!"
 echo "================================"
 
-# Keep the process running
 echo "OpenBao is ready for SuperMQ on port 8200"
 wait $BAO_PID
