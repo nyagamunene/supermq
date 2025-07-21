@@ -120,8 +120,3 @@ services:
       - ./prod-entrypoint.sh:/entrypoint.sh
     entrypoint: /bin/sh
     command: /entrypoint.sh
-    healthcheck:
-      test: ["CMD-SHELL", "bao status || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
