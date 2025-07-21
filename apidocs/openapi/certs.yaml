@@ -81,6 +81,9 @@ paths:
           description: Database can't process request.
         "500":
           $ref: "#/components/responses/ServiceError"
+    
+
+  /{domainID}/certs/{clientID}:
     delete:
       operationId: revokeCert
       summary: Revokes a certificate
