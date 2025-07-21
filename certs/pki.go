@@ -3,7 +3,7 @@
 
 package certs
 
-// Agent represents the PKI interface that all PKI implementations must satisfy
+// Agent represents the PKI interface that all PKI implementations must satisfy.
 type Agent interface {
 	Issue(entityId, ttl string, ipAddrs []string) (Cert, error)
 	View(serialNumber string) (Cert, error)

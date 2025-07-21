@@ -23,17 +23,12 @@ const (
 )
 
 var (
-	errFailedCertDecoding = errors.New("failed to decode response from OpenBao service")
-	errFailedToLogin      = errors.New("failed to login to OpenBao")
-	errFailedAppRole      = errors.New("failed to create OpenBao new app role")
-	errNoAuthInfo         = errors.New("no auth information from OpenBao")
-	errNonRenewal         = errors.New("token is not configured to be renewable")
-	errRenewWatcher       = errors.New("unable to initialize new lifetime watcher for renewing auth token")
-	errFailedRenew        = errors.New("failed to renew token")
-	errCouldNotRenew      = errors.New("token can no longer be renewed")
+	errFailedToLogin = errors.New("failed to login to OpenBao")
+	errNoAuthInfo    = errors.New("no auth information from OpenBao")
+	errRenewWatcher  = errors.New("unable to initialize new lifetime watcher for renewing auth token")
 )
 
-// Agent represents the OpenBao PKI interface
+// Agent represents the OpenBao PKI interface.
 type Agent interface {
 	Issue(entityId, ttl string, ipAddrs []string) (certs.Cert, error)
 	View(serialNumber string) (certs.Cert, error)
@@ -61,11 +56,7 @@ type certReq struct {
 	TTL        string `json:"ttl"`
 }
 
-type certRevokeReq struct {
-	SerialNumber string `json:"serial_number"`
-}
-
-// NewAgent instantiates an OpenBao PKI client
+// NewAgent instantiates an OpenBao PKI client.
 func NewAgent(appRole, appSecret, host, namespace, path, role string, logger *slog.Logger) (Agent, error) {
 	conf := api.DefaultConfig()
 	conf.Address = host
