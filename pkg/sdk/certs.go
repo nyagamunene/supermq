@@ -23,6 +23,8 @@ const (
 type Cert struct {
 	SerialNumber string    `json:"serial_number,omitempty"`
 	Certificate  string    `json:"certificate,omitempty"`
+	IssuingCA    string    `json:"issuing_ca,omitempty"`
+	CAChain      []string  `json:"ca_chain,omitempty"`
 	Key          string    `json:"key,omitempty"`
 	Revoked      bool      `json:"revoked,omitempty"`
 	ExpiryTime   time.Time `json:"expiry_time,omitempty"`
