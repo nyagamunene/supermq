@@ -10,6 +10,7 @@ bao server -dev \
   -log-level=info &
 
 BAO_PID=$!
+sleep 5
 
 export BAO_ADDR=http://localhost:8200
 export BAO_TOKEN="${BAO_DEV_ROOT_TOKEN_ID}"

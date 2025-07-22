@@ -6,35 +6,30 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/absmach/supermq/certs"
 	"github.com/absmach/supermq/pkg/errors"
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
 	"github.com/absmach/supermq/pkg/postgres"
-	"github.com/jmoiron/sqlx"
 )
 
 var _ certs.Repository = (*certsRepository)(nil)
 
 type certsRepository struct {
-	db  postgres.Database
-	log *slog.Logger
+	db postgres.Database
 }
 
 // NewRepository instantiates a PostgreSQL implementation of certs
 // repository.
-func NewRepository(db postgres.Database, log *slog.Logger) certs.Repository {
-	return &certsRepository{db: db, log: log}
+func NewRepository(db postgres.Database) certs.Repository {
+	return &certsRepository{db: db}
 }
 
 func (cr certsRepository) RetrieveAll(ctx context.Context, offset, limit uint64) (certs.CertPage, error) {
 	q := `SELECT client_id, serial_number, expiry_time FROM certs ORDER BY expiry_time LIMIT $1 OFFSET $2;`
 	rows, err := cr.db.QueryContext(ctx, q, limit, offset)
 	if err != nil {
-		cr.log.Error(fmt.Sprintf("Failed to retrieve configs due to %s", err))
 		return certs.CertPage{}, err
 	}
 	defer rows.Close()
@@ -43,7 +38,6 @@ func (cr certsRepository) RetrieveAll(ctx context.Context, offset, limit uint64)
 	for rows.Next() {
 		c := certs.Cert{}
 		if err := rows.Scan(&c.ClientID, &c.SerialNumber, &c.ExpiryTime); err != nil {
-			cr.log.Error(fmt.Sprintf("Failed to read retrieved config due to %s", err))
 			return certs.CertPage{}, err
 		}
 		certificates = append(certificates, c)
@@ -52,7 +46,6 @@ func (cr certsRepository) RetrieveAll(ctx context.Context, offset, limit uint64)
 	q = `SELECT COUNT(*) FROM certs`
 	var total uint64
 	if err := cr.db.QueryRowxContext(ctx, q).Scan(&total); err != nil {
-		cr.log.Error(fmt.Sprintf("Failed to count certs due to %s", err))
 		return certs.CertPage{}, err
 	}
 
@@ -65,26 +58,26 @@ func (cr certsRepository) RetrieveAll(ctx context.Context, offset, limit uint64)
 }
 
 func (cr certsRepository) Save(ctx context.Context, cert certs.Cert) (string, error) {
-	q := `INSERT INTO certs (client_id, serial_number, expiry_time) VALUES (:client_id, :serial_number, :expiry_time)`
-
-	tx, err := cr.db.BeginTxx(ctx, nil)
-	if err != nil {
-		return "", errors.Wrap(repoerr.ErrCreateEntity, err)
-	}
-
 	dbcrt := toDBCert(cert)
 
-	if _, err := tx.NamedExec(q, dbcrt); err != nil {
-		cr.rollback("Failed to insert a Cert", tx, err)
+	q := `INSERT INTO certs (client_id, serial_number, expiry_time) 
+	VALUES (:client_id, :serial_number, :expiry_time)
+	RETURNING serial_number`
 
-		return "", errors.Wrap(repoerr.ErrCreateEntity, err)
+	row, err := cr.db.NamedQueryContext(ctx, q, dbcrt)
+	if err != nil {
+		return "", postgres.HandleError(repoerr.ErrCreateEntity, err)
+	}
+	defer row.Close()
+
+	var serialNumber string
+	if row.Next() {
+		if err := row.Scan(&serialNumber); err != nil {
+			return "", errors.Wrap(repoerr.ErrFailedOpDB, err)
+		}
 	}
 
-	if err := tx.Commit(); err != nil {
-		cr.rollback("Failed to commit Config save", tx, err)
-	}
-
-	return cert.SerialNumber, nil
+	return serialNumber, nil
 }
 
 func (cr certsRepository) Remove(ctx context.Context, clientID string) error {
@@ -113,7 +106,6 @@ func (cr certsRepository) RetrieveByClient(ctx context.Context, clientID string,
 	q := `SELECT client_id, serial_number, expiry_time FROM certs WHERE client_id = $1 ORDER BY expiry_time LIMIT $2 OFFSET $3;`
 	rows, err := cr.db.QueryContext(ctx, q, clientID, limit, offset)
 	if err != nil {
-		cr.log.Error(fmt.Sprintf("Failed to retrieve configs due to %s", err))
 		return certs.CertPage{}, err
 	}
 	defer rows.Close()
@@ -122,7 +114,6 @@ func (cr certsRepository) RetrieveByClient(ctx context.Context, clientID string,
 	for rows.Next() {
 		c := certs.Cert{}
 		if err := rows.Scan(&c.ClientID, &c.SerialNumber, &c.ExpiryTime); err != nil {
-			cr.log.Error(fmt.Sprintf("Failed to read retrieved config due to %s", err))
 			return certs.CertPage{}, err
 		}
 		certificates = append(certificates, c)
@@ -131,7 +122,6 @@ func (cr certsRepository) RetrieveByClient(ctx context.Context, clientID string,
 	q = `SELECT COUNT(*) FROM certs WHERE client_id = $1`
 	var total uint64
 	if err := cr.db.QueryRowxContext(ctx, q, clientID).Scan(&total); err != nil {
-		cr.log.Error(fmt.Sprintf("Failed to count certs due to %s", err))
 		return certs.CertPage{}, err
 	}
 
@@ -158,14 +148,6 @@ func (cr certsRepository) RetrieveBySerial(ctx context.Context, serial string) (
 	c = toCert(dbcrt)
 
 	return c, nil
-}
-
-func (cr certsRepository) rollback(content string, tx *sqlx.Tx, err error) {
-	cr.log.Error(fmt.Sprintf("%s %s", content, err))
-
-	if err := tx.Rollback(); err != nil {
-		cr.log.Error(fmt.Sprintf("Failed to rollback due to %s", err))
-	}
 }
 
 type dbCert struct {

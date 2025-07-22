@@ -189,7 +189,7 @@ func newService(db *sqlx.DB, dbConfig pgclient.Config, tracer trace.Tracer, logg
 		ClientsURL: cfg.ClientsURL,
 	}
 	sdk := mgsdk.NewSDK(config)
-	repo := postgres.NewRepository(database, logger)
+	repo := postgres.NewRepository(database)
 	svc := certs.New(sdk, repo, pkiAgent)
 	svc = httpapi.LoggingMiddleware(svc, logger)
 	counter, latency := prometheus.MakeMetrics(svcName, "api")
