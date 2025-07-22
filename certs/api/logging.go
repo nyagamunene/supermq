@@ -135,3 +135,23 @@ func (lm *loggingMiddleware) RevokeCert(ctx context.Context, domainID, token, cl
 
 	return lm.svc.RevokeCert(ctx, domainID, token, clientID)
 }
+
+// RevokeBySerial logs the revoke_by_serial request. It logs the serial ID and the time it took to complete the request.
+// If the request fails, it logs the error.
+func (lm *loggingMiddleware) RevokeBySerial(ctx context.Context, serialID string) (c certs.Revoke, err error) {
+	defer func(begin time.Time) {
+		args := []any{
+			slog.String("duration", time.Since(begin).String()),
+			slog.String("request_id", middleware.GetReqID(ctx)),
+			slog.String("serial_id", serialID),
+		}
+		if err != nil {
+			args = append(args, slog.String("error", err.Error()))
+			lm.logger.Warn("Revoke certificate by serial failed", args...)
+			return
+		}
+		lm.logger.Info("Revoke certificate by serial completed successfully", args...)
+	}(time.Now())
+
+	return lm.svc.RevokeBySerial(ctx, serialID)
+}

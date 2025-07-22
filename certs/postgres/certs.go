@@ -87,13 +87,21 @@ func (cr certsRepository) Save(ctx context.Context, cert certs.Cert) (string, er
 	return cert.SerialNumber, nil
 }
 
-func (cr certsRepository) Remove(ctx context.Context, serial string) error {
-	if _, err := cr.RetrieveBySerial(ctx, serial); err != nil {
+func (cr certsRepository) Remove(ctx context.Context, clientID string) error {
+	q := `DELETE FROM certs WHERE client_id = :client_id`
+	var c certs.Cert
+	c.ClientID = clientID
+	dbcrt := toDBCert(c)
+	if _, err := cr.db.NamedExecContext(ctx, q, dbcrt); err != nil {
 		return errors.Wrap(repoerr.ErrRemoveEntity, err)
 	}
+	return nil
+}
+
+func (cr certsRepository) RemoveBySerial(ctx context.Context, serialID string) error {
 	q := `DELETE FROM certs WHERE serial_number = :serial_number`
 	var c certs.Cert
-	c.SerialNumber = serial
+	c.SerialNumber = serialID
 	dbcrt := toDBCert(c)
 	if _, err := cr.db.NamedExecContext(ctx, q, dbcrt); err != nil {
 		return errors.Wrap(repoerr.ErrRemoveEntity, err)

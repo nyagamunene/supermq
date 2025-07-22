@@ -106,3 +106,19 @@ func revokeCert(svc certs.Service) endpoint.Endpoint {
 		}, nil
 	}
 }
+
+func revokeBySerial(svc certs.Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(revokeBySerialReq)
+		if err := req.validate(); err != nil {
+			return nil, errors.Wrap(apiutil.ErrValidation, err)
+		}
+		res, err := svc.RevokeBySerial(ctx, req.serialID)
+		if err != nil {
+			return nil, err
+		}
+		return revokeCertsRes{
+			RevocationTime: res.RevocationTime,
+		}, nil
+	}
+}

@@ -45,6 +45,9 @@ type Service interface {
 
 	// RevokeCert revokes a certificate for a given client ID
 	RevokeCert(ctx context.Context, domainID, token, clientID string) (Revoke, error)
+
+	// RevokeBySerial revokes a certificate by its serial number from both PKI and database
+	RevokeBySerial(ctx context.Context, serialID string) (Revoke, error)
 }
 
 // Revoke defines the conditions to revoke a certificate.
@@ -80,6 +83,10 @@ func (cs *certsService) IssueCert(ctx context.Context, domainID, token, clientID
 	}
 
 	_, err = cs.certsRepo.Save(ctx, cert)
+	if err != nil {
+		return Cert{}, errors.Wrap(ErrFailedCertCreation, err)
+	}
+
 	return Cert{
 		SerialNumber: cert.SerialNumber,
 		Certificate:  cert.Certificate,
@@ -121,6 +128,23 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 		return revoke, errors.Wrap(ErrFailedToRemoveCertFromDB, err)
 	}
 
+	return revoke, nil
+}
+
+func (cs *certsService) RevokeBySerial(ctx context.Context, serialID string) (Revoke, error) {
+	var revoke Revoke
+
+	err := cs.pki.Revoke(serialID)
+	if err != nil {
+		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
+	}
+
+	err = cs.certsRepo.RemoveBySerial(ctx, serialID)
+	if err != nil {
+		return revoke, errors.Wrap(ErrFailedToRemoveCertFromDB, err)
+	}
+
+	revoke.RevocationTime = time.Now().UTC()
 	return revoke, nil
 }
 

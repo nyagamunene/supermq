@@ -13,8 +13,7 @@ networks:
 
 # Volumes for OpenBao data and configuration
 volumes:
-  openbao_data:
-  openbao_config:
+  supermq-openbao-volume:
   supermq-certs-db-volume:
 
 services:
@@ -127,8 +126,8 @@ services:
       - IPC_LOCK
     mem_swappiness: 0
     volumes:
-      - openbao_data:/opt/openbao/data
-      - openbao_config:/opt/openbao/config
+      - supermq-openbao-volume:/opt/openbao/data
+      - supermq-openbao-volume:/opt/openbao/config
       - ./prod-entrypoint.sh:/entrypoint.sh
     entrypoint: /bin/sh
     command: /entrypoint.sh

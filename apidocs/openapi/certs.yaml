@@ -110,6 +110,34 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
+  /{domainID}/certs/{certID}/revoke:
+    delete:
+      operationId: revokeCertBySerial
+      summary: Revokes a certificate by serial number
+      description: |
+        Revokes a certificate for a given certificate serial number.
+      tags:
+        - certs
+      parameters:
+        - $ref: "auth.yaml#/components/parameters/DomainID"
+        - $ref: "#/components/parameters/CertID"
+      responses:
+        "200":
+          $ref: "#/components/responses/RevokeRes"
+        "400":
+          description: Failed due to malformed query parameters.
+        "401":
+          description: Missing or invalid access token provided.
+        "403":
+          description: Failed to perform authorization over the entity.
+        "404":
+          description: |
+            Failed to revoke corresponding certificate.
+        "422":
+          description: Database can't process request.
+        "500":
+          $ref: "#/components/responses/ServiceError"
+
   /{domainID}/serials/{clientID}:
     get:
       operationId: getSerials
@@ -166,7 +194,7 @@ components:
       in: path
       schema:
         type: string
-        format: uuid
+        example: "7c:a9:91:e7:13:e9:5c:6b:1d:16:cf:76:20:82:f3:01:c3:d5:a6:66"
       required: true
 
   schemas:

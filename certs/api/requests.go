@@ -89,3 +89,15 @@ func (req *revokeReq) validate() error {
 
 	return nil
 }
+
+type revokeBySerialReq struct {
+	serialID string
+}
+
+func (req *revokeBySerialReq) validate() error {
+	if req.serialID == "" {
+		return apiutil.ErrMissingID
+	}
+
+	return nil
+}

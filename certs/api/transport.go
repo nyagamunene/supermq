@@ -61,6 +61,12 @@ func MakeHandler(svc certs.Service, authn smqauthn.Authentication, logger *slog.
 					api.EncodeResponse,
 					opts...,
 				), "revoke").ServeHTTP)
+				r.Delete("/{certID}/revoke", otelhttp.NewHandler(kithttp.NewServer(
+					revokeBySerial(svc),
+					decodeRevokeBySerial,
+					api.EncodeResponse,
+					opts...,
+				), "revoke_by_serial").ServeHTTP)
 			})
 			r.Get("/serials/{clientID}", otelhttp.NewHandler(kithttp.NewServer(
 				listSerials(svc),
@@ -125,6 +131,14 @@ func decodeRevokeCerts(_ context.Context, r *http.Request) (interface{}, error) 
 		token:    apiutil.ExtractBearerToken(r),
 		clientID: chi.URLParam(r, "clientID"),
 		domainID: chi.URLParam(r, "domainID"),
+	}
+
+	return req, nil
+}
+
+func decodeRevokeBySerial(_ context.Context, r *http.Request) (interface{}, error) {
+	req := revokeBySerialReq{
+		serialID: chi.URLParam(r, "certID"),
 	}
 
 	return req, nil

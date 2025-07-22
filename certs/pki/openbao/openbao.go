@@ -5,7 +5,9 @@
 package openbao
 
 import (
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"log/slog"
 	"time"
@@ -89,7 +91,6 @@ func (va *openbaoPKIAgent) Issue(entityId, ttl string, ipAddrs []string) (certs.
 	secretValues := map[string]interface{}{
 		"common_name":          entityId,
 		"ttl":                  ttl,
-		"ip_sans":              ipAddrs,
 		"exclude_cn_from_sans": true,
 	}
 
@@ -171,7 +172,27 @@ func (va *openbaoPKIAgent) View(serialNumber string) (certs.Cert, error) {
 		cert.Certificate = certData
 	}
 
+	if cert.Certificate != "" {
+		if expiry, err := va.parseCertificateExpiry(cert.Certificate); err == nil {
+			cert.ExpiryTime = expiry
+		}
+	}
+
 	return cert, nil
+}
+
+func (va *openbaoPKIAgent) parseCertificateExpiry(certPEM string) (time.Time, error) {
+	block, _ := pem.Decode([]byte(certPEM))
+	if block == nil {
+		return time.Time{}, fmt.Errorf("failed to decode PEM certificate")
+	}
+
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to parse X509 certificate: %w", err)
+	}
+
+	return cert.NotAfter, nil
 }
 
 func (va *openbaoPKIAgent) Revoke(serialNumber string) error {

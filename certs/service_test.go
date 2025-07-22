@@ -166,8 +166,8 @@ func TestRevokeCert(t *testing.T) {
 			token:       token,
 			clientID:    clientID,
 			page:        certs.CertPage{},
-			retrieveErr: certs.ErrFailedCertRevocation, // Force fallback to agent
-			listErr:     certs.ErrFailedCertRevocation, // Make agent call fail too
+			retrieveErr: certs.ErrFailedCertRevocation,
+			listErr:     certs.ErrFailedCertRevocation,
 			err:         certs.ErrFailedCertRevocation,
 		},
 	}
@@ -186,6 +186,56 @@ func TestRevokeCert(t *testing.T) {
 			repoCall1.Unset()
 			agentCall.Unset()
 			agentCall1.Unset()
+		})
+	}
+}
+
+func TestRevokeBySerial(t *testing.T) {
+	svc, agent, _, repo := newService(t)
+	cases := []struct {
+		desc         string
+		serialID     string
+		revokeErr    error
+		removeErr    error
+		expectedTime time.Time
+		err          error
+	}{
+		{
+			desc:         "revoke cert by serial successfully",
+			serialID:     cert.SerialNumber,
+			expectedTime: time.Now(),
+		},
+		{
+			desc:      "revoke cert by serial with PKI revoke failure",
+			serialID:  cert.SerialNumber,
+			revokeErr: certs.ErrFailedCertRevocation,
+			err:       certs.ErrFailedCertRevocation,
+		},
+		{
+			desc:      "revoke cert by serial with repository remove failure",
+			serialID:  cert.SerialNumber,
+			removeErr: certs.ErrFailedToRemoveCertFromDB,
+			err:       certs.ErrFailedToRemoveCertFromDB,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			agentCall := agent.On("Revoke", tc.serialID).Return(tc.revokeErr)
+			repoCall := repo.On("RemoveBySerial", mock.Anything, tc.serialID).Return(tc.removeErr)
+			
+			result, err := svc.RevokeBySerial(context.Background(), tc.serialID)
+			
+			if tc.err != nil {
+				assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+			} else {
+				assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
+				assert.False(t, result.RevocationTime.IsZero(), fmt.Sprintf("%s: revocation time should be set", tc.desc))
+				assert.True(t, time.Since(result.RevocationTime) < time.Minute, fmt.Sprintf("%s: revocation time should be recent", tc.desc))
+			}
+			
+			agentCall.Unset()
+			repoCall.Unset()
 		})
 	}
 }

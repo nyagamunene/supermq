@@ -33,7 +33,7 @@ type CertPage struct {
 
 // Repository specifies a Config persistence API.
 type Repository interface {
-	// Save  saves cert for client into database
+	// Save saves cert for client into database
 	Save(ctx context.Context, cert Cert) (string, error)
 
 	// RetrieveAll retrieve issued certificates
@@ -41,6 +41,9 @@ type Repository interface {
 
 	// Remove removes certificate from DB for a given client ID
 	Remove(ctx context.Context, clientID string) error
+
+	// RemoveBySerial removes certificate from DB for a given serial number
+	RemoveBySerial(ctx context.Context, serialID string) error
 
 	// RetrieveByClient retrieves issued certificates for a given client ID
 	RetrieveByClient(ctx context.Context, clientID string, offset, limit uint64) (CertPage, error)
