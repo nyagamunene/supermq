@@ -187,7 +187,7 @@ func TestRevokeBySerial(t *testing.T) {
 		revokeErr    error
 		updateErr    error
 		retrieveErr  error
-		Cert		 certs.Cert
+		Cert         certs.Cert
 		expectedTime time.Time
 		err          error
 	}{
@@ -215,10 +215,10 @@ func TestRevokeBySerial(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			agentCall := agent.On("Revoke", tc.serialID).Return(tc.revokeErr)
 			repoCall := repo.On("Update", mock.Anything, mock.Anything).Return(tc.updateErr)
-			repoCall1 := repo.On("RetrieveBySerial", mock.Anything, mock.Anything).Return(tc.Cert,tc.retrieveErr)
+			repoCall1 := repo.On("RetrieveBySerial", mock.Anything, mock.Anything).Return(tc.Cert, tc.retrieveErr)
 
 			result, err := svc.RevokeBySerial(context.Background(), tc.serialID)
-			
+
 			if tc.err != nil {
 				assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
 			} else {
@@ -226,7 +226,7 @@ func TestRevokeBySerial(t *testing.T) {
 				assert.False(t, result.RevocationTime.IsZero(), fmt.Sprintf("%s: revocation time should be set", tc.desc))
 				assert.True(t, time.Since(result.RevocationTime) < time.Minute, fmt.Sprintf("%s: revocation time should be recent", tc.desc))
 			}
-			
+
 			agentCall.Unset()
 			repoCall.Unset()
 			repoCall1.Unset()
