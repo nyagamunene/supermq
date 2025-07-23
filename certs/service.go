@@ -103,12 +103,7 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 	var revoke Revoke
 	var err error
 
-	client, err := cs.sdk.Client(ctx, clientID, domainID, token)
-	if err != nil {
-		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
-	}
-
-	cp, err := cs.certsRepo.RetrieveByClient(ctx, client.ID, PageMetadata{Offset: 0, Limit: 10000})
+	cp, err := cs.certsRepo.RetrieveByClient(ctx, clientID, PageMetadata{Offset: 0, Limit: 10000})
 	if err != nil {
 		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 	}

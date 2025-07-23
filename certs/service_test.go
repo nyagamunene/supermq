@@ -120,7 +120,7 @@ func TestIssueCert(t *testing.T) {
 }
 
 func TestRevokeCert(t *testing.T) {
-	svc, agent, sdk, repo := newService(t)
+	svc, agent, _, repo := newService(t)
 	cases := []struct {
 		domainID    string
 		token       string
@@ -152,15 +152,6 @@ func TestRevokeCert(t *testing.T) {
 			err:       certs.ErrFailedCertRevocation,
 		},
 		{
-			desc:      "revoke cert for invalid client id",
-			domainID:  domain,
-			token:     token,
-			clientID:  "2",
-			page:      certs.CertPage{},
-			clientErr: errors.NewSDKError(certs.ErrFailedCertCreation),
-			err:       certs.ErrFailedCertRevocation,
-		},
-		{
 			desc:        "revoke cert with failed to list certs",
 			domainID:    domain,
 			token:       token,
@@ -174,14 +165,12 @@ func TestRevokeCert(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdk.On("Client", mock.Anything, tc.clientID, tc.domainID, tc.token).Return(mgsdk.Client{ID: tc.clientID, Credentials: mgsdk.ClientCredentials{Secret: clientKey}}, tc.clientErr)
 			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, mock.Anything).Return(tc.page, tc.retrieveErr)
 			repoCall1 := repo.On("Update", mock.Anything, mock.Anything).Return(tc.updateErr)
 			agentCall := agent.On("Revoke", mock.Anything).Return(tc.revokeErr)
 			agentCall1 := agent.On("ListCerts", mock.Anything).Return(tc.page, tc.listErr)
 			_, err := svc.RevokeCert(context.Background(), tc.domainID, tc.token, tc.clientID)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			sdkCall.Unset()
 			repoCall.Unset()
 			repoCall1.Unset()
 			agentCall.Unset()
