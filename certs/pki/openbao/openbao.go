@@ -98,7 +98,7 @@ func (va *openbaoPKIAgent) Issue(entityId, ttl string, ipAddrs []string) (certs.
 		secretValues["ip_sans"] = ipAddrs
 	}
 
-	secret, err := va.client.Logical().Write(va.path+"/issue/"+va.role, secretValues)
+	secret, err := va.client.Logical().Write(va.issueURL, secretValues)
 	if err != nil {
 		return certs.Cert{}, err
 	}
@@ -155,7 +155,7 @@ func (va *openbaoPKIAgent) View(serialNumber string) (certs.Cert, error) {
 		return certs.Cert{}, err
 	}
 
-	secret, err := va.client.Logical().Read(va.path + "/cert/" + serialNumber)
+	secret, err := va.client.Logical().Read(va.readURL + serialNumber)
 	if err != nil {
 		return certs.Cert{}, err
 	}
@@ -205,7 +205,7 @@ func (va *openbaoPKIAgent) Revoke(serialNumber string) error {
 		"serial_number": serialNumber,
 	}
 
-	_, err = va.client.Logical().Write(va.path+"/revoke", secretValues)
+	_, err = va.client.Logical().Write(va.revokeURL, secretValues)
 	if err != nil {
 		return err
 	}
