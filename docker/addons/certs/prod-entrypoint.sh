@@ -77,6 +77,7 @@ fi
 if [ ! -f /opt/openbao/data/configured ]; then
   if bao namespace create "$SMQ_OPENBAO_NAMESPACE" 2>/dev/null; then
     export BAO_NAMESPACE="$SMQ_OPENBAO_NAMESPACE"
+    echo "$SMQ_OPENBAO_NAMESPACE" > /opt/openbao/data/namespace
   fi
 
   bao auth enable approle || echo "AppRole already enabled"
@@ -158,6 +159,12 @@ EOF
   echo "OpenBao configuration completed successfully!"
 else
   echo "OpenBao already configured, skipping setup..."
+  if [ -f /opt/openbao/data/namespace ] && [ -n "$SMQ_OPENBAO_NAMESPACE" ]; then
+    SAVED_NAMESPACE=$(cat /opt/openbao/data/namespace)
+    if [ "$SAVED_NAMESPACE" = "$SMQ_OPENBAO_NAMESPACE" ]; then
+      export BAO_NAMESPACE="$SMQ_OPENBAO_NAMESPACE"
+    fi
+  fi
 fi
 
 echo "================================"
