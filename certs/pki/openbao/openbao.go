@@ -209,7 +209,6 @@ func (va *openbaoPKIAgent) Revoke(serialNumber string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -244,25 +243,39 @@ func (va *openbaoPKIAgent) ListCerts(pm certs.PageMetadata) (certs.CertPage, err
 		return certPage, fmt.Errorf("failed to decode certificate serial numbers: %w", err)
 	}
 
-	certPage.Total = uint64(len(serialNumbers))
-
-	start := pm.Offset
-	end := pm.Offset + pm.Limit
-	if start >= uint64(len(serialNumbers)) {
-		return certPage, nil
-	}
-	if end > uint64(len(serialNumbers)) {
-		end = uint64(len(serialNumbers))
-	}
-
-	for i := start; i < end; i++ {
-		serialNumber := serialNumbers[i]
+	var filteredCerts []certs.Cert
+	for _, serialNumber := range serialNumbers {
 		cert, err := va.View(serialNumber)
 		if err != nil {
 			va.logger.Warn("failed to retrieve certificate details", "serial", serialNumber, "error", err)
 			continue
 		}
-		certPage.Certificates = append(certPage.Certificates, cert)
+
+		if pm.CommonName != "" {
+			if !va.matchesCommonName(cert.Certificate, pm.CommonName) {
+				continue
+			}
+		}
+
+		filteredCerts = append(filteredCerts, cert)
+	}
+
+	certPage.Total = uint64(len(filteredCerts))
+
+	start := pm.Offset
+	end := pm.Offset + pm.Limit
+	if pm.Limit == 0 {
+		end = uint64(len(filteredCerts))
+	}
+	if start >= uint64(len(filteredCerts)) {
+		return certPage, nil
+	}
+	if end > uint64(len(filteredCerts)) {
+		end = uint64(len(filteredCerts))
+	}
+
+	for i := start; i < end; i++ {
+		certPage.Certificates = append(certPage.Certificates, filteredCerts[i])
 	}
 
 	return certPage, nil
@@ -322,4 +335,22 @@ func (va *openbaoPKIAgent) renewToken(watcher *api.LifetimeWatcher) {
 			va.logger.Info("token renewed successfully", "lease_duration", renewal.Secret.LeaseDuration)
 		}
 	}
+}
+
+func (va *openbaoPKIAgent) matchesCommonName(certPEM, expectedCommonName string) bool {
+	if certPEM == "" || expectedCommonName == "" {
+		return false
+	}
+
+	block, _ := pem.Decode([]byte(certPEM))
+	if block == nil {
+		return false
+	}
+
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return false
+	}
+
+	return cert.Subject.CommonName == expectedCommonName
 }

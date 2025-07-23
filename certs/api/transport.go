@@ -25,6 +25,7 @@ const (
 	contentType = "application/json"
 	offsetKey   = "offset"
 	limitKey    = "limit"
+	revokedKey  = "revoked"
 	defOffset   = 0
 	defLimit    = 10
 )
@@ -91,12 +92,17 @@ func decodeListCerts(_ context.Context, r *http.Request) (interface{}, error) {
 	if err != nil {
 		return nil, errors.Wrap(apiutil.ErrValidation, err)
 	}
+	revoked, err := apiutil.ReadStringQuery(r, revokedKey, "all")
+	if err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, err)
+	}
 
 	req := listReq{
 		clientID: chi.URLParam(r, "clientID"),
 		pm: certs.PageMetadata{
-			Offset: o,
-			Limit:  l,
+			Offset:  o,
+			Limit:   l,
+			Revoked: revoked,
 		},
 	}
 	return req, nil

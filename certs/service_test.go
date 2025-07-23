@@ -132,7 +132,7 @@ func TestRevokeCert(t *testing.T) {
 		revokeErr   error
 		listErr     error
 		retrieveErr error
-		removeErr   error
+		updateErr   error
 		err         error
 	}{
 		{
@@ -175,8 +175,8 @@ func TestRevokeCert(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdk.On("Client", mock.Anything, tc.clientID, tc.domainID, tc.token).Return(mgsdk.Client{ID: tc.clientID, Credentials: mgsdk.ClientCredentials{Secret: clientKey}}, tc.clientErr)
-			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, mock.Anything, mock.Anything).Return(tc.page, tc.retrieveErr)
-			repoCall1 := repo.On("Remove", mock.Anything, tc.clientID).Return(tc.removeErr)
+			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, mock.Anything).Return(tc.page, tc.retrieveErr)
+			repoCall1 := repo.On("Update", mock.Anything, mock.Anything).Return(tc.updateErr)
 			agentCall := agent.On("Revoke", mock.Anything).Return(tc.revokeErr)
 			agentCall1 := agent.On("ListCerts", mock.Anything).Return(tc.page, tc.listErr)
 			_, err := svc.RevokeCert(context.Background(), tc.domainID, tc.token, tc.clientID)
@@ -196,7 +196,9 @@ func TestRevokeBySerial(t *testing.T) {
 		desc         string
 		serialID     string
 		revokeErr    error
-		removeErr    error
+		updateErr    error
+		retrieveErr  error
+		Cert		 certs.Cert
 		expectedTime time.Time
 		err          error
 	}{
@@ -204,6 +206,7 @@ func TestRevokeBySerial(t *testing.T) {
 			desc:         "revoke cert by serial successfully",
 			serialID:     cert.SerialNumber,
 			expectedTime: time.Now(),
+			Cert:         certs.Cert{SerialNumber: cert.SerialNumber, ClientID: cert.ClientID, ExpiryTime: cert.ExpiryTime, Revoked: false},
 		},
 		{
 			desc:      "revoke cert by serial with PKI revoke failure",
@@ -214,16 +217,17 @@ func TestRevokeBySerial(t *testing.T) {
 		{
 			desc:      "revoke cert by serial with repository remove failure",
 			serialID:  cert.SerialNumber,
-			removeErr: certs.ErrFailedToRemoveCertFromDB,
-			err:       certs.ErrFailedToRemoveCertFromDB,
+			updateErr: certs.ErrFailedReadFromDB,
+			err:       certs.ErrFailedReadFromDB,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			agentCall := agent.On("Revoke", tc.serialID).Return(tc.revokeErr)
-			repoCall := repo.On("RemoveBySerial", mock.Anything, tc.serialID).Return(tc.removeErr)
-			
+			repoCall := repo.On("Update", mock.Anything, mock.Anything).Return(tc.updateErr)
+			repoCall1 := repo.On("RetrieveBySerial", mock.Anything, mock.Anything).Return(tc.Cert,tc.retrieveErr)
+
 			result, err := svc.RevokeBySerial(context.Background(), tc.serialID)
 			
 			if tc.err != nil {
@@ -236,6 +240,7 @@ func TestRevokeBySerial(t *testing.T) {
 			
 			agentCall.Unset()
 			repoCall.Unset()
+			repoCall1.Unset()
 		})
 	}
 }
@@ -354,7 +359,7 @@ func TestListSerials(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, tc.offset, tc.limit).Return(certs.CertPage{Certificates: tc.certs}, tc.retrieveErr)
+			repoCall := repo.On("RetrieveByClient", mock.Anything, tc.clientID, certs.PageMetadata{Offset: tc.offset, Limit: tc.limit}).Return(certs.CertPage{Certificates: tc.certs}, tc.retrieveErr)
 			page, err := svc.ListSerials(context.Background(), tc.clientID, certs.PageMetadata{Offset: tc.offset, Limit: tc.limit})
 			assert.Equal(t, len(tc.certs), len(page.Certificates), fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.certs, page.Certificates))
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))

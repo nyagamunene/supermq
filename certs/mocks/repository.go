@@ -228,8 +228,8 @@ func (_c *Repository_RetrieveAll_Call) RunAndReturn(run func(ctx context.Context
 }
 
 // RetrieveByClient provides a mock function for the type Repository
-func (_mock *Repository) RetrieveByClient(ctx context.Context, clientID string, offset uint64, limit uint64) (certs.CertPage, error) {
-	ret := _mock.Called(ctx, clientID, offset, limit)
+func (_mock *Repository) RetrieveByClient(ctx context.Context, clientID string, pm certs.PageMetadata) (certs.CertPage, error) {
+	ret := _mock.Called(ctx, clientID, pm)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RetrieveByClient")
@@ -237,16 +237,16 @@ func (_mock *Repository) RetrieveByClient(ctx context.Context, clientID string, 
 
 	var r0 certs.CertPage
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, uint64, uint64) (certs.CertPage, error)); ok {
-		return returnFunc(ctx, clientID, offset, limit)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, certs.PageMetadata) (certs.CertPage, error)); ok {
+		return returnFunc(ctx, clientID, pm)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, uint64, uint64) certs.CertPage); ok {
-		r0 = returnFunc(ctx, clientID, offset, limit)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, certs.PageMetadata) certs.CertPage); ok {
+		r0 = returnFunc(ctx, clientID, pm)
 	} else {
 		r0 = ret.Get(0).(certs.CertPage)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, uint64, uint64) error); ok {
-		r1 = returnFunc(ctx, clientID, offset, limit)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, certs.PageMetadata) error); ok {
+		r1 = returnFunc(ctx, clientID, pm)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -261,13 +261,12 @@ type Repository_RetrieveByClient_Call struct {
 // RetrieveByClient is a helper method to define mock.On call
 //   - ctx context.Context
 //   - clientID string
-//   - offset uint64
-//   - limit uint64
-func (_e *Repository_Expecter) RetrieveByClient(ctx interface{}, clientID interface{}, offset interface{}, limit interface{}) *Repository_RetrieveByClient_Call {
-	return &Repository_RetrieveByClient_Call{Call: _e.mock.On("RetrieveByClient", ctx, clientID, offset, limit)}
+//   - pm certs.PageMetadata
+func (_e *Repository_Expecter) RetrieveByClient(ctx interface{}, clientID interface{}, pm interface{}) *Repository_RetrieveByClient_Call {
+	return &Repository_RetrieveByClient_Call{Call: _e.mock.On("RetrieveByClient", ctx, clientID, pm)}
 }
 
-func (_c *Repository_RetrieveByClient_Call) Run(run func(ctx context.Context, clientID string, offset uint64, limit uint64)) *Repository_RetrieveByClient_Call {
+func (_c *Repository_RetrieveByClient_Call) Run(run func(ctx context.Context, clientID string, pm certs.PageMetadata)) *Repository_RetrieveByClient_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -277,19 +276,14 @@ func (_c *Repository_RetrieveByClient_Call) Run(run func(ctx context.Context, cl
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
-		var arg2 uint64
+		var arg2 certs.PageMetadata
 		if args[2] != nil {
-			arg2 = args[2].(uint64)
-		}
-		var arg3 uint64
-		if args[3] != nil {
-			arg3 = args[3].(uint64)
+			arg2 = args[2].(certs.PageMetadata)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
-			arg3,
 		)
 	})
 	return _c
@@ -300,7 +294,7 @@ func (_c *Repository_RetrieveByClient_Call) Return(certPage certs.CertPage, err 
 	return _c
 }
 
-func (_c *Repository_RetrieveByClient_Call) RunAndReturn(run func(ctx context.Context, clientID string, offset uint64, limit uint64) (certs.CertPage, error)) *Repository_RetrieveByClient_Call {
+func (_c *Repository_RetrieveByClient_Call) RunAndReturn(run func(ctx context.Context, clientID string, pm certs.PageMetadata) (certs.CertPage, error)) *Repository_RetrieveByClient_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -433,6 +427,63 @@ func (_c *Repository_Save_Call) Return(s string, err error) *Repository_Save_Cal
 }
 
 func (_c *Repository_Save_Call) RunAndReturn(run func(ctx context.Context, cert certs.Cert) (string, error)) *Repository_Save_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Update provides a mock function for the type Repository
+func (_mock *Repository) Update(ctx context.Context, cert certs.Cert) error {
+	ret := _mock.Called(ctx, cert)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, certs.Cert) error); ok {
+		r0 = returnFunc(ctx, cert)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// Repository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type Repository_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - cert certs.Cert
+func (_e *Repository_Expecter) Update(ctx interface{}, cert interface{}) *Repository_Update_Call {
+	return &Repository_Update_Call{Call: _e.mock.On("Update", ctx, cert)}
+}
+
+func (_c *Repository_Update_Call) Run(run func(ctx context.Context, cert certs.Cert)) *Repository_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 certs.Cert
+		if args[1] != nil {
+			arg1 = args[1].(certs.Cert)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Repository_Update_Call) Return(err error) *Repository_Update_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *Repository_Update_Call) RunAndReturn(run func(ctx context.Context, cert certs.Cert) error) *Repository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -764,7 +764,7 @@ func TestListSerials(t *testing.T) {
 				tc.session = smqauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
-			svcCall := svc.On("ListSerials", mock.Anything, tc.clientID, certs.PageMetadata{Offset: tc.offset, Limit: tc.limit}).Return(tc.svcRes, tc.svcErr)
+			svcCall := svc.On("ListSerials", mock.Anything, tc.clientID, certs.PageMetadata{Offset: tc.offset, Limit: tc.limit, Revoked: "all"}).Return(tc.svcRes, tc.svcErr)
 			res, err := req.make()
 			assert.Nil(t, err, fmt.Sprintf("%s: unexpected error %s", tc.desc, err))
 			var errRes respBody

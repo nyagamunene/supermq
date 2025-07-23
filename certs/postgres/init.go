@@ -16,6 +16,7 @@ func Migration() *migrate.MemoryMigrationSource {
 						client_id    		TEXT NOT NULL,
 						expiry_time  		TIMESTAMPTZ NOT NULL,
 						serial_number       TEXT NOT NULL,
+						revoked             BOOLEAN DEFAULT FALSE,
 						PRIMARY KEY  (client_id, serial_number)
 					);`,
 				},

@@ -95,6 +95,7 @@ func (cs *certsService) IssueCert(ctx context.Context, domainID, token, clientID
 		IssuingCA:    cert.IssuingCA,
 		CAChain:      cert.CAChain,
 		ClientID:     cert.ClientID,
+		Revoked:      cert.Revoked,
 	}, err
 }
 
@@ -107,12 +108,9 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 	}
 
-	cp, err := cs.certsRepo.RetrieveByClient(ctx, client.ID, 0, 10000)
+	cp, err := cs.certsRepo.RetrieveByClient(ctx, client.ID, PageMetadata{Offset: 0, Limit: 10000})
 	if err != nil {
-		cp, err = cs.pki.ListCerts(PageMetadata{Offset: 0, Limit: 10000, ClientID: client.ID})
-		if err != nil {
-			return revoke, errors.Wrap(ErrFailedCertRevocation, err)
-		}
+		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 	}
 
 	for _, c := range cp.Certificates {
@@ -120,12 +118,14 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 		if err != nil {
 			return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 		}
-		revoke.RevocationTime = time.Now().UTC()
-	}
 
-	err = cs.certsRepo.Remove(ctx, client.ID)
-	if err != nil {
-		return revoke, errors.Wrap(ErrFailedToRemoveCertFromDB, err)
+		c.Revoked = true
+		err = cs.certsRepo.Update(ctx, c)
+		if err != nil {
+			return revoke, errors.Wrap(ErrFailedReadFromDB, err)
+		}
+
+		revoke.RevocationTime = time.Now().UTC()
 	}
 
 	return revoke, nil
@@ -134,14 +134,20 @@ func (cs *certsService) RevokeCert(ctx context.Context, domainID, token, clientI
 func (cs *certsService) RevokeBySerial(ctx context.Context, serialID string) (Revoke, error) {
 	var revoke Revoke
 
-	err := cs.pki.Revoke(serialID)
+	cert, err := cs.certsRepo.RetrieveBySerial(ctx, serialID)
+	if err != nil {
+		return revoke, errors.Wrap(ErrFailedReadFromDB, err)
+	}
+
+	err = cs.pki.Revoke(serialID)
 	if err != nil {
 		return revoke, errors.Wrap(ErrFailedCertRevocation, err)
 	}
 
-	err = cs.certsRepo.RemoveBySerial(ctx, serialID)
+	cert.Revoked = true
+	err = cs.certsRepo.Update(ctx, cert)
 	if err != nil {
-		return revoke, errors.Wrap(ErrFailedToRemoveCertFromDB, err)
+		return revoke, errors.Wrap(ErrFailedReadFromDB, err)
 	}
 
 	revoke.RevocationTime = time.Now().UTC()
@@ -149,7 +155,7 @@ func (cs *certsService) RevokeBySerial(ctx context.Context, serialID string) (Re
 }
 
 func (cs *certsService) ListCerts(ctx context.Context, clientID string, pm PageMetadata) (CertPage, error) {
-	cp, err := cs.certsRepo.RetrieveByClient(ctx, clientID, pm.Offset, pm.Limit)
+	cp, err := cs.certsRepo.RetrieveByClient(ctx, clientID, pm)
 	if err != nil {
 		return CertPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
@@ -167,7 +173,7 @@ func (cs *certsService) ListCerts(ctx context.Context, clientID string, pm PageM
 }
 
 func (cs *certsService) ListSerials(ctx context.Context, clientID string, pm PageMetadata) (CertPage, error) {
-	cp, err := cs.certsRepo.RetrieveByClient(ctx, clientID, pm.Offset, pm.Limit)
+	cp, err := cs.certsRepo.RetrieveByClient(ctx, clientID, pm)
 	if err != nil {
 		return CertPage{}, errors.Wrap(svcerr.ErrViewEntity, err)
 	}
@@ -192,5 +198,6 @@ func (cs *certsService) ViewCert(ctx context.Context, serialID string) (Cert, er
 		Key:          vcert.Key,
 		ExpiryTime:   vcert.ExpiryTime,
 		ClientID:     cert.ClientID,
+		Revoked:      cert.Revoked,
 	}, nil
 }
