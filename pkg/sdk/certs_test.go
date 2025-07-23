@@ -39,6 +39,7 @@ var (
 	cert, sdkCert        = generateTestCerts(&testing.T{})
 	defOffset     uint64 = 0
 	defLimit      uint64 = 10
+	revoked              = "all"
 )
 
 func generateTestCerts(t *testing.T) (certs.Cert, sdk.Cert) {
@@ -361,12 +362,12 @@ func TestViewCertByClient(t *testing.T) {
 				tc.session = smqauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
-			svcCall := svc.On("ListSerials", mock.Anything, tc.clientID, certs.PageMetadata{Offset: defOffset, Limit: defLimit, Revoked: "all"}).Return(tc.svcRes, tc.svcErr)
+			svcCall := svc.On("ListSerials", mock.Anything, tc.clientID, certs.PageMetadata{Offset: defOffset, Limit: defLimit, Revoked: revoked}).Return(tc.svcRes, tc.svcErr)
 			resp, err := mgsdk.ViewCertByClient(context.Background(), tc.clientID, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			if tc.err == nil {
 				assert.Equal(t, viewCertClientRes, resp)
-				ok := svcCall.Parent.AssertCalled(t, "ListSerials", mock.Anything, tc.clientID, certs.PageMetadata{Offset: defOffset, Limit: defLimit, Revoked: "all"})
+				ok := svcCall.Parent.AssertCalled(t, "ListSerials", mock.Anything, tc.clientID, certs.PageMetadata{Offset: defOffset, Limit: defLimit, Revoked: revoked})
 				assert.True(t, ok)
 			}
 			svcCall.Unset()
