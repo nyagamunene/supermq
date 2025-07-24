@@ -376,7 +376,7 @@ func TestViewCertByClient(t *testing.T) {
 	}
 }
 
-func TestRevokeCert(t *testing.T) {
+func TestRevokeAllCert(t *testing.T) {
 	ts, svc, auth := setupCerts()
 	defer ts.Close()
 
@@ -452,11 +452,91 @@ func TestRevokeCert(t *testing.T) {
 			}
 			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
 			svcCall := svc.On("RevokeCert", mock.Anything, tc.domainID, tc.token, tc.clientID).Return(tc.svcResp, tc.svcErr)
-			resp, err := mgsdk.RevokeCert(context.Background(), tc.clientID, tc.domainID, tc.token)
+			resp, err := mgsdk.RevokeAllCerts(context.Background(), tc.clientID, tc.domainID, tc.token)
 			assert.Equal(t, tc.err, err)
 			if err == nil {
 				assert.NotEmpty(t, resp)
 				ok := svcCall.Parent.AssertCalled(t, "RevokeCert", mock.Anything, tc.domainID, tc.token, tc.clientID)
+				assert.True(t, ok)
+			}
+			svcCall.Unset()
+			authCall.Unset()
+		})
+	}
+}
+
+func TestRevokeCert(t *testing.T) {
+	ts, svc, auth := setupCerts()
+	defer ts.Close()
+
+	sdkConf := sdk.Config{
+		CertsURL:        ts.URL,
+		MsgContentType:  contentType,
+		TLSVerification: false,
+	}
+
+	mgsdk := sdk.NewSDK(sdkConf)
+
+	cases := []struct {
+		desc            string
+		certID          string
+		domainID        string
+		token           string
+		session         smqauthn.Session
+		svcResp         certs.Revoke
+		authenticateErr error
+		svcErr          error
+		err             errors.SDKError
+	}{
+		{
+			desc:     "revoke cert successfully",
+			certID:   serial,
+			domainID: validID,
+			token:    validToken,
+			svcResp:  certs.Revoke{RevocationTime: time.Now()},
+			svcErr:   nil,
+			err:      nil,
+		},
+		{
+			desc:            "revoke cert with invalid token",
+			certID:          serial,
+			domainID:        validID,
+			token:           invalidToken,
+			svcResp:         certs.Revoke{},
+			authenticateErr: svcerr.ErrAuthentication,
+			err:             errors.NewSDKErrorWithStatus(svcerr.ErrAuthentication, http.StatusUnauthorized),
+		},
+		{
+			desc:     "revoke non-existing cert",
+			certID:   invalid,
+			domainID: validID,
+			token:    validToken,
+			svcResp:  certs.Revoke{},
+			svcErr:   errors.Wrap(certs.ErrFailedCertRevocation, svcerr.ErrNotFound),
+			err:      errors.NewSDKErrorWithStatus(certs.ErrFailedCertRevocation, http.StatusNotFound),
+		},
+		{
+			desc:     "revoke cert with empty token",
+			certID:   serial,
+			domainID: validID,
+			token:    "",
+			svcResp:  certs.Revoke{},
+			svcErr:   nil,
+			err:      errors.NewSDKErrorWithStatus(apiutil.ErrBearerToken, http.StatusUnauthorized),
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			if tc.token == valid {
+				tc.session = smqauthn.Session{DomainUserID: validID, UserID: validID, DomainID: validID}
+			}
+			authCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authenticateErr)
+			svcCall := svc.On("RevokeBySerial", mock.Anything, tc.certID).Return(tc.svcResp, tc.svcErr)
+			resp, err := mgsdk.RevokeCert(context.Background(), tc.certID, tc.domainID, tc.token)
+			assert.Equal(t, tc.err, err)
+			if err == nil {
+				assert.NotEmpty(t, resp)
+				ok := svcCall.Parent.AssertCalled(t, "RevokeBySerial", mock.Anything, tc.certID)
 				assert.True(t, ok)
 			}
 			svcCall.Unset()
