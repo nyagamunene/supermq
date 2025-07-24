@@ -82,7 +82,7 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /{domainID}/certs/{clientID}/revokeall:
+  /{domainID}/certs/{clientID}/revoke-all:
     post:
       operationId: revokeAllCerts
       summary: Revokes all certificates for a given client ID

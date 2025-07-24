@@ -56,7 +56,7 @@ func MakeHandler(svc certs.Service, authn smqauthn.Authentication, logger *slog.
 					api.EncodeResponse,
 					opts...,
 				), "view").ServeHTTP)
-				r.Post("/{clientID}/revokeall", otelhttp.NewHandler(kithttp.NewServer(
+				r.Post("/{clientID}/revoke-all", otelhttp.NewHandler(kithttp.NewServer(
 					revokeAllCerts(svc),
 					decodeRevokeAllCerts,
 					api.EncodeResponse,

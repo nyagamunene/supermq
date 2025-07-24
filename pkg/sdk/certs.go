@@ -89,8 +89,8 @@ func (sdk mgSDK) ViewCertByClient(ctx context.Context, clientID, domainID, token
 	return cs, nil
 }
 
-func (sdk mgSDK) RevokeAllCerts(ctx context.Context,id, domainID, token string) (time.Time, errors.SDKError) {
-	url := fmt.Sprintf("%s/%s/%s/%s/revokeall", sdk.certsURL, domainID, certsEndpoint,id)
+func (sdk mgSDK) RevokeAllCerts(ctx context.Context, id, domainID, token string) (time.Time, errors.SDKError) {
+	url := fmt.Sprintf("%s/%s/%s/%s/revoke-all", sdk.certsURL, domainID, certsEndpoint, id)
 
 	_, body, err := sdk.processRequest(ctx, http.MethodPost, url, token, nil, nil, http.StatusOK)
 	if err != nil {

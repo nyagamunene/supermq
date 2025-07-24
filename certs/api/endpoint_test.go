@@ -401,7 +401,7 @@ func TestRevokeAllCerts(t *testing.T) {
 			req := testRequest{
 				client: cs.Client(),
 				method: http.MethodPost,
-				url:    fmt.Sprintf("%s/%s/certs/%s/revokeall", cs.URL, tc.domainID, tc.serialID),
+				url:    fmt.Sprintf("%s/%s/certs/%s/revoke-all", cs.URL, tc.domainID, tc.serialID),
 				token:  tc.token,
 			}
 			if tc.token == valid {
