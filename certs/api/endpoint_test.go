@@ -332,7 +332,7 @@ func TestViewCert(t *testing.T) {
 	}
 }
 
-func TestRevokeCert(t *testing.T) {
+func TestRevokeAllCerts(t *testing.T) {
 	cs, svc, auth := newCertServer()
 	defer cs.Close()
 
@@ -400,8 +400,8 @@ func TestRevokeCert(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			req := testRequest{
 				client: cs.Client(),
-				method: http.MethodDelete,
-				url:    fmt.Sprintf("%s/%s/certs/%s", cs.URL, tc.domainID, tc.serialID),
+				method: http.MethodPost,
+				url:    fmt.Sprintf("%s/%s/certs/%s/revokeall", cs.URL, tc.domainID, tc.serialID),
 				token:  tc.token,
 			}
 			if tc.token == valid {
@@ -513,7 +513,7 @@ func TestRevokeBySerial(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			req := testRequest{
 				client: cs.Client(),
-				method: http.MethodDelete,
+				method: http.MethodPost,
 				url:    fmt.Sprintf("%s/%s/certs/%s/revoke", cs.URL, tc.domainID, tc.serialID),
 				token:  tc.token,
 			}

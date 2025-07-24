@@ -94,9 +94,9 @@ func viewCert(svc certs.Service) endpoint.Endpoint {
 	}
 }
 
-func revokeCert(svc certs.Service) endpoint.Endpoint {
+func revokeAllCerts(svc certs.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(revokeReq)
+		req := request.(revokeAllReq)
 		if err := req.validate(); err != nil {
 			return nil, errors.Wrap(apiutil.ErrValidation, err)
 		}

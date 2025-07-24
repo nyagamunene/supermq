@@ -68,13 +68,13 @@ func (req *viewReq) validate() error {
 	return nil
 }
 
-type revokeReq struct {
+type revokeAllReq struct {
 	token    string
 	clientID string
 	domainID string
 }
 
-func (req *revokeReq) validate() error {
+func (req *revokeAllReq) validate() error {
 	if req.token == "" {
 		return apiutil.ErrBearerToken
 	}

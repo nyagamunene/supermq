@@ -82,12 +82,12 @@ paths:
         "500":
           $ref: "#/components/responses/ServiceError"
 
-  /{domainID}/certs/{clientID}:
-    delete:
-      operationId: revokeCert
-      summary: Revokes a certificate
+  /{domainID}/certs/{clientID}/revokeall:
+    post:
+      operationId: revokeAllCerts
+      summary: Revokes all certificates for a given client ID
       description: |
-        Revokes a certificate for a given client ID.
+        Revokes all certificates for a given client ID.
       tags:
         - certs
       parameters:
@@ -111,7 +111,7 @@ paths:
           $ref: "#/components/responses/ServiceError"
 
   /{domainID}/certs/{certID}/revoke:
-    delete:
+    post:
       operationId: revokeCertBySerial
       summary: Revokes a certificate by serial number
       description: |
