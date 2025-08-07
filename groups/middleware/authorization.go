@@ -580,9 +580,7 @@ func (am *authorizationMiddleware) AddChildrenGroups(ctx context.Context, sessio
 }
 
 func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, session authn.Session, id string, childrenGroupIDs []string) error {
-	subject := session.DomainUserID
 	if session.Type == authn.PersonalAccessToken {
-		subject = session.UserID
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:           session.UserID,
 			PatID:            session.PatID,
@@ -598,7 +596,7 @@ func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, ses
 	if err := am.authorize(ctx, groups.OpRemoveChildrenGroups, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
-		Subject:     subject,
+		Subject:     session.DomainUserID,
 		Object:      id,
 		ObjectType:  policies.GroupType,
 	}); err != nil {
@@ -616,9 +614,7 @@ func (am *authorizationMiddleware) RemoveChildrenGroups(ctx context.Context, ses
 }
 
 func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, session authn.Session, id string) error {
-	subject := session.DomainUserID
 	if session.Type == authn.PersonalAccessToken {
-		subject = session.UserID
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:           session.UserID,
 			PatID:            session.PatID,
@@ -634,7 +630,7 @@ func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, 
 	if err := am.authorize(ctx, groups.OpRemoveAllChildrenGroups, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
-		Subject:     subject,
+		Subject:     session.DomainUserID,
 		Object:      id,
 		ObjectType:  policies.GroupType,
 	}); err != nil {
@@ -651,9 +647,7 @@ func (am *authorizationMiddleware) RemoveAllChildrenGroups(ctx context.Context, 
 }
 
 func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, session authn.Session, id string, startLevel, endLevel int64, pm groups.PageMeta) (groups.Page, error) {
-	subject := session.DomainUserID
 	if session.Type == authn.PersonalAccessToken {
-		subject = session.UserID
 		if err := am.authz.AuthorizePAT(ctx, smqauthz.PatReq{
 			UserID:           session.UserID,
 			PatID:            session.PatID,
@@ -669,7 +663,7 @@ func (am *authorizationMiddleware) ListChildrenGroups(ctx context.Context, sessi
 	if err := am.authorize(ctx, groups.OpListChildrenGroups, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
-		Subject:     subject,
+		Subject:     session.DomainUserID,
 		Object:      id,
 		ObjectType:  policies.GroupType,
 	}); err != nil {
