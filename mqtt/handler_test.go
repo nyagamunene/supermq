@@ -541,7 +541,7 @@ func TestDisconnect(t *testing.T) {
 			err := handler.Disconnect(ctx)
 			assert.Contains(t, logBuffer.String(), tc.logMsg)
 			assert.Equal(t, tc.err, err)
-			
+
 			if tc.session != nil {
 				assert.NotContains(t, logBuffer.String(), string(tc.session.Password), "password should not be logged")
 			}
