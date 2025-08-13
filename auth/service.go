@@ -369,6 +369,21 @@ func (svc service) checkUserRole(ctx context.Context, key Key) (err error) {
 	}
 }
 
+func (svc service) getUserRole(ctx context.Context, userID string) (role Role) {
+	rl := UserRole
+	if err := svc.Authorize(ctx, policies.Policy{
+		Subject:     userID,
+		SubjectType: policies.UserType,
+		Permission:  policies.AdminPermission,
+		Object:      policies.SuperMQObject,
+		ObjectType:  policies.PlatformType,
+	}); err == nil {
+		rl = AdminRole
+	}
+
+	return rl
+}
+
 func (svc service) userKey(ctx context.Context, token string, key Key) (Token, error) {
 	id, sub, err := svc.authenticate(token)
 	if err != nil {
@@ -479,7 +494,6 @@ func (svc service) CreatePAT(ctx context.Context, token, name, description strin
 		Name:        name,
 		Description: description,
 		Secret:      hash,
-		Role:        key.Role,
 		IssuedAt:    now,
 		ExpiresAt:   now.Add(duration),
 		Status:      ActiveStatus,
@@ -674,7 +688,7 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, errMalformedPAT)
 	}
-	secretHash, revoked, expired, role, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
+	secretHash, revoked, expired, err := svc.pats.RetrieveSecretAndRevokeStatus(ctx, userID.String(), patID.String())
 	if err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
@@ -687,6 +701,7 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 	if err := svc.hasher.Compare(secret, secretHash); err != nil {
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
+	role := svc.getUserRole(ctx, userID.String())
 	return PAT{ID: patID.String(), User: userID.String(), Role: role}, nil
 }
 

@@ -16,7 +16,6 @@ type dbPat struct {
 	Name        string       `db:"name,omitempty"`
 	Description string       `db:"description,omitempty"`
 	Secret      string       `db:"secret,omitempty"`
-	Role        uint32       `db:"role,omitempty"`
 	IssuedAt    time.Time    `db:"issued_at,omitempty"`
 	ExpiresAt   time.Time    `db:"expires_at,omitempty"`
 	UpdatedAt   sql.NullTime `db:"updated_at,omitempty"`
@@ -73,7 +72,6 @@ func toAuthPat(db dbPat) auth.PAT {
 		ID:          db.ID,
 		User:        db.User,
 		Name:        db.Name,
-		Role:        auth.Role(db.Role),
 		Description: db.Description,
 		Secret:      db.Secret,
 		IssuedAt:    db.IssuedAt,
@@ -141,7 +139,6 @@ func toDBPats(pat auth.PAT) (dbPat, error) {
 		Name:        pat.Name,
 		Description: pat.Description,
 		Secret:      pat.Secret,
-		Role:        uint32(pat.Role),
 		IssuedAt:    pat.IssuedAt,
 		ExpiresAt:   pat.ExpiresAt,
 		Revoked:     pat.Revoked,
