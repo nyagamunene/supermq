@@ -52,7 +52,7 @@ func NewPubSub(ctx context.Context, url string, logger *slog.Logger, opts ...mes
 		}
 	}
 
-	conn, err := broker.Connect(url, broker.MaxReconnects(maxReconnects))
+	conn, err := broker.Connect(url, broker.MaxReconnects(maxReconnects), broker.ErrorHandler(ps.natsErrorHandler))
 	if err != nil {
 		return nil, err
 	}
@@ -70,6 +70,30 @@ func NewPubSub(ctx context.Context, url string, logger *slog.Logger, opts ...mes
 	ps.stream = stream
 
 	return ps, nil
+}
+
+func (ps *pubsub) natsErrorHandler(nc *broker.Conn, sub *broker.Subscription, natsErr error) {
+	ps.logger.Error("NATS error occurred",
+		slog.String("error", natsErr.Error()),
+		slog.String("subject", sub.Subject),
+	)
+
+	if natsErr == broker.ErrSlowConsumer {
+		pendingMsgs, pendingBytes, err := sub.Pending()
+		if err != nil {
+			ps.logger.Error("couldn't get pending messages for slow consumer",
+				slog.String("error", err.Error()),
+				slog.String("subject", sub.Subject),
+			)
+			return
+		}
+
+		ps.logger.Warn("Slow consumer detected",
+			slog.String("subject", sub.Subject),
+			slog.Int("pending_messages", pendingMsgs),
+			slog.Int("pending_bytes", pendingBytes),
+		)
+	}
 }
 
 func (ps *pubsub) Subscribe(ctx context.Context, cfg messaging.SubscriberConfig) error {
@@ -91,6 +115,22 @@ func (ps *pubsub) Subscribe(ctx context.Context, cfg messaging.SubscriberConfig)
 		FilterSubject: cfg.Topic,
 	}
 
+	if ps.slowConsumerConfig != nil {
+		consumerConfig.MaxAckPending = ps.slowConsumerConfig.MaxPendingMsgs
+
+		if ps.slowConsumerConfig.MaxPendingBytes > 0 {
+			consumerConfig.MaxRequestMaxBytes = ps.slowConsumerConfig.MaxPendingBytes
+		}
+
+		ps.logger.Info("Applied slow consumer throttling to JetStream consumer",
+			slog.String("consumer", consumerConfig.Name),
+			slog.Int("max_ack_pending", consumerConfig.MaxAckPending),
+			slog.Int("max_request_max_bytes", consumerConfig.MaxRequestMaxBytes),
+			slog.Bool("dropped_msg_tracking", ps.slowConsumerConfig.EnableDroppedMsgTracking),
+			slog.Bool("slow_consumer_detection", ps.slowConsumerConfig.EnableSlowConsumerDetection),
+		)
+	}
+
 	if cfg.Ordered {
 		consumerConfig.MaxAckPending = 1
 	}
@@ -109,6 +149,10 @@ func (ps *pubsub) Subscribe(ctx context.Context, cfg messaging.SubscriberConfig)
 
 	if _, err = consumer.Consume(nh); err != nil {
 		return fmt.Errorf("failed to consume: %w", err)
+	}
+
+	if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.EnableSlowConsumerDetection {
+		go ps.checkConsumerLag(ctx, consumerConfig.Name)
 	}
 
 	return nil
@@ -145,6 +189,29 @@ func (ps *pubsub) natsHandler(h messaging.MessageHandler) func(m jetstream.Msg) 
 				slog.Uint64("stream_seq", meta.Sequence.Stream),
 				slog.Uint64("consumer_seq", meta.Sequence.Consumer),
 			)
+
+			if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.EnableSlowConsumerDetection {
+				sequenceLag := meta.Sequence.Stream - meta.Sequence.Consumer
+				lagThreshold := uint64(float64(ps.slowConsumerConfig.MaxPendingMsgs) * 0.7)
+				if sequenceLag > lagThreshold {
+					args = append(args,
+						slog.Uint64("sequence_lag", sequenceLag),
+						slog.Uint64("lag_threshold", lagThreshold),
+						slog.String("slow_consumer_detection", "lag_threshold_exceeded"),
+					)
+					ps.logger.Warn("JetStream slow consumer detected - sequence lag exceeds threshold", args...)
+				}
+			}
+
+			if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.EnableDroppedMsgTracking {
+				if meta.NumDelivered > 1 {
+					args = append(args,
+						slog.Uint64("delivery_count", meta.NumDelivered),
+						slog.String("redelivery_reason", "slow_consumer_or_ack_timeout"),
+					)
+					ps.logger.Warn("Message redelivered (potential slow consumer)", args...)
+				}
+			}
 		default:
 			args = append(args,
 				slog.String("metadata_error", err.Error()),
@@ -218,4 +285,42 @@ func formatConsumerName(topic, id string) string {
 	topic = strings.NewReplacer(chars...).Replace(topic)
 
 	return fmt.Sprintf("%s-%s", topic, id)
+}
+
+// checkConsumerLag checks the consumer lag and logs warnings if thresholds are exceeded.
+// This provides additional slow consumer detection for JetStream consumers.
+func (ps *pubsub) checkConsumerLag(ctx context.Context, consumerName string) {
+	if ps.slowConsumerConfig == nil || !ps.slowConsumerConfig.EnableSlowConsumerDetection {
+		return
+	}
+
+	consumer, err := ps.stream.Consumer(ctx, consumerName)
+	if err != nil {
+		ps.logger.Error("failed to get consumer for lag check",
+			slog.String("consumer", consumerName),
+			slog.String("error", err.Error()),
+		)
+		return
+	}
+
+	info, err := consumer.Info(ctx)
+	if err != nil {
+		ps.logger.Error("failed to get consumer info for lag check",
+			slog.String("consumer", consumerName),
+			slog.String("error", err.Error()),
+		)
+		return
+	}
+
+	pending := info.NumPending
+	lagThreshold := uint64(float64(ps.slowConsumerConfig.MaxPendingMsgs) * 0.7)
+	if pending > lagThreshold {
+		ps.logger.Warn("JetStream consumer lag threshold exceeded",
+			slog.String("consumer", consumerName),
+			slog.Uint64("pending_messages", pending),
+			slog.Int("ack_pending", info.NumAckPending),
+			slog.Int("redelivered", info.NumRedelivered),
+			slog.Uint64("threshold", lagThreshold),
+		)
+	}
 }
