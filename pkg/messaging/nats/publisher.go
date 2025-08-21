@@ -55,7 +55,7 @@ func NewPublisher(ctx context.Context, url string, opts ...messaging.Option) (me
 	if err != nil {
 		return nil, err
 	}
-	if _, err := js.CreateStream(ctx, pub.jsStreamConfig.StreamConfig); err != nil {
+	if _, err := js.CreateStream(ctx, pub.jsStreamConfig); err != nil {
 		return nil, err
 	}
 	pub.js = js

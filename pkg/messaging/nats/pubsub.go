@@ -62,7 +62,7 @@ func NewPubSub(ctx context.Context, url string, logger *slog.Logger, opts ...mes
 	if err != nil {
 		return nil, err
 	}
-	stream, err := js.CreateStream(ctx, ps.jsStreamConfig.StreamConfig)
+	stream, err := js.CreateStream(ctx, ps.jsStreamConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -115,24 +115,20 @@ func (ps *pubsub) Subscribe(ctx context.Context, cfg messaging.SubscriberConfig)
 		FilterSubject: cfg.Topic,
 	}
 
-	// Apply consumer limits from the built-in ConsumerLimits
-	if ps.jsStreamConfig.ConsumerLimits.MaxAckPending > 0 {
-		consumerConfig.MaxAckPending = ps.jsStreamConfig.ConsumerLimits.MaxAckPending
+	if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.MaxPendingMsgs > 0 {
+		consumerConfig.MaxAckPending = ps.slowConsumerConfig.MaxPendingMsgs
 	}
 
-	// Apply additional monitoring configuration
-	monitoring := &ps.jsStreamConfig.SlowConsumer
-	if monitoring.MaxPendingBytes > 0 {
-		consumerConfig.MaxRequestMaxBytes = monitoring.MaxPendingBytes
+	if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.MaxPendingBytes > 0 {
+		consumerConfig.MaxRequestMaxBytes = ps.slowConsumerConfig.MaxPendingBytes
 	}
 
-	// Log the applied configuration
-	if ps.jsStreamConfig.ConsumerLimits.MaxAckPending > 0 {
+	if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.MaxPendingMsgs > 0 {
 		ps.logger.Info("Applied slow consumer throttling to JetStream consumer",
 			slog.String("consumer", consumerConfig.Name),
 			slog.Int("max_ack_pending", consumerConfig.MaxAckPending),
 			slog.Int("max_request_max_bytes", consumerConfig.MaxRequestMaxBytes),
-			slog.Bool("dropped_msg_tracking", monitoring.EnableDroppedMsgTracking),
+			slog.Bool("dropped_msg_tracking", ps.slowConsumerConfig.EnableDroppedMsgTracking),
 		)
 	}
 
@@ -191,7 +187,7 @@ func (ps *pubsub) natsHandler(h messaging.MessageHandler) func(m jetstream.Msg) 
 				slog.Uint64("consumer_seq", meta.Sequence.Consumer),
 			)
 
-			if ps.jsStreamConfig.SlowConsumer.EnableDroppedMsgTracking {
+			if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.EnableDroppedMsgTracking {
 				if meta.NumDelivered > 1 {
 					args = append(args,
 						slog.Uint64("delivery_count", meta.NumDelivered),
