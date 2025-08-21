@@ -22,16 +22,18 @@ var _ events.Subscriber = (*subEventStore)(nil)
 var (
 	eventsPrefix = "events"
 
-	jsStreamConfig = jetstream.StreamConfig{
-		Name:              "events",
-		Description:       "SuperMQ stream for sending and receiving messages in between SuperMQ events",
-		Subjects:          []string{"events.>"},
-		Retention:         jetstream.LimitsPolicy,
-		MaxMsgsPerSubject: 1e9,
-		MaxAge:            time.Hour * 24,
-		MaxMsgSize:        1024 * 1024,
-		Discard:           jetstream.DiscardOld,
-		Storage:           jetstream.FileStorage,
+	jsStreamConfig = broker.SMQJetStreamConfig{
+		StreamConfig: jetstream.StreamConfig{
+			Name:              "events",
+			Description:       "SuperMQ stream for sending and receiving messages in between SuperMQ events",
+			Subjects:          []string{"events.>"},
+			Retention:         jetstream.LimitsPolicy,
+			MaxMsgsPerSubject: 1e9,
+			MaxAge:            time.Hour * 24,
+			MaxMsgSize:        1024 * 1024,
+			Discard:           jetstream.DiscardOld,
+			Storage:           jetstream.FileStorage,
+		},
 	}
 
 	// ErrEmptyStream is returned when stream name is empty.
