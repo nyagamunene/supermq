@@ -270,5 +270,3 @@ func formatConsumerName(topic, id string) string {
 
 	return fmt.Sprintf("%s-%s", topic, id)
 }
-
-
