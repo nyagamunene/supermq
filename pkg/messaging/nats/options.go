@@ -29,11 +29,10 @@ var (
 )
 
 const (
-	msgPrefix                          = "m"
-	defaultMaxPendingMsgs              = 1000
-	defaultMaxPendingBytes             = 5 * 1024 * 1024
-	defaultEnableDroppedMsgTracking    = true
-	defaultEnableSlowConsumerDetection = true
+	msgPrefix                       = "m"
+	defaultMaxPendingMsgs           = 1000
+	defaultMaxPendingBytes          = 5 * 1024 * 1024
+	defaultEnableDroppedMsgTracking = true
 )
 
 type options struct {
@@ -45,7 +44,6 @@ type options struct {
 type SlowConsumerConfig struct {
 	// MaxPendingMsgs maps to JetStream ConsumerConfig.MaxAckPending
 	// Controls the maximum number of outstanding unacknowledged messages
-	// Also used for slow consumer detection at 70% of this value
 	MaxPendingMsgs int
 
 	// MaxPendingBytes maps to JetStream ConsumerConfig.MaxRequestMaxBytes
@@ -55,10 +53,6 @@ type SlowConsumerConfig struct {
 	// EnableDroppedMsgTracking enables logging of message redeliveries
 	// which can indicate slow consumer behavior in JetStream
 	EnableDroppedMsgTracking bool
-
-	// EnableSlowConsumerDetection enables automatic slow consumer detection
-	// and logging when consumer lag exceeds 70% of MaxPendingMsgs
-	EnableSlowConsumerDetection bool
 }
 
 func defaultOptions() options {
@@ -66,10 +60,9 @@ func defaultOptions() options {
 		prefix:         msgPrefix,
 		jsStreamConfig: jsStreamConfig,
 		slowConsumerConfig: &SlowConsumerConfig{
-			MaxPendingMsgs:              defaultMaxPendingMsgs,
-			MaxPendingBytes:             defaultMaxPendingBytes,
-			EnableDroppedMsgTracking:    defaultEnableDroppedMsgTracking,
-			EnableSlowConsumerDetection: defaultEnableSlowConsumerDetection,
+			MaxPendingMsgs:           defaultMaxPendingMsgs,
+			MaxPendingBytes:          defaultMaxPendingBytes,
+			EnableDroppedMsgTracking: defaultEnableDroppedMsgTracking,
 		},
 	}
 }
