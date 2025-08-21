@@ -62,7 +62,7 @@ func NewPubSub(ctx context.Context, url string, logger *slog.Logger, opts ...mes
 	if err != nil {
 		return nil, err
 	}
-	stream, err := js.CreateStream(ctx, ps.jsStreamConfig)
+	stream, err := js.CreateStream(ctx, ps.jsStreamConfig.StreamConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -115,19 +115,24 @@ func (ps *pubsub) Subscribe(ctx context.Context, cfg messaging.SubscriberConfig)
 		FilterSubject: cfg.Topic,
 	}
 
-	if ps.slowConsumerConfig != nil {
-		consumerConfig.MaxAckPending = ps.slowConsumerConfig.MaxPendingMsgs
+	// Apply consumer limits from the built-in ConsumerLimits
+	if ps.jsStreamConfig.ConsumerLimits.MaxAckPending > 0 {
+		consumerConfig.MaxAckPending = ps.jsStreamConfig.ConsumerLimits.MaxAckPending
+	}
 
-		if ps.slowConsumerConfig.MaxPendingBytes > 0 {
-			consumerConfig.MaxRequestMaxBytes = ps.slowConsumerConfig.MaxPendingBytes
-		}
+	// Apply additional monitoring configuration
+	monitoring := &ps.jsStreamConfig.SlowConsumer
+	if monitoring.MaxPendingBytes > 0 {
+		consumerConfig.MaxRequestMaxBytes = monitoring.MaxPendingBytes
+	}
 
+	// Log the applied configuration
+	if ps.jsStreamConfig.ConsumerLimits.MaxAckPending > 0 {
 		ps.logger.Info("Applied slow consumer throttling to JetStream consumer",
 			slog.String("consumer", consumerConfig.Name),
 			slog.Int("max_ack_pending", consumerConfig.MaxAckPending),
 			slog.Int("max_request_max_bytes", consumerConfig.MaxRequestMaxBytes),
-			slog.Bool("dropped_msg_tracking", ps.slowConsumerConfig.EnableDroppedMsgTracking),
-			slog.Bool("slow_consumer_detection", ps.slowConsumerConfig.EnableSlowConsumerDetection),
+			slog.Bool("dropped_msg_tracking", monitoring.EnableDroppedMsgTracking),
 		)
 	}
 
@@ -149,10 +154,6 @@ func (ps *pubsub) Subscribe(ctx context.Context, cfg messaging.SubscriberConfig)
 
 	if _, err = consumer.Consume(nh); err != nil {
 		return fmt.Errorf("failed to consume: %w", err)
-	}
-
-	if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.EnableSlowConsumerDetection {
-		go ps.checkConsumerLag(ctx, consumerConfig.Name)
 	}
 
 	return nil
@@ -190,20 +191,7 @@ func (ps *pubsub) natsHandler(h messaging.MessageHandler) func(m jetstream.Msg) 
 				slog.Uint64("consumer_seq", meta.Sequence.Consumer),
 			)
 
-			if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.EnableSlowConsumerDetection {
-				sequenceLag := meta.Sequence.Stream - meta.Sequence.Consumer
-				lagThreshold := uint64(float64(ps.slowConsumerConfig.MaxPendingMsgs) * 0.7)
-				if sequenceLag > lagThreshold {
-					args = append(args,
-						slog.Uint64("sequence_lag", sequenceLag),
-						slog.Uint64("lag_threshold", lagThreshold),
-						slog.String("slow_consumer_detection", "lag_threshold_exceeded"),
-					)
-					ps.logger.Warn("JetStream slow consumer detected - sequence lag exceeds threshold", args...)
-				}
-			}
-
-			if ps.slowConsumerConfig != nil && ps.slowConsumerConfig.EnableDroppedMsgTracking {
+			if ps.jsStreamConfig.SlowConsumer.EnableDroppedMsgTracking {
 				if meta.NumDelivered > 1 {
 					args = append(args,
 						slog.Uint64("delivery_count", meta.NumDelivered),
@@ -287,40 +275,4 @@ func formatConsumerName(topic, id string) string {
 	return fmt.Sprintf("%s-%s", topic, id)
 }
 
-// checkConsumerLag checks the consumer lag and logs warnings if thresholds are exceeded.
-// This provides additional slow consumer detection for JetStream consumers.
-func (ps *pubsub) checkConsumerLag(ctx context.Context, consumerName string) {
-	if ps.slowConsumerConfig == nil || !ps.slowConsumerConfig.EnableSlowConsumerDetection {
-		return
-	}
 
-	consumer, err := ps.stream.Consumer(ctx, consumerName)
-	if err != nil {
-		ps.logger.Error("failed to get consumer for lag check",
-			slog.String("consumer", consumerName),
-			slog.String("error", err.Error()),
-		)
-		return
-	}
-
-	info, err := consumer.Info(ctx)
-	if err != nil {
-		ps.logger.Error("failed to get consumer info for lag check",
-			slog.String("consumer", consumerName),
-			slog.String("error", err.Error()),
-		)
-		return
-	}
-
-	pending := info.NumPending
-	lagThreshold := uint64(float64(ps.slowConsumerConfig.MaxPendingMsgs) * 0.7)
-	if pending > lagThreshold {
-		ps.logger.Warn("JetStream consumer lag threshold exceeded",
-			slog.String("consumer", consumerName),
-			slog.Uint64("pending_messages", pending),
-			slog.Int("ack_pending", info.NumAckPending),
-			slog.Int("redelivered", info.NumRedelivered),
-			slog.Uint64("threshold", lagThreshold),
-		)
-	}
-}
