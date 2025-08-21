@@ -28,7 +28,13 @@ var (
 	}
 )
 
-const msgPrefix = "m"
+const (
+	msgPrefix                          = "m"
+	defaultMaxPendingMsgs              = 1000
+	defaultMaxPendingBytes             = 5 * 1024 * 1024
+	defaultEnableDroppedMsgTracking    = true
+	defaultEnableSlowConsumerDetection = true
+)
 
 type options struct {
 	prefix             string
@@ -60,10 +66,10 @@ func defaultOptions() options {
 		prefix:         msgPrefix,
 		jsStreamConfig: jsStreamConfig,
 		slowConsumerConfig: &SlowConsumerConfig{
-			MaxPendingMsgs:              1000,
-			MaxPendingBytes:             5 * 1024 * 1024,
-			EnableDroppedMsgTracking:    true,
-			EnableSlowConsumerDetection: true, // Will warn at 70% of MaxPendingMsgs (700 messages)
+			MaxPendingMsgs:              defaultMaxPendingMsgs,
+			MaxPendingBytes:             defaultMaxPendingBytes,
+			EnableDroppedMsgTracking:    defaultEnableDroppedMsgTracking,
+			EnableSlowConsumerDetection: defaultEnableSlowConsumerDetection,
 		},
 	}
 }
