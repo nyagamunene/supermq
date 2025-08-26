@@ -13,7 +13,7 @@ info:
   license:
     name: Apache 2.0
     url: https://github.com/absmach/supermq/blob/main/LICENSE
-  version: 0.15.1
+  version: 0.18.0
 
 servers:
   - url: http://localhost:9002
@@ -818,6 +818,7 @@ components:
           description: Total number of items.
         offset:
           type: integer
+          example: 1
           description: Number of items to skip during retrieval.
         limit:
           type: integer
@@ -826,7 +827,7 @@ components:
       required:
         - users
         - total
-        - offset
+        - limit
 
     UserUpdate:
       type: object
