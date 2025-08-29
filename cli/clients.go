@@ -18,6 +18,7 @@ const (
 	roles      = "roles"
 	actions    = "actions"
 	members    = "members"
+	secret     = "secret"
 
 	// Usage strings for client operations.
 	usageClientCreate       = "cli clients <client_id> create <JSON_client> <domain_id> <user_auth_token>"
@@ -169,11 +170,11 @@ func handleClientGet(cmd *cobra.Command, clientParams string, args []string) {
 
 func handleClientUpdate(cmd *cobra.Command, clientID string, args []string) {
 	if len(args) < 3 || len(args) > 4 {
-		if args[0] == "tags" {
+		if args[0] == tags {
 			logUsageCmd(*cmd, usageClientUpdateTags)
 			return
 		}
-		if args[0] == "secret" {
+		if args[0] == secret {
 			logUsageCmd(*cmd, usageClientUpdateSecret)
 			return
 		}
