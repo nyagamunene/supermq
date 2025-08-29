@@ -46,7 +46,7 @@ func NewGroupsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups <group_id_or_all> <operation> [args...]",
 		Short: "Groups management",
-		Long: `Groups management with format: groups <group_id|all> <operation> [additional_args...]
+		Long: `Format: groups <group_id|all> <operation> [additional_args...]
 
 Examples:
   groups all get <domain_id> <user_auth_token>                          # Get all groups
@@ -69,19 +69,19 @@ Examples:
 			opArgs := args[2:]
 
 			switch operation {
-			case "create":
+			case create:
 				handleGroupCreate(cmd, groupParams, opArgs)
-			case "get":
+			case get:
 				handleGroupGet(cmd, groupParams, opArgs)
-			case "update":
+			case update:
 				handleGroupUpdate(cmd, groupParams, opArgs)
-			case "delete":
+			case delete:
 				handleGroupDelete(cmd, groupParams, opArgs)
-			case "enable":
+			case enable:
 				handleGroupEnable(cmd, groupParams, opArgs)
-			case "disable":
+			case disable:
 				handleGroupDisable(cmd, groupParams, opArgs)
-			case "roles":
+			case roles:
 				handleGroupRoles(cmd, groupParams, opArgs)
 			default:
 				logErrorCmd(*cmd, fmt.Errorf("unknown operation: %s", operation))
@@ -250,17 +250,17 @@ func handleGroupRoles(cmd *cobra.Command, groupID string, args []string) {
 	opArgs := args[1:]
 
 	switch operation {
-	case "create":
+	case create:
 		handleGroupRoleCreate(cmd, groupID, opArgs)
-	case "get":
+	case get:
 		handleGroupRoleGet(cmd, groupID, opArgs)
-	case "update":
+	case update:
 		handleGroupRoleUpdate(cmd, groupID, opArgs)
-	case "delete":
+	case delete:
 		handleGroupRoleDelete(cmd, groupID, opArgs)
-	case "actions":
+	case actions:
 		handleGroupRoleActions(cmd, groupID, opArgs)
-	case "members":
+	case members:
 		handleGroupRoleMembers(cmd, groupID, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown roles operation: %s", operation))

@@ -13,6 +13,13 @@ import (
 
 const (
 	all = "all"
+	create = "create"
+	get    = "get"
+	update = "update"
+	delete = "delete"
+	enable = "enable"
+	disable = "disable"
+	users   = "users"
 
 	usageCreate  = "cli channels <channel_id> create <JSON_channel> <domain_id> <user_auth_token>"
 	usageGet     = "cli channels <channel_id|all> get <domain_id> <user_auth_token>"
@@ -27,7 +34,7 @@ func NewChannelsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "channels <channel_id_or_all> <operation> [args...]",
 		Short: "Channels management",
-		Long: `Channels management with format: channels <channel_id|all> <operation> [additional_args...]
+		Long: `Format: channels <channel_id|all> <operation> [additional_args...]
 
 Examples:
   channels all get <domain_id> <user_auth_token>                   				# Get all channels
@@ -49,19 +56,19 @@ Examples:
 			opArgs := args[2:]
 
 			switch operation {
-			case "create":
+			case create:
 				handleCreate(cmd, channelParams, opArgs)
-			case "get":
+			case get:
 				handleGet(cmd, channelParams, opArgs)
-			case "update":
+			case update:
 				handleUpdate(cmd, channelParams, opArgs)
-			case "delete":
+			case delete:
 				handleDelete(cmd, channelParams, opArgs)
-			case "enable":
+			case enable:
 				handleEnable(cmd, channelParams, opArgs)
-			case "disable":
+			case disable:
 				handleDisable(cmd, channelParams, opArgs)
-			case "users":
+			case users:
 				handleUsers(cmd, channelParams, opArgs)
 			default:
 				logErrorCmd(*cmd, fmt.Errorf("unknown operation: %s", operation))

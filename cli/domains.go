@@ -12,6 +12,8 @@ import (
 )
 
 const (
+	freeze = "freeze"
+
 	// Usage strings for domain operations
 	usageDomainCreate  = "cli domains <domain_name> create <route> <user_auth_token>"
 	usageDomainGet     = "cli domains <domain_id|all> get <user_auth_token>"
@@ -43,7 +45,7 @@ func NewDomainsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domains <domain_id_or_all> <operation> [args...]",
 		Short: "Domains management",
-		Long: `Domains management with format: domains <domain_id|all> <operation> [additional_args...]
+		Long: `Format: domains <domain_id|all> <operation> [additional_args...]
 
 Examples:
   domains all get <user_auth_token>                                      # Get all domains
@@ -66,21 +68,21 @@ Examples:
 			opArgs := args[2:]
 
 			switch operation {
-			case "create":
+			case create:
 				handleDomainCreate(cmd, domainParams, opArgs)
-			case "get":
+			case get:
 				handleDomainGet(cmd, domainParams, opArgs)
-			case "update":
+			case update:
 				handleDomainUpdate(cmd, domainParams, opArgs)
-			case "enable":
+			case enable:
 				handleDomainEnable(cmd, domainParams, opArgs)
-			case "disable":
+			case disable:
 				handleDomainDisable(cmd, domainParams, opArgs)
-			case "freeze":
+			case freeze:
 				handleDomainFreeze(cmd, domainParams, opArgs)
-			case "users":
+			case users:
 				handleDomainUsers(cmd, domainParams, opArgs)
-			case "roles":
+			case roles:
 				handleDomainRoles(cmd, domainParams, opArgs)
 			default:
 				logErrorCmd(*cmd, fmt.Errorf("unknown operation: %s", operation))
@@ -243,17 +245,17 @@ func handleDomainRoles(cmd *cobra.Command, domainID string, args []string) {
 	opArgs := args[1:]
 
 	switch operation {
-	case "create":
+	case create:
 		handleDomainRoleCreate(cmd, domainID, opArgs)
-	case "get":
+	case get:
 		handleDomainRoleGet(cmd, domainID, opArgs)
-	case "update":
+	case update:
 		handleDomainRoleUpdate(cmd, domainID, opArgs)
-	case "delete":
+	case delete:
 		handleDomainRoleDelete(cmd, domainID, opArgs)
-	case "actions":
+	case actions:
 		handleDomainRoleActions(cmd, domainID, opArgs)
-	case "members":
+	case members:
 		handleDomainRoleMembers(cmd, domainID, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown roles operation: %s", operation))

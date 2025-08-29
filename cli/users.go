@@ -10,35 +10,44 @@ import (
 	"strconv"
 
 	smqsdk "github.com/absmach/supermq/pkg/sdk"
-	"github.com/absmach/supermq/users"
+	smqusers "github.com/absmach/supermq/users"
 	"github.com/spf13/cobra"
 )
 
 const (
+	token                = "token"
+	refreshtoken         = "refreshtoken"
+	profile              = "profile"
+	resetpasswordrequest = "resetpasswordrequest"
+	resetpassword        = "resetpassword"
+	password             = "password"
+	search               = "search"
+
 	// Usage strings for user operations
-	usageUserCreate             = "cli users <first_name> create <last_name> <email> <username> <password> [user_auth_token]"
-	usageUserGet                = "cli users <user_id|all> get <user_auth_token>"
-	usageUserToken              = "cli users token <username> <password>"
-	usageUserRefreshToken       = "cli users refreshtoken <token>"
-	usageUserUpdate             = "cli users <user_id> update <JSON_string> <user_auth_token>"
-	usageUserUpdateTags         = "cli users <user_id> update tags <tags> <user_auth_token>"
-	usageUserUpdateUsername     = "cli users <user_id> update username <username> <user_auth_token>"
-	usageUserUpdateEmail        = "cli users <user_id> update email <email> <user_auth_token>"
-	usageUserUpdateRole         = "cli users <user_id> update role <role> <user_auth_token>"
-	usageUserProfile            = "cli users profile <user_auth_token>"
-	usageUserResetPasswordReq   = "cli users resetpasswordrequest <email>"
-	usageUserResetPassword      = "cli users resetpassword <password> <confpass> <password_request_token>"
-	usageUserPassword           = "cli users password <old_password> <password> <user_auth_token>"
-	usageUserEnable             = "cli users <user_id> enable <user_auth_token>"
-	usageUserDisable            = "cli users <user_id> disable <user_auth_token>"
-	usageUserDelete             = "cli users <user_id> delete <user_auth_token>"
-	usageUserSearch             = "cli users search <query> <user_auth_token>"
+	usageUserCreate           = "cli users <first_name> create <last_name> <email> <username> <password> [user_auth_token]"
+	usageUserGet              = "cli users <user_id|all> get <user_auth_token>"
+	usageUserToken            = "cli users token <username> <password>"
+	usageUserRefreshToken     = "cli users refreshtoken <token>"
+	usageUserUpdate           = "cli users <user_id> update <JSON_string> <user_auth_token>"
+	usageUserUpdateTags       = "cli users <user_id> update tags <tags> <user_auth_token>"
+	usageUserUpdateUsername   = "cli users <user_id> update username <username> <user_auth_token>"
+	usageUserUpdateEmail      = "cli users <user_id> update email <email> <user_auth_token>"
+	usageUserUpdateRole       = "cli users <user_id> update role <role> <user_auth_token>"
+	usageUserProfile          = "cli users profile <user_auth_token>"
+	usageUserResetPasswordReq = "cli users resetpasswordrequest <email>"
+	usageUserResetPassword    = "cli users resetpassword <password> <confpass> <password_request_token>"
+	usageUserPassword         = "cli users password <old_password> <password> <user_auth_token>"
+	usageUserEnable           = "cli users <user_id> enable <user_auth_token>"
+	usageUserDisable          = "cli users <user_id> disable <user_auth_token>"
+	usageUserDelete           = "cli users <user_id> delete <user_auth_token>"
+	usageUserSearch           = "cli users search <query> <user_auth_token>"
 )
+
 func NewUsersCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "users <user_id_or_all> <operation> [args...]",
 		Short: "Users management",
-		Long: `Users management with format: users <user_id|all> <operation> [additional_args...]
+		Long: `Format: users <user_id|all> <operation> [additional_args...]
 
 Examples:
   users all get <user_auth_token>                                       # Get all users
@@ -66,31 +75,31 @@ Examples:
 			opArgs := args[2:]
 
 			switch operation {
-			case "create":
+			case create:
 				handleUserCreate(cmd, userParams, opArgs)
-			case "get":
+			case get:
 				handleUserGet(cmd, userParams, opArgs)
-			case "update":
+			case update:
 				handleUserUpdate(cmd, userParams, opArgs)
-			case "enable":
+			case enable:
 				handleUserEnable(cmd, userParams, opArgs)
-			case "disable":
+			case disable:
 				handleUserDisable(cmd, userParams, opArgs)
-			case "delete":
+			case delete:
 				handleUserDelete(cmd, userParams, opArgs)
-			case "token":
+			case token:
 				handleUserToken(cmd, userParams, opArgs)
-			case "refreshtoken":
+			case refreshtoken:
 				handleUserRefreshToken(cmd, userParams, opArgs)
-			case "profile":
+			case profile:
 				handleUserProfile(cmd, userParams, opArgs)
-			case "resetpasswordrequest":
+			case resetpasswordrequest:
 				handleUserResetPasswordRequest(cmd, userParams, opArgs)
-			case "resetpassword":
+			case resetpassword:
 				handleUserResetPassword(cmd, userParams, opArgs)
-			case "password":
+			case password:
 				handleUserPassword(cmd, userParams, opArgs)
-			case "search":
+			case search:
 				handleUserSearch(cmd, userParams, opArgs)
 			default:
 				logErrorCmd(*cmd, fmt.Errorf("unknown operation: %s", operation))
@@ -118,7 +127,7 @@ func handleUserCreate(cmd *cobra.Command, firstName string, args []string) {
 			Username: args[2],
 			Secret:   args[3],
 		},
-		Status: users.EnabledStatus.String(),
+		Status: smqusers.EnabledStatus.String(),
 	}
 	user, err := sdk.CreateUser(cmd.Context(), user, args[4])
 	if err != nil {

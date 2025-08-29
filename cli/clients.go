@@ -13,6 +13,12 @@ import (
 )
 
 const (
+	connect    = "connect"
+	disconnect = "disconnect"
+	roles      = "roles"
+	actions    = "actions"
+	members    = "members"
+
 	// Usage strings for client operations
 	usageClientCreate       = "cli clients <client_id> create <JSON_client> <domain_id> <user_auth_token>"
 	usageClientGet          = "cli clients <client_id|all> get <domain_id> <user_auth_token>"
@@ -48,7 +54,7 @@ func NewClientsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clients <client_id_or_all> <operation> [args...]",
 		Short: "Clients management",
-		Long: `Clients management with format: clients <client_id|all> <operation> [additional_args...]
+		Long: `Format: clients <client_id|all> <operation> [additional_args...]
 
 Examples:
   clients all get <domain_id> <user_auth_token>                           # Get all clients
@@ -72,25 +78,25 @@ Examples:
 			opArgs := args[2:]
 
 			switch operation {
-			case "create":
+			case create:
 				handleClientCreate(cmd, clientParams, opArgs)
-			case "get":
+			case get:
 				handleClientGet(cmd, clientParams, opArgs)
-			case "update":
+			case update:
 				handleClientUpdate(cmd, clientParams, opArgs)
-			case "delete":
+			case delete:
 				handleClientDelete(cmd, clientParams, opArgs)
-			case "enable":
+			case enable:
 				handleClientEnable(cmd, clientParams, opArgs)
-			case "disable":
+			case disable:
 				handleClientDisable(cmd, clientParams, opArgs)
-			case "connect":
+			case connect:
 				handleClientConnect(cmd, clientParams, opArgs)
-			case "disconnect":
+			case disconnect:
 				handleClientDisconnect(cmd, clientParams, opArgs)
-			case "users":
+			case users:
 				handleClientUsers(cmd, clientParams, opArgs)
-			case "roles":
+			case roles:
 				handleClientRoles(cmd, clientParams, opArgs)
 			default:
 				logErrorCmd(*cmd, fmt.Errorf("unknown operation: %s", operation))
@@ -346,17 +352,17 @@ func handleClientRoles(cmd *cobra.Command, clientID string, args []string) {
 	opArgs := args[1:]
 
 	switch operation {
-	case "create":
+	case create:
 		handleClientRoleCreate(cmd, clientID, opArgs)
-	case "get":
+	case get:
 		handleClientRoleGet(cmd, clientID, opArgs)
-	case "update":
+	case update:
 		handleClientRoleUpdate(cmd, clientID, opArgs)
-	case "delete":
+	case delete:
 		handleClientRoleDelete(cmd, clientID, opArgs)
-	case "actions":
+	case actions:
 		handleClientRoleActions(cmd, clientID, opArgs)
-	case "members":
+	case members:
 		handleClientRoleMembers(cmd, clientID, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown roles operation: %s", operation))
