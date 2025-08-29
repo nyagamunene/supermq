@@ -22,17 +22,13 @@ const (
 	resPassReqCmd = "resetpasswordrequest"
 	resPassCmd    = "resetpassword"
 	passCmd       = "password"
-	domsCmd       = "domains"
 )
 
 // Clients commands
 const (
-	cliCmd     = "clients"
-	connsCmd   = "connections"
 	connCmd    = "connect"
 	disconnCmd = "disconnect"
-	shrCmd     = "share"
-	unshrCmd   = "unshare"
+	usersCmd   = "users"
 )
 
 // Certs commands
@@ -43,10 +39,7 @@ const (
 )
 
 // Messages commands
-const (
-	sendCmd = "send"
-	readCmd = "read"
-)
+const sendCmd = "send"
 
 // Invitations commands
 const (

@@ -1759,3 +1759,98 @@ func TestDeleteClientRoleMembersCmd(t *testing.T) {
 		})
 	}
 }
+
+func TestClientUsersCmd(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	clientsCmd := cli.NewClientsCmd()
+	rootCmd := setFlags(clientsCmd)
+
+	var mp smqsdk.EntityMembersPage
+
+	memberRole := smqsdk.MemberRoles{
+		MemberID: testsutil.GenerateUUID(t),
+		Roles:    []smqsdk.MemberRole{},
+	}
+
+	cases := []struct {
+		desc          string
+		args          []string
+		sdkErr        errors.SDKError
+		errLogMessage string
+		usersPage     smqsdk.EntityMembersPage
+		logType       outputLog
+	}{
+		{
+			desc: "list client users successfully",
+			args: []string{
+				client.ID,
+				usersCmd,
+				domainID,
+				validToken,
+			},
+			usersPage: smqsdk.EntityMembersPage{
+				Members: []smqsdk.MemberRoles{memberRole},
+			},
+			logType: entityLog,
+		},
+		{
+			desc: "list client users with invalid token",
+			args: []string{
+				client.ID,
+				usersCmd,
+				domainID,
+				invalidToken,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+		{
+			desc: "list client users with invalid client id",
+			args: []string{
+				invalidID,
+				usersCmd,
+				domainID,
+				token,
+			},
+			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
+			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
+			logType:       errLog,
+		},
+		{
+			desc: "list client users with invalid args",
+			args: []string{
+				client.ID,
+				usersCmd,
+				domainID,
+				validToken,
+				extraArg,
+			},
+			errLogMessage: rootCmd.Use,
+			logType:       usageLog,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("ListClientMembers", mock.Anything, tc.args[0], tc.args[2], mock.Anything, tc.args[3]).Return(tc.usersPage, tc.sdkErr)
+			out := executeCommand(t, rootCmd, tc.args...)
+
+			switch tc.logType {
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &mp)
+				if err != nil {
+					t.Fatalf("json.Unmarshal failed: %v", err)
+				}
+				assert.Equal(t, tc.usersPage, mp, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.usersPage, mp))
+			}
+
+			sdkCall.Unset()
+		})
+	}
+}
