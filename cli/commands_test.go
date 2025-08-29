@@ -11,9 +11,7 @@ const (
 	enableCmd  = "enable"
 	disableCmd = "disable"
 	freezeCmd  = "freeze"
-	updCmd     = "update"
 	delCmd     = "delete"
-	rmCmd      = "remove"
 )
 
 // Users commands
@@ -54,4 +52,14 @@ const (
 const (
 	acceptCmd = "accept"
 	rejectCmd = "reject"
+)
+
+// Role commands
+const (
+	rolesCmd            = "roles"
+	actionsCmd          = "actions"
+	availableActionsCmd = "available-actions"
+	addCmd              = "add"
+	listCmd             = "list"
+	membersCmd          = "members"
 )

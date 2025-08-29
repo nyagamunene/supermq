@@ -27,7 +27,7 @@ const (
 	role                 = "role"
 
 	// Usage strings for user operations.
-	usageUserCreate           = "cli users <first_name> create <last_name> <email> <username> <password> [user_auth_token]"
+	usageUserCreate           = "cli users create <first_name> <last_name> <email> <username> <password> [user_auth_token]"
 	usageUserGet              = "cli users <user_id|all> get <user_auth_token>"
 	usageUserToken            = "cli users token <username> <password>"
 	usageUserRefreshToken     = "cli users refreshtoken <token>"
@@ -55,7 +55,6 @@ func NewUsersCmd() *cobra.Command {
 Examples:
   users all get <user_auth_token>                                       					# Get all entities
   users <user_id> get <user_auth_token>                                 					# Get specific entity
-  users <first_name> create <last_name> <email> <username> <password> [user_auth_token]  	# Create entity
   users <user_id> update <JSON_string> <user_auth_token>                					# Update entity
   users <user_id> update tags <tags> <user_auth_token>                  					# Update entity tags
   users <user_id> update username <username> <user_auth_token>          					# Update username
@@ -63,6 +62,7 @@ Examples:
   users <user_id> enable <user_auth_token>                              					# Enable entity
   users <user_id> disable <user_auth_token>                             					# Disable entity
   users <user_id> delete <user_auth_token>                              					# Delete entity
+  users create <first_name> <last_name> <email> <username> <password> [user_auth_token]  	# Create entity
   users token <username> <password>                                     					# Get token
   users profile <user_auth_token>                                       					# Get entity profile
   users search <query> <user_auth_token>                                					# Search entities`,
@@ -73,13 +73,38 @@ Examples:
 				return
 			}
 
+			switch args[0] {
+			case create:
+				handleUserCreate(cmd, args[1:])
+				return
+			case token:
+				handleUserToken(cmd, args[1], args[2:])
+				return
+			case refreshtoken:
+				handleUserRefreshToken(cmd, args[1], args[2:])
+				return
+			case profile:
+				handleUserProfile(cmd, args[1], args[2:])
+				return
+			case resetpasswordrequest:
+				handleUserResetPasswordRequest(cmd, args[1], args[2:])
+				return
+			case resetpassword:
+				handleUserResetPassword(cmd, args[1], args[2:])
+				return
+			case password:
+				handleUserPassword(cmd, args[1], args[2:])
+				return
+			case search:
+				handleUserSearch(cmd, args[1], args[2:])
+				return
+			}
+
 			userParams := args[0]
 			operation := args[1]
 			opArgs := args[2:]
 
 			switch operation {
-			case create:
-				handleUserCreate(cmd, userParams, opArgs)
 			case get:
 				handleUserGet(cmd, userParams, opArgs)
 			case update:
@@ -90,20 +115,6 @@ Examples:
 				handleUserDisable(cmd, userParams, opArgs)
 			case delete:
 				handleUserDelete(cmd, userParams, opArgs)
-			case token:
-				handleUserToken(cmd, userParams, opArgs)
-			case refreshtoken:
-				handleUserRefreshToken(cmd, userParams, opArgs)
-			case profile:
-				handleUserProfile(cmd, userParams, opArgs)
-			case resetpasswordrequest:
-				handleUserResetPasswordRequest(cmd, userParams, opArgs)
-			case resetpassword:
-				handleUserResetPassword(cmd, userParams, opArgs)
-			case password:
-				handleUserPassword(cmd, userParams, opArgs)
-			case search:
-				handleUserSearch(cmd, userParams, opArgs)
 			default:
 				logErrorCmd(*cmd, fmt.Errorf("unknown operation: %s", operation))
 			}
@@ -113,26 +124,26 @@ Examples:
 	return cmd
 }
 
-func handleUserCreate(cmd *cobra.Command, firstName string, args []string) {
-	if len(args) < 4 || len(args) > 5 {
+func handleUserCreate(cmd *cobra.Command, args []string) {
+	if len(args) < 5 || len(args) > 6 {
 		logUsageCmd(*cmd, usageUserCreate)
 		return
 	}
-	if len(args) == 4 {
+	if len(args) == 5 {
 		args = append(args, "")
 	}
 
 	user := smqsdk.User{
-		FirstName: firstName,
-		LastName:  args[0],
-		Email:     args[1],
+		FirstName: args[0],
+		LastName:  args[1],
+		Email:     args[2],
 		Credentials: smqsdk.Credentials{
-			Username: args[2],
-			Secret:   args[3],
+			Username: args[3],
+			Secret:   args[4],
 		},
 		Status: smqusers.EnabledStatus.String(),
 	}
-	user, err := sdk.CreateUser(cmd.Context(), user, args[4])
+	user, err := sdk.CreateUser(cmd.Context(), user, args[5])
 	if err != nil {
 		logErrorCmd(*cmd, err)
 		return
