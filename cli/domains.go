@@ -45,7 +45,7 @@ func NewDomainsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domains <domain_id_or_all> <operation> [args...]",
 		Short: "Domains management",
-		Long:  `Format: <domain_id|all> <operation> [additional_args...]
+		Long: `Format: <domain_id|all> <operation> [additional_args...]
 
 Examples:
   domains all get <user_auth_token>                                      # Get all entities
@@ -358,13 +358,13 @@ func handleDomainRoleActions(cmd *cobra.Command, domainID string, args []string)
 	opArgs := args[1:]
 
 	switch operation {
-	case "add":
+	case add:
 		handleDomainRoleActionsAdd(cmd, domainID, opArgs)
-	case "list":
+	case list:
 		handleDomainRoleActionsList(cmd, domainID, opArgs)
-	case "delete":
+	case delete:
 		handleDomainRoleActionsDelete(cmd, domainID, opArgs)
-	case "available-actions":
+	case availableActions:
 		handleDomainRoleActionsAvailable(cmd, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown actions operation: %s", operation))
@@ -474,11 +474,11 @@ func handleDomainRoleMembers(cmd *cobra.Command, domainID string, args []string)
 	opArgs := args[1:]
 
 	switch operation {
-	case "add":
+	case add:
 		handleDomainRoleMembersAdd(cmd, domainID, opArgs)
-	case "list":
+	case list:
 		handleDomainRoleMembersList(cmd, domainID, opArgs)
-	case "delete":
+	case delete:
 		handleDomainRoleMembersDelete(cmd, domainID, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown members operation: %s", operation))

@@ -34,7 +34,7 @@ func NewChannelsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "channels <channel_id_or_all> <operation> [args...]",
 		Short: "Channels management",
-		Long:  `Format: <channel_id|all> <operation> [additional_args...]
+		Long: `Format: <channel_id|all> <operation> [additional_args...]
 
 Examples:
   channels all get <domain_id> <user_auth_token>                   				# Get all entities

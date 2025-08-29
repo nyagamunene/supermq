@@ -47,7 +47,7 @@ func NewUsersCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "users <user_id_or_all> <operation> [args...]",
 		Short: "Users management",
-		Long:  `Format: <user_id|all> <operation> [additional_args...]
+		Long: `Format: <user_id|all> <operation> [additional_args...]
 
 Examples:
   users all get <user_auth_token>                                       					# Get all entities

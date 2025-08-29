@@ -49,7 +49,7 @@ func NewGroupsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups <group_id_or_all> <operation> [args...]",
 		Short: "Groups management",
-		Long:  `Format: <group_id|all> <operation> [additional_args...]
+		Long: `Format: <group_id|all> <operation> [additional_args...]
 
 Examples:
   groups all get <domain_id> <user_auth_token>                          # Get all entities
@@ -489,11 +489,11 @@ func handleGroupRoleMembers(cmd *cobra.Command, groupID string, args []string) {
 	opArgs := args[1:]
 
 	switch operation {
-	case "add":
+	case add:
 		handleGroupRoleMembersAdd(cmd, groupID, opArgs)
-	case "list":
+	case list:
 		handleGroupRoleMembersList(cmd, groupID, opArgs)
-	case "delete":
+	case delete:
 		handleGroupRoleMembersDelete(cmd, groupID, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown members operation: %s", operation))

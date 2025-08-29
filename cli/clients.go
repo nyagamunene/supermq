@@ -54,7 +54,7 @@ func NewClientsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clients <client_id_or_all> <operation> [args...]",
 		Short: "Clients management",
-		Long:  `Format: <client_id|all> <operation> [additional_args...]
+		Long: `Format: <client_id|all> <operation> [additional_args...]
 
 Examples:
   clients all get <domain_id> <user_auth_token>                           							# Get all entities
@@ -468,13 +468,13 @@ func handleClientRoleActions(cmd *cobra.Command, clientID string, args []string)
 	opArgs := args[1:]
 
 	switch operation {
-	case "add":
+	case add:
 		handleClientRoleActionsAdd(cmd, clientID, opArgs)
-	case "list":
+	case list:
 		handleClientRoleActionsList(cmd, clientID, opArgs)
-	case "delete":
+	case delete:
 		handleClientRoleActionsDelete(cmd, clientID, opArgs)
-	case "available-actions":
+	case availableActions:
 		handleClientRoleActionsAvailable(cmd, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown actions operation: %s", operation))
@@ -588,11 +588,11 @@ func handleClientRoleMembers(cmd *cobra.Command, clientID string, args []string)
 	opArgs := args[1:]
 
 	switch operation {
-	case "add":
+	case add:
 		handleClientRoleMembersAdd(cmd, clientID, opArgs)
-	case "list":
+	case list:
 		handleClientRoleMembersList(cmd, clientID, opArgs)
-	case "delete":
+	case delete:
 		handleClientRoleMembersDelete(cmd, clientID, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown members operation: %s", operation))
