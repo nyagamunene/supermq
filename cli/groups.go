@@ -52,14 +52,14 @@ func NewGroupsCmd() *cobra.Command {
 		Long:  `Format: <group_id|all> <operation> [additional_args...]
 
 Examples:
-  groups all get <domain_id> <user_auth_token>                          # Get all groups
-  groups <group_id> get <domain_id> <user_auth_token>                   # Get specific group
-  groups <JSON_group> create <domain_id> <user_auth_token>              # Create group
-  groups <group_id> update <JSON_string> <domain_id> <user_auth_token>  # Update group
-  groups <group_id> update tags <tags> <domain_id> <user_auth_token>    # Update group tags
-  groups <group_id> delete <domain_id> <user_auth_token>                # Delete group
-  groups <group_id> enable <domain_id> <user_auth_token>                # Enable group
-  groups <group_id> disable <domain_id> <user_auth_token>               # Disable group`,
+  groups all get <domain_id> <user_auth_token>                          # Get all entities
+  groups <group_id> get <domain_id> <user_auth_token>                   # Get specific entity
+  groups <JSON_group> create <domain_id> <user_auth_token>              # Create entity
+  groups <group_id> update <JSON_string> <domain_id> <user_auth_token>  # Update entity
+  groups <group_id> update tags <tags> <domain_id> <user_auth_token>    # Update entity tags
+  groups <group_id> delete <domain_id> <user_auth_token>                # Delete entity
+  groups <group_id> enable <domain_id> <user_auth_token>                # Enable entity
+  groups <group_id> disable <domain_id> <user_auth_token>               # Disable entity`,
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {

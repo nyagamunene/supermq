@@ -57,15 +57,15 @@ func NewClientsCmd() *cobra.Command {
 		Long:  `Format: <client_id|all> <operation> [additional_args...]
 
 Examples:
-  clients all get <domain_id> <user_auth_token>                           # Get all clients
-  clients <client_id> get <domain_id> <user_auth_token>                   # Get specific client
-  clients <client_id> create <JSON_client> <domain_id> <user_auth_token>  # Create client
-  clients <client_id> update <JSON_string> <domain_id> <user_auth_token>  # Update client
-  clients <client_id> delete <domain_id> <user_auth_token>                # Delete client
-  clients <client_id> enable <domain_id> <user_auth_token>                # Enable client
-  clients <client_id> disable <domain_id> <user_auth_token>               # Disable client
-  clients <client_id> connect <channel_id> <conn_types_json_list> <domain_id> <user_auth_token>  # Connect client
-  clients <client_id> users <domain_id> <user_auth_token>                 # List client users`,
+  clients all get <domain_id> <user_auth_token>                           							# Get all entities
+  clients <client_id> get <domain_id> <user_auth_token>                   							# Get specific entity
+  clients <client_id> create <JSON_client> <domain_id> <user_auth_token>  							# Create entity
+  clients <client_id> update <JSON_string> <domain_id> <user_auth_token>  							# Update entity
+  clients <client_id> delete <domain_id> <user_auth_token>                							# Delete entity
+  clients <client_id> enable <domain_id> <user_auth_token>                							# Enable entity
+  clients <client_id> disable <domain_id> <user_auth_token>               							# Disable entity
+  clients <client_id> connect <channel_id> <conn_types_json_list> <domain_id> <user_auth_token>  	# Connect entity
+  clients <client_id> users <domain_id> <user_auth_token>                 							# List entity users`,
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {

@@ -37,14 +37,14 @@ func NewChannelsCmd() *cobra.Command {
 		Long:  `Format: <channel_id|all> <operation> [additional_args...]
 
 Examples:
-  channels all get <domain_id> <user_auth_token>                   				# Get all channels
-  channels <channel_id> get <domain_id> <user_auth_token>          				# Get specific channel
-  channels <channel_id> create <JSON_channel> <domain_id> <user_auth_token> 	# Create channel
-  channels <channel_id> update <JSON_string> <domain_id> <user_auth_token>  	# Update channel
-  channels <channel_id> delete <domain_id> <user_auth_token>      				# Delete channel
-  channels <channel_id> enable <domain_id> <user_auth_token>      				# Enable channel
-  channels <channel_id> disable <domain_id> <user_auth_token>     				# Disable channel
-  channels <channel_id> users <domain_id> <user_auth_token>       				# List channel users`,
+  channels all get <domain_id> <user_auth_token>                   				# Get all entities
+  channels <channel_id> get <domain_id> <user_auth_token>          				# Get specific entity
+  channels <channel_id> create <JSON_channel> <domain_id> <user_auth_token> 	# Create entity
+  channels <channel_id> update <JSON_string> <domain_id> <user_auth_token>  	# Update entity
+  channels <channel_id> delete <domain_id> <user_auth_token>      				# Delete entity
+  channels <channel_id> enable <domain_id> <user_auth_token>      				# Enable entity
+  channels <channel_id> disable <domain_id> <user_auth_token>     				# Disable entity
+  channels <channel_id> users <domain_id> <user_auth_token>       				# List entity users`,
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {

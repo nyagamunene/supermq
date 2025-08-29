@@ -50,19 +50,19 @@ func NewUsersCmd() *cobra.Command {
 		Long:  `Format: <user_id|all> <operation> [additional_args...]
 
 Examples:
-  users all get <user_auth_token>                                       # Get all users
-  users <user_id> get <user_auth_token>                                 # Get specific user
-  users <first_name> create <last_name> <email> <username> <password> [user_auth_token]  # Create user
-  users <user_id> update <JSON_string> <user_auth_token>                # Update user
-  users <user_id> update tags <tags> <user_auth_token>                  # Update user tags
-  users <user_id> update username <username> <user_auth_token>          # Update username
-  users <user_id> update email <email> <user_auth_token>                # Update email
-  users <user_id> enable <user_auth_token>                              # Enable user
-  users <user_id> disable <user_auth_token>                             # Disable user
-  users <user_id> delete <user_auth_token>                              # Delete user
-  users token <username> <password>                                     # Get token
-  users profile <user_auth_token>                                       # Get user profile
-  users search <query> <user_auth_token>                                # Search users`,
+  users all get <user_auth_token>                                       					# Get all entities
+  users <user_id> get <user_auth_token>                                 					# Get specific entity
+  users <first_name> create <last_name> <email> <username> <password> [user_auth_token]  	# Create entity
+  users <user_id> update <JSON_string> <user_auth_token>                					# Update entity
+  users <user_id> update tags <tags> <user_auth_token>                  					# Update entity tags
+  users <user_id> update username <username> <user_auth_token>          					# Update username
+  users <user_id> update email <email> <user_auth_token>                					# Update email
+  users <user_id> enable <user_auth_token>                              					# Enable entity
+  users <user_id> disable <user_auth_token>                             					# Disable entity
+  users <user_id> delete <user_auth_token>                              					# Delete entity
+  users token <username> <password>                                     					# Get token
+  users profile <user_auth_token>                                       					# Get entity profile
+  users search <query> <user_auth_token>                                					# Search entities`,
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {

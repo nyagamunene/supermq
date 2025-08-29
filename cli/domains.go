@@ -48,14 +48,14 @@ func NewDomainsCmd() *cobra.Command {
 		Long:  `Format: <domain_id|all> <operation> [additional_args...]
 
 Examples:
-  domains all get <user_auth_token>                                      # Get all domains
-  domains <domain_id> get <user_auth_token>                              # Get specific domain
-  domains <domain_name> create <route> <user_auth_token>                 # Create domain
-  domains <domain_id> update <JSON_string> <user_auth_token>             # Update domain
-  domains <domain_id> enable <user_auth_token>                           # Enable domain
-  domains <domain_id> disable <user_auth_token>                          # Disable domain
-  domains <domain_id> freeze <user_auth_token>                           # Freeze domain
-  domains <domain_id> users <user_auth_token>                            # List domain users`,
+  domains all get <user_auth_token>                                      # Get all entities
+  domains <domain_id> get <user_auth_token>                              # Get specific entity
+  domains <domain_name> create <route> <user_auth_token>                 # Create entity
+  domains <domain_id> update <JSON_string> <user_auth_token>             # Update entity
+  domains <domain_id> enable <user_auth_token>                           # Enable entity
+  domains <domain_id> disable <user_auth_token>                          # Disable entity
+  domains <domain_id> freeze <user_auth_token>                           # Freeze entity
+  domains <domain_id> users <user_auth_token>                            # List entity users`,
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) < 2 {
