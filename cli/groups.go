@@ -18,7 +18,7 @@ const (
 	list             = "list"
 	availableActions = "available-actions"
 
-	// Usage strings for group operations
+	// Usage strings for group operations.
 	usageGroupCreate     = "cli groups <JSON_group> create <domain_id> <user_auth_token>"
 	usageGroupGet        = "cli groups <group_id|all> get <domain_id> <user_auth_token>"
 	usageGroupUpdate     = "cli groups <group_id> update <JSON_string> <domain_id> <user_auth_token>"
@@ -27,19 +27,19 @@ const (
 	usageGroupEnable     = "cli groups <group_id> enable <domain_id> <user_auth_token>"
 	usageGroupDisable    = "cli groups <group_id> disable <domain_id> <user_auth_token>"
 
-	// Usage strings for group roles operations
+	// Usage strings for group roles operations.
 	usageGroupRolesCreate = "cli groups <group_id> roles create <JSON_role> <domain_id> <user_auth_token>"
 	usageGroupRolesGet    = "cli groups <group_id> roles get <role_id|all> <domain_id> <user_auth_token>"
 	usageGroupRolesUpdate = "cli groups <group_id> roles update <role_id> <new_name> <domain_id> <user_auth_token>"
 	usageGroupRolesDelete = "cli groups <group_id> roles delete <role_id> <domain_id> <user_auth_token>"
 
-	// Usage strings for group role actions operations
+	// Usage strings for group role actions operations.
 	usageGroupRoleActionsAdd       = "cli groups <group_id> roles actions add <role_id> <JSON_actions> <domain_id> <user_auth_token>"
 	usageGroupRoleActionsList      = "cli groups <group_id> roles actions list <role_id> <domain_id> <user_auth_token>"
 	usageGroupRoleActionsDelete    = "cli groups <group_id> roles actions delete <role_id> <JSON_actions|all> <domain_id> <user_auth_token>"
 	usageGroupRoleActionsAvailable = "cli groups roles actions available-actions <domain_id> <user_auth_token>"
 
-	// Usage strings for group role members operations
+	// Usage strings for group role members operations.
 	usageGroupRoleMembersAdd    = "cli groups <group_id> roles members add <role_id> <JSON_members> <domain_id> <user_auth_token>"
 	usageGroupRoleMembersList   = "cli groups <group_id> roles members list <role_id> <domain_id> <user_auth_token>"
 	usageGroupRoleMembersDelete = "cli groups <group_id> roles members delete <role_id> <JSON_members|all> <domain_id> <user_auth_token>"

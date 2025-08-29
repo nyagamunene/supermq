@@ -22,8 +22,11 @@ const (
 	resetpassword        = "resetpassword"
 	password             = "password"
 	search               = "search"
+	username             = "username"
+	email                = "email"
+	role                 = "role"
 
-	// Usage strings for user operations
+	// Usage strings for user operations.
 	usageUserCreate           = "cli users <first_name> create <last_name> <email> <username> <password> [user_auth_token]"
 	usageUserGet              = "cli users <user_id|all> get <user_auth_token>"
 	usageUserToken            = "cli users token <username> <password>"
@@ -182,16 +185,16 @@ func handleUserUpdate(cmd *cobra.Command, userID string, args []string) {
 	if len(args) < 2 || len(args) > 3 {
 		if len(args) >= 1 {
 			switch args[0] {
-			case "tags":
+			case tags:
 				logUsageCmd(*cmd, usageUserUpdateTags)
 				return
-			case "username":
+			case username:
 				logUsageCmd(*cmd, usageUserUpdateUsername)
 				return
-			case "email":
+			case email:
 				logUsageCmd(*cmd, usageUserUpdateEmail)
 				return
-			case "role":
+			case role:
 				logUsageCmd(*cmd, usageUserUpdateRole)
 				return
 			}

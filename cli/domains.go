@@ -14,7 +14,7 @@ import (
 const (
 	freeze = "freeze"
 
-	// Usage strings for domain operations
+	// Usage strings for domain operations.
 	usageDomainCreate  = "cli domains <domain_name> create <route> <user_auth_token>"
 	usageDomainGet     = "cli domains <domain_id|all> get <user_auth_token>"
 	usageDomainUpdate  = "cli domains <domain_id> update <JSON_string> <user_auth_token>"
@@ -23,19 +23,19 @@ const (
 	usageDomainFreeze  = "cli domains <domain_id> freeze <user_auth_token>"
 	usageDomainUsers   = "cli domains <domain_id> users <user_auth_token>"
 
-	// Usage strings for domain roles operations
+	// Usage strings for domain roles operations.
 	usageDomainRolesCreate = "cli domains <domain_id> roles create <JSON_role> <user_auth_token>"
 	usageDomainRolesGet    = "cli domains <domain_id> roles get <role_id|all> <user_auth_token>"
 	usageDomainRolesUpdate = "cli domains <domain_id> roles update <role_id> <new_name> <user_auth_token>"
 	usageDomainRolesDelete = "cli domains <domain_id> roles delete <role_id> <user_auth_token>"
 
-	// Usage strings for domain role actions operations
+	// Usage strings for domain role actions operations.
 	usageDomainRoleActionsAdd       = "cli domains <domain_id> roles actions add <role_id> <JSON_actions> <user_auth_token>"
 	usageDomainRoleActionsList      = "cli domains <domain_id> roles actions list <role_id> <user_auth_token>"
 	usageDomainRoleActionsDelete    = "cli domains <domain_id> roles actions delete <role_id> <JSON_actions|all> <user_auth_token>"
 	usageDomainRoleActionsAvailable = "cli domains roles actions available-actions <user_auth_token>"
 
-	// Usage strings for domain role members operations
+	// Usage strings for domain role members operations.
 	usageDomainRoleMembersAdd    = "cli domains <domain_id> roles members add <role_id> <JSON_members> <user_auth_token>"
 	usageDomainRoleMembersList   = "cli domains <domain_id> roles members list <role_id> <user_auth_token>"
 	usageDomainRoleMembersDelete = "cli domains <domain_id> roles members delete <role_id> <JSON_members|all> <user_auth_token>"

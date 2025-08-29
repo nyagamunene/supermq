@@ -19,7 +19,7 @@ const (
 	actions    = "actions"
 	members    = "members"
 
-	// Usage strings for client operations
+	// Usage strings for client operations.
 	usageClientCreate       = "cli clients <client_id> create <JSON_client> <domain_id> <user_auth_token>"
 	usageClientGet          = "cli clients <client_id|all> get <domain_id> <user_auth_token>"
 	usageClientDelete       = "cli clients <client_id> delete <domain_id> <user_auth_token>"
@@ -32,19 +32,19 @@ const (
 	usageClientDisconnect   = "cli clients <client_id> disconnect <channel_id> <conn_types_json_list> <domain_id> <user_auth_token>"
 	usageClientUsers        = "cli clients <client_id> users <domain_id> <user_auth_token>"
 
-	// Usage strings for client roles operations
+	// Usage strings for client roles operations.
 	usageClientRolesCreate = "cli clients <client_id> roles create <JSON_role> <domain_id> <user_auth_token>"
 	usageClientRolesGet    = "cli clients <client_id> roles get <role_id|all> <domain_id> <user_auth_token>"
 	usageClientRolesUpdate = "cli clients <client_id> roles update <role_id> <new_name> <domain_id> <user_auth_token>"
 	usageClientRolesDelete = "cli clients <client_id> roles delete <role_id> <domain_id> <user_auth_token>"
 
-	// Usage strings for client role actions operations
+	// Usage strings for client role actions operations.
 	usageClientRoleActionsAdd       = "cli clients <client_id> roles actions add <role_id> <JSON_actions> <domain_id> <user_auth_token>"
 	usageClientRoleActionsList      = "cli clients <client_id> roles actions list <role_id> <domain_id> <user_auth_token>"
 	usageClientRoleActionsDelete    = "cli clients <client_id> roles actions delete <role_id> <JSON_actions|all> <domain_id> <user_auth_token>"
 	usageClientRoleActionsAvailable = "cli clients roles actions available-actions <domain_id> <user_auth_token>"
 
-	// Usage strings for client role members operations
+	// Usage strings for client role members operations.
 	usageClientRoleMembersAdd    = "cli clients <client_id> roles members add <role_id> <JSON_members> <domain_id> <user_auth_token>"
 	usageClientRoleMembersList   = "cli clients <client_id> roles members list <role_id> <domain_id> <user_auth_token>"
 	usageClientRoleMembersDelete = "cli clients <client_id> roles members delete <role_id> <JSON_members|all> <domain_id> <user_auth_token>"
