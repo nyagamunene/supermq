@@ -54,7 +54,7 @@ func NewClientsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clients <client_id_or_all> <operation> [args...]",
 		Short: "Clients management",
-		Long: `Format: clients <client_id|all> <operation> [additional_args...]
+		Long:  `Format: <client_id|all> <operation> [additional_args...]
 
 Examples:
   clients all get <domain_id> <user_auth_token>                           # Get all clients

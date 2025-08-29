@@ -13,16 +13,19 @@ import (
 )
 
 const (
-	tags = "tags"
+	tags             = "tags"
+	add              = "add"
+	list             = "list"
+	availableActions = "available-actions"
 
 	// Usage strings for group operations
-	usageGroupCreate  = "cli groups <JSON_group> create <domain_id> <user_auth_token>"
-	usageGroupGet     = "cli groups <group_id|all> get <domain_id> <user_auth_token>"
-	usageGroupUpdate  = "cli groups <group_id> update <JSON_string> <domain_id> <user_auth_token>"
+	usageGroupCreate     = "cli groups <JSON_group> create <domain_id> <user_auth_token>"
+	usageGroupGet        = "cli groups <group_id|all> get <domain_id> <user_auth_token>"
+	usageGroupUpdate     = "cli groups <group_id> update <JSON_string> <domain_id> <user_auth_token>"
 	usageGroupUpdateTags = "cli groups <group_id> update tags <tags> <domain_id> <user_auth_token>"
-	usageGroupDelete  = "cli groups <group_id> delete <domain_id> <user_auth_token>"
-	usageGroupEnable  = "cli groups <group_id> enable <domain_id> <user_auth_token>"
-	usageGroupDisable = "cli groups <group_id> disable <domain_id> <user_auth_token>"
+	usageGroupDelete     = "cli groups <group_id> delete <domain_id> <user_auth_token>"
+	usageGroupEnable     = "cli groups <group_id> enable <domain_id> <user_auth_token>"
+	usageGroupDisable    = "cli groups <group_id> disable <domain_id> <user_auth_token>"
 
 	// Usage strings for group roles operations
 	usageGroupRolesCreate = "cli groups <group_id> roles create <JSON_role> <domain_id> <user_auth_token>"
@@ -46,7 +49,7 @@ func NewGroupsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups <group_id_or_all> <operation> [args...]",
 		Short: "Groups management",
-		Long: `Format: groups <group_id|all> <operation> [additional_args...]
+		Long:  `Format: <group_id|all> <operation> [additional_args...]
 
 Examples:
   groups all get <domain_id> <user_auth_token>                          # Get all groups
@@ -186,7 +189,7 @@ func handleGroupUpdate(cmd *cobra.Command, groupID string, args []string) {
 		logErrorCmd(*cmd, err)
 		return
 	}
-	
+
 	group.ID = groupID
 	group, err := sdk.UpdateGroup(cmd.Context(), group, args[1], args[2])
 	if err != nil {
@@ -366,13 +369,13 @@ func handleGroupRoleActions(cmd *cobra.Command, groupID string, args []string) {
 	opArgs := args[1:]
 
 	switch operation {
-	case "add":
+	case add:
 		handleGroupRoleActionsAdd(cmd, groupID, opArgs)
-	case "list":
+	case list:
 		handleGroupRoleActionsList(cmd, groupID, opArgs)
-	case "delete":
+	case delete:
 		handleGroupRoleActionsDelete(cmd, groupID, opArgs)
-	case "available-actions":
+	case availableActions:
 		handleGroupRoleActionsAvailable(cmd, opArgs)
 	default:
 		logErrorCmd(*cmd, fmt.Errorf("unknown actions operation: %s", operation))

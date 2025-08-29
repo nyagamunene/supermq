@@ -45,7 +45,7 @@ func NewDomainsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "domains <domain_id_or_all> <operation> [args...]",
 		Short: "Domains management",
-		Long: `Format: domains <domain_id|all> <operation> [additional_args...]
+		Long:  `Format: <domain_id|all> <operation> [additional_args...]
 
 Examples:
   domains all get <user_auth_token>                                      # Get all domains

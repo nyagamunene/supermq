@@ -12,12 +12,12 @@ import (
 )
 
 const (
-	all = "all"
-	create = "create"
-	get    = "get"
-	update = "update"
-	delete = "delete"
-	enable = "enable"
+	all     = "all"
+	create  = "create"
+	get     = "get"
+	update  = "update"
+	delete  = "delete"
+	enable  = "enable"
 	disable = "disable"
 	users   = "users"
 
@@ -34,7 +34,7 @@ func NewChannelsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "channels <channel_id_or_all> <operation> [args...]",
 		Short: "Channels management",
-		Long: `Format: channels <channel_id|all> <operation> [additional_args...]
+		Long:  `Format: <channel_id|all> <operation> [additional_args...]
 
 Examples:
   channels all get <domain_id> <user_auth_token>                   				# Get all channels
