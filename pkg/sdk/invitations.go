@@ -130,9 +130,19 @@ func (sdk mgSDK) RejectInvitation(ctx context.Context, domainID, token string) (
 }
 
 func (sdk mgSDK) DeleteInvitation(ctx context.Context, userID, domainID, token string) (err error) {
-	url := fmt.Sprintf("%s/%s/%s/%s/%s", sdk.domainsURL, domainsEndpoint, domainID, invitationsEndpoint, userID)
+	req := struct {
+		UserID string `json:"user_id"`
+	}{
+		UserID: userID,
+	}
+	data, err := json.Marshal(req)
+	if err != nil {
+		return errors.NewSDKError(err)
+	}
 
-	_, _, sdkErr := sdk.processRequest(ctx, http.MethodDelete, url, token, nil, nil, http.StatusNoContent)
+	url := fmt.Sprintf("%s/%s/%s/%s", sdk.domainsURL, domainsEndpoint, domainID, invitationsEndpoint)
+
+	_, _, sdkErr := sdk.processRequest(ctx, http.MethodDelete, url, token, data, nil, http.StatusNoContent)
 
 	return sdkErr
 }
