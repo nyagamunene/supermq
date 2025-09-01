@@ -265,8 +265,11 @@ func decodeAcceptInvitationReq(_ context.Context, r *http.Request) (any, error) 
 
 func decodeDeleteInvitationReq(_ context.Context, r *http.Request) (any, error) {
 	req := deleteInvitationReq{
-		userID:   chi.URLParam(r, "userID"),
 		domainID: chi.URLParam(r, "domainID"),
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errors.Wrap(apiutil.ErrValidation, errors.Wrap(err, errors.ErrMalformedEntity))
 	}
 
 	return req, nil

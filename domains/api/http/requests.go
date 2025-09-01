@@ -157,12 +157,12 @@ func (req *acceptInvitationReq) validate() error {
 }
 
 type deleteInvitationReq struct {
-	userID   string
+	UserID   string `json:"user_id"`
 	domainID string
 }
 
 func (req *deleteInvitationReq) validate() error {
-	if req.userID == "" {
+	if req.UserID == "" {
 		return apiutil.ErrMissingID
 	}
 	if req.domainID == "" {
