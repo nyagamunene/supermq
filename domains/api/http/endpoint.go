@@ -300,7 +300,7 @@ func deleteInvitationEndpoint(svc domains.Service) endpoint.Endpoint {
 		}
 		session.DomainID = req.domainID
 
-		if err := svc.DeleteInvitation(ctx, session, req.userID, req.domainID); err != nil {
+		if err := svc.DeleteInvitation(ctx, session, req.UserID, req.domainID); err != nil {
 			return nil, err
 		}
 
