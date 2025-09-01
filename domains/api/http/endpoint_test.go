@@ -1534,7 +1534,7 @@ func TestDeleteInvitation(t *testing.T) {
 			}
 			authnCall := auth.On("Authenticate", mock.Anything, tc.token).Return(tc.session, tc.authnErr)
 			repoCall := svc.On("DeleteInvitation", mock.Anything, tc.session, tc.userID, tc.domainID).Return(tc.svcErr)
-			
+
 			data := fmt.Sprintf(`{"user_id": "%s"}`, tc.userID)
 			req := testRequest{
 				client:      is.Client(),
