@@ -26,7 +26,7 @@ var invitation = mgsdk.Invitation{
 	DomainID:      domain.ID,
 }
 
-func TestSendUserInvitationCmd(t *testing.T) {
+func TestSendDomainInvitationCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	invCmd := cli.NewInvitationsCmd()
@@ -40,7 +40,7 @@ func TestSendUserInvitationCmd(t *testing.T) {
 		sdkErr        errors.SDKError
 	}{
 		{
-			desc: "send invitation successfully",
+			desc: "send domain invitation successfully",
 			args: []string{
 				user.ID,
 				domain.ID,
@@ -50,7 +50,7 @@ func TestSendUserInvitationCmd(t *testing.T) {
 			logType: okLog,
 		},
 		{
-			desc: "send invitation with invalid args",
+			desc: "send domain invitation with invalid args",
 			args: []string{
 				user.ID,
 				domain.ID,
@@ -61,7 +61,7 @@ func TestSendUserInvitationCmd(t *testing.T) {
 			logType: usageLog,
 		},
 		{
-			desc: "send invitation with invalid token",
+			desc: "send domain invitation with invalid token",
 			args: []string{
 				user.ID,
 				domain.ID,
@@ -77,7 +77,7 @@ func TestSendUserInvitationCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("SendInvitation", mock.Anything, mock.Anything, mock.Anything).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{sendCmd}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{domainCmd, sendCmd}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
@@ -91,13 +91,12 @@ func TestSendUserInvitationCmd(t *testing.T) {
 	}
 }
 
-func TestGetInvitationCmd(t *testing.T) {
+func TestGetUserInvitationsCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	invCmd := cli.NewInvitationsCmd()
 	rootCmd := setFlags(invCmd)
 
-	var inv mgsdk.Invitation
 	var page mgsdk.InvitationPage
 
 	cases := []struct {
@@ -105,14 +104,12 @@ func TestGetInvitationCmd(t *testing.T) {
 		args          []string
 		sdkErr        errors.SDKError
 		page          mgsdk.InvitationPage
-		inv           mgsdk.Invitation
 		logType       outputLog
 		errLogMessage string
 	}{
 		{
-			desc: "get all invitations successfully",
+			desc: "get user invitations successfully",
 			args: []string{
-				all,
 				token,
 			},
 			page: mgsdk.InvitationPage{
@@ -124,40 +121,86 @@ func TestGetInvitationCmd(t *testing.T) {
 			logType: entityLog,
 		},
 		{
-			desc: "get invitation with domain id",
+			desc: "get user invitations with invalid args",
 			args: []string{
-				domain.ID,
-				token,
-			},
-			logType: entityLog,
-			page: mgsdk.InvitationPage{
-				Total:       1,
-				Offset:      0,
-				Limit:       10,
-				Invitations: []mgsdk.Invitation{invitation},
-			},
-		},
-		{
-			desc: "get invitation with invalid args",
-			args: []string{
-				all,
 				token,
 				extraArg,
 			},
 			logType: usageLog,
 		},
 		{
-			desc: "get all invitations with invalid token",
+			desc: "get user invitations with invalid token",
 			args: []string{
-				all,
 				invalidToken,
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
 		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			sdkCall := sdkMock.On("Invitations", mock.Anything, mock.Anything, tc.args[0]).Return(tc.page, tc.sdkErr)
+
+			out := executeCommand(t, rootCmd, append([]string{userCmd, getCmd}, tc.args...)...)
+
+			switch tc.logType {
+			case entityLog:
+				err := json.Unmarshal([]byte(out), &page)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.page, page, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, page))
+			case errLog:
+				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
+			case usageLog:
+				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+			}
+			sdkCall.Unset()
+		})
+	}
+}
+
+func TestGetDomainInvitationsCmd(t *testing.T) {
+	sdkMock := new(sdkmocks.SDK)
+	cli.SetSDK(sdkMock)
+	invCmd := cli.NewInvitationsCmd()
+	rootCmd := setFlags(invCmd)
+
+	var page mgsdk.InvitationPage
+
+	cases := []struct {
+		desc          string
+		args          []string
+		sdkErr        errors.SDKError
+		page          mgsdk.InvitationPage
+		logType       outputLog
+		errLogMessage string
+	}{
 		{
-			desc: "get invitation with invalid token",
+			desc: "get domain invitations successfully",
+			args: []string{
+				domain.ID,
+				token,
+			},
+			page: mgsdk.InvitationPage{
+				Total:       1,
+				Offset:      0,
+				Limit:       10,
+				Invitations: []mgsdk.Invitation{invitation},
+			},
+			logType: entityLog,
+		},
+		{
+			desc: "get domain invitations with invalid args",
+			args: []string{
+				domain.ID,
+				token,
+				extraArg,
+			},
+			logType: usageLog,
+		},
+		{
+			desc: "get domain invitations with invalid token",
 			args: []string{
 				domain.ID,
 				invalidToken,
@@ -170,21 +213,15 @@ func TestGetInvitationCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("Invitations", mock.Anything, mock.Anything, tc.args[1]).Return(tc.page, tc.sdkErr)
+			sdkCall := sdkMock.On("DomainInvitations", mock.Anything, mock.Anything, tc.args[1], tc.args[0]).Return(tc.page, tc.sdkErr)
 
-			out := executeCommand(t, rootCmd, append([]string{getCmd}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{domainCmd, getCmd}, tc.args...)...)
 
 			switch tc.logType {
 			case entityLog:
-				if tc.args[0] == all {
-					err := json.Unmarshal([]byte(out), &page)
-					assert.Nil(t, err)
-					assert.Equal(t, tc.page, page, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, page))
-				} else {
-					err := json.Unmarshal([]byte(out), &inv)
-					assert.Nil(t, err)
-					assert.Equal(t, tc.inv, inv, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.inv, inv))
-				}
+				err := json.Unmarshal([]byte(out), &page)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.page, page, fmt.Sprintf("%v unexpected response, expected: %v, got: %v", tc.desc, tc.page, page))
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:
@@ -195,7 +232,7 @@ func TestGetInvitationCmd(t *testing.T) {
 	}
 }
 
-func TestAcceptInvitationCmd(t *testing.T) {
+func TestAcceptUserInvitationCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	invCmd := cli.NewInvitationsCmd()
@@ -209,7 +246,7 @@ func TestAcceptInvitationCmd(t *testing.T) {
 		sdkErr        errors.SDKError
 	}{
 		{
-			desc: "accept invitation successfully",
+			desc: "accept user invitation successfully",
 			args: []string{
 				domain.ID,
 				validToken,
@@ -217,7 +254,7 @@ func TestAcceptInvitationCmd(t *testing.T) {
 			logType: okLog,
 		},
 		{
-			desc: "accept invitation with invalid args",
+			desc: "accept user invitation with invalid args",
 			args: []string{
 				domain.ID,
 				validToken,
@@ -226,7 +263,7 @@ func TestAcceptInvitationCmd(t *testing.T) {
 			logType: usageLog,
 		},
 		{
-			desc: "accept invitation with invalid token",
+			desc: "accept user invitation with invalid token",
 			args: []string{
 				domain.ID,
 				invalidToken,
@@ -240,7 +277,7 @@ func TestAcceptInvitationCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("AcceptInvitation", mock.Anything, mock.Anything, mock.Anything).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{acceptCmd}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{userCmd, acceptCmd}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
@@ -254,7 +291,7 @@ func TestAcceptInvitationCmd(t *testing.T) {
 	}
 }
 
-func TestRejectInvitationCmd(t *testing.T) {
+func TestRejectUserInvitationCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	invCmd := cli.NewInvitationsCmd()
@@ -268,7 +305,7 @@ func TestRejectInvitationCmd(t *testing.T) {
 		sdkErr        errors.SDKError
 	}{
 		{
-			desc: "reject invitation successfully",
+			desc: "reject user invitation successfully",
 			args: []string{
 				domain.ID,
 				validToken,
@@ -276,7 +313,7 @@ func TestRejectInvitationCmd(t *testing.T) {
 			logType: okLog,
 		},
 		{
-			desc: "reject invitation with invalid args",
+			desc: "reject user invitation with invalid args",
 			args: []string{
 				domain.ID,
 				validToken,
@@ -285,7 +322,7 @@ func TestRejectInvitationCmd(t *testing.T) {
 			logType: usageLog,
 		},
 		{
-			desc: "reject invitation with invalid token",
+			desc: "reject user invitation with invalid token",
 			args: []string{
 				domain.ID,
 				invalidToken,
@@ -299,7 +336,7 @@ func TestRejectInvitationCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("RejectInvitation", mock.Anything, mock.Anything, mock.Anything).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{rejectCmd}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{userCmd, rejectCmd}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))
@@ -313,7 +350,7 @@ func TestRejectInvitationCmd(t *testing.T) {
 	}
 }
 
-func TestDeleteInvitationCmd(t *testing.T) {
+func TestDeleteDomainInvitationCmd(t *testing.T) {
 	sdkMock := new(sdkmocks.SDK)
 	cli.SetSDK(sdkMock)
 	invCmd := cli.NewInvitationsCmd()
@@ -327,7 +364,7 @@ func TestDeleteInvitationCmd(t *testing.T) {
 		sdkErr        errors.SDKError
 	}{
 		{
-			desc: "delete invitation successfully",
+			desc: "delete domain invitation successfully",
 			args: []string{
 				user.ID,
 				domain.ID,
@@ -336,7 +373,7 @@ func TestDeleteInvitationCmd(t *testing.T) {
 			logType: okLog,
 		},
 		{
-			desc: "delete invitation with invalid args",
+			desc: "delete domain invitation with invalid args",
 			args: []string{
 				user.ID,
 				domain.ID,
@@ -346,7 +383,7 @@ func TestDeleteInvitationCmd(t *testing.T) {
 			logType: usageLog,
 		},
 		{
-			desc: "delete invitation with invalid token",
+			desc: "delete domain invitation with invalid token",
 			args: []string{
 				user.ID,
 				domain.ID,
@@ -361,7 +398,7 @@ func TestDeleteInvitationCmd(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("DeleteInvitation", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.sdkErr)
-			out := executeCommand(t, rootCmd, append([]string{delCmd}, tc.args...)...)
+			out := executeCommand(t, rootCmd, append([]string{domainCmd, delCmd}, tc.args...)...)
 			switch tc.logType {
 			case okLog:
 				assert.True(t, strings.Contains(out, "ok"), fmt.Sprintf("%s unexpected response: expected success message, got: %v", tc.desc, out))

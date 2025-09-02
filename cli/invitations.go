@@ -8,41 +8,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cmdInvitations = []cobra.Command{
+var cmdUserInvitations = []cobra.Command{
 	{
-		Use:   "send <user_id> <domain_id> <role_id> <user_auth_token>",
-		Short: "Send invitation",
-		Long: "Send invitation to user\n" +
-			"For example:\n" +
-			"\tsupermq-cli invitations send 39f97daf-d6b6-40f4-b229-2697be8006ef 4ef09eff-d500-4d56-b04f-d23a512d6f2a ba4c904c-e6d4-4978-9417-1694aac6793e $USER_AUTH_TOKEN\n",
-		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) != 4 {
-				logUsageCmd(*cmd, cmd.Use)
-				return
-			}
-			inv := smqsdk.Invitation{
-				InviteeUserID: args[0],
-				DomainID:      args[1],
-				RoleID:        args[2],
-			}
-			if err := sdk.SendInvitation(cmd.Context(), inv, args[3]); err != nil {
-				logErrorCmd(*cmd, err)
-				return
-			}
-
-			logOKCmd(*cmd)
-		},
-	},
-	{
-		Use:   "get [all | <domain_id> ] <user_auth_token>",
-		Short: "Get invitations",
-		Long: "Get invitations\n" +
+		Use:   "get <user_auth_token>",
+		Short: "Get user invitations",
+		Long: "Get all invitations for the authenticated user\n" +
 			"Usage:\n" +
-			"\tsupermq-cli invitations get all <user_auth_token> - lists all invitations\n" +
-			"\tsupermq-cli invitations get all <user_auth_token> --offset <offset> --limit <limit> - lists all invitations with provided offset and limit\n" +
-			"\tsupermq-cli invitations get <domain_id> <user_auth_token> - shows invitation by domain id\n",
+			"\tsupermq-cli invitations user get <user_auth_token> - lists all invitations for the user\n" +
+			"\tsupermq-cli invitations user get <user_auth_token> --offset <offset> --limit <limit> - lists all invitations with provided offset and limit\n",
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) != 2 {
+			if len(args) != 1 {
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
@@ -51,23 +26,13 @@ var cmdInvitations = []cobra.Command{
 				Offset: Offset,
 				Limit:  Limit,
 			}
-			if args[0] == all {
-				l, err := sdk.Invitations(cmd.Context(), pageMetadata, args[1])
-				if err != nil {
-					logErrorCmd(*cmd, err)
-					return
-				}
-				logJSONCmd(*cmd, l)
-				return
-			}
-			pageMetadata.DomainID = args[0]
-			u, err := sdk.Invitations(cmd.Context(), pageMetadata, args[1])
+
+			l, err := sdk.Invitations(cmd.Context(), pageMetadata, args[0])
 			if err != nil {
 				logErrorCmd(*cmd, err)
 				return
 			}
-
-			logJSONCmd(*cmd, u)
+			logJSONCmd(*cmd, l)
 		},
 	},
 	{
@@ -75,7 +40,7 @@ var cmdInvitations = []cobra.Command{
 		Short: "Accept invitation",
 		Long: "Accept invitation to domain\n" +
 			"Usage:\n" +
-			"\tsupermq-cli invitations accept 39f97daf-d6b6-40f4-b229-2697be8006ef $USERTOKEN\n",
+			"\tsupermq-cli invitations user accept 39f97daf-d6b6-40f4-b229-2697be8006ef $USER_TOKEN\n",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 2 {
 				logUsageCmd(*cmd, cmd.Use)
@@ -95,7 +60,7 @@ var cmdInvitations = []cobra.Command{
 		Short: "Reject invitation",
 		Long: "Reject invitation to domain\n" +
 			"Usage:\n" +
-			"\tsupermq-cli invitations reject 39f97daf-d6b6-40f4-b229-2697be8006ef $USER_AUTH_TOKEN\n",
+			"\tsupermq-cli invitations user reject 39f97daf-d6b6-40f4-b229-2697be8006ef $USER_AUTH_TOKEN\n",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 2 {
 				logUsageCmd(*cmd, cmd.Use)
@@ -110,12 +75,66 @@ var cmdInvitations = []cobra.Command{
 			logOKCmd(*cmd)
 		},
 	},
+}
+
+var cmdDomainInvitations = []cobra.Command{
+	{
+		Use:   "send <user_id> <domain_id> <role_id> <user_auth_token>",
+		Short: "Send domain invitation",
+		Long: "Send invitation to user for a domain\n" +
+			"For example:\n" +
+			"\tsupermq-cli invitations domain send 39f97daf-d6b6-40f4-b229-2697be8006ef 4ef09eff-d500-4d56-b04f-d23a512d6f2a ba4c904c-e6d4-4978-9417-1694aac6793e $USER_AUTH_TOKEN\n",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 4 {
+				logUsageCmd(*cmd, cmd.Use)
+				return
+			}
+			inv := smqsdk.Invitation{
+				InviteeUserID: args[0],
+				DomainID:      args[1],
+				RoleID:        args[2],
+			}
+			if err := sdk.SendInvitation(cmd.Context(), inv, args[3]); err != nil {
+				logErrorCmd(*cmd, err)
+				return
+			}
+
+			logOKCmd(*cmd)
+		},
+	},
+	{
+		Use:   "get <domain_id> <user_auth_token>",
+		Short: "Get domain invitations",
+		Long: "Get all invitations for a specific domain\n" +
+			"Usage:\n" +
+			"\tsupermq-cli invitations domain get <domain_id> <user_auth_token> - shows invitations for domain\n" +
+			"\tsupermq-cli invitations domain get <domain_id> <user_auth_token> --offset <offset> --limit <limit> - shows invitations with provided offset and limit\n",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) != 2 {
+				logUsageCmd(*cmd, cmd.Use)
+				return
+			}
+
+			pageMetadata := smqsdk.PageMetadata{
+				Offset: Offset,
+				Limit:  Limit,
+			}
+
+			u, err := sdk.DomainInvitations(cmd.Context(), pageMetadata, args[1], args[0])
+			if err != nil {
+				logErrorCmd(*cmd, err)
+				return
+			}
+
+			logJSONCmd(*cmd, u)
+		},
+	},
 	{
 		Use:   "delete <user_id> <domain_id> <user_auth_token>",
-		Short: "Delete invitation",
-		Long: "Delete invitation\n" +
+		Short: "Delete domain invitation",
+		Long: "Delete invitation for a specific user and domain\n" +
 			"Usage:\n" +
-			"\tsupermq-cli invitations delete 39f97daf-d6b6-40f4-b229-2697be8006ef 4ef09eff-d500-4d56-b04f-d23a512d6f2a $USERTOKEN\n",
+			"\tsupermq-cli invitations domain delete 39f97daf-d6b6-40f4-b229-2697be8006ef 4ef09eff-d500-4d56-b04f-d23a512d6f2a $USER_TOKEN\n",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) != 3 {
 				logUsageCmd(*cmd, cmd.Use)
@@ -132,17 +151,46 @@ var cmdInvitations = []cobra.Command{
 	},
 }
 
+// NewUserInvitationsCmd returns user invitations command.
+func NewUserInvitationsCmd() *cobra.Command {
+	cmd := cobra.Command{
+		Use:   "user [get | accept | reject]",
+		Short: "User invitations management",
+		Long:  `User invitations management to get, accept and reject invitations received by the user`,
+	}
+
+	for i := range cmdUserInvitations {
+		cmd.AddCommand(&cmdUserInvitations[i])
+	}
+
+	return &cmd
+}
+
+// NewDomainInvitationsCmd returns domain invitations command.
+func NewDomainInvitationsCmd() *cobra.Command {
+	cmd := cobra.Command{
+		Use:   "domain [send | get | delete]",
+		Short: "Domain invitations management",
+		Long:  `Domain invitations management to send, get and delete invitations for domains`,
+	}
+
+	for i := range cmdDomainInvitations {
+		cmd.AddCommand(&cmdDomainInvitations[i])
+	}
+
+	return &cmd
+}
+
 // NewInvitationsCmd returns invitations command.
 func NewInvitationsCmd() *cobra.Command {
 	cmd := cobra.Command{
-		Use:   "invitations [send | get | accept | delete]",
+		Use:   "invitations [user | domain]",
 		Short: "Invitations management",
-		Long:  `Invitations management to send, get, accept and delete invitations`,
+		Long:  `Invitations management with separate commands for user and domain invitations`,
 	}
 
-	for i := range cmdInvitations {
-		cmd.AddCommand(&cmdInvitations[i])
-	}
+	cmd.AddCommand(NewUserInvitationsCmd())
+	cmd.AddCommand(NewDomainInvitationsCmd())
 
 	return &cmd
 }

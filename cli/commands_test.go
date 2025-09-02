@@ -45,6 +45,8 @@ const sendCmd = "send"
 const (
 	acceptCmd = "accept"
 	rejectCmd = "reject"
+	userCmd   = "user"
+	domainCmd = "domain"
 )
 
 // Role commands
