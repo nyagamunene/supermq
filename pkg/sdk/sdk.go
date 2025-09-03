@@ -174,7 +174,7 @@ type SDK interface {
 	//      Secret:   "12345678",
 	//    },
 	//  }
-	//  user, _ := sdk.CreateUser(ctx, user, "token")
+	//  user, _ := sdk.CreateUser(ctx, user,)
 	//  fmt.Println(user)
 	CreateUser(ctx context.Context, user User, token string) (User, errors.SDKError)
 
