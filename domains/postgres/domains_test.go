@@ -688,235 +688,235 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-// func TestListDomains(t *testing.T) {
-// 	t.Cleanup(func() {
-// 		_, err := db.Exec("DELETE FROM domains")
-// 		require.Nil(t, err, fmt.Sprintf("clean domains unexpected error: %s", err))
-// 	})
+func TestListDomains(t *testing.T) {
+	t.Cleanup(func() {
+		_, err := db.Exec("DELETE FROM domains")
+		require.Nil(t, err, fmt.Sprintf("clean domains unexpected error: %s", err))
+	})
 
-// 	repo := postgres.NewRepository(database)
+	repo := postgres.NewRepository(database)
 
-// 	items := []domains.Domain{}
-// 	for i := 0; i < 10; i++ {
-// 		domain := domains.Domain{
-// 			ID:    testsutil.GenerateUUID(t),
-// 			Name:  fmt.Sprintf(`"test%d"`, i),
-// 			Route: fmt.Sprintf(`"test%d"`, i),
-// 			Tags:  []string{"test"},
-// 			Metadata: map[string]any{
-// 				"test": "test",
-// 			},
-// 			CreatedBy: userID,
-// 			UpdatedBy: userID,
-// 			Status:    domains.EnabledStatus,
-// 			CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
-// 		}
-// 		if i%5 == 0 {
-// 			domain.Status = domains.DisabledStatus
-// 			domain.Tags = []string{"test", "admin"}
-// 			domain.Metadata = map[string]any{
-// 				"test1": "test1",
-// 			}
-// 		}
-// 		_, err := repo.SaveDomain(context.Background(), domain)
-// 		require.Nil(t, err, fmt.Sprintf("save domain unexpected error: %s", err))
-// 		items = append(items, domain)
-// 	}
-// 	cases := []struct {
-// 		desc     string
-// 		pm       domains.Page
-// 		response domains.DomainsPage
-// 		err      error
-// 	}{
-// 		{
-// 			desc: "list all domains",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Status: domains.AllStatus,
-// 				Order:  "created_at",
-// 				Dir:    "asc",
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   10,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: items,
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list all domains with enabled status",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Status: domains.EnabledStatus,
-// 				Order:  "created_at",
-// 				Dir:    "asc",
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   8,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: []domains.Domain{items[1], items[2], items[3], items[4], items[6], items[7], items[8], items[9]},
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list all domains with name",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Name:   items[0].Name,
-// 				Status: domains.AllStatus,
-// 				Order:  "created_at",
-// 				Dir:    "asc",
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   1,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: []domains.Domain{items[0]},
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list all domains with disabled status",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Status: domains.DisabledStatus,
-// 				Order:  "created_at",
-// 				Dir:    "asc",
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   2,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: []domains.Domain{items[0], items[5]},
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list all domains with tags",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Tag:    "admin",
-// 				Status: domains.AllStatus,
-// 				Order:  "created_at",
-// 				Dir:    "asc",
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   2,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: []domains.Domain{items[0], items[5]},
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list all domains with invalid tag",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Tag:    "invalid",
-// 				Status: domains.AllStatus,
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   0,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: []domains.Domain(nil),
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list all domains with metadata",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Metadata: map[string]any{
-// 					"test1": "test1",
-// 				},
-// 				Status: domains.AllStatus,
-// 				Order:  "created_at",
-// 				Dir:    "asc",
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   2,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: []domains.Domain{items[0], items[5]},
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list all domains with invalid metadata",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				Metadata: map[string]any{
-// 					"key": make(chan int),
-// 				},
-// 				Status: domains.AllStatus,
-// 			},
-// 			response: domains.DomainsPage{},
-// 			err:      repoerr.ErrViewEntity,
-// 		},
-// 		{
-// 			desc: "list all domains with subject id",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				UserID: userID,
-// 				Status: domains.AllStatus,
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:  0,
-// 				Offset: 0,
-// 				Limit:  10,
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list domains with id",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				ID:     items[0].ID,
-// 				Status: domains.AllStatus,
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:   1,
-// 				Offset:  0,
-// 				Limit:   10,
-// 				Domains: []domains.Domain{items[0]},
-// 			},
-// 			err: nil,
-// 		},
-// 		{
-// 			desc: "list domains with invalid id",
-// 			pm: domains.Page{
-// 				Offset: 0,
-// 				Limit:  10,
-// 				ID:     invalid,
-// 				Status: domains.AllStatus,
-// 			},
-// 			response: domains.DomainsPage{
-// 				Total:  0,
-// 				Offset: 0,
-// 				Limit:  10,
-// 			},
-// 			err: nil,
-// 		},
-// 	}
+	items := []domains.Domain{}
+	for i := 0; i < 10; i++ {
+		domain := domains.Domain{
+			ID:    testsutil.GenerateUUID(t),
+			Name:  fmt.Sprintf(`"test%d"`, i),
+			Route: fmt.Sprintf(`"test%d"`, i),
+			Tags:  []string{"test"},
+			Metadata: map[string]any{
+				"test": "test",
+			},
+			CreatedBy: userID,
+			UpdatedBy: userID,
+			Status:    domains.EnabledStatus,
+			CreatedAt: time.Now().UTC().Truncate(time.Millisecond),
+		}
+		if i%5 == 0 {
+			domain.Status = domains.DisabledStatus
+			domain.Tags = []string{"test", "admin"}
+			domain.Metadata = map[string]any{
+				"test1": "test1",
+			}
+		}
+		_, err := repo.SaveDomain(context.Background(), domain)
+		require.Nil(t, err, fmt.Sprintf("save domain unexpected error: %s", err))
+		items = append(items, domain)
+	}
+	cases := []struct {
+		desc     string
+		pm       domains.Page
+		response domains.DomainsPage
+		err      error
+	}{
+		{
+			desc: "list all domains",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Status: domains.AllStatus,
+				Order:  "created_at",
+				Dir:    "asc",
+			},
+			response: domains.DomainsPage{
+				Total:   10,
+				Offset:  0,
+				Limit:   10,
+				Domains: items,
+			},
+			err: nil,
+		},
+		{
+			desc: "list all domains with enabled status",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Status: domains.EnabledStatus,
+				Order:  "created_at",
+				Dir:    "asc",
+			},
+			response: domains.DomainsPage{
+				Total:   8,
+				Offset:  0,
+				Limit:   10,
+				Domains: []domains.Domain{items[1], items[2], items[3], items[4], items[6], items[7], items[8], items[9]},
+			},
+			err: nil,
+		},
+		{
+			desc: "list all domains with name",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Name:   items[0].Name,
+				Status: domains.AllStatus,
+				Order:  "created_at",
+				Dir:    "asc",
+			},
+			response: domains.DomainsPage{
+				Total:   1,
+				Offset:  0,
+				Limit:   10,
+				Domains: []domains.Domain{items[0]},
+			},
+			err: nil,
+		},
+		{
+			desc: "list all domains with disabled status",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Status: domains.DisabledStatus,
+				Order:  "created_at",
+				Dir:    "asc",
+			},
+			response: domains.DomainsPage{
+				Total:   2,
+				Offset:  0,
+				Limit:   10,
+				Domains: []domains.Domain{items[0], items[5]},
+			},
+			err: nil,
+		},
+		{
+			desc: "list all domains with tags",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Tag:    "admin",
+				Status: domains.AllStatus,
+				Order:  "created_at",
+				Dir:    "asc",
+			},
+			response: domains.DomainsPage{
+				Total:   2,
+				Offset:  0,
+				Limit:   10,
+				Domains: []domains.Domain{items[0], items[5]},
+			},
+			err: nil,
+		},
+		{
+			desc: "list all domains with invalid tag",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Tag:    "invalid",
+				Status: domains.AllStatus,
+			},
+			response: domains.DomainsPage{
+				Total:   0,
+				Offset:  0,
+				Limit:   10,
+				Domains: []domains.Domain(nil),
+			},
+			err: nil,
+		},
+		{
+			desc: "list all domains with metadata",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Metadata: map[string]any{
+					"test1": "test1",
+				},
+				Status: domains.AllStatus,
+				Order:  "created_at",
+				Dir:    "asc",
+			},
+			response: domains.DomainsPage{
+				Total:   2,
+				Offset:  0,
+				Limit:   10,
+				Domains: []domains.Domain{items[0], items[5]},
+			},
+			err: nil,
+		},
+		{
+			desc: "list all domains with invalid metadata",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				Metadata: map[string]any{
+					"key": make(chan int),
+				},
+				Status: domains.AllStatus,
+			},
+			response: domains.DomainsPage{},
+			err:      repoerr.ErrViewEntity,
+		},
+		{
+			desc: "list all domains with subject id",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				UserID: userID,
+				Status: domains.AllStatus,
+			},
+			response: domains.DomainsPage{
+				Total:  0,
+				Offset: 0,
+				Limit:  10,
+			},
+			err: nil,
+		},
+		{
+			desc: "list domains with id",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				ID:     items[0].ID,
+				Status: domains.AllStatus,
+			},
+			response: domains.DomainsPage{
+				Total:   1,
+				Offset:  0,
+				Limit:   10,
+				Domains: []domains.Domain{items[0]},
+			},
+			err: nil,
+		},
+		{
+			desc: "list domains with invalid id",
+			pm: domains.Page{
+				Offset: 0,
+				Limit:  10,
+				ID:     invalid,
+				Status: domains.AllStatus,
+			},
+			response: domains.DomainsPage{
+				Total:  0,
+				Offset: 0,
+				Limit:  10,
+			},
+			err: nil,
+		},
+	}
 
-// 	for _, tc := range cases {
-// 		t.Run(tc.desc, func(t *testing.T) {
-// 			dp, err := repo.ListDomains(context.Background(), tc.pm)
-// 			assert.Equal(t, tc.response, dp, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, dp))
-// 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.err, err))
-// 		})
-// 	}
-// }
+	for _, tc := range cases {
+		t.Run(tc.desc, func(t *testing.T) {
+			dp, err := repo.ListDomains(context.Background(), tc.pm)
+			assert.Equal(t, tc.response, dp, fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.response, dp))
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %v got %v\n", tc.desc, tc.err, err))
+		})
+	}
+}
