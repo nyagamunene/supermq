@@ -30,9 +30,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var (
-	clientID = "channel-id"
-)
+var clientID = "channel-id"
 
 func setupClients() (*httptest.Server, *mocks.Service, *authnmocks.Authentication) {
 	tsvc := new(mocks.Service)
