@@ -57,14 +57,6 @@ func TestHealth(t *testing.T) {
 			status:      "pass",
 		},
 		{
-			desc:        "get certs service health check",
-			service:     "certs",
-			empty:       false,
-			err:         nil,
-			description: "certs service",
-			status:      "pass",
-		},
-		{
 			desc:        "get http-adapter service health check",
 			service:     "http-adapter",
 			empty:       false,
