@@ -273,6 +273,7 @@ func TestRetrieveAllByIDs(t *testing.T) {
 	repo := postgres.NewRepository(database)
 
 	items := []domains.Domain{}
+	baseTime := time.Now().UTC().Truncate(time.Millisecond)
 	for i := 0; i < 10; i++ {
 		domain := domains.Domain{
 			ID:    testsutil.GenerateUUID(t),
@@ -285,7 +286,7 @@ func TestRetrieveAllByIDs(t *testing.T) {
 			CreatedBy: userID,
 			UpdatedBy: userID,
 			Status:    domains.EnabledStatus,
-			CreatedAt: time.Now().UTC().Truncate(time.Microsecond),
+			CreatedAt: baseTime.Add(time.Duration(i) * time.Millisecond),
 		}
 		if i%5 == 0 {
 			domain.Status = domains.DisabledStatus
