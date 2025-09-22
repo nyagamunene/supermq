@@ -310,6 +310,7 @@ func TestRetrieveAll(t *testing.T) {
 
 	num := 200
 	var items, enabledUsers []users.User
+	baseTime := time.Now().UTC().Truncate(time.Millisecond)
 	for i := 0; i < num; i++ {
 		user := users.User{
 			ID:        testsutil.GenerateUUID(t),
@@ -323,7 +324,7 @@ func TestRetrieveAll(t *testing.T) {
 			Metadata:  users.Metadata{},
 			Status:    users.EnabledStatus,
 			Tags:      []string{"tag1"},
-			CreatedAt: time.Now().UTC().Truncate(time.Microsecond),
+			CreatedAt: baseTime.Add(time.Duration(i) * time.Millisecond),
 		}
 		if i%50 == 0 {
 			user.Metadata = map[string]any{
