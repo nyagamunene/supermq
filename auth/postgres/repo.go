@@ -483,6 +483,8 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 			if err != nil {
 				return auth.Scope{}, postgres.HandleError(repoerr.ErrUpdateEntity, err)
 			}
+			defer rows.Close()
+
 			return auth.Scope{}, nil
 		}
 	}
