@@ -45,10 +45,11 @@ func (pr *patRepo) Save(ctx context.Context, pat auth.PAT) error {
 		return errors.Wrap(repoerr.ErrCreateEntity, err)
 	}
 
-	_, err = pr.db.NamedQueryContext(ctx, q, dbPat)
+	rows, err := pr.db.NamedQueryContext(ctx, q, dbPat)
 	if err != nil {
 		return postgres.HandleError(repoerr.ErrCreateEntity, err)
 	}
+	defer rows.Close()
 
 	return nil
 }
@@ -306,10 +307,11 @@ func (pr *patRepo) Revoke(ctx context.Context, userID, patID string) error {
 		},
 	}
 
-	_, err := pr.db.NamedQueryContext(ctx, q, upm)
+	rows, err := pr.db.NamedQueryContext(ctx, q, upm)
 	if err != nil {
 		return errors.Wrap(repoerr.ErrUpdateEntity, err)
 	}
+	defer rows.Close()
 
 	return nil
 }
@@ -325,10 +327,11 @@ func (pr *patRepo) Reactivate(ctx context.Context, userID, patID string) error {
 		ID:   patID,
 	}
 
-	_, err := pr.db.NamedQueryContext(ctx, q, upm)
+	rows, err := pr.db.NamedQueryContext(ctx, q, upm)
 	if err != nil {
 		return errors.Wrap(repoerr.ErrUpdateEntity, err)
 	}
+	defer rows.Close()
 
 	return nil
 }
@@ -340,10 +343,11 @@ func (pr *patRepo) Remove(ctx context.Context, userID, patID string) error {
 		ID:   patID,
 	}
 
-	_, err := pr.db.NamedQueryContext(ctx, q, upm)
+	rows, err := pr.db.NamedQueryContext(ctx, q, upm)
 	if err != nil {
 		return postgres.HandleError(repoerr.ErrRemoveEntity, err)
 	}
+	defer rows.Close()
 
 	return nil
 }
@@ -355,10 +359,11 @@ func (pr *patRepo) RemoveAllPAT(ctx context.Context, userID string) error {
 		User: userID,
 	}
 
-	_, err := pr.db.NamedQueryContext(ctx, q, pm)
+	rows, err := pr.db.NamedQueryContext(ctx, q, pm)
 	if err != nil {
 		return postgres.HandleError(repoerr.ErrRemoveEntity, err)
 	}
+	defer rows.Close()
 
 	if err := pr.cache.RemoveUserAllScope(ctx, userID); err != nil {
 		return errors.Wrap(repoerr.ErrRemoveEntity, err)
@@ -385,10 +390,11 @@ func (pr *patRepo) AddScope(ctx context.Context, userID string, scopes []auth.Sc
 	}
 
 	if len(newScopes) > 0 {
-		_, err := pr.db.NamedQueryContext(ctx, q, toDBScope(newScopes))
+		rows, err := pr.db.NamedQueryContext(ctx, q, toDBScope(newScopes))
 		if err != nil {
 			return postgres.HandleError(repoerr.ErrUpdateEntity, err)
 		}
+		defer rows.Close()
 	}
 
 	if err := pr.cache.Save(ctx, userID, scopes); err != nil {
@@ -473,7 +479,7 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 			AND optional_domain_id = :optional_domain_id
 			AND operation = :operation`
 
-			_, err = pr.db.NamedQueryContext(ctx, updateWithWildcardQuery, params)
+			rows, err = pr.db.NamedQueryContext(ctx, updateWithWildcardQuery, params)
 			if err != nil {
 				return auth.Scope{}, postgres.HandleError(repoerr.ErrUpdateEntity, err)
 			}
@@ -575,10 +581,11 @@ func (pr *patRepo) RemoveAllScope(ctx context.Context, patID string) error {
 
 	q := `DELETE FROM pat_scopes WHERE pat_id = :pat_id`
 
-	_, err := pr.db.NamedQueryContext(ctx, q, pm)
+	rows, err := pr.db.NamedQueryContext(ctx, q, pm)
 	if err != nil {
 		return postgres.HandleError(repoerr.ErrRemoveEntity, err)
 	}
+	defer rows.Close()
 
 	if err := pr.cache.RemoveAllScope(ctx, pm.User, patID); err != nil {
 		return errors.Wrap(repoerr.ErrRemoveEntity, err)
