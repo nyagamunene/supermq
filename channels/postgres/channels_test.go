@@ -922,7 +922,7 @@ func TestRetrieveAll(t *testing.T) {
 					Offset:         0,
 					Limit:          10,
 					Client:         testsutil.GenerateUUID(t),
-					ConnectionType: "1",
+					ConnectionType: "subscribe",
 				},
 			},
 			response: channels.ChannelsPage{
