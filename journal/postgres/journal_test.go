@@ -1087,7 +1087,6 @@ func TestCountSubscriptions(t *testing.T) {
 	err := repo.SaveClientTelemetry(context.Background(), ct)
 	require.Nil(t, err)
 
-	// Add 3 subscriptions
 	for i := 0; i < 3; i++ {
 		sub := journal.ClientSubscription{
 			ID:           testsutil.GenerateUUID(t),
@@ -1235,10 +1234,6 @@ func TestIncrementInboundMessages(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.setupExisting {
-				// Client already exists from previous test case
-			}
-
 			err := repo.IncrementInboundMessages(context.Background(), tc.telemetry)
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.err, err))
 
@@ -1266,7 +1261,6 @@ func TestIncrementOutboundMessages(t *testing.T) {
 	channelID := testsutil.GenerateUUID(t)
 	subtopic := "test/subtopic"
 
-	// Setup two clients with subscriptions
 	for i, cid := range []string{clientID1, clientID2} {
 		ct := journal.ClientTelemetry{
 			ClientID:  cid,
@@ -1276,7 +1270,6 @@ func TestIncrementOutboundMessages(t *testing.T) {
 		err := repo.SaveClientTelemetry(context.Background(), ct)
 		require.Nil(t, err)
 
-		// Add multiple subscriptions per client to test COUNT aggregation
 		for j := 0; j < 2; j++ {
 			sub := journal.ClientSubscription{
 				ID:           testsutil.GenerateUUID(t),
@@ -1302,7 +1295,7 @@ func TestIncrementOutboundMessages(t *testing.T) {
 			desc:              "increment outbound messages for subscribed clients with multiple subscriptions",
 			channelID:         channelID,
 			subtopic:          subtopic,
-			expectedIncrement: 2, // Each client has 2 subscriptions
+			expectedIncrement: 2,
 			err:               nil,
 		},
 		{
@@ -1327,7 +1320,6 @@ func TestIncrementOutboundMessages(t *testing.T) {
 			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.err, err))
 
 			if err == nil && tc.expectedIncrement > 0 {
-				// Check that both clients got their outbound messages incremented
 				for _, cid := range []string{clientID1, clientID2} {
 					result, err := repo.RetrieveClientTelemetry(context.Background(), cid, domainID)
 					require.Nil(t, err)
