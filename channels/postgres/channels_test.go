@@ -800,6 +800,44 @@ func TestRetrieveAll(t *testing.T) {
 			err: nil,
 		},
 		{
+			desc: "retrieve channels with IDs filter",
+			page: channels.ChannelsPage{
+				Page: channels.Page{
+					Offset: 0,
+					Limit:  10,
+					IDs:    []string{items[0].ID, items[1].ID, items[2].ID},
+				},
+			},
+			response: channels.ChannelsPage{
+				Page: channels.Page{
+					Total:  3,
+					Offset: 0,
+					Limit:  10,
+				},
+				Channels: []channels.Channel{items[0], items[1], items[2]},
+			},
+			err: nil,
+		},
+		{
+			desc: "retrieve channels with non-existing IDs",
+			page: channels.ChannelsPage{
+				Page: channels.Page{
+					Offset: 0,
+					Limit:  10,
+					IDs:    []string{testsutil.GenerateUUID(t), testsutil.GenerateUUID(t)},
+				},
+			},
+			response: channels.ChannelsPage{
+				Page: channels.Page{
+					Total:  0,
+					Offset: 0,
+					Limit:  10,
+				},
+				Channels: []channels.Channel(nil),
+			},
+			err: nil,
+		},
+		{
 			desc: "retrieve channels with domain",
 			page: channels.ChannelsPage{
 				Page: channels.Page{
@@ -934,6 +972,19 @@ func TestRetrieveAll(t *testing.T) {
 				Channels: []channels.Channel(nil),
 			},
 			err: nil,
+		},
+		{
+			desc: "retrieve channels with invalid connection type",
+			page: channels.ChannelsPage{
+				Page: channels.Page{
+					Offset:         0,
+					Limit:          10,
+					Client:         testsutil.GenerateUUID(t),
+					ConnectionType: "invalid_type",
+				},
+			},
+			response: channels.ChannelsPage{},
+			err:      repoerr.ErrViewEntity,
 		},
 	}
 
@@ -1927,6 +1978,9 @@ func TestRetrieveUserChannels(t *testing.T) {
 		directChannel.RoleName = npr[0].Role.Name
 		directChannel.AccessType = directAccess
 		directChannel.AccessProviderRoleActions = []string{}
+		if i == 1 {
+			directChannel.ParentGroupPath = group.ID
+		}
 		directChannels = append(directChannels, directChannel)
 		if i == 1 {
 			parentGroupChannel = directChannel
@@ -2507,6 +2561,48 @@ func TestRetrieveUserChannels(t *testing.T) {
 				Status:   channels.AllStatus,
 				Order:    defOrder,
 				Dir:      defDir,
+			},
+			response: channels.ChannelsPage{
+				Page: channels.Page{
+					Total:  0,
+					Offset: 0,
+					Limit:  nChannels,
+				},
+				Channels: []channels.Channel(nil),
+			},
+		},
+		{
+			desc:     "retrieve channels with actions filter",
+			domainID: domain.ID,
+			userID:   userID,
+			pm: channels.Page{
+				Offset:  0,
+				Limit:   nChannels,
+				Actions: availableActions,
+				Status:  channels.AllStatus,
+				Order:   defOrder,
+				Dir:     defDir,
+			},
+			response: channels.ChannelsPage{
+				Page: channels.Page{
+					Total:  10,
+					Offset: 0,
+					Limit:  nChannels,
+				},
+				Channels: directChannels,
+			},
+		},
+		{
+			desc:     "retrieve channels with non-matching actions filter",
+			domainID: domain.ID,
+			userID:   userID,
+			pm: channels.Page{
+				Offset:  0,
+				Limit:   nChannels,
+				Actions: []string{"non_existent_action"},
+				Status:  channels.AllStatus,
+				Order:   defOrder,
+				Dir:     defDir,
 			},
 			response: channels.ChannelsPage{
 				Page: channels.Page{
