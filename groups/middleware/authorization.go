@@ -242,7 +242,6 @@ func (am *authorizationMiddleware) ListGroups(ctx context.Context, session authn
 		return groups.Page{}, errors.Wrap(errDomainListGroups, err)
 	}
 
-
 	return am.svc.ListGroups(ctx, session, gm)
 }
 
