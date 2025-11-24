@@ -66,7 +66,7 @@ Examples:
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
-			
+
 			if args[0] == create {
 				handleDomainCreate(cmd, args[1:])
 				return
@@ -77,14 +77,14 @@ Examples:
 				return
 			}
 
-		domainParams := args[0]
-		operation := args[1]
-		opArgs := args[2:]
+			domainParams := args[0]
+			operation := args[1]
+			opArgs := args[2:]
 
-		switch operation {
-		case get:
-			handleDomainGet(cmd, domainParams, opArgs)
-		case update:
+			switch operation {
+			case get:
+				handleDomainGet(cmd, domainParams, opArgs)
+			case update:
 				handleDomainUpdate(cmd, domainParams, opArgs)
 			case enable:
 				handleDomainEnable(cmd, domainParams, opArgs)

@@ -77,13 +77,13 @@ Examples:
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
-			
-		if args[0] == create {
-			handleClientCreate(cmd, args[1:])
-			return
-		}
 
-		if len(args) < 2 {
+			if args[0] == create {
+				handleClientCreate(cmd, args[1:])
+				return
+			}
+
+			if len(args) < 2 {
 				logUsageCmd(*cmd, "clients <client_id|all> <get|update|delete|enable|disable|connect|disconnect|users|roles> [args...]")
 				return
 			}

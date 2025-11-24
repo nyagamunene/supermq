@@ -57,17 +57,17 @@ Examples:
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
-			
-		if args[0] == create {
-			handleCreate(cmd, args[1:])
-			return
-		}
 
-		if len(args) < 2 {
+			if args[0] == create {
+				handleCreate(cmd, args[1:])
+				return
+			}
+
+			if len(args) < 2 {
 				logUsageCmd(*cmd, "channels <channel_id|all> <get|update|delete|enable|disable|users> [args...]")
 				return
 			}
-			
+
 			channelParams := args[0]
 			operation := args[1]
 			opArgs := args[2:]

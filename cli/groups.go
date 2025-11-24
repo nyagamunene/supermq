@@ -70,7 +70,7 @@ Examples:
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
-			
+
 			if args[0] == create {
 				handleGroupCreate(cmd, args[1:])
 				return
@@ -81,14 +81,14 @@ Examples:
 				return
 			}
 
-		groupParams := args[0]
-		operation := args[1]
-		opArgs := args[2:]
+			groupParams := args[0]
+			operation := args[1]
+			opArgs := args[2:]
 
-		switch operation {
-		case get:
-			handleGroupGet(cmd, groupParams, opArgs)
-		case update:
+			switch operation {
+			case get:
+				handleGroupGet(cmd, groupParams, opArgs)
+			case update:
 				handleGroupUpdate(cmd, groupParams, opArgs)
 			case delete:
 				handleGroupDelete(cmd, groupParams, opArgs)
