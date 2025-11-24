@@ -23,7 +23,7 @@ const (
 	sendVerification = "send-verification"
 	verifyEmail      = "verify-email"
 
-	usageCreate  = "cli channels <channel_id> create <JSON_channel> <domain_id> <user_auth_token>"
+	usageCreate  = "cli channels create <JSON_channel> <domain_id> <user_auth_token>"
 	usageGet     = "cli channels <channel_id|all> get <domain_id> <user_auth_token>"
 	usageUpdate  = "cli channels <channel_id> update <JSON_string> <domain_id> <user_auth_token>"
 	usageDelete  = "cli channels <channel_id> delete <domain_id> <user_auth_token>"
@@ -34,32 +34,45 @@ const (
 
 func NewChannelsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "channels <channel_id_or_all> <operation> [args...]",
+		Use:   "channels <channel_id|all|create> [operation] [args...]",
 		Short: "Channels management",
-		Long: `Format: <channel_id|all> <operation> [additional_args...]
+		Long: `Format: 
+  channels create [args...]
+  channels <channel_id|all> <operation> [args...]
+
+Operations (require channel_id/all): get, update, delete, enable, disable, users
 
 Examples:
-  channels all get <domain_id> <user_auth_token>                   				# Get all entities
-  channels <channel_id> get <domain_id> <user_auth_token>          				# Get specific entity
-  channels <channel_id> create <JSON_channel> <domain_id> <user_auth_token> 	# Create entity
-  channels <channel_id> update <JSON_string> <domain_id> <user_auth_token>  	# Update entity
-  channels <channel_id> delete <domain_id> <user_auth_token>      				# Delete entity
-  channels <channel_id> enable <domain_id> <user_auth_token>      				# Enable entity
-  channels <channel_id> disable <domain_id> <user_auth_token>     				# Disable entity
-  channels <channel_id> users <domain_id> <user_auth_token>       				# List entity users`,
+  channels create <JSON_channel> <domain_id> <user_auth_token>
+  channels all get <domain_id> <user_auth_token>
+  channels <channel_id> get <domain_id> <user_auth_token>
+  channels <channel_id> update <JSON_string> <domain_id> <user_auth_token>
+  channels <channel_id> delete <domain_id> <user_auth_token>
+  channels <channel_id> enable <domain_id> <user_auth_token>
+  channels <channel_id> disable <domain_id> <user_auth_token>
+  channels <channel_id> users <domain_id> <user_auth_token>`,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) < 2 {
+			if len(args) == 0 {
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
+			
+		if args[0] == create {
+			handleCreate(cmd, args[1:])
+			return
+		}
+
+		if len(args) < 2 {
+				logUsageCmd(*cmd, "channels <channel_id|all> <get|update|delete|enable|disable|users> [args...]")
+				return
+			}
+			
 			channelParams := args[0]
 			operation := args[1]
 			opArgs := args[2:]
 
 			switch operation {
-			case create:
-				handleCreate(cmd, channelParams, opArgs)
 			case get:
 				handleGet(cmd, channelParams, opArgs)
 			case update:
@@ -81,19 +94,19 @@ Examples:
 	return cmd
 }
 
-func handleCreate(cmd *cobra.Command, channelID string, args []string) {
-	if len(args) != 2 {
+func handleCreate(cmd *cobra.Command, args []string) {
+	if len(args) != 3 {
 		logUsageCmd(*cmd, usageCreate)
 		return
 	}
 
 	var channel smqsdk.Channel
-	if err := json.Unmarshal([]byte(channelID), &channel); err != nil {
+	if err := json.Unmarshal([]byte(args[0]), &channel); err != nil {
 		logErrorCmd(*cmd, err)
 		return
 	}
 
-	channel, err := sdk.CreateChannel(cmd.Context(), channel, args[0], args[1])
+	channel, err := sdk.CreateChannel(cmd.Context(), channel, args[1], args[2])
 	if err != nil {
 		logErrorCmd(*cmd, err)
 		return

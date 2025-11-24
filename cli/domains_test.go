@@ -48,8 +48,8 @@ func TestCreateDomainsCmd(t *testing.T) {
 		{
 			desc: "create domain successfully",
 			args: []string{
-				dom.Name,
 				createCmd,
+				dom.Name,
 				dom.Route,
 				validToken,
 			},
@@ -59,8 +59,8 @@ func TestCreateDomainsCmd(t *testing.T) {
 		{
 			desc: "create domain with invalid args",
 			args: []string{
-				dom.Name,
 				createCmd,
+				dom.Name,
 				dom.Route,
 				validToken,
 				extraArg,
@@ -70,8 +70,8 @@ func TestCreateDomainsCmd(t *testing.T) {
 		{
 			desc: "create domain with invalid token",
 			args: []string{
-				dom.Name,
 				createCmd,
+				dom.Name,
 				dom.Route,
 				invalidToken,
 			},
@@ -94,7 +94,7 @@ func TestCreateDomainsCmd(t *testing.T) {
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, "cli domains create"), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 			}
 			sdkCall.Unset()
 		})

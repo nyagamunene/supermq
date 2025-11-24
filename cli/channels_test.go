@@ -44,8 +44,8 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel successfully",
 			args: []string{
-				channelJson,
 				createCmd,
+				channelJson,
 				domainID,
 				token,
 			},
@@ -55,8 +55,8 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel with invalid args",
 			args: []string{
-				channelJson,
 				createCmd,
+				channelJson,
 				domainID,
 				token,
 				extraArg,
@@ -66,8 +66,8 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel with invalid json",
 			args: []string{
-				"{\"name\":\"testchannel\", \"metadata\":{\"key1\":\"value1\"}",
 				createCmd,
+				"{\"name\":\"testchannel\", \"metadata\":{\"key1\":\"value1\"}",
 				domainID,
 				token,
 			},
@@ -78,8 +78,8 @@ func TestCreateChannelCmd(t *testing.T) {
 		{
 			desc: "create channel with invalid token",
 			args: []string{
-				channelJson,
 				createCmd,
+				channelJson,
 				domainID,
 				invalidToken,
 			},
@@ -91,7 +91,10 @@ func TestCreateChannelCmd(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("CreateChannel", mock.Anything, mock.Anything, tc.args[2], tc.args[3]).Return(tc.channel, tc.sdkErr)
+			var sdkCall *mock.Call
+			if len(tc.args) >= 4 {
+				sdkCall = sdkMock.On("CreateChannel", mock.Anything, mock.Anything, tc.args[2], tc.args[3]).Return(tc.channel, tc.sdkErr)
+			}
 			out := executeCommand(t, rootCmd, tc.args...)
 
 			switch tc.logType {
@@ -100,11 +103,13 @@ func TestCreateChannelCmd(t *testing.T) {
 				assert.Nil(t, err)
 				assert.Equal(t, tc.channel, cp, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.channel, cp))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, "cli channels create"), fmt.Sprintf("%s invalid usage: expected to contain create usage, got: %s", tc.desc, out))
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			}
-			sdkCall.Unset()
+			if sdkCall != nil {
+				sdkCall.Unset()
+			}
 		})
 	}
 }

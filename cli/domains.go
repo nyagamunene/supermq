@@ -15,7 +15,7 @@ const (
 	freeze = "freeze"
 
 	// Usage strings for domain operations.
-	usageDomainCreate  = "cli domains <domain_name> create <route> <user_auth_token>"
+	usageDomainCreate  = "cli domains create <domain_name> <route> <user_auth_token>"
 	usageDomainGet     = "cli domains <domain_id|all> get <user_auth_token>"
 	usageDomainUpdate  = "cli domains <domain_id> update <JSON_string> <user_auth_token>"
 	usageDomainEnable  = "cli domains <domain_id> enable <user_auth_token>"
@@ -43,36 +43,48 @@ const (
 
 func NewDomainsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "domains <domain_id_or_all> <operation> [args...]",
+		Use:   "domains <domain_id|all|create> [operation] [args...]",
 		Short: "Domains management",
-		Long: `Format: <domain_id|all> <operation> [additional_args...]
+		Long: `Format: 
+  domains create [args...]
+  domains <domain_id|all> <operation> [args...]
+
+Operations (require domain_id/all): get, update, enable, disable, freeze, users, roles
 
 Examples:
-  domains all get <user_auth_token>                                      # Get all entities
-  domains <domain_id> get <user_auth_token>                              # Get specific entity
-  domains <domain_name> create <route> <user_auth_token>                 # Create entity
-  domains <domain_id> update <JSON_string> <user_auth_token>             # Update entity
-  domains <domain_id> enable <user_auth_token>                           # Enable entity
-  domains <domain_id> disable <user_auth_token>                          # Disable entity
-  domains <domain_id> freeze <user_auth_token>                           # Freeze entity
-  domains <domain_id> users <user_auth_token>                            # List entity users`,
+  domains create <domain_name> <route> <user_auth_token>
+  domains all get <user_auth_token>
+  domains <domain_id> get <user_auth_token>
+  domains <domain_id> update <JSON_string> <user_auth_token>
+  domains <domain_id> enable <user_auth_token>
+  domains <domain_id> disable <user_auth_token>
+  domains <domain_id> freeze <user_auth_token>
+  domains <domain_id> users <user_auth_token>`,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) < 2 {
+			if len(args) == 0 {
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
+			
+			if args[0] == create {
+				handleDomainCreate(cmd, args[1:])
+				return
+			}
 
-			domainParams := args[0]
-			operation := args[1]
-			opArgs := args[2:]
+			if len(args) < 2 {
+				logUsageCmd(*cmd, "domains <domain_id|all> <get|update|enable|disable|freeze|users|roles> [args...]")
+				return
+			}
 
-			switch operation {
-			case create:
-				handleDomainCreate(cmd, domainParams, opArgs)
-			case get:
-				handleDomainGet(cmd, domainParams, opArgs)
-			case update:
+		domainParams := args[0]
+		operation := args[1]
+		opArgs := args[2:]
+
+		switch operation {
+		case get:
+			handleDomainGet(cmd, domainParams, opArgs)
+		case update:
 				handleDomainUpdate(cmd, domainParams, opArgs)
 			case enable:
 				handleDomainEnable(cmd, domainParams, opArgs)
@@ -93,17 +105,17 @@ Examples:
 	return cmd
 }
 
-func handleDomainCreate(cmd *cobra.Command, domainName string, args []string) {
-	if len(args) != 2 {
+func handleDomainCreate(cmd *cobra.Command, args []string) {
+	if len(args) != 3 {
 		logUsageCmd(*cmd, usageDomainCreate)
 		return
 	}
 
 	dom := smqsdk.Domain{
-		Name:  domainName,
-		Route: args[0],
+		Name:  args[0],
+		Route: args[1],
 	}
-	d, err := sdk.CreateDomain(cmd.Context(), dom, args[1])
+	d, err := sdk.CreateDomain(cmd.Context(), dom, args[2])
 	if err != nil {
 		logErrorCmd(*cmd, err)
 		return

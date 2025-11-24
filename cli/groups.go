@@ -19,7 +19,7 @@ const (
 	availableActions = "available-actions"
 
 	// Usage strings for group operations.
-	usageGroupCreate     = "cli groups <JSON_group> create <domain_id> <user_auth_token>"
+	usageGroupCreate     = "cli groups create <JSON_group> <domain_id> <user_auth_token>"
 	usageGroupGet        = "cli groups <group_id|all> get <domain_id> <user_auth_token>"
 	usageGroupUpdate     = "cli groups <group_id> update <JSON_string> <domain_id> <user_auth_token>"
 	usageGroupUpdateTags = "cli groups <group_id> update tags <tags> <domain_id> <user_auth_token>"
@@ -47,36 +47,48 @@ const (
 
 func NewGroupsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "groups <group_id_or_all> <operation> [args...]",
+		Use:   "groups <group_id|all|create> [operation] [args...]",
 		Short: "Groups management",
-		Long: `Format: <group_id|all> <operation> [additional_args...]
+		Long: `Format: 
+  groups create [args...]
+  groups <group_id|all> <operation> [args...]
+
+Operations (require group_id/all): get, update, delete, enable, disable, roles
 
 Examples:
-  groups all get <domain_id> <user_auth_token>                          # Get all entities
-  groups <group_id> get <domain_id> <user_auth_token>                   # Get specific entity
-  groups <JSON_group> create <domain_id> <user_auth_token>              # Create entity
-  groups <group_id> update <JSON_string> <domain_id> <user_auth_token>  # Update entity
-  groups <group_id> update tags <tags> <domain_id> <user_auth_token>    # Update entity tags
-  groups <group_id> delete <domain_id> <user_auth_token>                # Delete entity
-  groups <group_id> enable <domain_id> <user_auth_token>                # Enable entity
-  groups <group_id> disable <domain_id> <user_auth_token>               # Disable entity`,
+  groups create <JSON_group> <domain_id> <user_auth_token>
+  groups all get <domain_id> <user_auth_token>
+  groups <group_id> get <domain_id> <user_auth_token>
+  groups <group_id> update <JSON_string> <domain_id> <user_auth_token>
+  groups <group_id> update tags <tags> <domain_id> <user_auth_token>
+  groups <group_id> delete <domain_id> <user_auth_token>
+  groups <group_id> enable <domain_id> <user_auth_token>
+  groups <group_id> disable <domain_id> <user_auth_token>`,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) < 2 {
+			if len(args) == 0 {
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
+			
+			if args[0] == create {
+				handleGroupCreate(cmd, args[1:])
+				return
+			}
 
-			groupParams := args[0]
-			operation := args[1]
-			opArgs := args[2:]
+			if len(args) < 2 {
+				logUsageCmd(*cmd, "groups <group_id|all> <get|update|delete|enable|disable|roles> [args...]")
+				return
+			}
 
-			switch operation {
-			case create:
-				handleGroupCreate(cmd, groupParams, opArgs)
-			case get:
-				handleGroupGet(cmd, groupParams, opArgs)
-			case update:
+		groupParams := args[0]
+		operation := args[1]
+		opArgs := args[2:]
+
+		switch operation {
+		case get:
+			handleGroupGet(cmd, groupParams, opArgs)
+		case update:
 				handleGroupUpdate(cmd, groupParams, opArgs)
 			case delete:
 				handleGroupDelete(cmd, groupParams, opArgs)
@@ -95,19 +107,19 @@ Examples:
 	return cmd
 }
 
-func handleGroupCreate(cmd *cobra.Command, groupJSON string, args []string) {
-	if len(args) != 2 {
+func handleGroupCreate(cmd *cobra.Command, args []string) {
+	if len(args) != 3 {
 		logUsageCmd(*cmd, usageGroupCreate)
 		return
 	}
 
 	var group smqsdk.Group
-	if err := json.Unmarshal([]byte(groupJSON), &group); err != nil {
+	if err := json.Unmarshal([]byte(args[0]), &group); err != nil {
 		logErrorCmd(*cmd, err)
 		return
 	}
 	group.Status = groups.EnabledStatus.String()
-	group, err := sdk.CreateGroup(cmd.Context(), group, args[0], args[1])
+	group, err := sdk.CreateGroup(cmd.Context(), group, args[1], args[2])
 	if err != nil {
 		logErrorCmd(*cmd, err)
 		return

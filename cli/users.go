@@ -27,15 +27,22 @@ const (
 	role                 = "role"
 
 	// Usage strings for user operations.
-	usageUserCreate           = "cli users create <first_name> <last_name> <email> <username> <password> [user_auth_token]"
-	usageUserGet              = "cli users <user_id|all> get <user_auth_token>"
-	usageUserToken            = "cli users token <username> <password>"
-	usageUserRefreshToken     = "cli users refreshtoken <token>"
-	usageUserUpdate           = "cli users <user_id> update <JSON_string> <user_auth_token>"
-	usageUserUpdateTags       = "cli users <user_id> update tags <tags> <user_auth_token>"
-	usageUserUpdateUsername   = "cli users <user_id> update username <username> <user_auth_token>"
-	usageUserUpdateEmail      = "cli users <user_id> update email <email> <user_auth_token>"
-	usageUserUpdateRole       = "cli users <user_id> update role <role> <user_auth_token>"
+	usageUserCreate         = "cli users create <first_name> <last_name> <email> <username> <password> [user_auth_token]"
+	usageUserGet            = "cli users <user_id|all> get <user_auth_token>"
+	usageUserToken          = "cli users token <username> <password>"
+	usageUserRefreshToken   = "cli users refreshtoken <token>"
+	usageUserUpdate         = "cli users <user_id> update <JSON_string> <user_auth_token>"
+	usageUserUpdateTags     = "cli users <user_id> update tags <tags> <user_auth_token>"
+	usageUserUpdateUsername = "cli users <user_id> update username <username> <user_auth_token>"
+	usageUserUpdateEmail    = "cli users <user_id> update email <email> <user_auth_token>"
+	usageUserUpdateRole     = "cli users <user_id> update role <role> <user_auth_token>"
+	usageUserUpdateAll      = `cli users <user_id> update <JSON_string|tags|username|email|role> [args...]
+Available update options:
+  cli users <user_id> update <JSON_string> <user_auth_token>
+  cli users <user_id> update tags <tags> <user_auth_token>
+  cli users <user_id> update username <username> <user_auth_token>
+  cli users <user_id> update email <email> <user_auth_token>
+  cli users <user_id> update role <role> <user_auth_token>`
 	usageUserProfile          = "cli users profile <user_auth_token>"
 	usageUserResetPasswordReq = "cli users resetpasswordrequest <email>"
 	usageUserResetPassword    = "cli users resetpassword <password> <confpass> <password_request_token>"
@@ -48,27 +55,31 @@ const (
 
 func NewUsersCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "users <user_id_or_all> <operation> [args...]",
+		Use:   "users <user_id|all|create|token|refreshtoken|profile|resetpasswordrequest|resetpassword|password|search> [operation] [args...]",
 		Short: "Users management",
-		Long: `Format: <user_id|all> <operation> [additional_args...]
+		Long: `Format: 
+  users <create|token|refreshtoken|profile|resetpasswordrequest|resetpassword|password|search> [args...]
+  users <user_id|all> <operation> [args...]
+
+Operations (require user_id/all): get, update, enable, disable, delete
 
 Examples:
-  users all get <user_auth_token>                                       					# Get all entities
-  users <user_id> get <user_auth_token>                                 					# Get specific entity
-  users <user_id> update <JSON_string> <user_auth_token>                					# Update entity
-  users <user_id> update tags <tags> <user_auth_token>                  					# Update entity tags
-  users <user_id> update username <username> <user_auth_token>          					# Update username
-  users <user_id> update email <email> <user_auth_token>                					# Update email
-  users <user_id> enable <user_auth_token>                              					# Enable entity
-  users <user_id> disable <user_auth_token>                             					# Disable entity
-  users <user_id> delete <user_auth_token>                              					# Delete entity
-  users create <first_name> <last_name> <email> <username> <password> [user_auth_token]  	# Create entity
-  users token <username> <password>                                     					# Get token
-  users profile <user_auth_token>                                       					# Get entity profile
-  users search <query> <user_auth_token>                                					# Search entities`,
+  users create <first_name> <last_name> <email> <username> <password> [user_auth_token]
+  users token <username> <password>
+  users all get <user_auth_token>
+  users <user_id> get <user_auth_token>
+  users <user_id> update <JSON_string> <user_auth_token>
+  users <user_id> update tags <tags> <user_auth_token>
+  users <user_id> update username <username> <user_auth_token>
+  users <user_id> update email <email> <user_auth_token>
+  users <user_id> enable <user_auth_token>
+  users <user_id> disable <user_auth_token>
+  users <user_id> delete <user_auth_token>
+  users profile <user_auth_token>
+  users search <query> <user_auth_token>`,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) < 2 {
+			if len(args) == 0 {
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
@@ -83,25 +94,58 @@ Examples:
 				handleVerify(cmd, args[1])
 				return
 			case token:
-				handleUserToken(cmd, args[1], args[2:])
+				if len(args) < 2 {
+					handleUserToken(cmd, "", []string{})
+				} else {
+					handleUserToken(cmd, args[1], args[2:])
+				}
 				return
 			case refreshtoken:
-				handleUserRefreshToken(cmd, args[1], args[2:])
+				if len(args) < 2 {
+					handleUserRefreshToken(cmd, "", []string{})
+				} else {
+					handleUserRefreshToken(cmd, args[1], args[2:])
+				}
 				return
 			case profile:
-				handleUserProfile(cmd, args[1], args[2:])
+				if len(args) < 2 {
+					handleUserProfile(cmd, "", []string{})
+				} else {
+					handleUserProfile(cmd, args[1], args[2:])
+				}
 				return
 			case resetpasswordrequest:
-				handleUserResetPasswordRequest(cmd, args[1], args[2:])
+				if len(args) < 2 {
+					handleUserResetPasswordRequest(cmd, "", []string{})
+				} else {
+					handleUserResetPasswordRequest(cmd, args[1], args[2:])
+				}
 				return
 			case resetpassword:
-				handleUserResetPassword(cmd, args[1], args[2:])
+				if len(args) < 2 {
+					handleUserResetPassword(cmd, "", []string{})
+				} else {
+					handleUserResetPassword(cmd, args[1], args[2:])
+				}
 				return
 			case password:
-				handleUserPassword(cmd, args[1], args[2:])
+				if len(args) < 2 {
+					handleUserPassword(cmd, "", []string{})
+				} else {
+					handleUserPassword(cmd, args[1], args[2:])
+				}
 				return
 			case search:
-				handleUserSearch(cmd, args[1], args[2:])
+				if len(args) < 2 {
+					handleUserSearch(cmd, "", []string{})
+				} else {
+					handleUserSearch(cmd, args[1], args[2:])
+				}
+				return
+			}
+
+			if len(args) < 2 {
+				logUsageCmd(*cmd, "users <user_id|all> <get|update|enable|disable|delete> [args...]")
 				return
 			}
 
@@ -226,6 +270,11 @@ func handleUserGet(cmd *cobra.Command, userParams string, args []string) {
 }
 
 func handleUserUpdate(cmd *cobra.Command, userID string, args []string) {
+	if len(args) < 1 {
+		logUsageCmd(*cmd, usageUserUpdateAll)
+		return
+	}
+
 	if len(args) < 2 || len(args) > 3 {
 		if len(args) >= 1 {
 			switch args[0] {
@@ -243,7 +292,7 @@ func handleUserUpdate(cmd *cobra.Command, userID string, args []string) {
 				return
 			}
 		}
-		logUsageCmd(*cmd, usageUserUpdate)
+		logUsageCmd(*cmd, usageUserUpdateAll)
 		return
 	}
 
@@ -378,7 +427,7 @@ func handleUserDelete(cmd *cobra.Command, userID string, args []string) {
 }
 
 func handleUserToken(cmd *cobra.Command, username string, args []string) {
-	if len(args) != 1 {
+	if username == "" || len(args) != 1 {
 		logUsageCmd(*cmd, usageUserToken)
 		return
 	}
@@ -398,7 +447,7 @@ func handleUserToken(cmd *cobra.Command, username string, args []string) {
 }
 
 func handleUserRefreshToken(cmd *cobra.Command, refreshToken string, args []string) {
-	if len(args) != 0 {
+	if refreshToken == "" || len(args) != 0 {
 		logUsageCmd(*cmd, usageUserRefreshToken)
 		return
 	}
@@ -413,7 +462,7 @@ func handleUserRefreshToken(cmd *cobra.Command, refreshToken string, args []stri
 }
 
 func handleUserProfile(cmd *cobra.Command, token string, args []string) {
-	if len(args) != 0 {
+	if token == "" || len(args) != 0 {
 		logUsageCmd(*cmd, usageUserProfile)
 		return
 	}
@@ -428,7 +477,7 @@ func handleUserProfile(cmd *cobra.Command, token string, args []string) {
 }
 
 func handleUserResetPasswordRequest(cmd *cobra.Command, email string, args []string) {
-	if len(args) != 0 {
+	if email == "" || len(args) != 0 {
 		logUsageCmd(*cmd, usageUserResetPasswordReq)
 		return
 	}
@@ -442,7 +491,7 @@ func handleUserResetPasswordRequest(cmd *cobra.Command, email string, args []str
 }
 
 func handleUserResetPassword(cmd *cobra.Command, password string, args []string) {
-	if len(args) != 2 {
+	if password == "" || len(args) != 2 {
 		logUsageCmd(*cmd, usageUserResetPassword)
 		return
 	}
@@ -456,7 +505,7 @@ func handleUserResetPassword(cmd *cobra.Command, password string, args []string)
 }
 
 func handleUserPassword(cmd *cobra.Command, oldPassword string, args []string) {
-	if len(args) != 2 {
+	if oldPassword == "" || len(args) != 2 {
 		logUsageCmd(*cmd, usageUserPassword)
 		return
 	}
@@ -471,7 +520,7 @@ func handleUserPassword(cmd *cobra.Command, oldPassword string, args []string) {
 }
 
 func handleUserSearch(cmd *cobra.Command, query string, args []string) {
-	if len(args) != 1 {
+	if query == "" || len(args) != 1 {
 		logUsageCmd(*cmd, usageUserSearch)
 		return
 	}

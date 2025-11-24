@@ -49,8 +49,8 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group successfully",
 			args: []string{
-				groupJson,
 				createCmd,
+				groupJson,
 				domainID,
 				token,
 			},
@@ -60,8 +60,8 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group with invalid args",
 			args: []string{
-				groupJson,
 				createCmd,
+				groupJson,
 				domainID,
 				token,
 				extraArg,
@@ -71,8 +71,8 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group with invalid json",
 			args: []string{
-				"{\"name\":\"testgroup\", \"metadata\":{\"key1\":\"value1\"}",
 				createCmd,
+				"{\"name\":\"testgroup\", \"metadata\":{\"key1\":\"value1\"}",
 				domainID,
 				token,
 			},
@@ -83,8 +83,8 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group with invalid token",
 			args: []string{
-				groupJson,
 				createCmd,
+				groupJson,
 				domainID,
 				invalidToken,
 			},
@@ -95,8 +95,8 @@ func TestCreateGroupCmd(t *testing.T) {
 		{
 			desc: "create group with invalid domain",
 			args: []string{
-				groupJson,
 				createCmd,
+				groupJson,
 				domainID,
 				token,
 			},
@@ -117,7 +117,7 @@ func TestCreateGroupCmd(t *testing.T) {
 				assert.Nil(t, err)
 				assert.Equal(t, tc.group, gp, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.group, gp))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, "cli groups create"), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			}

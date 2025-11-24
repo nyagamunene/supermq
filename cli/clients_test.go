@@ -60,8 +60,8 @@ func TestCreateClientsCmd(t *testing.T) {
 		{
 			desc: "create client successfully with token",
 			args: []string{
-				clientJson,
 				createCmd,
+				clientJson,
 				domainID,
 				token,
 			},
@@ -71,8 +71,8 @@ func TestCreateClientsCmd(t *testing.T) {
 		{
 			desc: "create client without token",
 			args: []string{
-				clientJson,
 				createCmd,
+				clientJson,
 				domainID,
 			},
 			logType: usageLog,
@@ -80,8 +80,8 @@ func TestCreateClientsCmd(t *testing.T) {
 		{
 			desc: "create client with invalid token",
 			args: []string{
-				clientJson,
 				createCmd,
+				clientJson,
 				domainID,
 				invalidToken,
 			},
@@ -92,8 +92,8 @@ func TestCreateClientsCmd(t *testing.T) {
 		{
 			desc: "failed to create client",
 			args: []string{
-				clientJson,
 				createCmd,
+				clientJson,
 				domainID,
 				token,
 			},
@@ -104,8 +104,8 @@ func TestCreateClientsCmd(t *testing.T) {
 		{
 			desc: "create client with invalid metadata",
 			args: []string{
-				"{\"name\":\"testclient\", \"metadata\":{\"key1\":value1}}",
 				createCmd,
+				"{\"name\":\"testclient\", \"metadata\":{\"key1\":value1}}",
 				domainID,
 				token,
 			},
@@ -131,7 +131,7 @@ func TestCreateClientsCmd(t *testing.T) {
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, "cli clients create"), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
 			}
 
 			if sdkCall != nil {

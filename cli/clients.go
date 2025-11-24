@@ -21,7 +21,7 @@ const (
 	secret     = "secret"
 
 	// Usage strings for client operations.
-	usageClientCreate       = "cli clients <client_id> create <JSON_client> <domain_id> <user_auth_token>"
+	usageClientCreate       = "cli clients create <JSON_client> <domain_id> <user_auth_token>"
 	usageClientGet          = "cli clients <client_id|all> get <domain_id> <user_auth_token>"
 	usageClientDelete       = "cli clients <client_id> delete <domain_id> <user_auth_token>"
 	usageClientUpdate       = "cli clients <client_id> update <JSON_string> <domain_id> <user_auth_token>"
@@ -53,24 +53,38 @@ const (
 
 func NewClientsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "clients <client_id_or_all> <operation> [args...]",
+		Use:   "clients <client_id|all|create> [operation] [args...]",
 		Short: "Clients management",
-		Long: `Format: <client_id|all> <operation> [additional_args...]
+		Long: `Format: 
+  clients create [args...]
+  clients <client_id|all> <operation> [args...]
+
+Operations (require client_id/all): get, update, delete, enable, disable, connect, disconnect, users, roles
 
 Examples:
-  clients all get <domain_id> <user_auth_token>                           							# Get all entities
-  clients <client_id> get <domain_id> <user_auth_token>                   							# Get specific entity
-  clients <client_id> create <JSON_client> <domain_id> <user_auth_token>  							# Create entity
-  clients <client_id> update <JSON_string> <domain_id> <user_auth_token>  							# Update entity
-  clients <client_id> delete <domain_id> <user_auth_token>                							# Delete entity
-  clients <client_id> enable <domain_id> <user_auth_token>                							# Enable entity
-  clients <client_id> disable <domain_id> <user_auth_token>               							# Disable entity
-  clients <client_id> connect <channel_id> <conn_types_json_list> <domain_id> <user_auth_token>  	# Connect entity
-  clients <client_id> users <domain_id> <user_auth_token>                 							# List entity users`,
+  clients create <JSON_client> <domain_id> <user_auth_token>
+  clients all get <domain_id> <user_auth_token>
+  clients <client_id> get <domain_id> <user_auth_token>
+  clients <client_id> update <JSON_string> <domain_id> <user_auth_token>
+  clients <client_id> delete <domain_id> <user_auth_token>
+  clients <client_id> enable <domain_id> <user_auth_token>
+  clients <client_id> disable <domain_id> <user_auth_token>
+  clients <client_id> connect <channel_id> <conn_types_json_list> <domain_id> <user_auth_token>
+  clients <client_id> users <domain_id> <user_auth_token>`,
 
 		Run: func(cmd *cobra.Command, args []string) {
-			if len(args) < 2 {
+			if len(args) == 0 {
 				logUsageCmd(*cmd, cmd.Use)
+				return
+			}
+			
+		if args[0] == create {
+			handleClientCreate(cmd, args[1:])
+			return
+		}
+
+		if len(args) < 2 {
+				logUsageCmd(*cmd, "clients <client_id|all> <get|update|delete|enable|disable|connect|disconnect|users|roles> [args...]")
 				return
 			}
 
@@ -79,8 +93,6 @@ Examples:
 			opArgs := args[2:]
 
 			switch operation {
-			case create:
-				handleClientCreate(cmd, clientParams, opArgs)
 			case get:
 				handleClientGet(cmd, clientParams, opArgs)
 			case update:
@@ -108,20 +120,20 @@ Examples:
 	return cmd
 }
 
-func handleClientCreate(cmd *cobra.Command, clientParams string, args []string) {
-	if len(args) != 2 {
+func handleClientCreate(cmd *cobra.Command, args []string) {
+	if len(args) != 3 {
 		logUsageCmd(*cmd, usageClientCreate)
 		return
 	}
 
 	var client smqsdk.Client
-	if err := json.Unmarshal([]byte(clientParams), &client); err != nil {
+	if err := json.Unmarshal([]byte(args[0]), &client); err != nil {
 		logErrorCmd(*cmd, err)
 		return
 	}
 
 	client.Status = clients.EnabledStatus.String()
-	client, err := sdk.CreateClient(cmd.Context(), client, args[0], args[1])
+	client, err := sdk.CreateClient(cmd.Context(), client, args[1], args[2])
 	if err != nil {
 		logErrorCmd(*cmd, err)
 		return

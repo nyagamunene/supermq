@@ -25,6 +25,7 @@ var user = mgsdk.User{
 	ID:        testsutil.GenerateUUID(&testing.T{}),
 	FirstName: "testuserfirstname",
 	LastName:  "testuserfirstname",
+	Email:     "testuser@example.com",
 	Credentials: mgsdk.Credentials{
 		Secret:   "testpassword",
 		Username: "testusername",
@@ -246,7 +247,7 @@ func TestGetUsersCmd(t *testing.T) {
 				validToken,
 				extraArg,
 			},
-			errLogMessage: rootCmd.Use,
+			errLogMessage: "cli users <user_id|all> get <user_auth_token>",
 			logType:       usageLog,
 		},
 		{
@@ -261,12 +262,23 @@ func TestGetUsersCmd(t *testing.T) {
 			user:          mgsdk.User{},
 			logType:       errLog,
 		},
+		{
+			desc: "get user without operation",
+			args: []string{
+				userID,
+			},
+			errLogMessage: "users <user_id|all> <get|update|enable|disable|delete> [args...]",
+			logType:       usageLog,
+		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
 			sdkCall := sdkMock.On("Users", mock.Anything, mock.Anything, mock.Anything).Return(tc.page, tc.sdkErr)
-			sdkCall1 := sdkMock.On("User", mock.Anything, tc.args[0], tc.args[2]).Return(tc.user, tc.sdkErr)
+			var sdkCall1 *mock.Call
+			if len(tc.args) >= 3 {
+				sdkCall1 = sdkMock.On("User", mock.Anything, tc.args[0], tc.args[2]).Return(tc.user, tc.sdkErr)
+			}
 
 			out = executeCommand(t, rootCmd, tc.args...)
 
@@ -289,7 +301,7 @@ func TestGetUsersCmd(t *testing.T) {
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, tc.errLogMessage), fmt.Sprintf("%s invalid usage: expected to contain %s, got: %s", tc.desc, tc.errLogMessage, out))
 			}
 
 			if tc.logType == entityLog {
@@ -301,7 +313,9 @@ func TestGetUsersCmd(t *testing.T) {
 			}
 
 			sdkCall.Unset()
-			sdkCall1.Unset()
+			if sdkCall1 != nil {
+				sdkCall1.Unset()
+			}
 		})
 	}
 }
@@ -313,7 +327,7 @@ func TestIssueTokenCmd(t *testing.T) {
 	rootCmd := setFlags(usersCmd)
 
 	var tkn mgsdk.Token
-	invalidPassword := ""
+	invalidPassword := "wrong_password"
 
 	token := mgsdk.Token{
 		AccessToken:  testsutil.GenerateUUID(t),
@@ -359,18 +373,38 @@ func TestIssueTokenCmd(t *testing.T) {
 				user.Credentials.Secret,
 				extraArg,
 			},
-			errLogMessage: rootCmd.Use,
+			errLogMessage: "cli users token <username> <password>",
+			logType:       usageLog,
+		},
+		{
+			desc: "issue token with missing password",
+			args: []string{
+				tokCmd,
+				user.Email,
+			},
+			errLogMessage: "cli users token <username> <password>",
+			logType:       usageLog,
+		},
+		{
+			desc: "issue token with missing username",
+			args: []string{
+				tokCmd,
+			},
+			errLogMessage: "cli users token <username> <password>",
 			logType:       usageLog,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			lg := mgsdk.Login{
-				Username: tc.args[1],
-				Password: tc.args[2],
+			var sdkCall *mock.Call
+			if len(tc.args) >= 3 {
+				lg := mgsdk.Login{
+					Username: tc.args[1],
+					Password: tc.args[2],
+				}
+				sdkCall = sdkMock.On("CreateToken", mock.Anything, lg).Return(tc.token, tc.sdkErr)
 			}
-			sdkCall := sdkMock.On("CreateToken", mock.Anything, lg).Return(tc.token, tc.sdkErr)
 
 			out := executeCommand(t, rootCmd, tc.args...)
 
@@ -382,10 +416,12 @@ func TestIssueTokenCmd(t *testing.T) {
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, tc.errLogMessage), fmt.Sprintf("%s invalid usage: expected to contain %s, got: %s", tc.desc, tc.errLogMessage, out))
 			}
 
-			sdkCall.Unset()
+			if sdkCall != nil {
+				sdkCall.Unset()
+			}
 		})
 	}
 }
@@ -626,8 +662,23 @@ func TestUpdateUserCmd(t *testing.T) {
 				validToken,
 				extraArg,
 			},
-			errLogMessage: rootCmd.Use,
+			errLogMessage: "cli users <user_id> update role <role> <user_auth_token>",
 			logType:       usageLog,
+		},
+		{
+			desc: "update user without specifying what to update",
+			args: []string{
+				userID,
+				updateCmd,
+			},
+			errLogMessage: `cli users <user_id> update <JSON_string|tags|username|email|role> [args...]
+Available update options:
+  cli users <user_id> update <JSON_string> <user_auth_token>
+  cli users <user_id> update tags <tags> <user_auth_token>
+  cli users <user_id> update username <username> <user_auth_token>
+  cli users <user_id> update email <email> <user_auth_token>
+  cli users <user_id> update role <role> <user_auth_token>`,
+			logType: usageLog,
 		},
 	}
 
@@ -638,19 +689,19 @@ func TestUpdateUserCmd(t *testing.T) {
 			sdkCall2 := sdkMock.On("UpdateUserIdentity", mock.Anything, mock.Anything, mock.Anything).Return(tc.user, tc.sdkErr)
 			sdkCall3 := sdkMock.On("UpdateUserRole", mock.Anything, mock.Anything, mock.Anything).Return(tc.user, tc.sdkErr)
 			switch {
-			case tc.args[2] == tagUpdateType:
+			case len(tc.args) > 2 && tc.args[2] == tagUpdateType:
 				var u mgsdk.User
 				u.Tags = []string{"tag1", "tag2"}
 				u.ID = tc.args[0]
 
 				sdkCall1 = sdkMock.On("UpdateUserTags", mock.Anything, u, tc.args[4]).Return(tc.user, tc.sdkErr)
-			case tc.args[2] == emailUpdateType:
+			case len(tc.args) > 2 && tc.args[2] == emailUpdateType:
 				var u mgsdk.User
 				u.Email = tc.args[3]
 				u.ID = tc.args[0]
 
 				sdkCall2 = sdkMock.On("UpdateUserEmail", mock.Anything, u, tc.args[4]).Return(tc.user, tc.sdkErr)
-			case tc.args[2] == roleUpdateType && len(tc.args) >= 5:
+			case len(tc.args) > 2 && tc.args[2] == roleUpdateType && len(tc.args) >= 5:
 				sdkCall3 = sdkMock.On("UpdateUserRole", mock.Anything, mgsdk.User{
 					Role: tc.args[3],
 				}, tc.args[4]).Return(tc.user, tc.sdkErr)
@@ -672,7 +723,7 @@ func TestUpdateUserCmd(t *testing.T) {
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, tc.errLogMessage), fmt.Sprintf("%s invalid usage: expected to contain %s, got: %s", tc.desc, tc.errLogMessage, out))
 			}
 
 			sdkCall.Unset()
@@ -715,37 +766,50 @@ func TestGetUserProfileCmd(t *testing.T) {
 				validToken,
 				extraArg,
 			},
-			errLogMessage: rootCmd.Use,
+			errLogMessage: "cli users profile <user_auth_token>",
 			logType:       usageLog,
 		},
 		{
 			desc: "get user profile with invalid token",
 			args: []string{
 				profCmd,
-				invalidToken,
+				"invalid_token_string",
 			},
 			logType:       errLog,
 			sdkErr:        errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden),
 			errLogMessage: fmt.Sprintf("\nerror: %s\n\n", errors.NewSDKErrorWithStatus(svcerr.ErrAuthorization, http.StatusForbidden)),
 		},
+		{
+			desc: "get user profile with missing token",
+			args: []string{
+				profCmd,
+			},
+			errLogMessage: "cli users profile <user_auth_token>",
+			logType:       usageLog,
+		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			sdkCall := sdkMock.On("UserProfile", mock.Anything, tc.args[1]).Return(tc.user, tc.sdkErr)
+			var sdkCall *mock.Call
+			if len(tc.args) >= 2 {
+				sdkCall = sdkMock.On("UserProfile", mock.Anything, tc.args[1]).Return(tc.user, tc.sdkErr)
+			}
 			out := executeCommand(t, rootCmd, tc.args...)
 
 			switch tc.logType {
 			case errLog:
 				assert.Equal(t, tc.errLogMessage, out, fmt.Sprintf("%s unexpected error response: expected %s got errLogMessage:%s", tc.desc, tc.errLogMessage, out))
 			case usageLog:
-				assert.False(t, strings.Contains(out, rootCmd.Use), fmt.Sprintf("%s invalid usage: %s", tc.desc, out))
+				assert.True(t, strings.Contains(out, tc.errLogMessage), fmt.Sprintf("%s invalid usage: expected to contain %s, got: %s", tc.desc, tc.errLogMessage, out))
 			case entityLog:
 				err := json.Unmarshal([]byte(out), &usr)
 				assert.Nil(t, err)
 				assert.Equal(t, tc.user, usr, fmt.Sprintf("%s unexpected response: expected: %v, got: %v", tc.desc, tc.user, usr))
 			}
-			sdkCall.Unset()
+			if sdkCall != nil {
+				sdkCall.Unset()
+			}
 		})
 	}
 }
