@@ -94,53 +94,53 @@ Examples:
 				handleVerify(cmd, args[1])
 				return
 			case token:
-				if len(args) < 2 {
-					handleUserToken(cmd, "", []string{})
-				} else {
-					handleUserToken(cmd, args[1], args[2:])
+				if len(args) < 3 {
+					logUsageCmd(*cmd, usageUserToken)
+					return
 				}
+				handleUserToken(cmd, args[1], args[2:])
 				return
 			case refreshtoken:
 				if len(args) < 2 {
-					handleUserRefreshToken(cmd, "", []string{})
-				} else {
-					handleUserRefreshToken(cmd, args[1], args[2:])
+					logUsageCmd(*cmd, usageUserRefreshToken)
+					return
 				}
+				handleUserRefreshToken(cmd, args[1], args[2:])
 				return
 			case profile:
 				if len(args) < 2 {
-					handleUserProfile(cmd, "", []string{})
-				} else {
-					handleUserProfile(cmd, args[1], args[2:])
+					logUsageCmd(*cmd, usageUserProfile)
+					return
 				}
+				handleUserProfile(cmd, args[1], args[2:])
 				return
 			case resetpasswordrequest:
 				if len(args) < 2 {
-					handleUserResetPasswordRequest(cmd, "", []string{})
-				} else {
-					handleUserResetPasswordRequest(cmd, args[1], args[2:])
+					logUsageCmd(*cmd, usageUserResetPasswordReq)
+					return
 				}
+				handleUserResetPasswordRequest(cmd, args[1], args[2:])
 				return
 			case resetpassword:
-				if len(args) < 2 {
-					handleUserResetPassword(cmd, "", []string{})
-				} else {
-					handleUserResetPassword(cmd, args[1], args[2:])
+				if len(args) < 4 {
+					logUsageCmd(*cmd, usageUserResetPassword)
+					return
 				}
+				handleUserResetPassword(cmd, args[1], args[2:])
 				return
 			case password:
-				if len(args) < 2 {
-					handleUserPassword(cmd, "", []string{})
-				} else {
-					handleUserPassword(cmd, args[1], args[2:])
+				if len(args) < 4 {
+					logUsageCmd(*cmd, usageUserPassword)
+					return
 				}
+				handleUserPassword(cmd, args[1], args[2:])
 				return
 			case search:
-				if len(args) < 2 {
-					handleUserSearch(cmd, "", []string{})
-				} else {
-					handleUserSearch(cmd, args[1], args[2:])
+				if len(args) < 3 {
+					logUsageCmd(*cmd, usageUserSearch)
+					return
 				}
+				handleUserSearch(cmd, args[1], args[2:])
 				return
 			}
 
@@ -427,7 +427,7 @@ func handleUserDelete(cmd *cobra.Command, userID string, args []string) {
 }
 
 func handleUserToken(cmd *cobra.Command, username string, args []string) {
-	if username == "" || len(args) != 1 {
+	if len(args) != 1 {
 		logUsageCmd(*cmd, usageUserToken)
 		return
 	}
@@ -447,7 +447,7 @@ func handleUserToken(cmd *cobra.Command, username string, args []string) {
 }
 
 func handleUserRefreshToken(cmd *cobra.Command, refreshToken string, args []string) {
-	if refreshToken == "" || len(args) != 0 {
+	if len(args) != 0 {
 		logUsageCmd(*cmd, usageUserRefreshToken)
 		return
 	}
@@ -462,7 +462,7 @@ func handleUserRefreshToken(cmd *cobra.Command, refreshToken string, args []stri
 }
 
 func handleUserProfile(cmd *cobra.Command, token string, args []string) {
-	if token == "" || len(args) != 0 {
+	if len(args) != 0 {
 		logUsageCmd(*cmd, usageUserProfile)
 		return
 	}
@@ -477,7 +477,7 @@ func handleUserProfile(cmd *cobra.Command, token string, args []string) {
 }
 
 func handleUserResetPasswordRequest(cmd *cobra.Command, email string, args []string) {
-	if email == "" || len(args) != 0 {
+	if len(args) != 0 {
 		logUsageCmd(*cmd, usageUserResetPasswordReq)
 		return
 	}
@@ -491,7 +491,7 @@ func handleUserResetPasswordRequest(cmd *cobra.Command, email string, args []str
 }
 
 func handleUserResetPassword(cmd *cobra.Command, password string, args []string) {
-	if password == "" || len(args) != 2 {
+	if len(args) != 2 {
 		logUsageCmd(*cmd, usageUserResetPassword)
 		return
 	}
@@ -505,7 +505,7 @@ func handleUserResetPassword(cmd *cobra.Command, password string, args []string)
 }
 
 func handleUserPassword(cmd *cobra.Command, oldPassword string, args []string) {
-	if oldPassword == "" || len(args) != 2 {
+	if len(args) != 2 {
 		logUsageCmd(*cmd, usageUserPassword)
 		return
 	}
@@ -520,7 +520,7 @@ func handleUserPassword(cmd *cobra.Command, oldPassword string, args []string) {
 }
 
 func handleUserSearch(cmd *cobra.Command, query string, args []string) {
-	if query == "" || len(args) != 1 {
+	if len(args) != 1 {
 		logUsageCmd(*cmd, usageUserSearch)
 		return
 	}
