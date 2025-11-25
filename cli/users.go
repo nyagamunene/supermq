@@ -16,10 +16,10 @@ import (
 
 const (
 	token                = "token"
-	refreshtoken         = "refreshtoken"
+	refreshToken         = "refreshtoken"
 	profile              = "profile"
-	resetpasswordrequest = "resetpasswordrequest"
-	resetpassword        = "resetpassword"
+	resetPasswordRequest = "resetpasswordrequest"
+	resetPassword        = "resetpassword"
 	password             = "password"
 	search               = "search"
 	username             = "username"
@@ -51,14 +51,16 @@ Available update options:
 	usageUserDisable          = "cli users <user_id> disable <user_auth_token>"
 	usageUserDelete           = "cli users <user_id> delete <user_auth_token>"
 	usageUserSearch           = "cli users search <query> <user_auth_token>"
+	usageUserSendVerification = "cli users sendverification <user_auth_token>"
+	usageUserVerifyEmail      = "cli users verifyemail <verification_token>"
 )
 
 func NewUsersCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "users <user_id|all|create|token|refreshtoken|profile|resetpasswordrequest|resetpassword|password|search> [operation] [args...]",
+		Use:   "users <user_id|all|create|token|refreshtoken|profile|resetpasswordrequest|resetpassword|password|search|sendverification|verifyemail> [operation] [args...]",
 		Short: "Users management",
 		Long: `Format: 
-  users <create|token|refreshtoken|profile|resetpasswordrequest|resetpassword|password|search> [args...]
+  users <create|token|refreshtoken|profile|resetpasswordrequest|resetpassword|password|search|sendverification|verifyemail> [args...]
   users <user_id|all> <operation> [args...]
 
 Operations (require user_id/all): get, update, enable, disable, delete
@@ -66,6 +68,14 @@ Operations (require user_id/all): get, update, enable, disable, delete
 Examples:
   users create <first_name> <last_name> <email> <username> <password> [user_auth_token]
   users token <username> <password>
+  users refreshtoken <refresh_token>
+  users profile <user_auth_token>
+  users resetpasswordrequest <email>
+  users resetpassword <password> <confpass> <password_request_token>
+  users password <old_password> <new_password> <user_auth_token>
+  users search <query> <user_auth_token>
+  users sendverification <user_auth_token>
+  users verifyemail <verification_token>
   users all get <user_auth_token>
   users <user_id> get <user_auth_token>
   users <user_id> update <JSON_string> <user_auth_token>
@@ -74,33 +84,44 @@ Examples:
   users <user_id> update email <email> <user_auth_token>
   users <user_id> enable <user_auth_token>
   users <user_id> disable <user_auth_token>
-  users <user_id> delete <user_auth_token>
-  users profile <user_auth_token>
-  users search <query> <user_auth_token>`,
+  users <user_id> delete <user_auth_token>`,
 
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
 				logUsageCmd(*cmd, cmd.Use)
 				return
 			}
+
 			switch args[0] {
 			case create:
 				handleUserCreate(cmd, args[1:])
 				return
 			case sendVerification:
+				if len(args) < 2 {
+					logUsageCmd(*cmd, usageUserSendVerification)
+					return
+				}
 				handleSendVerification(cmd, args[1])
 				return
 			case verifyEmail:
+				if len(args) < 2 {
+					logUsageCmd(*cmd, usageUserVerifyEmail)
+					return
+				}
 				handleVerify(cmd, args[1])
 				return
 			case token:
+				if len(args) < 2 {
+					logUsageCmd(*cmd, usageUserToken)
+					return
+				}
 				if len(args) < 3 {
 					logUsageCmd(*cmd, usageUserToken)
 					return
 				}
 				handleUserToken(cmd, args[1], args[2:])
 				return
-			case refreshtoken:
+			case refreshToken:
 				if len(args) < 2 {
 					logUsageCmd(*cmd, usageUserRefreshToken)
 					return
@@ -114,14 +135,18 @@ Examples:
 				}
 				handleUserProfile(cmd, args[1], args[2:])
 				return
-			case resetpasswordrequest:
+			case resetPasswordRequest:
 				if len(args) < 2 {
 					logUsageCmd(*cmd, usageUserResetPasswordReq)
 					return
 				}
 				handleUserResetPasswordRequest(cmd, args[1], args[2:])
 				return
-			case resetpassword:
+			case resetPassword:
+				if len(args) < 2 {
+					logUsageCmd(*cmd, usageUserResetPassword)
+					return
+				}
 				if len(args) < 4 {
 					logUsageCmd(*cmd, usageUserResetPassword)
 					return
@@ -129,6 +154,10 @@ Examples:
 				handleUserResetPassword(cmd, args[1], args[2:])
 				return
 			case password:
+				if len(args) < 2 {
+					logUsageCmd(*cmd, usageUserPassword)
+					return
+				}
 				if len(args) < 4 {
 					logUsageCmd(*cmd, usageUserPassword)
 					return
@@ -136,6 +165,10 @@ Examples:
 				handleUserPassword(cmd, args[1], args[2:])
 				return
 			case search:
+				if len(args) < 2 {
+					logUsageCmd(*cmd, usageUserSearch)
+					return
+				}
 				if len(args) < 3 {
 					logUsageCmd(*cmd, usageUserSearch)
 					return
