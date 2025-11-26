@@ -23,10 +23,26 @@ func TestHealth(t *testing.T) {
 	httpAdapterTs, _ := setupMessages(t)
 	defer httpAdapterTs.Close()
 
+	groupsTs, _, _ := setupGroups()
+	defer groupsTs.Close()
+
+	channelsTs, _, _ := setupChannels()
+	defer channelsTs.Close()
+
+	domainsTs, _, _ := setupDomains()
+	defer domainsTs.Close()
+
+	journalTs, _, _ := setupJournal()
+	defer journalTs.Close()
+
 	sdkConf := sdk.Config{
 		ClientsURL:      clientsTs.URL,
 		UsersURL:        usersTs.URL,
 		HTTPAdapterURL:  httpAdapterTs.URL,
+		GroupsURL:       groupsTs.URL,
+		ChannelsURL:     channelsTs.URL,
+		DomainsURL:      domainsTs.URL,
+		JournalURL:      journalTs.URL,
 		MsgContentType:  contentType,
 		TLSVerification: false,
 	}
@@ -62,6 +78,38 @@ func TestHealth(t *testing.T) {
 			empty:       false,
 			err:         nil,
 			description: "http service",
+			status:      "pass",
+		},
+		{
+			desc:        "get groups service health check",
+			service:     "groups",
+			empty:       false,
+			err:         nil,
+			description: "groups service",
+			status:      "pass",
+		},
+		{
+			desc:        "get channels service health check",
+			service:     "channels",
+			empty:       false,
+			err:         nil,
+			description: "channels service",
+			status:      "pass",
+		},
+		{
+			desc:        "get domains service health check",
+			service:     "domains",
+			empty:       false,
+			err:         nil,
+			description: "domains service",
+			status:      "pass",
+		},
+		{
+			desc:        "get journal service health check",
+			service:     "journal",
+			empty:       false,
+			err:         nil,
+			description: "journal-log service",
 			status:      "pass",
 		},
 	}

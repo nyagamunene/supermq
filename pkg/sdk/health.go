@@ -40,6 +40,14 @@ func (sdk mgSDK) Health(service string) (HealthInfo, errors.SDKError) {
 		url = fmt.Sprintf("%s/health", sdk.certsURL)
 	case "http-adapter":
 		url = fmt.Sprintf("%s/health", sdk.httpAdapterURL)
+	case "groups":
+		url = fmt.Sprintf("%s/health", sdk.groupsURL)
+	case "channels":
+		url = fmt.Sprintf("%s/health", sdk.channelsURL)
+	case "domains":
+		url = fmt.Sprintf("%s/health", sdk.domainsURL)
+	case "journal":
+		url = fmt.Sprintf("%s/health", sdk.journalURL)
 	}
 
 	resp, err := sdk.client.Get(url)
