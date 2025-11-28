@@ -50,7 +50,7 @@ Available update options:
 	usageUserEnable           = "cli users <user_id> enable <user_auth_token>"
 	usageUserDisable          = "cli users <user_id> disable <user_auth_token>"
 	usageUserDelete           = "cli users <user_id> delete <user_auth_token>"
-	usageUserSearch           = "cli users search <query> <user_auth_token>"
+	usageUserSearch           = "cli users search <query> <user_auth_token>\nQuery format: username=<value>|firstname=<value>|lastname=<value>|id=<value>[&offset=<value>][&limit=<value>]\nExample: cli users search \"username=john_doe\" <user_auth_token>"
 	usageUserSendVerification = "cli users sendverification <user_auth_token>"
 	usageUserVerifyEmail      = "cli users verifyemail <verification_token>"
 )
@@ -73,7 +73,8 @@ Examples:
   users resetpasswordrequest <email>
   users resetpassword <password> <confpass> <password_request_token>
   users password <old_password> <new_password> <user_auth_token>
-  users search <query> <user_auth_token>
+  users search "username=john_doe" <user_auth_token>
+  users search "firstname=john&limit=10" <user_auth_token>
   users sendverification <user_auth_token>
   users verifyemail <verification_token>
   users all get <user_auth_token>
@@ -565,10 +566,12 @@ func handleUserSearch(cmd *cobra.Command, query string, args []string) {
 	}
 
 	pm := smqsdk.PageMetadata{
-		Offset: Offset,
-		Limit:  Limit,
-		Name:   values.Get("name"),
-		ID:     values.Get("id"),
+		Offset:    Offset,
+		Limit:     Limit,
+		ID:        values.Get("id"),
+		Username:  values.Get("username"),
+		FirstName: values.Get("firstname"),
+		LastName:  values.Get("lastname"),
 	}
 
 	if off, err := strconv.Atoi(values.Get("offset")); err == nil {
