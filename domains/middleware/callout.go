@@ -104,7 +104,7 @@ func (cm *calloutMiddleware) ListDomains(ctx context.Context, session authn.Sess
 	return cm.svc.ListDomains(ctx, session, page)
 }
 
-func (cm *calloutMiddleware) SendInvitation(ctx context.Context, session authn.Session, invitation domains.Invitation) (err error) {
+func (cm *calloutMiddleware) SendInvitation(ctx context.Context, session authn.Session, invitation domains.Invitation) (domains.Invitation, error) {
 	params := map[string]any{
 		"invitation": invitation,
 	}
@@ -112,7 +112,7 @@ func (cm *calloutMiddleware) SendInvitation(ctx context.Context, session authn.S
 	// While entity here is technically an invitation, Domain is used as
 	// the entity in callout since the invitation refers to the domain.
 	if err := cm.callOut(ctx, session, domains.OpSendInvitation.String(domains.OperationNames), invitation.DomainID, params); err != nil {
-		return err
+		return domains.Invitation{}, err
 	}
 
 	return cm.svc.SendInvitation(ctx, session, invitation)
@@ -152,11 +152,11 @@ func (cm *calloutMiddleware) AcceptInvitation(ctx context.Context, session authn
 	return cm.svc.AcceptInvitation(ctx, session, domainID)
 }
 
-func (cm *calloutMiddleware) RejectInvitation(ctx context.Context, session authn.Session, domainID string) error {
+func (cm *calloutMiddleware) RejectInvitation(ctx context.Context, session authn.Session, domainID string) (domains.Invitation, error) {
 	// Similar to sending and accepting, Domain is used as
 	// the entity in callout since the invitation refers to the domain.
 	if err := cm.callOut(ctx, session, domains.OpRejectInvitation.String(domains.OperationNames), domainID, nil); err != nil {
-		return err
+		return domains.Invitation{}, err
 	}
 
 	return cm.svc.RejectInvitation(ctx, session, domainID)

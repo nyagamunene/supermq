@@ -172,7 +172,7 @@ func (am *authorizationMiddleware) AcceptInvitation(ctx context.Context, session
 	return am.svc.AcceptInvitation(ctx, session, domainID)
 }
 
-func (am *authorizationMiddleware) RejectInvitation(ctx context.Context, session authn.Session, domainID string) (err error) {
+func (am *authorizationMiddleware) RejectInvitation(ctx context.Context, session authn.Session, domainID string) (domains.Invitation, error) {
 	return am.svc.RejectInvitation(ctx, session, domainID)
 }
 
