@@ -41,17 +41,14 @@ func NewAuthentication(ctx context.Context, cfg grpcclient.Config) (authn.Authen
 }
 
 func (a authentication) Authenticate(ctx context.Context, token string) (authn.Session, error) {
-	if strings.HasPrefix(token, patPrefix) {
-		res, err := a.authSvcClient.AuthenticatePAT(ctx, &grpcAuthV1.AuthNReq{Token: token})
-		if err != nil {
-			return authn.Session{}, errors.Wrap(errors.ErrAuthentication, err)
-		}
-
-		return authn.Session{Type: authn.PersonalAccessToken, PatID: res.GetId(), UserID: res.GetUserId(), Role: authn.Role(res.GetUserRole())}, nil
-	}
 	res, err := a.authSvcClient.Authenticate(ctx, &grpcAuthV1.AuthNReq{Token: token})
 	if err != nil {
 		return authn.Session{}, errors.Wrap(errors.ErrAuthentication, err)
+	}
+
+	// Check if this is a PAT token based on the token prefix
+	if strings.HasPrefix(token, patPrefix) {
+		return authn.Session{Type: authn.PersonalAccessToken, PatID: res.GetId(), UserID: res.GetUserId(), Role: authn.Role(res.GetUserRole())}, nil
 	}
 
 	return authn.Session{Type: authn.AccessToken, UserID: res.GetUserId(), Role: authn.Role(res.GetUserRole()), Verified: res.GetVerified()}, nil

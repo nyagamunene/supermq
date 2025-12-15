@@ -24,6 +24,7 @@ func (req authenticateReq) validate() error {
 // 1. subject - an action invoker
 // 2. object - an entity over which action will be executed
 // 3. action - type of action that will be executed (read/write).
+// For PAT authorization, it also includes PAT-specific fields.
 type authReq struct {
 	Domain      string
 	SubjectType string
@@ -33,9 +34,27 @@ type authReq struct {
 	Permission  string
 	ObjectType  string
 	Object      string
+
+	// PAT authorization fields
+	UserID           string
+	PatID            string
+	EntityType       auth.EntityType
+	OptionalDomainID string
+	Operation        auth.Operation
+	EntityID         string
 }
 
 func (req authReq) validate() error {
+	if req.PatID != "" {
+		if req.UserID == "" {
+			return apiutil.ErrMissingUserID
+		}
+		if req.EntityID == "" {
+			return apiutil.ErrMissingID
+		}
+		return nil
+	}
+
 	if req.Subject == "" || req.SubjectType == "" {
 		return apiutil.ErrMissingPolicySub
 	}
@@ -48,24 +67,5 @@ func (req authReq) validate() error {
 		return apiutil.ErrMalformedPolicyPer
 	}
 
-	return nil
-}
-
-type authPATReq struct {
-	userID           string
-	patID            string
-	entityType       auth.EntityType
-	optionalDomainID string
-	operation        auth.Operation
-	entityID         string
-}
-
-func (req authPATReq) validate() error {
-	if req.userID == "" {
-		return apiutil.ErrMissingUserID
-	}
-	if req.patID == "" {
-		return apiutil.ErrMissingPATID
-	}
 	return nil
 }

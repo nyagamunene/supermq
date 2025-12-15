@@ -23,23 +23,7 @@ func authenticateEndpoint(svc auth.Service) endpoint.Endpoint {
 			return authenticateRes{}, err
 		}
 
-		return authenticateRes{userID: key.Subject, userRole: key.Role, verified: key.Verified}, nil
-	}
-}
-
-func authenticatePATEndpoint(svc auth.Service) endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		req := request.(authenticateReq)
-		if err := req.validate(); err != nil {
-			return authenticateRes{}, err
-		}
-
-		pat, err := svc.IdentifyPAT(ctx, req.token)
-		if err != nil {
-			return authenticateRes{}, err
-		}
-
-		return authenticateRes{id: pat.ID, userID: pat.User, userRole: pat.Role}, nil
+		return authenticateRes{id: key.ID, userID: key.Subject, userRole: key.Role, verified: key.Verified}, nil
 	}
 }
 
@@ -50,6 +34,15 @@ func authorizeEndpoint(svc auth.Service) endpoint.Endpoint {
 		if err := req.validate(); err != nil {
 			return authorizeRes{}, err
 		}
+
+		if req.PatID != "" {
+			err := svc.AuthorizePAT(ctx, req.UserID, req.PatID, req.EntityType, req.OptionalDomainID, req.Operation, req.EntityID)
+			if err != nil {
+				return authorizeRes{authorized: false}, err
+			}
+			return authorizeRes{authorized: true}, nil
+		}
+
 		err := svc.Authorize(ctx, policies.Policy{
 			Domain:      req.Domain,
 			SubjectType: req.SubjectType,
@@ -60,21 +53,6 @@ func authorizeEndpoint(svc auth.Service) endpoint.Endpoint {
 			ObjectType:  req.ObjectType,
 			Object:      req.Object,
 		})
-		if err != nil {
-			return authorizeRes{authorized: false}, err
-		}
-		return authorizeRes{authorized: true}, nil
-	}
-}
-
-func authorizePATEndpoint(svc auth.Service) endpoint.Endpoint {
-	return func(ctx context.Context, request any) (any, error) {
-		req := request.(authPATReq)
-
-		if err := req.validate(); err != nil {
-			return authorizeRes{}, err
-		}
-		err := svc.AuthorizePAT(ctx, req.userID, req.patID, req.entityType, req.optionalDomainID, req.operation, req.entityID)
 		if err != nil {
 			return authorizeRes{authorized: false}, err
 		}

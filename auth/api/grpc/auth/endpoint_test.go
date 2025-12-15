@@ -96,11 +96,24 @@ func TestIdentify(t *testing.T) {
 			idt:   &grpcAuthV1.AuthNRes{},
 			err:   apiutil.ErrBearerToken,
 		},
+		{
+			desc:  "authenticate user with valid PAT token",
+			token: "pat_" + validPATToken,
+			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID, UserRole: uint32(auth.UserRole)},
+			err:   nil,
+		},
+		{
+			desc:   "authenticate user with invalid PAT token",
+			token:  "pat_invalid",
+			idt:    &grpcAuthV1.AuthNRes{},
+			svcErr: svcerr.ErrAuthentication,
+			err:    svcerr.ErrAuthentication,
+		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := svc.On("Identify", mock.Anything, mock.Anything).Return(auth.Key{Subject: id, Role: auth.UserRole}, tc.svcErr)
+			svcCall := svc.On("Identify", mock.Anything, mock.Anything).Return(auth.Key{ID: id, Subject: clientID, Role: auth.UserRole}, tc.svcErr)
 			idt, err := grpcClient.Authenticate(context.Background(), &grpcAuthV1.AuthNReq{Token: tc.token})
 			if idt != nil {
 				assert.Equal(t, tc.idt, idt, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.idt, idt))
@@ -223,84 +236,10 @@ func TestAuthorize(t *testing.T) {
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
 			err:          apiutil.ErrMalformedPolicyPer,
 		},
-	}
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := svc.On("Authorize", mock.Anything, mock.Anything).Return(tc.err)
-			ar, err := grpcClient.Authorize(context.Background(), tc.authRequest)
-			if ar != nil {
-				assert.Equal(t, tc.authResponse, ar, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.authResponse, ar))
-			}
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			svcCall.Unset()
-		})
-	}
-}
-
-func TestIdentifyPAT(t *testing.T) {
-	conn, err := grpc.NewClient(authAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	assert.Nil(t, err, fmt.Sprintf("Unexpected error creating client connection %s", err))
-	defer conn.Close()
-	grpcClient := grpcapi.NewAuthClient(conn, time.Second)
-
-	cases := []struct {
-		desc   string
-		token  string
-		idt    *grpcAuthV1.AuthNRes
-		svcErr error
-		err    error
-	}{
 		{
-			desc:  "authenticate user with valid user token",
-			token: validToken,
-			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID},
-			err:   nil,
-		},
-		{
-			desc:   "authenticate user with invalid user token",
-			token:  "invalid",
-			idt:    &grpcAuthV1.AuthNRes{},
-			svcErr: svcerr.ErrAuthentication,
-			err:    svcerr.ErrAuthentication,
-		},
-		{
-			desc:  "authenticate user with empty token",
-			token: "",
-			idt:   &grpcAuthV1.AuthNRes{},
-			err:   apiutil.ErrBearerToken,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := svc.On("IdentifyPAT", mock.Anything, tc.token).Return(auth.PAT{ID: id, User: clientID, IssuedAt: time.Now()}, tc.svcErr)
-			idt, err := grpcClient.AuthenticatePAT(context.Background(), &grpcAuthV1.AuthNReq{Token: tc.token})
-			if idt != nil {
-				assert.Equal(t, tc.idt, idt, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.idt, idt))
-			}
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			svcCall.Unset()
-		})
-	}
-}
-
-func TestAuthorizePAT(t *testing.T) {
-	conn, err := grpc.NewClient(authAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	assert.Nil(t, err, fmt.Sprintf("Unexpected error creating client connection %s", err))
-	defer conn.Close()
-
-	grpcClient := grpcapi.NewAuthClient(conn, time.Second)
-	cases := []struct {
-		desc         string
-		token        string
-		authRequest  *grpcAuthV1.AuthZPatReq
-		authResponse *grpcAuthV1.AuthZRes
-		err          error
-	}{
-		{
-			desc:  "authorize user with authorized token",
+			desc:  "authorize user with valid PAT token",
 			token: validPATToken,
-			authRequest: &grpcAuthV1.AuthZPatReq{
+			authRequest: &grpcAuthV1.AuthZReq{
 				UserId:           id,
 				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
@@ -312,9 +251,9 @@ func TestAuthorizePAT(t *testing.T) {
 			err:          nil,
 		},
 		{
-			desc:  "authorize user with unauthorized token",
+			desc:  "authorize user with unauthorized PAT token",
 			token: inValidPATToken,
-			authRequest: &grpcAuthV1.AuthZPatReq{
+			authRequest: &grpcAuthV1.AuthZReq{
 				UserId:           id,
 				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
@@ -326,9 +265,9 @@ func TestAuthorizePAT(t *testing.T) {
 			err:          svcerr.ErrAuthorization,
 		},
 		{
-			desc:  "authorize user with missing user id",
+			desc:  "authorize PAT with missing user id",
 			token: validPATToken,
-			authRequest: &grpcAuthV1.AuthZPatReq{
+			authRequest: &grpcAuthV1.AuthZReq{
 				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
 				OptionalDomainId: domainID,
@@ -339,36 +278,46 @@ func TestAuthorizePAT(t *testing.T) {
 			err:          apiutil.ErrMissingUserID,
 		},
 		{
-			desc:  "authorize user with missing pat id",
+			desc:  "authorize PAT with missing entity id",
 			token: validPATToken,
-			authRequest: &grpcAuthV1.AuthZPatReq{
+			authRequest: &grpcAuthV1.AuthZReq{
 				UserId:           id,
+				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
 				OptionalDomainId: domainID,
 				Operation:        uint32(auth.CreateOp),
-				EntityId:         clientID,
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
-			err:          apiutil.ErrMissingPATID,
+			err:          apiutil.ErrMissingID,
 		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := svc.On("AuthorizePAT",
-				mock.Anything,
-				tc.authRequest.UserId,
-				tc.authRequest.PatId,
-				mock.Anything,
-				tc.authRequest.OptionalDomainId,
-				mock.Anything,
-				mock.Anything,
-				mock.Anything).Return(tc.err)
-			ar, err := grpcClient.AuthorizePAT(context.Background(), tc.authRequest)
-			if ar != nil {
-				assert.Equal(t, tc.authResponse, ar, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.authResponse, ar))
+			if tc.authRequest.PatId != "" {
+				svcCall := svc.On("AuthorizePAT",
+					mock.Anything,
+					tc.authRequest.UserId,
+					tc.authRequest.PatId,
+					auth.EntityType(tc.authRequest.EntityType),
+					tc.authRequest.OptionalDomainId,
+					auth.Operation(tc.authRequest.Operation),
+					tc.authRequest.EntityId).Return(tc.err)
+				ar, err := grpcClient.Authorize(context.Background(), tc.authRequest)
+				if ar != nil {
+					assert.Equal(t, tc.authResponse, ar, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.authResponse, ar))
+				}
+				assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+				svcCall.Unset()
+			} else {
+				svcCall := svc.On("Authorize", mock.Anything, mock.Anything).Return(tc.err)
+				ar, err := grpcClient.Authorize(context.Background(), tc.authRequest)
+				if ar != nil {
+					assert.Equal(t, tc.authResponse, ar, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.authResponse, ar))
+				}
+				assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+				svcCall.Unset()
 			}
-			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-			svcCall.Unset()
 		})
 	}
 }
+

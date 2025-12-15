@@ -10,9 +10,7 @@ option go_package = "github.com/absmach/supermq/api/grpc/auth/v1";
 // and authorization functionalities for SuperMQ services.
 service AuthService {
   rpc Authorize(AuthZReq) returns (AuthZRes) {}
-  rpc AuthorizePAT(AuthZPatReq) returns (AuthZRes) {}
   rpc Authenticate(AuthNReq) returns (AuthNRes) {}
-  rpc AuthenticatePAT(AuthNReq) returns (AuthNRes) {}
 }
 
 
@@ -37,15 +35,14 @@ message AuthZReq {
   string permission = 7;       // Action
   string object = 8;           // Object ID
   string object_type = 9;      // Client, User, Group
-}
-
-message AuthZPatReq {
-  string user_id = 1;             // User id
-  string pat_id = 2;              // Pat id
-  uint32 entity_type = 3;         // Entity type
-  string optional_domain_id = 4;  // Optional domain id
-  uint32 operation = 6;           // Operation
-  string entity_id = 7;           // EntityID
+  
+  // Optional PAT authorization fields
+  string user_id = 10;            // User id (PAT)
+  string pat_id = 11;             // Pat id (PAT)
+  uint32 entity_type = 12;        // Entity type (PAT)
+  string optional_domain_id = 13; // Optional domain id (PAT)
+  uint32 operation = 14;          // Operation (PAT)
+  string entity_id = 15;          // EntityID (PAT)
 }
 
 message AuthZRes {

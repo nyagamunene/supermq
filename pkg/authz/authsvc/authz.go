@@ -124,7 +124,7 @@ func (a authorization) checkDomain(ctx context.Context, subjectType, subject, do
 }
 
 func (a authorization) AuthorizePAT(ctx context.Context, pr authz.PatReq) error {
-	req := grpcAuthV1.AuthZPatReq{
+	req := grpcAuthV1.AuthZReq{
 		UserId:           pr.UserID,
 		PatId:            pr.PatID,
 		EntityType:       uint32(pr.EntityType),
@@ -132,7 +132,7 @@ func (a authorization) AuthorizePAT(ctx context.Context, pr authz.PatReq) error 
 		Operation:        uint32(pr.Operation),
 		EntityId:         pr.EntityID,
 	}
-	res, err := a.authSvcClient.AuthorizePAT(ctx, &req)
+	res, err := a.authSvcClient.Authorize(ctx, &req)
 	if err != nil {
 		return errors.Wrap(errors.ErrAuthorization, err)
 	}

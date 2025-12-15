@@ -165,6 +165,13 @@ func (svc service) RetrieveKey(ctx context.Context, token, id string) (Key, erro
 }
 
 func (svc service) Identify(ctx context.Context, token string) (Key, error) {
+	if strings.HasPrefix(token, patPrefix) {
+		res, err := svc.IdentifyPAT(ctx, token)
+		if err != nil {
+			return Key{}, err
+		}
+		return Key{ID: res.ID, Type: PersonalAccessToken, Subject: res.User, Role: res.Role}, nil
+	}
 	key, err := svc.tokenizer.Parse(token)
 	if errors.Contains(err, ErrExpiry) {
 		err = svc.keys.Remove(ctx, key.Issuer, key.ID)
