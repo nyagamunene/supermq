@@ -715,7 +715,8 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 		return PAT{}, errors.Wrap(svcerr.ErrAuthentication, err)
 	}
 	role := svc.getUserRole(ctx, userID.String())
-	return PAT{ID: patID.String(), User: userID.String(), Role: role}, nil
+	pat := PAT{ID: patID.String(), User: userID.String(), Role: role}
+	return pat, nil
 }
 
 func (svc service) AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, optionalDomainID string, operation Operation, entityID string) error {

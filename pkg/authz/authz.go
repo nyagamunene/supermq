@@ -44,19 +44,17 @@ type PolicyReq struct {
 	// Permission contains the permission. Supported permissions are admin, delete, edit, share, view,
 	// membership, create, admin_only, edit_only, view_only, membership_only, ext_admin, ext_edit, ext_view.
 	Permission string `json:"permission,omitempty"`
-}
-
-type PatReq struct {
-	UserID           string          `json:"user_id,omitempty"`           // UserID
-	PatID            string          `json:"pat_id,omitempty"`            // UserID
-	EntityType       auth.EntityType `json:"entity_type,omitempty"`       // Entity type
-	OptionalDomainID string          `json:"optional_domainID,omitempty"` // Optional domain id
-	Operation        auth.Operation  `json:"operation,omitempty"`         // Operation
-	EntityID         string          `json:"entityID,omitempty"`          // EntityID
+	
+	// PAT authorization fields (optional - if PatID is set, PAT authorization is used)
+	UserID           string          `json:"user_id,omitempty"`           // UserID (for PAT)
+	PatID            string          `json:"pat_id,omitempty"`            // PAT ID (for PAT)
+	EntityType       auth.EntityType `json:"entity_type,omitempty"`       // Entity type (for PAT)
+	OptionalDomainID string          `json:"optional_domainID,omitempty"` // Optional domain id (for PAT)
+	Operation        auth.Operation  `json:"operation,omitempty"`         // Operation (for PAT)
+	EntityID         string          `json:"entityID,omitempty"`          // EntityID (for PAT)
 }
 
 // Authz is supermq authorization library.
 type Authorization interface {
 	Authorize(ctx context.Context, pr PolicyReq) error
-	AuthorizePAT(ctx context.Context, pr PatReq) error
 }

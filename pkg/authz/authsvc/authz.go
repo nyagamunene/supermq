@@ -5,6 +5,7 @@ package authsvc
 
 import (
 	"context"
+	"log/slog"
 
 	grpcAuthV1 "github.com/absmach/supermq/api/grpc/auth/v1"
 	"github.com/absmach/supermq/auth/api/grpc/auth"
@@ -47,6 +48,42 @@ func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz p
 }
 
 func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error {
+	// Check if this is a PAT authorization request - do PAT check first
+	if pr.PatID != "" {
+		req := grpcAuthV1.AuthZReq{
+			UserId:           pr.UserID,
+			PatId:            pr.PatID,
+			EntityType:       uint32(pr.EntityType),
+			OptionalDomainId: pr.OptionalDomainID,
+			Operation:        uint32(pr.Operation),
+			EntityId:         pr.EntityID,
+		}
+		slog.Debug("PAT Authorization Request",
+			slog.String("user_id", pr.UserID),
+			slog.String("pat_id", pr.PatID),
+			slog.Uint64("entity_type", uint64(pr.EntityType)),
+			slog.String("optional_domain_id", pr.OptionalDomainID),
+			slog.Uint64("operation", uint64(pr.Operation)),
+			slog.String("entity_id", pr.EntityID),
+		)
+		res, err := a.authSvcClient.Authorize(ctx, &req)
+		if err != nil {
+			slog.Debug("PAT Authorization Failed",
+				slog.String("error", err.Error()),
+			)
+			return errors.Wrap(errors.ErrAuthorization, err)
+		}
+		if !res.Authorized {
+			slog.Debug("PAT Authorization Denied",
+				slog.Bool("authorized", res.Authorized),
+			)
+			return errors.ErrAuthorization
+		}
+		slog.Debug("PAT Authorization Successful")
+		// Fall through to policy-based authorization
+	}
+
+	// Policy-based authorization
 	if pr.SubjectType == policies.UserType && (pr.ObjectType == policies.GroupType || pr.ObjectType == policies.ClientType || pr.ObjectType == policies.DomainType) {
 		domainID := pr.Domain
 		if domainID == "" {
@@ -137,27 +174,4 @@ func (a authorization) checkDomain(ctx context.Context, subjectType, subject, do
 	default:
 		return svcerr.ErrInvalidStatus
 	}
-}
-
-func (a authorization) AuthorizePAT(ctx context.Context, pr authz.PatReq) error {
-	req := grpcAuthV1.AuthZReq{
-		AuthType: &grpcAuthV1.AuthZReq_Pat{
-			Pat: &grpcAuthV1.PATReq{
-				UserId:           pr.UserID,
-				PatId:            pr.PatID,
-				EntityType:       uint32(pr.EntityType),
-				OptionalDomainId: pr.OptionalDomainID,
-				Operation:        uint32(pr.Operation),
-				EntityId:         pr.EntityID,
-			},
-		},
-	}
-	res, err := a.authSvcClient.Authorize(ctx, &req)
-	if err != nil {
-		return errors.Wrap(errors.ErrAuthorization, err)
-	}
-	if !res.Authorized {
-		return errors.ErrAuthorization
-	}
-	return nil
 }
