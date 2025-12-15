@@ -24,7 +24,6 @@ func (req authenticateReq) validate() error {
 // 1. subject - an action invoker
 // 2. object - an entity over which action will be executed
 // 3. action - type of action that will be executed (read/write).
-// For PAT authorization, it also includes PAT-specific fields.
 type authReq struct {
 	Domain      string
 	SubjectType string

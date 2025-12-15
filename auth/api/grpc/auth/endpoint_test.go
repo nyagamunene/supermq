@@ -320,4 +320,3 @@ func TestAuthorize(t *testing.T) {
 		})
 	}
 }
-

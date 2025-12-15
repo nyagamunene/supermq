@@ -46,7 +46,6 @@ func (a authentication) Authenticate(ctx context.Context, token string) (authn.S
 		return authn.Session{}, errors.Wrap(errors.ErrAuthentication, err)
 	}
 
-	// Check if this is a PAT token based on the token prefix
 	if strings.HasPrefix(token, patPrefix) {
 		return authn.Session{Type: authn.PersonalAccessToken, PatID: res.GetId(), UserID: res.GetUserId(), Role: authn.Role(res.GetUserRole())}, nil
 	}
