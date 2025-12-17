@@ -5,6 +5,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/channels"
@@ -97,38 +98,23 @@ func (am *authorizationMiddleware) CreateChannels(ctx context.Context, session a
 
 	for _, ch := range chs {
 		if ch.ParentGroup != "" {
-			if err := am.extAuthorize(ctx, session, channels.GroupOpSetChildChannel, smqauthz.PolicyReq{
-				Domain:           session.DomainID,
-				SubjectType:      policies.UserType,
-				Subject:          session.DomainUserID,
-				ObjectType:       policies.GroupType,
-				Object:           ch.ParentGroup,
-				UserID:           session.UserID,
-				PatID:            session.PatID,
-				EntityType:       auth.GroupsType,
-				OptionalDomainID: session.DomainID,
-				Operation:        auth.CreateOp,
-				EntityID:         ch.ParentGroup,
+			if err := am.authorize(ctx, session, policies.GroupType, groups.OpGroupSetChildChannel, smqauthz.PolicyReq{
+				Domain:      session.DomainID,
+				SubjectType: policies.UserType,
+				Subject:     session.DomainUserID,
+				ObjectType:  policies.GroupType,
+				Object:      ch.ParentGroup,
 			}); err != nil {
 				return []channels.Channel{}, []roles.RoleProvision{}, errors.Wrap(err, errors.Wrap(errGroupSetChildChannels, fmt.Errorf("channel name %s parent group id %s", ch.Name, ch.ParentGroup)))
 			}
 		}
 	}
 
-	params := map[string]any{
-		"entities": chs,
-		"count":    len(chs),
-	}
-
-	if err := am.callOut(ctx, session, channels.OpCreateChannel.String(channels.OperationNames), "", params); err != nil {
-		return []channels.Channel{}, []roles.RoleProvision{}, err
-	}
-
 	return am.svc.CreateChannels(ctx, session, chs...)
 }
 
 func (am *authorizationMiddleware) ViewChannel(ctx context.Context, session authn.Session, id string, withRoles bool) (channels.Channel, error) {
-	if err := am.authorize(ctx, session, channels.OpViewChannel, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.ChannelType, channels.OpViewChannel, smqauthz.PolicyReq{
 		Domain:           session.DomainID,
 		SubjectType:      policies.UserType,
 		Subject:          session.DomainUserID,
@@ -206,7 +192,7 @@ func (am *authorizationMiddleware) EnableChannel(ctx context.Context, session au
 }
 
 func (am *authorizationMiddleware) DisableChannel(ctx context.Context, session authn.Session, id string) (channels.Channel, error) {
-	if err := am.authorize(ctx, session, channels.OpDisableChannel, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.ChannelType, channels.OpDisableChannel, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
@@ -220,7 +206,7 @@ func (am *authorizationMiddleware) DisableChannel(ctx context.Context, session a
 }
 
 func (am *authorizationMiddleware) RemoveChannel(ctx context.Context, session authn.Session, id string) error {
-	if err := am.authorize(ctx, session, channels.OpDeleteChannel, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.ChannelType, channels.OpDeleteChannel, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
@@ -290,7 +276,7 @@ func (am *authorizationMiddleware) Disconnect(ctx context.Context, session authn
 }
 
 func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session authn.Session, parentGroupID string, id string) error {
-	if err := am.authorize(ctx, session, channels.OpSetParentGroup, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.ChannelType, channels.OpSetParentGroup, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
@@ -314,7 +300,7 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 }
 
 func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, session authn.Session, id string) error {
-	if err := am.authorize(ctx, session, channels.OpSetParentGroup, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.ChannelType, channels.OpSetParentGroup, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
@@ -345,12 +331,12 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 	return nil
 }
 
-func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, op svcutil.Operation, req smqauthz.PolicyReq) error {
+func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, entityType string, op permissions.Operation, req smqauthz.PolicyReq) error {
 	req.UserID = session.UserID
 	req.PatID = session.PatID
 	req.OptionalDomainID = session.DomainID
 
-	perm, err := am.opp.GetPermission(op)
+	perm, err := am.entitiesOps.GetPermission(entityType, op)
 	if err != nil {
 		return err
 	}
@@ -364,7 +350,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 		switch op {
 		case channels.OpViewChannel:
 			req.Operation = auth.ReadOp
-		case channels.OpListChannels, channels.OpListUserChannels:
+		case channels.OpListUserChannels:
 			req.Operation = auth.ListOp
 			req.EntityID = auth.AnyIDs
 		case channels.OpUpdateChannel, channels.OpUpdateChannelTags, channels.OpEnableChannel, channels.OpDisableChannel, channels.OpSetParentGroup:
@@ -375,46 +361,13 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 			req.Operation = auth.CreateOp
 		case channels.OpDisconnectClient:
 			req.Operation = auth.DeleteOp
-		}
-	}
-
-	if err := am.authz.Authorize(ctx, req); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (am *authorizationMiddleware) extAuthorize(ctx context.Context, session authn.Session, extOp svcutil.ExternalOperation, req smqauthz.PolicyReq) error {
-	req.UserID = session.UserID
-	req.PatID = session.PatID
-	req.OptionalDomainID = session.DomainID
-
-	perm, err := am.extOpp.GetPermission(extOp)
-	if err != nil {
-		return err
-	}
-
-	req.Permission = perm.String()
-
-	if req.PatID != "" {
-		req.EntityID = req.Object
-
-		switch extOp {
-		case channels.DomainOpCreateChannel:
-			req.EntityType = auth.ChannelsType
-			req.Operation = auth.CreateOp
-			req.EntityID = auth.AnyIDs
-		case channels.GroupOpSetChildChannel:
-			req.EntityType = auth.ChannelsType
-			req.Operation = auth.UpdateOp
-		case channels.ClientsOpConnectChannel, channels.ClientsOpDisconnectChannel:
-			req.EntityType = auth.ClientsType
-			if extOp == channels.ClientsOpConnectChannel {
+		case domains.OpCreateDomainChannels, domains.OpListDomainChannels:
+			if op == domains.OpCreateDomainChannels {
 				req.Operation = auth.CreateOp
 			} else {
-				req.Operation = auth.DeleteOp
+				req.Operation = auth.ListOp
 			}
+			req.EntityID = auth.AnyIDs
 		}
 	}
 

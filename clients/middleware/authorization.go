@@ -72,7 +72,7 @@ func NewAuthorization(
 }
 
 func (am *authorizationMiddleware) CreateClients(ctx context.Context, session authn.Session, client ...clients.Client) ([]clients.Client, []roles.RoleProvision, error) {
-	if err := am.extAuthorize(ctx, session, clients.DomainOpCreateClient, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.DomainType, domains.OpCreateDomainClients, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
@@ -172,7 +172,7 @@ func (am *authorizationMiddleware) Enable(ctx context.Context, session authn.Ses
 }
 
 func (am *authorizationMiddleware) Disable(ctx context.Context, session authn.Session, id string) (clients.Client, error) {
-	if err := am.authorize(ctx, session, clients.OpDisableClient, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.ClientType, clients.OpDisableClient, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
@@ -224,7 +224,7 @@ func (am *authorizationMiddleware) SetParentGroup(ctx context.Context, session a
 }
 
 func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, session authn.Session, id string) error {
-	if err := am.authorize(ctx, session, clients.OpRemoveParentGroup, smqauthz.PolicyReq{
+	if err := am.authorize(ctx, session, policies.ClientType, clients.OpRemoveParentGroup, smqauthz.PolicyReq{
 		Domain:      session.DomainID,
 		SubjectType: policies.UserType,
 		Subject:     session.DomainUserID,
@@ -255,13 +255,13 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 	return nil
 }
 
-func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, op svcutil.Operation, req smqauthz.PolicyReq) error {
+func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, entityType string, op permissions.Operation, req smqauthz.PolicyReq) error {
 	// Add session information for PAT authorization
 	req.UserID = session.UserID
 	req.PatID = session.PatID
 	req.OptionalDomainID = session.DomainID
 
-	perm, err := am.opp.GetPermission(op)
+	perm, err := am.entitiesOps.GetPermission(entityType, op)
 	if err != nil {
 		return err
 	}
@@ -270,54 +270,40 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 
 	// Map operation to PAT operation if PatID is present
 	if req.PatID != "" {
-		req.EntityType = auth.ClientsType
 		req.EntityID = req.Object
 
-		switch op {
-		case clients.OpViewClient:
-			req.Operation = auth.ReadOp
-		case clients.OpListClients, clients.OpListUserClients:
-			req.Operation = auth.ListOp
-			req.EntityID = auth.AnyIDs
-		case clients.OpUpdateClient, clients.OpUpdateClientTags, clients.OpUpdateClientSecret, clients.OpEnableClient, clients.OpDisableClient, clients.OpSetParentGroup:
-			req.Operation = auth.UpdateOp
-		case clients.OpDeleteClient, clients.OpRemoveParentGroup:
-			req.Operation = auth.DeleteOp
-		}
-	}
-
-	if err := am.authz.Authorize(ctx, req); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (am *authorizationMiddleware) extAuthorize(ctx context.Context, session authn.Session, extOp svcutil.ExternalOperation, req smqauthz.PolicyReq) error {
-	// Add session information for PAT authorization
-	req.UserID = session.UserID
-	req.PatID = session.PatID
-	req.OptionalDomainID = session.DomainID
-
-	perm, err := am.extOpp.GetPermission(extOp)
-	if err != nil {
-		return err
-	}
-
-	req.Permission = perm.String()
-
-	// Map operation to PAT EntityType and Operation if PatID is present
-	if req.PatID != "" {
-		req.EntityID = req.Object
-
-		switch extOp {
-		case clients.DomainOpCreateClient:
+		switch entityType {
+		case policies.ClientType:
 			req.EntityType = auth.ClientsType
-			req.Operation = auth.CreateOp
-			req.EntityID = auth.AnyIDs
-		case clients.GroupOpSetChildClient:
-			req.EntityType = auth.GroupsType
-			req.Operation = auth.UpdateOp
+			switch op {
+			case clients.OpViewClient:
+				req.Operation = auth.ReadOp
+			case clients.OpListUserClients:
+				req.Operation = auth.ListOp
+				req.EntityID = auth.AnyIDs
+			case clients.OpUpdateClient, clients.OpUpdateClientTags, clients.OpUpdateClientSecret, clients.OpEnableClient, clients.OpDisableClient, clients.OpSetParentGroup:
+				req.Operation = auth.UpdateOp
+			case clients.OpDeleteClient, clients.OpRemoveParentGroup:
+				req.Operation = auth.DeleteOp
+			}
+		case policies.DomainType:
+			req.EntityType = auth.ClientsType
+			switch op {
+			case domains.OpCreateDomainClients:
+				req.Operation = auth.CreateOp
+				req.EntityID = auth.AnyIDs
+			case domains.OpListDomainClients:
+				req.Operation = auth.ListOp
+				req.EntityID = auth.AnyIDs
+			}
+		case policies.GroupType:
+			req.EntityType = auth.ClientsType
+			switch op {
+			case groups.OpGroupSetChildClient:
+				req.Operation = auth.UpdateOp
+			case groups.OpGroupRemoveChildClient:
+				req.Operation = auth.DeleteOp
+			}
 		}
 	}
 
