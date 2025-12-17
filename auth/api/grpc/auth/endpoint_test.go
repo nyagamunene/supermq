@@ -73,6 +73,7 @@ func TestIdentify(t *testing.T) {
 	cases := []struct {
 		desc   string
 		token  string
+		key    auth.Key
 		idt    *grpcAuthV1.AuthNRes
 		svcErr error
 		err    error
@@ -80,12 +81,14 @@ func TestIdentify(t *testing.T) {
 		{
 			desc:  "authenticate user with valid user token",
 			token: validToken,
+			key:   auth.Key{ID: "", Subject: id, Role: auth.UserRole},
 			idt:   &grpcAuthV1.AuthNRes{UserId: id, UserRole: uint32(auth.UserRole)},
 			err:   nil,
 		},
 		{
 			desc:   "authenticate user with invalid user token",
 			token:  "invalid",
+			key:    auth.Key{},
 			idt:    &grpcAuthV1.AuthNRes{},
 			svcErr: svcerr.ErrAuthentication,
 			err:    svcerr.ErrAuthentication,
@@ -99,12 +102,14 @@ func TestIdentify(t *testing.T) {
 		{
 			desc:  "authenticate user with valid PAT token",
 			token: "pat_" + validPATToken,
+			key:   auth.Key{ID: id, Type: auth.PersonalAccessToken, Subject: clientID, Role: auth.UserRole},
 			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID, UserRole: uint32(auth.UserRole)},
 			err:   nil,
 		},
 		{
 			desc:   "authenticate user with invalid PAT token",
 			token:  "pat_invalid",
+			key:    auth.Key{},
 			idt:    &grpcAuthV1.AuthNRes{},
 			svcErr: svcerr.ErrAuthentication,
 			err:    svcerr.ErrAuthentication,
@@ -113,7 +118,7 @@ func TestIdentify(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			svcCall := svc.On("Identify", mock.Anything, mock.Anything).Return(auth.Key{ID: id, Subject: clientID, Role: auth.UserRole}, tc.svcErr)
+			svcCall := svc.On("Identify", mock.Anything, tc.token).Return(tc.key, tc.svcErr)
 			idt, err := grpcClient.Authenticate(context.Background(), &grpcAuthV1.AuthNReq{Token: tc.token})
 			if idt != nil {
 				assert.Equal(t, tc.idt, idt, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.idt, idt))
