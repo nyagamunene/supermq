@@ -143,7 +143,7 @@ type AuthZReq struct {
 	SubjectType     string                 `protobuf:"bytes,3,opt,name=subject_type,json=subjectType,proto3" json:"subject_type,omitempty"`             // Client or User
 	SubjectKind     string                 `protobuf:"bytes,4,opt,name=subject_kind,json=subjectKind,proto3" json:"subject_kind,omitempty"`             // ID or Token
 	SubjectRelation string                 `protobuf:"bytes,5,opt,name=subject_relation,json=subjectRelation,proto3" json:"subject_relation,omitempty"` // Subject relation
-	Subject         string                 `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`                                        // Subject value (id or token, depending on kind)
+	Subject         string                 `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`                                        // Subject value
 	Relation        string                 `protobuf:"bytes,7,opt,name=relation,proto3" json:"relation,omitempty"`                                      // Relation to filter
 	Permission      string                 `protobuf:"bytes,8,opt,name=permission,proto3" json:"permission,omitempty"`                                  // Action
 	Object          string                 `protobuf:"bytes,9,opt,name=object,proto3" json:"object,omitempty"`                                          // Object ID
