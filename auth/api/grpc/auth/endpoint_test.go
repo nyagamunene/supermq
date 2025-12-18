@@ -71,7 +71,7 @@ func TestIdentify(t *testing.T) {
 			desc:  "authenticate user with valid user token",
 			token: validToken,
 			key:   auth.Key{ID: "", Subject: id, Role: auth.UserRole},
-			idt:   &grpcAuthV1.AuthNRes{UserId: id, UserRole: uint32(auth.UserRole)},
+			idt:   &grpcAuthV1.AuthNRes{UserId: id, UserRole: uint32(auth.UserRole), TokenType: auth.AccessKey.ToTokenType()},
 			err:   nil,
 		},
 		{
@@ -92,7 +92,7 @@ func TestIdentify(t *testing.T) {
 			desc:  "authenticate user with valid PAT token",
 			token: "pat_" + validPATToken,
 			key:   auth.Key{ID: id, Type: auth.PersonalAccessToken, Subject: clientID, Role: auth.UserRole},
-			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID, UserRole: uint32(auth.UserRole)},
+			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID, UserRole: uint32(auth.UserRole), TokenType: auth.PersonalAccessToken.ToTokenType()},
 			err:   nil,
 		},
 		{
