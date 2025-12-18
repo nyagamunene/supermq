@@ -31,7 +31,7 @@ message AuthZReq {
   string subject_type = 3;        // Client or User
   string subject_kind = 4;        // ID or Token
   string subject_relation = 5;    // Subject relation
-  string subject = 6;             // Subject value (id or token, depending on kind)
+  string subject = 6;             // Subject value
   string relation = 7;            // Relation to filter
   string permission = 8;          // Action
   string object = 9;              // Object ID
