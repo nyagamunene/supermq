@@ -211,11 +211,13 @@ func (svc service) RetrieveJWKS() []PublicKeyInfo {
 }
 
 func (svc service) Authorize(ctx context.Context, pr policies.Policy) error {
+	// For PAT authorization, first check if the PAT has the required scope,
+	// then continue with normal authorization to ensure the user still has permissions.
+	// This handles cases where the user has been deleted or permissions revoked.
 	if pr.PatID != "" && pr.TokenType == PersonalAccessTokenType {
 		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, EntityType(pr.EntityType), pr.OptionalDomainID, Operation(pr.Operation), pr.EntityID); err != nil {
 			return err
 		}
-		return nil
 	}
 
 	if err := svc.PolicyValidation(pr); err != nil {
