@@ -66,6 +66,7 @@ func encodeAuthenticateResponse(_ context.Context, grpcRes any) (any, error) {
 func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(*grpcAuthV1.AuthZReq)
 	return authReq{
+		TokenType:        req.GetTokenType(),
 		Domain:           req.GetDomain(),
 		SubjectType:      req.GetSubjectType(),
 		SubjectKind:      req.GetSubjectKind(),

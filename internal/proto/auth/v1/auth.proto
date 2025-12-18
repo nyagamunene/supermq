@@ -26,23 +26,24 @@ message AuthNRes {
 }
 
 message AuthZReq {
-  string domain = 1;           // Domain
-  string subject_type = 2;     // Client or User
-  string subject_kind = 3;     // ID or Token
-  string subject_relation = 4; // Subject relation
-  string subject = 5;          // Subject value (id or token, depending on kind)
-  string relation = 6;         // Relation to filter
-  string permission = 7;       // Action
-  string object = 8;           // Object ID
-  string object_type = 9;      // Client, User, Group
+  uint32 token_type = 1;          // Token type
+  string domain = 2;              // Domain
+  string subject_type = 3;        // Client or User
+  string subject_kind = 4;        // ID or Token
+  string subject_relation = 5;    // Subject relation
+  string subject = 6;             // Subject value (id or token, depending on kind)
+  string relation = 7;            // Relation to filter
+  string permission = 8;          // Action
+  string object = 9;              // Object ID
+  string object_type = 10;        // Client, User, Group
   
   // Optional PAT authorization fields
-  string user_id = 10;            // User id (PAT)
-  string pat_id = 11;             // Pat id (PAT)
-  uint32 entity_type = 12;        // Entity type (PAT)
-  string optional_domain_id = 13; // Optional domain id (PAT)
-  uint32 operation = 14;          // Operation (PAT)
-  string entity_id = 15;          // EntityID (PAT)
+  string user_id = 11;            // User id (PAT)
+  string pat_id = 12;             // Pat id (PAT)
+  uint32 entity_type = 13;        // Entity type (PAT)
+  string optional_domain_id = 14; // Optional domain id (PAT)
+  uint32 operation = 15;          // Operation (PAT)
+  string entity_id = 16;          // EntityID (PAT)
 }
 
 message AuthZRes {

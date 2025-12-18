@@ -138,22 +138,23 @@ func (x *AuthNRes) GetVerified() bool {
 
 type AuthZReq struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Domain          string                 `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`                                          // Domain
-	SubjectType     string                 `protobuf:"bytes,2,opt,name=subject_type,json=subjectType,proto3" json:"subject_type,omitempty"`             // Client or User
-	SubjectKind     string                 `protobuf:"bytes,3,opt,name=subject_kind,json=subjectKind,proto3" json:"subject_kind,omitempty"`             // ID or Token
-	SubjectRelation string                 `protobuf:"bytes,4,opt,name=subject_relation,json=subjectRelation,proto3" json:"subject_relation,omitempty"` // Subject relation
-	Subject         string                 `protobuf:"bytes,5,opt,name=subject,proto3" json:"subject,omitempty"`                                        // Subject value (id or token, depending on kind)
-	Relation        string                 `protobuf:"bytes,6,opt,name=relation,proto3" json:"relation,omitempty"`                                      // Relation to filter
-	Permission      string                 `protobuf:"bytes,7,opt,name=permission,proto3" json:"permission,omitempty"`                                  // Action
-	Object          string                 `protobuf:"bytes,8,opt,name=object,proto3" json:"object,omitempty"`                                          // Object ID
-	ObjectType      string                 `protobuf:"bytes,9,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`                // Client, User, Group
+	TokenType       uint32                 `protobuf:"varint,1,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`                  // Token type
+	Domain          string                 `protobuf:"bytes,2,opt,name=domain,proto3" json:"domain,omitempty"`                                          // Domain
+	SubjectType     string                 `protobuf:"bytes,3,opt,name=subject_type,json=subjectType,proto3" json:"subject_type,omitempty"`             // Client or User
+	SubjectKind     string                 `protobuf:"bytes,4,opt,name=subject_kind,json=subjectKind,proto3" json:"subject_kind,omitempty"`             // ID or Token
+	SubjectRelation string                 `protobuf:"bytes,5,opt,name=subject_relation,json=subjectRelation,proto3" json:"subject_relation,omitempty"` // Subject relation
+	Subject         string                 `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`                                        // Subject value (id or token, depending on kind)
+	Relation        string                 `protobuf:"bytes,7,opt,name=relation,proto3" json:"relation,omitempty"`                                      // Relation to filter
+	Permission      string                 `protobuf:"bytes,8,opt,name=permission,proto3" json:"permission,omitempty"`                                  // Action
+	Object          string                 `protobuf:"bytes,9,opt,name=object,proto3" json:"object,omitempty"`                                          // Object ID
+	ObjectType      string                 `protobuf:"bytes,10,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`               // Client, User, Group
 	// Optional PAT authorization fields
-	UserId           string `protobuf:"bytes,10,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                 // User id (PAT)
-	PatId            string `protobuf:"bytes,11,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`                                    // Pat id (PAT)
-	EntityType       uint32 `protobuf:"varint,12,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`                    // Entity type (PAT)
-	OptionalDomainId string `protobuf:"bytes,13,opt,name=optional_domain_id,json=optionalDomainId,proto3" json:"optional_domain_id,omitempty"` // Optional domain id (PAT)
-	Operation        uint32 `protobuf:"varint,14,opt,name=operation,proto3" json:"operation,omitempty"`                                        // Operation (PAT)
-	EntityId         string `protobuf:"bytes,15,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`                           // EntityID (PAT)
+	UserId           string `protobuf:"bytes,11,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                 // User id (PAT)
+	PatId            string `protobuf:"bytes,12,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`                                    // Pat id (PAT)
+	EntityType       uint32 `protobuf:"varint,13,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`                    // Entity type (PAT)
+	OptionalDomainId string `protobuf:"bytes,14,opt,name=optional_domain_id,json=optionalDomainId,proto3" json:"optional_domain_id,omitempty"` // Optional domain id (PAT)
+	Operation        uint32 `protobuf:"varint,15,opt,name=operation,proto3" json:"operation,omitempty"`                                        // Operation (PAT)
+	EntityId         string `protobuf:"bytes,16,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`                           // EntityID (PAT)
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -186,6 +187,13 @@ func (x *AuthZReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use AuthZReq.ProtoReflect.Descriptor instead.
 func (*AuthZReq) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *AuthZReq) GetTokenType() uint32 {
+	if x != nil {
+		return x.TokenType
+	}
+	return 0
 }
 
 func (x *AuthZReq) GetDomain() string {
@@ -356,28 +364,30 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tuser_role\x18\x03 \x01(\rR\buserRole\x12\x1a\n" +
-	"\bverified\x18\x04 \x01(\bR\bverified\"\xdc\x03\n" +
-	"\bAuthZReq\x12\x16\n" +
-	"\x06domain\x18\x01 \x01(\tR\x06domain\x12!\n" +
-	"\fsubject_type\x18\x02 \x01(\tR\vsubjectType\x12!\n" +
-	"\fsubject_kind\x18\x03 \x01(\tR\vsubjectKind\x12)\n" +
-	"\x10subject_relation\x18\x04 \x01(\tR\x0fsubjectRelation\x12\x18\n" +
-	"\asubject\x18\x05 \x01(\tR\asubject\x12\x1a\n" +
-	"\brelation\x18\x06 \x01(\tR\brelation\x12\x1e\n" +
+	"\bverified\x18\x04 \x01(\bR\bverified\"\xfb\x03\n" +
+	"\bAuthZReq\x12\x1d\n" +
 	"\n" +
-	"permission\x18\a \x01(\tR\n" +
+	"token_type\x18\x01 \x01(\rR\ttokenType\x12\x16\n" +
+	"\x06domain\x18\x02 \x01(\tR\x06domain\x12!\n" +
+	"\fsubject_type\x18\x03 \x01(\tR\vsubjectType\x12!\n" +
+	"\fsubject_kind\x18\x04 \x01(\tR\vsubjectKind\x12)\n" +
+	"\x10subject_relation\x18\x05 \x01(\tR\x0fsubjectRelation\x12\x18\n" +
+	"\asubject\x18\x06 \x01(\tR\asubject\x12\x1a\n" +
+	"\brelation\x18\a \x01(\tR\brelation\x12\x1e\n" +
+	"\n" +
+	"permission\x18\b \x01(\tR\n" +
 	"permission\x12\x16\n" +
-	"\x06object\x18\b \x01(\tR\x06object\x12\x1f\n" +
-	"\vobject_type\x18\t \x01(\tR\n" +
+	"\x06object\x18\t \x01(\tR\x06object\x12\x1f\n" +
+	"\vobject_type\x18\n" +
+	" \x01(\tR\n" +
 	"objectType\x12\x17\n" +
-	"\auser_id\x18\n" +
-	" \x01(\tR\x06userId\x12\x15\n" +
-	"\x06pat_id\x18\v \x01(\tR\x05patId\x12\x1f\n" +
-	"\ventity_type\x18\f \x01(\rR\n" +
+	"\auser_id\x18\v \x01(\tR\x06userId\x12\x15\n" +
+	"\x06pat_id\x18\f \x01(\tR\x05patId\x12\x1f\n" +
+	"\ventity_type\x18\r \x01(\rR\n" +
 	"entityType\x12,\n" +
-	"\x12optional_domain_id\x18\r \x01(\tR\x10optionalDomainId\x12\x1c\n" +
-	"\toperation\x18\x0e \x01(\rR\toperation\x12\x1b\n" +
-	"\tentity_id\x18\x0f \x01(\tR\bentityId\":\n" +
+	"\x12optional_domain_id\x18\x0e \x01(\tR\x10optionalDomainId\x12\x1c\n" +
+	"\toperation\x18\x0f \x01(\rR\toperation\x12\x1b\n" +
+	"\tentity_id\x18\x10 \x01(\tR\bentityId\":\n" +
 	"\bAuthZRes\x12\x1e\n" +
 	"\n" +
 	"authorized\x18\x01 \x01(\bR\n" +

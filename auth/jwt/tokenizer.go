@@ -42,6 +42,7 @@ const (
 	oauthProviderField     = "oauth_provider"
 	oauthAccessTokenField  = "access_token"
 	oauthRefreshTokenField = "refresh_token"
+	patPrefix              = "pat"
 )
 
 type tokenizer struct {
@@ -84,6 +85,10 @@ func (tok *tokenizer) Issue(key auth.Key) (string, error) {
 }
 
 func (tok *tokenizer) Parse(token string) (auth.Key, error) {
+	if len(token) >= 3 && token[:3] == patPrefix {
+		return auth.Key{Type: auth.PersonalAccessToken}, nil
+	}
+
 	tkn, err := tok.validateToken(token)
 	if err != nil {
 		return auth.Key{}, errors.Wrap(svcerr.ErrAuthentication, err)

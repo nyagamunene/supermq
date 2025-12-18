@@ -25,25 +25,14 @@ import (
 
 const (
 	port            = 8081
-	secret          = "secret"
-	email           = "test@example.com"
 	id              = "testID"
-	clientsType     = "clients"
 	usersType       = "users"
-	description     = "Description"
-	groupName       = "smqx"
 	adminPermission = "admin"
-
 	authoritiesObj  = "authorities"
 	memberRelation  = "member"
-	loginDuration   = 30 * time.Minute
-	refreshDuration = 24 * time.Hour
-	invalidDuration = 7 * 24 * time.Hour
 	validToken      = "valid"
 	inValidToken    = "invalid"
 	validPATToken   = "valid"
-	inValidPATToken = "invalid"
-	validPolicy     = "valid"
 )
 
 var (
@@ -245,6 +234,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with valid PAT token",
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
+				TokenType:        uint32(auth.PersonalAccessToken),
 				UserId:           id,
 				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
@@ -257,8 +247,9 @@ func TestAuthorize(t *testing.T) {
 		},
 		{
 			desc:  "authorize user with unauthorized PAT token",
-			token: inValidPATToken,
+			token: inValidToken,
 			authRequest: &grpcAuthV1.AuthZReq{
+				TokenType:        uint32(auth.PersonalAccessToken),
 				UserId:           id,
 				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
@@ -273,6 +264,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize PAT with missing user id",
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
+				TokenType:        uint32(auth.PersonalAccessToken),
 				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
 				OptionalDomainId: domainID,
@@ -286,6 +278,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize PAT with missing entity id",
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
+				TokenType:        uint32(auth.PersonalAccessToken),
 				UserId:           id,
 				PatId:            id,
 				EntityType:       uint32(auth.ClientsType),
@@ -298,30 +291,13 @@ func TestAuthorize(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			if tc.authRequest.PatId != "" {
-				svcCall := svc.On("AuthorizePAT",
-					mock.Anything,
-					tc.authRequest.UserId,
-					tc.authRequest.PatId,
-					auth.EntityType(tc.authRequest.EntityType),
-					tc.authRequest.OptionalDomainId,
-					auth.Operation(tc.authRequest.Operation),
-					tc.authRequest.EntityId).Return(tc.err)
-				ar, err := grpcClient.Authorize(context.Background(), tc.authRequest)
-				if ar != nil {
-					assert.Equal(t, tc.authResponse, ar, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.authResponse, ar))
-				}
-				assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-				svcCall.Unset()
-			} else {
-				svcCall := svc.On("Authorize", mock.Anything, mock.Anything).Return(tc.err)
-				ar, err := grpcClient.Authorize(context.Background(), tc.authRequest)
-				if ar != nil {
-					assert.Equal(t, tc.authResponse, ar, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.authResponse, ar))
-				}
-				assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
-				svcCall.Unset()
+			svcCall := svc.On("Authorize", mock.Anything, mock.Anything).Return(tc.err)
+			ar, err := grpcClient.Authorize(context.Background(), tc.authRequest)
+			if ar != nil {
+				assert.Equal(t, tc.authResponse, ar, fmt.Sprintf("%s: expected %v got %v", tc.desc, tc.authResponse, ar))
 			}
+			assert.True(t, errors.Contains(err, tc.err), fmt.Sprintf("%s: expected %s got %s\n", tc.desc, tc.err, err))
+			svcCall.Unset()
 		})
 	}
 }

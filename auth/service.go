@@ -165,13 +165,6 @@ func (svc service) RetrieveKey(ctx context.Context, token, id string) (Key, erro
 }
 
 func (svc service) Identify(ctx context.Context, token string) (Key, error) {
-	if strings.HasPrefix(token, patPrefix) {
-		res, err := svc.IdentifyPAT(ctx, token)
-		if err != nil {
-			return Key{}, err
-		}
-		return Key{ID: res.ID, Type: PersonalAccessToken, Subject: res.User, Role: res.Role}, nil
-	}
 	key, err := svc.tokenizer.Parse(token)
 	if errors.Contains(err, ErrExpiry) {
 		err = svc.keys.Remove(ctx, key.Issuer, key.ID)
@@ -182,6 +175,12 @@ func (svc service) Identify(ctx context.Context, token string) (Key, error) {
 	}
 
 	switch key.Type {
+	case PersonalAccessToken:
+		res, err := svc.IdentifyPAT(ctx, token)
+		if err != nil {
+			return Key{}, err
+		}
+		return Key{ID: res.ID, Type: PersonalAccessToken, Subject: res.User, Role: res.Role}, nil
 	case RecoveryKey, AccessKey, InvitationKey, RefreshKey:
 		return key, nil
 	case APIKey:
@@ -196,6 +195,13 @@ func (svc service) Identify(ctx context.Context, token string) (Key, error) {
 }
 
 func (svc service) Authorize(ctx context.Context, pr policies.Policy) error {
+	if pr.PatID != "" && pr.TokenType == uint32(PersonalAccessToken) {
+		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, EntityType(pr.EntityType), pr.OptionalDomainID, Operation(pr.Operation), pr.EntityID); err != nil {
+			return err
+		}
+		return nil
+	}
+
 	if err := svc.PolicyValidation(pr); err != nil {
 		return errors.Wrap(svcerr.ErrMalformedEntity, err)
 	}

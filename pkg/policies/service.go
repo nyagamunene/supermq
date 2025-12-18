@@ -9,6 +9,9 @@ import (
 )
 
 type Policy struct {
+	// TokenType contains the token type.
+	TokenType uint32 `json:"token_type,omitempty"`
+
 	// Domain contains the domain ID.
 	Domain string `json:"domain,omitempty"`
 
@@ -46,6 +49,21 @@ type Policy struct {
 	// Permission contains the permission. Supported permissions are admin, delete, edit, share, view,
 	// membership, create, admin_only, edit_only, view_only, membership_only, ext_admin, ext_edit, ext_view.
 	Permission string `json:"permission,omitempty"`
+
+	// PAT authorization fields
+
+	// UserID contains the user ID who owns the PAT.
+	UserID string `json:"user_id,omitempty"`
+	// PatID contains the personal access token ID.
+	PatID string `json:"pat_id,omitempty"`
+	// EntityType contains the entity type for PAT authorization.
+	EntityType uint32 `json:"entity_type,omitempty"`
+	// OptionalDomainID contains the optional domain ID for PAT scope checking.
+	OptionalDomainID string `json:"optional_domain_id,omitempty"`
+	// Operation contains the operation type for PAT authorization.
+	Operation uint32 `json:"operation,omitempty"`
+	// EntityID contains the entity ID for PAT authorization.
+	EntityID string `json:"entity_id,omitempty"`
 }
 
 func (pr Policy) String() string {

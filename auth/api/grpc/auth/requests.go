@@ -25,6 +25,7 @@ func (req authenticateReq) validate() error {
 // 2. object - an entity over which action will be executed
 // 3. action - type of action that will be executed (read/write).
 type authReq struct {
+	TokenType   uint32
 	Domain      string
 	SubjectType string
 	SubjectKind string
