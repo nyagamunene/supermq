@@ -256,7 +256,7 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 }
 
 func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, entityType string, op permissions.Operation, req smqauthz.PolicyReq) error {
-	// Add session information for PAT authorization
+	req.TokenType = session.Type
 	req.UserID = session.UserID
 	req.PatID = session.PatID
 	req.OptionalDomainID = session.DomainID
@@ -268,8 +268,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 
 	req.Permission = perm.String()
 
-	// Map operation to PAT operation if PatID is present
-	if req.PatID != "" {
+	if req.PatID != "" && req.TokenType == authn.PersonalAccessToken {
 		req.EntityID = req.Object
 
 		switch entityType {

@@ -10,6 +10,7 @@ import (
 	grpcAuthV1 "github.com/absmach/supermq/api/grpc/auth/v1"
 	"github.com/absmach/supermq/auth/api/grpc/auth"
 	"github.com/absmach/supermq/domains"
+	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/authz"
 	pkgDomians "github.com/absmach/supermq/pkg/domains"
 	"github.com/absmach/supermq/pkg/errors"
@@ -48,9 +49,9 @@ func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz p
 }
 
 func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error {
-	// Check if this is a PAT authorization request - do PAT check first
-	if pr.PatID != "" {
+	if pr.PatID != "" && pr.TokenType == authn.PersonalAccessToken {
 		req := grpcAuthV1.AuthZReq{
+			TokenType:        uint32(pr.TokenType),
 			UserId:           pr.UserID,
 			PatId:            pr.PatID,
 			EntityType:       uint32(pr.EntityType),

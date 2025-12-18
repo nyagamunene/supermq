@@ -198,6 +198,7 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, session 
 
 func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, domain, subjType, subjKind, subj, perm, objType, obj string) error {
 	req := smqauthz.PolicyReq{
+		TokenType:   session.Type,
 		Domain:      domain,
 		SubjectType: subjType,
 		SubjectKind: subjKind,
@@ -205,12 +206,8 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 		Permission:  perm,
 		ObjectType:  objType,
 		Object:      obj,
-	}
-
-	// Add session information for PAT authorization if session is provided
-	if session.UserID != "" {
-		req.UserID = session.UserID
-		req.PatID = session.PatID
+		UserID:      session.UserID,
+		PatID:       session.PatID,
 	}
 
 	if err := am.authz.Authorize(ctx, req); err != nil {

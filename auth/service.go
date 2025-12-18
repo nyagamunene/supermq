@@ -19,10 +19,14 @@ import (
 
 const (
 	recoveryDuration   = 5 * time.Minute
-	defLimit           = 100
 	randStr            = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&&*|+-="
 	patPrefix          = "pat"
 	patSecretSeparator = "_"
+)
+
+const (
+	AccessTokenType uint32 = iota
+	PersonalAccessTokenType
 )
 
 var (
@@ -195,7 +199,7 @@ func (svc service) Identify(ctx context.Context, token string) (Key, error) {
 }
 
 func (svc service) Authorize(ctx context.Context, pr policies.Policy) error {
-	if pr.PatID != "" && pr.TokenType == uint32(PersonalAccessToken) {
+	if pr.PatID != "" && pr.TokenType == PersonalAccessTokenType {
 		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, EntityType(pr.EntityType), pr.OptionalDomainID, Operation(pr.Operation), pr.EntityID); err != nil {
 			return err
 		}

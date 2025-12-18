@@ -123,3 +123,14 @@ type KeyRepository interface {
 	// Remove removes Key with provided ID.
 	Remove(ctx context.Context, issuer string, id string) error
 }
+
+func (kt KeyType) ToTokenType() uint32 {
+	switch kt {
+	case AccessKey:
+		return 0
+	case PersonalAccessToken:
+		return 1
+	default:
+		return 0
+	}
+}
