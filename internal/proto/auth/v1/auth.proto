@@ -19,13 +19,15 @@ message AuthNReq {
 }
 
 message AuthNRes {
-  string id    = 1;     // token id
-  string user_id = 2;   // user id
-  uint32 user_role = 3; // user role
-  bool verified = 4; // verified user
+  string id    = 1;       // token id
+  string user_id = 2;     // user id
+  uint32 user_role = 3;   // user role
+  bool verified = 4;      // verified user
+  uint32 token_type = 5;  // token type
 }
 
-message AuthZReq {
+// Policy-based authorization fields
+message PolicyReq {
   uint32 token_type = 1;          // Token type
   string domain = 2;              // Domain
   string subject_type = 3;        // Client or User
@@ -36,14 +38,23 @@ message AuthZReq {
   string permission = 8;          // Action
   string object = 9;              // Object ID
   string object_type = 10;        // Client, User, Group
-  
-  // Optional PAT authorization fields
-  string user_id = 11;            // User id (PAT)
-  string pat_id = 12;             // Pat id (PAT)
-  uint32 entity_type = 13;        // Entity type (PAT)
-  string optional_domain_id = 14; // Optional domain id (PAT)
-  uint32 operation = 15;          // Operation (PAT)
-  string entity_id = 16;          // EntityID (PAT)
+}
+
+// PAT-specific authorization fields
+message PATReq {
+  string user_id = 1;             // User id (PAT owner)
+  string pat_id = 2;              // Pat id
+  uint32 entity_type = 3;         // Entity type (PAT)
+  string optional_domain_id = 4;  // Optional domain id (PAT)
+  uint32 operation = 5;           // Operation (PAT)
+  string entity_id = 6;           // EntityID (PAT)
+}
+
+message AuthZReq {
+  oneof auth_type {
+    PolicyReq policy = 1;         // Policy-based authorization
+    PATReq pat = 2;               // PAT authorization
+  }
 }
 
 message AuthZRes {

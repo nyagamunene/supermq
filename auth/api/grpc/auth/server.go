@@ -65,23 +65,33 @@ func encodeAuthenticateResponse(_ context.Context, grpcRes any) (any, error) {
 
 func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(*grpcAuthV1.AuthZReq)
-	return authReq{
-		TokenType:        req.GetTokenType(),
-		Domain:           req.GetDomain(),
-		SubjectType:      req.GetSubjectType(),
-		SubjectKind:      req.GetSubjectKind(),
-		Subject:          req.GetSubject(),
-		Relation:         req.GetRelation(),
-		Permission:       req.GetPermission(),
-		ObjectType:       req.GetObjectType(),
-		Object:           req.GetObject(),
-		UserID:           req.GetUserId(),
-		PatID:            req.GetPatId(),
-		EntityType:       auth.EntityType(req.GetEntityType()),
-		OptionalDomainID: req.GetOptionalDomainId(),
-		Operation:        auth.Operation(req.GetOperation()),
-		EntityID:         req.GetEntityId(),
-	}, nil
+	
+	if policy := req.GetPolicy(); policy != nil {
+		return authReq{
+			TokenType:        policy.GetTokenType(),
+			Domain:           policy.GetDomain(),
+			SubjectType:      policy.GetSubjectType(),
+			SubjectKind:      policy.GetSubjectKind(),
+			Subject:          policy.GetSubject(),
+			Relation:         policy.GetRelation(),
+			Permission:       policy.GetPermission(),
+			ObjectType:       policy.GetObjectType(),
+			Object:           policy.GetObject(),
+		}, nil
+	}
+	
+	if pat := req.GetPat(); pat != nil {
+		return authReq{
+			UserID:           pat.GetUserId(),
+			PatID:            pat.GetPatId(),
+			EntityType:       auth.EntityType(pat.GetEntityType()),
+			OptionalDomainID: pat.GetOptionalDomainId(),
+			Operation:        auth.Operation(pat.GetOperation()),
+			EntityID:         pat.GetEntityId(),
+		}, nil
+	}
+	
+	return authReq{}, nil
 }
 
 func encodeAuthorizeResponse(_ context.Context, grpcRes any) (any, error) {
