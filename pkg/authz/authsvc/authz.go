@@ -5,10 +5,12 @@ package authsvc
 
 import (
 	"context"
+	"log/slog"
 
 	grpcAuthV1 "github.com/absmach/supermq/api/grpc/auth/v1"
 	"github.com/absmach/supermq/auth/api/grpc/auth"
 	"github.com/absmach/supermq/domains"
+	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/authz"
 	pkgDomians "github.com/absmach/supermq/pkg/domains"
 	"github.com/absmach/supermq/pkg/errors"
@@ -47,28 +49,6 @@ func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz p
 }
 
 func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error {
-	if pr.PatID != "" && pr.TokenType == authn.PersonalAccessToken {
-		req := grpcAuthV1.AuthZReq{
-			AuthType: &grpcAuthV1.AuthZReq_Pat{
-				Pat: &grpcAuthV1.PATReq{
-					UserId:           pr.UserID,
-					PatId:            pr.PatID,
-					EntityType:       uint32(pr.EntityType),
-					OptionalDomainId: pr.OptionalDomainID,
-					Operation:        uint32(pr.Operation),
-					EntityId:         pr.EntityID,
-				},
-			},
-		}
-		res, err := a.authSvcClient.Authorize(ctx, &req)
-		if err != nil {
-			return errors.Wrap(errors.ErrAuthorization, err)
-		}
-		if !res.GetAuthorized() {
-			return errors.ErrAuthorization
-		}
-	}
-
 	if pr.SubjectType == policies.UserType && (pr.ObjectType == policies.GroupType || pr.ObjectType == policies.ClientType || pr.ObjectType == policies.DomainType) {
 		domainID := pr.Domain
 		if domainID == "" {
@@ -83,19 +63,22 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 	}
 
 	req := grpcAuthV1.AuthZReq{
-		AuthType: &grpcAuthV1.AuthZReq_Policy{
-			Policy: &grpcAuthV1.PolicyReq{
-				Domain:          pr.Domain,
-				SubjectType:     pr.SubjectType,
-				SubjectKind:     pr.SubjectKind,
-				SubjectRelation: pr.SubjectRelation,
-				Subject:         pr.Subject,
-				Relation:        pr.Relation,
-				Permission:      pr.Permission,
-				Object:          pr.Object,
-				ObjectType:      pr.ObjectType,
-			},
-		},
+		TokenType:        uint32(pr.TokenType),
+		Domain:           pr.Domain,
+		SubjectType:      pr.SubjectType,
+		SubjectKind:      pr.SubjectKind,
+		SubjectRelation:  pr.SubjectRelation,
+		Subject:          pr.Subject,
+		Relation:         pr.Relation,
+		Permission:       pr.Permission,
+		Object:           pr.Object,
+		ObjectType:       pr.ObjectType,
+		UserId:           pr.UserID,
+		PatId:            pr.PatID,
+		EntityType:       uint32(pr.EntityType),
+		OptionalDomainId: pr.OptionalDomainID,
+		Operation:        uint32(pr.Operation),
+		EntityId:         pr.EntityID,
 	}
 	res, err := a.authSvcClient.Authorize(ctx, &req)
 	if err != nil {
