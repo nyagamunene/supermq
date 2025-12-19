@@ -75,7 +75,7 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Auth
 	defer cancel()
 
 	var authReqData authReq
-	
+
 	if policy := req.GetPolicy(); policy != nil {
 		authReqData = authReq{
 			TokenType:   policy.GetTokenType(),
@@ -115,7 +115,7 @@ func decodeAuthorizeResponse(_ context.Context, grpcRes any) (any, error) {
 
 func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(authReq)
-	
+
 	// Check if this is a PAT request (has PatID) or policy request
 	if req.PatID != "" {
 		return &grpcAuthV1.AuthZReq{
@@ -131,7 +131,7 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 			},
 		}, nil
 	}
-	
+
 	// Otherwise, it's a policy request
 	return &grpcAuthV1.AuthZReq{
 		AuthType: &grpcAuthV1.AuthZReq_Policy{
