@@ -26,7 +26,6 @@ message AuthNRes {
   uint32 token_type = 5;  // token type
 }
 
-// Policy-based authorization fields
 message PolicyReq {
   uint32 token_type = 1;          // Token type
   string domain = 2;              // Domain
@@ -40,9 +39,8 @@ message PolicyReq {
   string object_type = 10;        // Client, User, Group
 }
 
-// PAT-specific authorization fields
 message PATReq {
-  string user_id = 1;             // User id (PAT owner)
+  string user_id = 1;             // User id (PAT)
   string pat_id = 2;              // Pat id
   uint32 entity_type = 3;         // Entity type (PAT)
   string optional_domain_id = 4;  // Optional domain id (PAT)
