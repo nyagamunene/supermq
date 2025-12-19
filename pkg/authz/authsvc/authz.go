@@ -51,13 +51,16 @@ func NewAuthorization(ctx context.Context, cfg grpcclient.Config, domainsAuthz p
 func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error {
 	if pr.PatID != "" && pr.TokenType == authn.PersonalAccessToken {
 		req := grpcAuthV1.AuthZReq{
-			TokenType:        uint32(pr.TokenType),
-			UserId:           pr.UserID,
-			PatId:            pr.PatID,
-			EntityType:       uint32(pr.EntityType),
-			OptionalDomainId: pr.OptionalDomainID,
-			Operation:        uint32(pr.Operation),
-			EntityId:         pr.EntityID,
+			AuthType: &grpcAuthV1.AuthZReq_Pat{
+				Pat: &grpcAuthV1.PATReq{
+					UserId:           pr.UserID,
+					PatId:            pr.PatID,
+					EntityType:       uint32(pr.EntityType),
+					OptionalDomainId: pr.OptionalDomainID,
+					Operation:        uint32(pr.Operation),
+					EntityId:         pr.EntityID,
+				},
+			},
 		}
 		slog.Debug("PAT Authorization Request",
 			slog.String("user_id", pr.UserID),
@@ -74,17 +77,15 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 			)
 			return errors.Wrap(errors.ErrAuthorization, err)
 		}
-		if !res.Authorized {
+		if !res.GetAuthorized() {
 			slog.Debug("PAT Authorization Denied",
-				slog.Bool("authorized", res.Authorized),
+				slog.Bool("authorized", res.GetAuthorized()),
 			)
 			return errors.ErrAuthorization
 		}
 		slog.Debug("PAT Authorization Successful")
-		// Fall through to policy-based authorization
 	}
 
-	// Policy-based authorization
 	if pr.SubjectType == policies.UserType && (pr.ObjectType == policies.GroupType || pr.ObjectType == policies.ClientType || pr.ObjectType == policies.DomainType) {
 		domainID := pr.Domain
 		if domainID == "" {
