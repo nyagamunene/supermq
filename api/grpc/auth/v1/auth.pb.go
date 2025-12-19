@@ -144,7 +144,6 @@ func (x *AuthNRes) GetTokenType() uint32 {
 	return 0
 }
 
-// Policy-based authorization fields
 type PolicyReq struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	TokenType       uint32                 `protobuf:"varint,1,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`                  // Token type
@@ -261,10 +260,9 @@ func (x *PolicyReq) GetObjectType() string {
 	return ""
 }
 
-// PAT-specific authorization fields
 type PATReq struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                 // User id (PAT owner)
+	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                 // User id (PAT)
 	PatId            string                 `protobuf:"bytes,2,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`                                    // Pat id
 	EntityType       uint32                 `protobuf:"varint,3,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`                    // Entity type (PAT)
 	OptionalDomainId string                 `protobuf:"bytes,4,opt,name=optional_domain_id,json=optionalDomainId,proto3" json:"optional_domain_id,omitempty"` // Optional domain id (PAT)
