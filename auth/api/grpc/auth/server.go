@@ -65,21 +65,19 @@ func encodeAuthenticateResponse(_ context.Context, grpcRes any) (any, error) {
 
 func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(*grpcAuthV1.AuthZReq)
-	
 	if policy := req.GetPolicy(); policy != nil {
 		return authReq{
-			TokenType:        policy.GetTokenType(),
-			Domain:           policy.GetDomain(),
-			SubjectType:      policy.GetSubjectType(),
-			SubjectKind:      policy.GetSubjectKind(),
-			Subject:          policy.GetSubject(),
-			Relation:         policy.GetRelation(),
-			Permission:       policy.GetPermission(),
-			ObjectType:       policy.GetObjectType(),
-			Object:           policy.GetObject(),
+			TokenType:   policy.GetTokenType(),
+			Domain:      policy.GetDomain(),
+			SubjectType: policy.GetSubjectType(),
+			SubjectKind: policy.GetSubjectKind(),
+			Subject:     policy.GetSubject(),
+			Relation:    policy.GetRelation(),
+			Permission:  policy.GetPermission(),
+			ObjectType:  policy.GetObjectType(),
+			Object:      policy.GetObject(),
 		}, nil
 	}
-	
 	if pat := req.GetPat(); pat != nil {
 		return authReq{
 			UserID:           pat.GetUserId(),
@@ -90,7 +88,7 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 			EntityID:         pat.GetEntityId(),
 		}, nil
 	}
-	
+
 	return authReq{}, nil
 }
 
