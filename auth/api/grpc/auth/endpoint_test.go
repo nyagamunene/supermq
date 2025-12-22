@@ -71,7 +71,7 @@ func TestIdentify(t *testing.T) {
 			desc:  "authenticate user with valid user token",
 			token: validToken,
 			key:   auth.Key{ID: "", Subject: id, Role: auth.UserRole},
-			idt:   &grpcAuthV1.AuthNRes{UserId: id, UserRole: uint32(auth.UserRole), TokenType: auth.AccessKey.ToTokenType()},
+			idt:   &grpcAuthV1.AuthNRes{UserId: id, UserRole: uint32(auth.UserRole), TokenType: auth.AccessTokenType},
 			err:   nil,
 		},
 		{
@@ -92,7 +92,7 @@ func TestIdentify(t *testing.T) {
 			desc:  "authenticate user with valid PAT token",
 			token: "pat_" + validPATToken,
 			key:   auth.Key{ID: id, Type: auth.PersonalAccessToken, Subject: clientID, Role: auth.UserRole},
-			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID, UserRole: uint32(auth.UserRole), TokenType: auth.PersonalAccessToken.ToTokenType()},
+			idt:   &grpcAuthV1.AuthNRes{Id: id, UserId: clientID, UserRole: uint32(auth.UserRole), TokenType: auth.PersonalAccessTokenType},
 			err:   nil,
 		},
 		{
@@ -136,7 +136,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with authorized token",
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
+				AuthType: &grpcAuthV1.AuthType{
 					Policy: &grpcAuthV1.PolicyReq{
 						Subject:     id,
 						SubjectType: usersType,
@@ -154,7 +154,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with unauthorized token",
 			token: inValidToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
+				AuthType: &grpcAuthV1.AuthType{
 					Policy: &grpcAuthV1.PolicyReq{
 						Subject:     id,
 						SubjectType: usersType,
@@ -172,7 +172,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with empty subject",
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
+				AuthType: &grpcAuthV1.AuthType{
 					Policy: &grpcAuthV1.PolicyReq{
 						Subject:     "",
 						SubjectType: usersType,
@@ -190,7 +190,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with empty subject type",
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
+				AuthType: &grpcAuthV1.AuthType{
 					Policy: &grpcAuthV1.PolicyReq{
 						Subject:     id,
 						SubjectType: "",
@@ -208,7 +208,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with empty object",
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
+				AuthType: &grpcAuthV1.AuthType{
 					Policy: &grpcAuthV1.PolicyReq{
 						Subject:     id,
 						SubjectType: usersType,
@@ -226,7 +226,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with empty object type",
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
+				AuthType: &grpcAuthV1.AuthType{
 					Policy: &grpcAuthV1.PolicyReq{
 						Subject:     id,
 						SubjectType: usersType,
@@ -244,7 +244,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with empty permission",
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
+				AuthType: &grpcAuthV1.AuthType{
 					Policy: &grpcAuthV1.PolicyReq{
 						Subject:     id,
 						SubjectType: usersType,
@@ -262,7 +262,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with valid PAT token",
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
+				AuthType: &grpcAuthV1.AuthType{
 					Pat: &grpcAuthV1.PATReq{
 						UserId:           id,
 						PatId:            id,
@@ -280,7 +280,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with unauthorized PAT token",
 			token: inValidToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
+				AuthType: &grpcAuthV1.AuthType{
 					Pat: &grpcAuthV1.PATReq{
 						UserId:           id,
 						PatId:            id,
@@ -298,7 +298,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize PAT with missing user id",
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
+				AuthType: &grpcAuthV1.AuthType{
 					Pat: &grpcAuthV1.PATReq{
 						PatId:            id,
 						EntityType:       uint32(auth.ClientsType),
@@ -315,7 +315,7 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize PAT with missing entity id",
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
+				AuthType: &grpcAuthV1.AuthType{
 					Pat: &grpcAuthV1.PATReq{
 						UserId:           id,
 						PatId:            id,

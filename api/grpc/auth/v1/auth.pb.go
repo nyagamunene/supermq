@@ -262,12 +262,12 @@ func (x *PolicyReq) GetObjectType() string {
 
 type PATReq struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                 // User id (PAT)
+	UserId           string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                 // User id
 	PatId            string                 `protobuf:"bytes,2,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`                                    // Pat id
-	EntityType       uint32                 `protobuf:"varint,3,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`                    // Entity type (PAT)
-	OptionalDomainId string                 `protobuf:"bytes,4,opt,name=optional_domain_id,json=optionalDomainId,proto3" json:"optional_domain_id,omitempty"` // Optional domain id (PAT)
-	Operation        uint32                 `protobuf:"varint,5,opt,name=operation,proto3" json:"operation,omitempty"`                                        // Operation (PAT)
-	EntityId         string                 `protobuf:"bytes,6,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`                           // EntityID (PAT)
+	EntityType       uint32                 `protobuf:"varint,3,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`                    // Entity type
+	OptionalDomainId string                 `protobuf:"bytes,4,opt,name=optional_domain_id,json=optionalDomainId,proto3" json:"optional_domain_id,omitempty"` // Optional domain id
+	Operation        uint32                 `protobuf:"varint,5,opt,name=operation,proto3" json:"operation,omitempty"`                                        // Operation
+	EntityId         string                 `protobuf:"bytes,6,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`                           // EntityID
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -344,20 +344,68 @@ func (x *PATReq) GetEntityId() string {
 	return ""
 }
 
+type AuthType struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policy        *PolicyReq             `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"` // Policy-based authorization
+	Pat           *PATReq                `protobuf:"bytes,2,opt,name=pat,proto3" json:"pat,omitempty"`       // PAT authorization
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthType) Reset() {
+	*x = AuthType{}
+	mi := &file_auth_v1_auth_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthType) ProtoMessage() {}
+
+func (x *AuthType) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_v1_auth_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthType.ProtoReflect.Descriptor instead.
+func (*AuthType) Descriptor() ([]byte, []int) {
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AuthType) GetPolicy() *PolicyReq {
+	if x != nil {
+		return x.Policy
+	}
+	return nil
+}
+
+func (x *AuthType) GetPat() *PATReq {
+	if x != nil {
+		return x.Pat
+	}
+	return nil
+}
+
 type AuthZReq struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to AuthType:
-	//
-	//	*AuthZReq_Policy
-	//	*AuthZReq_Pat
-	AuthType      isAuthZReq_AuthType `protobuf_oneof:"auth_type"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AuthType      *AuthType              `protobuf:"bytes,1,opt,name=auth_type,json=authType,proto3" json:"auth_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AuthZReq) Reset() {
 	*x = AuthZReq{}
-	mi := &file_auth_v1_auth_proto_msgTypes[4]
+	mi := &file_auth_v1_auth_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -369,7 +417,7 @@ func (x *AuthZReq) String() string {
 func (*AuthZReq) ProtoMessage() {}
 
 func (x *AuthZReq) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_v1_auth_proto_msgTypes[4]
+	mi := &file_auth_v1_auth_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -382,49 +430,15 @@ func (x *AuthZReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthZReq.ProtoReflect.Descriptor instead.
 func (*AuthZReq) Descriptor() ([]byte, []int) {
-	return file_auth_v1_auth_proto_rawDescGZIP(), []int{4}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *AuthZReq) GetAuthType() isAuthZReq_AuthType {
+func (x *AuthZReq) GetAuthType() *AuthType {
 	if x != nil {
 		return x.AuthType
 	}
 	return nil
 }
-
-func (x *AuthZReq) GetPolicy() *PolicyReq {
-	if x != nil {
-		if x, ok := x.AuthType.(*AuthZReq_Policy); ok {
-			return x.Policy
-		}
-	}
-	return nil
-}
-
-func (x *AuthZReq) GetPat() *PATReq {
-	if x != nil {
-		if x, ok := x.AuthType.(*AuthZReq_Pat); ok {
-			return x.Pat
-		}
-	}
-	return nil
-}
-
-type isAuthZReq_AuthType interface {
-	isAuthZReq_AuthType()
-}
-
-type AuthZReq_Policy struct {
-	Policy *PolicyReq `protobuf:"bytes,1,opt,name=policy,proto3,oneof"` // Policy-based authorization
-}
-
-type AuthZReq_Pat struct {
-	Pat *PATReq `protobuf:"bytes,2,opt,name=pat,proto3,oneof"` // PAT authorization
-}
-
-func (*AuthZReq_Policy) isAuthZReq_AuthType() {}
-
-func (*AuthZReq_Pat) isAuthZReq_AuthType() {}
 
 type AuthZRes struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -436,7 +450,7 @@ type AuthZRes struct {
 
 func (x *AuthZRes) Reset() {
 	*x = AuthZRes{}
-	mi := &file_auth_v1_auth_proto_msgTypes[5]
+	mi := &file_auth_v1_auth_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +462,7 @@ func (x *AuthZRes) String() string {
 func (*AuthZRes) ProtoMessage() {}
 
 func (x *AuthZRes) ProtoReflect() protoreflect.Message {
-	mi := &file_auth_v1_auth_proto_msgTypes[5]
+	mi := &file_auth_v1_auth_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,7 +475,7 @@ func (x *AuthZRes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthZRes.ProtoReflect.Descriptor instead.
 func (*AuthZRes) Descriptor() ([]byte, []int) {
-	return file_auth_v1_auth_proto_rawDescGZIP(), []int{5}
+	return file_auth_v1_auth_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *AuthZRes) GetAuthorized() bool {
@@ -515,11 +529,12 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"entityType\x12,\n" +
 	"\x12optional_domain_id\x18\x04 \x01(\tR\x10optionalDomainId\x12\x1c\n" +
 	"\toperation\x18\x05 \x01(\rR\toperation\x12\x1b\n" +
-	"\tentity_id\x18\x06 \x01(\tR\bentityId\"j\n" +
-	"\bAuthZReq\x12,\n" +
-	"\x06policy\x18\x01 \x01(\v2\x12.auth.v1.PolicyReqH\x00R\x06policy\x12#\n" +
-	"\x03pat\x18\x02 \x01(\v2\x0f.auth.v1.PATReqH\x00R\x03patB\v\n" +
-	"\tauth_type\":\n" +
+	"\tentity_id\x18\x06 \x01(\tR\bentityId\"Y\n" +
+	"\bAuthType\x12*\n" +
+	"\x06policy\x18\x01 \x01(\v2\x12.auth.v1.PolicyReqR\x06policy\x12!\n" +
+	"\x03pat\x18\x02 \x01(\v2\x0f.auth.v1.PATReqR\x03pat\":\n" +
+	"\bAuthZReq\x12.\n" +
+	"\tauth_type\x18\x01 \x01(\v2\x11.auth.v1.AuthTypeR\bauthType\":\n" +
 	"\bAuthZRes\x12\x1e\n" +
 	"\n" +
 	"authorized\x18\x01 \x01(\bR\n" +
@@ -541,27 +556,29 @@ func file_auth_v1_auth_proto_rawDescGZIP() []byte {
 	return file_auth_v1_auth_proto_rawDescData
 }
 
-var file_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_auth_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_auth_v1_auth_proto_goTypes = []any{
 	(*AuthNReq)(nil),  // 0: auth.v1.AuthNReq
 	(*AuthNRes)(nil),  // 1: auth.v1.AuthNRes
 	(*PolicyReq)(nil), // 2: auth.v1.PolicyReq
 	(*PATReq)(nil),    // 3: auth.v1.PATReq
-	(*AuthZReq)(nil),  // 4: auth.v1.AuthZReq
-	(*AuthZRes)(nil),  // 5: auth.v1.AuthZRes
+	(*AuthType)(nil),  // 4: auth.v1.AuthType
+	(*AuthZReq)(nil),  // 5: auth.v1.AuthZReq
+	(*AuthZRes)(nil),  // 6: auth.v1.AuthZRes
 }
 var file_auth_v1_auth_proto_depIdxs = []int32{
-	2, // 0: auth.v1.AuthZReq.policy:type_name -> auth.v1.PolicyReq
-	3, // 1: auth.v1.AuthZReq.pat:type_name -> auth.v1.PATReq
-	4, // 2: auth.v1.AuthService.Authorize:input_type -> auth.v1.AuthZReq
-	0, // 3: auth.v1.AuthService.Authenticate:input_type -> auth.v1.AuthNReq
-	5, // 4: auth.v1.AuthService.Authorize:output_type -> auth.v1.AuthZRes
-	1, // 5: auth.v1.AuthService.Authenticate:output_type -> auth.v1.AuthNRes
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: auth.v1.AuthType.policy:type_name -> auth.v1.PolicyReq
+	3, // 1: auth.v1.AuthType.pat:type_name -> auth.v1.PATReq
+	4, // 2: auth.v1.AuthZReq.auth_type:type_name -> auth.v1.AuthType
+	5, // 3: auth.v1.AuthService.Authorize:input_type -> auth.v1.AuthZReq
+	0, // 4: auth.v1.AuthService.Authenticate:input_type -> auth.v1.AuthNReq
+	6, // 5: auth.v1.AuthService.Authorize:output_type -> auth.v1.AuthZRes
+	1, // 6: auth.v1.AuthService.Authenticate:output_type -> auth.v1.AuthNRes
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_auth_v1_auth_proto_init() }
@@ -569,17 +586,13 @@ func file_auth_v1_auth_proto_init() {
 	if File_auth_v1_auth_proto != nil {
 		return
 	}
-	file_auth_v1_auth_proto_msgTypes[4].OneofWrappers = []any{
-		(*AuthZReq_Policy)(nil),
-		(*AuthZReq_Pat)(nil),
-	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_v1_auth_proto_rawDesc), len(file_auth_v1_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
