@@ -40,19 +40,21 @@ message PolicyReq {
 }
 
 message PATReq {
-  string user_id = 1;             // User id (PAT)
+  string user_id = 1;             // User id
   string pat_id = 2;              // Pat id
-  uint32 entity_type = 3;         // Entity type (PAT)
-  string optional_domain_id = 4;  // Optional domain id (PAT)
-  uint32 operation = 5;           // Operation (PAT)
-  string entity_id = 6;           // EntityID (PAT)
+  uint32 entity_type = 3;         // Entity type
+  string optional_domain_id = 4;  // Optional domain id
+  uint32 operation = 5;           // Operation
+  string entity_id = 6;           // EntityID
+}
+
+message AuthType {
+  PolicyReq policy = 1;           // Policy-based authorization
+  PATReq pat = 2;                 // PAT authorization
 }
 
 message AuthZReq {
-  oneof auth_type {
-    PolicyReq policy = 1;         // Policy-based authorization
-    PATReq pat = 2;               // PAT authorization
-  }
+  AuthType auth_type = 1;
 }
 
 message AuthZRes {
