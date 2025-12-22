@@ -65,35 +65,31 @@ func encodeAuthenticateResponse(_ context.Context, grpcRes any) (any, error) {
 
 func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(*grpcAuthV1.AuthZReq)
-	authType := req.GetAuthType()
-	if authType == nil {
-		return authReq{}, nil
+	if policy := req.GetPolicy(); policy != nil {
+		return authReq{
+			TokenType:   policy.GetTokenType(),
+			Domain:      policy.GetDomain(),
+			SubjectType: policy.GetSubjectType(),
+			SubjectKind: policy.GetSubjectKind(),
+			Subject:     policy.GetSubject(),
+			Relation:    policy.GetRelation(),
+			Permission:  policy.GetPermission(),
+			ObjectType:  policy.GetObjectType(),
+			Object:      policy.GetObject(),
+		}, nil
+	}
+	if pat := req.GetPat(); pat != nil {
+		return authReq{
+			UserID:           pat.GetUserId(),
+			PatID:            pat.GetPatId(),
+			EntityType:       auth.EntityType(pat.GetEntityType()),
+			OptionalDomainID: pat.GetOptionalDomainId(),
+			Operation:        auth.Operation(pat.GetOperation()),
+			EntityID:         pat.GetEntityId(),
+		}, nil
 	}
 
-	var result authReq
-
-	if policy := authType.GetPolicy(); policy != nil {
-		result.TokenType = policy.GetTokenType()
-		result.Domain = policy.GetDomain()
-		result.SubjectType = policy.GetSubjectType()
-		result.SubjectKind = policy.GetSubjectKind()
-		result.Subject = policy.GetSubject()
-		result.Relation = policy.GetRelation()
-		result.Permission = policy.GetPermission()
-		result.ObjectType = policy.GetObjectType()
-		result.Object = policy.GetObject()
-	}
-
-	if pat := authType.GetPat(); pat != nil {
-		result.UserID = pat.GetUserId()
-		result.PatID = pat.GetPatId()
-		result.EntityType = auth.EntityType(pat.GetEntityType())
-		result.OptionalDomainID = pat.GetOptionalDomainId()
-		result.Operation = auth.Operation(pat.GetOperation())
-		result.EntityID = pat.GetEntityId()
-	}
-
-	return result, nil
+	return authReq{}, nil
 }
 
 func encodeAuthorizeResponse(_ context.Context, grpcRes any) (any, error) {

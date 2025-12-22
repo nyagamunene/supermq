@@ -48,13 +48,11 @@ message PATReq {
   string entity_id = 6;           // EntityID
 }
 
-message AuthType {
-  PolicyReq policy = 1;           // Policy-based authorization
-  PATReq pat = 2;                 // PAT authorization
-}
-
 message AuthZReq {
-  AuthType auth_type = 1;
+  oneof auth_type {
+    PolicyReq policy = 1;         // Policy-based authorization
+    PATReq pat = 2;               // PAT authorization
+  }
 }
 
 message AuthZRes {
