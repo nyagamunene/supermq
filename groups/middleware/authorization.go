@@ -400,14 +400,25 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 		switch op {
 		case groups.OpViewGroup:
 			pr.Operation = auth.ReadOp
-		case groups.OpListUserGroups, groups.OpRetrieveGroupHierarchy, groups.OpListChildrenGroups, domains.OpListDomainGroups:
+		case groups.OpListUserGroups,
+			groups.OpRetrieveGroupHierarchy,
+			groups.OpListChildrenGroups,
+			domains.OpListDomainGroups:
 			pr.Operation = auth.ListOp
 			if op == domains.OpListDomainGroups {
 				pr.EntityID = auth.AnyIDs
 			}
-		case groups.OpUpdateGroup, groups.OpUpdateGroupTags, groups.OpEnableGroup, groups.OpDisableGroup, groups.OpAddParentGroup, groups.OpAddChildrenGroups:
+		case groups.OpUpdateGroup,
+			groups.OpUpdateGroupTags,
+			groups.OpEnableGroup,
+			groups.OpDisableGroup,
+			groups.OpAddParentGroup,
+			groups.OpAddChildrenGroups:
 			pr.Operation = auth.UpdateOp
-		case groups.OpDeleteGroup, groups.OpRemoveParentGroup, groups.OpRemoveChildrenGroups, groups.OpRemoveAllChildrenGroups:
+		case groups.OpDeleteGroup,
+			groups.OpRemoveParentGroup,
+			groups.OpRemoveChildrenGroups,
+			groups.OpRemoveAllChildrenGroups:
 			pr.Operation = auth.DeleteOp
 		case domains.OpCreateDomainGroups:
 			pr.Operation = auth.CreateOp

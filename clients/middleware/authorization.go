@@ -280,9 +280,15 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 			case clients.OpListUserClients:
 				req.Operation = auth.ListOp
 				req.EntityID = auth.AnyIDs
-			case clients.OpUpdateClient, clients.OpUpdateClientTags, clients.OpUpdateClientSecret, clients.OpEnableClient, clients.OpDisableClient, clients.OpSetParentGroup:
+			case clients.OpUpdateClient,
+				clients.OpUpdateClientTags,
+				clients.OpUpdateClientSecret,
+				clients.OpEnableClient,
+				clients.OpDisableClient,
+				clients.OpSetParentGroup:
 				req.Operation = auth.UpdateOp
-			case clients.OpDeleteClient, clients.OpRemoveParentGroup:
+			case clients.OpDeleteClient,
+				clients.OpRemoveParentGroup:
 				req.Operation = auth.DeleteOp
 			}
 		case policies.DomainType:

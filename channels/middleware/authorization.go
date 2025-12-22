@@ -354,15 +354,21 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 		case channels.OpListUserChannels:
 			req.Operation = auth.ListOp
 			req.EntityID = auth.AnyIDs
-		case channels.OpUpdateChannel, channels.OpUpdateChannelTags, channels.OpEnableChannel, channels.OpDisableChannel, channels.OpSetParentGroup:
+		case channels.OpUpdateChannel,
+			channels.OpUpdateChannelTags,
+			channels.OpEnableChannel,
+			channels.OpDisableChannel,
+			channels.OpSetParentGroup:
 			req.Operation = auth.UpdateOp
-		case channels.OpDeleteChannel, channels.OpRemoveParentGroup:
+		case channels.OpDeleteChannel,
+			channels.OpRemoveParentGroup:
 			req.Operation = auth.DeleteOp
 		case channels.OpConnectClient:
 			req.Operation = auth.CreateOp
 		case channels.OpDisconnectClient:
 			req.Operation = auth.DeleteOp
-		case domains.OpCreateDomainChannels, domains.OpListDomainChannels:
+		case domains.OpCreateDomainChannels,
+			domains.OpListDomainChannels:
 			if op == domains.OpCreateDomainChannels {
 				req.Operation = auth.CreateOp
 			} else {

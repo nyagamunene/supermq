@@ -5,7 +5,6 @@ package authsvc
 
 import (
 	"context"
-	"log/slog"
 
 	grpcAuthV1 "github.com/absmach/supermq/api/grpc/auth/v1"
 	"github.com/absmach/supermq/auth/api/grpc/auth"
@@ -62,28 +61,13 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 				},
 			},
 		}
-		slog.Debug("PAT Authorization Request",
-			slog.String("user_id", pr.UserID),
-			slog.String("pat_id", pr.PatID),
-			slog.Uint64("entity_type", uint64(pr.EntityType)),
-			slog.String("optional_domain_id", pr.OptionalDomainID),
-			slog.Uint64("operation", uint64(pr.Operation)),
-			slog.String("entity_id", pr.EntityID),
-		)
 		res, err := a.authSvcClient.Authorize(ctx, &req)
 		if err != nil {
-			slog.Debug("PAT Authorization Failed",
-				slog.String("error", err.Error()),
-			)
 			return errors.Wrap(errors.ErrAuthorization, err)
 		}
 		if !res.GetAuthorized() {
-			slog.Debug("PAT Authorization Denied",
-				slog.Bool("authorized", res.GetAuthorized()),
-			)
 			return errors.ErrAuthorization
 		}
-		slog.Debug("PAT Authorization Successful")
 	}
 
 	if pr.SubjectType == policies.UserType && (pr.ObjectType == policies.GroupType || pr.ObjectType == policies.ClientType || pr.ObjectType == policies.DomainType) {
