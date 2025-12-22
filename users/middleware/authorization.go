@@ -198,7 +198,6 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, session 
 
 func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, domain, subjType, subjKind, subj, perm, objType, obj string) error {
 	req := smqauthz.PolicyReq{
-		TokenType:   session.Type,
 		Domain:      domain,
 		SubjectType: subjType,
 		SubjectKind: subjKind,
@@ -206,8 +205,6 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 		Permission:  perm,
 		ObjectType:  objType,
 		Object:      obj,
-		UserID:      session.UserID,
-		PatID:       session.PatID,
 	}
 
 	if err := am.authz.Authorize(ctx, req); err != nil {
