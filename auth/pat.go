@@ -47,8 +47,8 @@ const (
 	ChannelDeleteOp
 	ChannelSetParentGroupOp
 	ChannelRemoveParentGroupOp
-	ChannelConnectClientOp
-	ChannelDisconnectClientOp
+	ChannelConnectToClientOp
+	ChannelDisconnectFromClientOp
 )
 
 // Groups operations.
@@ -129,11 +129,11 @@ var operationToString = map[Operation]string{
 	ChannelUpdateTagsOp:        "channel_update_tags",
 	ChannelEnableOp:            "channel_enable",
 	ChannelDisableOp:           "channel_disable",
-	ChannelDeleteOp:            "channel_delete",
-	ChannelSetParentGroupOp:    "channel_set_parent_group",
-	ChannelRemoveParentGroupOp: "channel_remove_parent_group",
-	ChannelConnectClientOp:     "channel_connect_client",
-	ChannelDisconnectClientOp:  "channel_disconnect_client",
+	ChannelDeleteOp:               "channel_delete",
+	ChannelSetParentGroupOp:       "channel_set_parent_group",
+	ChannelRemoveParentGroupOp:    "channel_remove_parent_group",
+	ChannelConnectToClientOp:      "channel_connect_to_client",
+	ChannelDisconnectFromClientOp: "channel_disconnect_from_client",
 	// Group operations
 	GroupCreateOp:                  "group_create",
 	GroupListOp:                    "group_list",
@@ -352,8 +352,8 @@ var ValidOperationsForEntity = map[EntityType][]Operation{
 		ChannelDeleteOp,
 		ChannelSetParentGroupOp,
 		ChannelRemoveParentGroupOp,
-		ChannelConnectClientOp,
-		ChannelDisconnectClientOp,
+		ChannelConnectToClientOp,
+		ChannelDisconnectFromClientOp,
 		RoleAddOp,
 		RoleRemoveOp,
 		RoleUpdateOp,
