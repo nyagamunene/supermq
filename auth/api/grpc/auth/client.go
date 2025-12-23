@@ -90,6 +90,7 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Auth
 		}
 	} else if pat := req.GetPat(); pat != nil {
 		authReqData = authReq{
+			TokenType:        pat.GetTokenType(),
 			UserID:           pat.GetUserId(),
 			PatID:            pat.GetPatId(),
 			EntityType:       auth.EntityType(pat.GetEntityType()),
@@ -120,6 +121,7 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 		return &grpcAuthV1.AuthZReq{
 			AuthType: &grpcAuthV1.AuthZReq_Pat{
 				Pat: &grpcAuthV1.PATReq{
+					TokenType:        req.TokenType,
 					UserId:           req.UserID,
 					PatId:            req.PatID,
 					EntityType:       uint32(req.EntityType),
