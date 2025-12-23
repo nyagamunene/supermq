@@ -17,7 +17,7 @@ import (
 
 const patPrefix = "pat_"
 
-var errTokenTypeMismatch = errors.New("token type mismatch: token format does not match the service-returned token type")
+var errTokenTypeMismatch = errors.NewAuthNError("token type mismatch: token format does not match the service-returned token type")
 
 type authentication struct {
 	authSvcClient grpcAuthV1.AuthServiceClient
