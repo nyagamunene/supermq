@@ -84,7 +84,7 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 			UserID:           pat.GetUserId(),
 			PatID:            pat.GetPatId(),
 			EntityType:       auth.EntityType(pat.GetEntityType()),
-			OptionalDomainID: pat.GetOptionalDomainId(),
+			DomainID: pat.GetDomainId(),
 			Operation:        auth.Operation(pat.GetOperation()),
 			EntityID:         pat.GetEntityId(),
 		}, nil

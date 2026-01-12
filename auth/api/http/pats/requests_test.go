@@ -508,14 +508,14 @@ func TestClearAllPATReqValidate(t *testing.T) {
 
 func TestAddScopeReqValidate(t *testing.T) {
 	validScope := auth.Scope{
-		OptionalDomainID: "domain1",
+		DomainID: "domain1",
 		EntityType:       auth.GroupsType,
 		EntityID:         "entity1",
 		Operation:        auth.GroupCreateOp,
 	}
 
 	invalidScope := auth.Scope{
-		OptionalDomainID: "",
+		DomainID: "",
 		EntityType:       auth.GroupsType,
 		EntityID:         "",
 		Operation:        auth.GroupCreateOp,

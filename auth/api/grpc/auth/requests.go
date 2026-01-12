@@ -39,7 +39,7 @@ type authReq struct {
 	UserID           string
 	PatID            string
 	EntityType       auth.EntityType
-	OptionalDomainID string
+	DomainID string
 	Operation        auth.Operation
 	EntityID         string
 }

@@ -17,7 +17,7 @@ func TestScopeAuthorized(t *testing.T) {
 		desc             string
 		scope            *auth.Scope
 		entityType       auth.EntityType
-		optionalDomainID string
+		domainID string
 		operation        auth.Operation
 		entityID         string
 		expected         bool
@@ -26,12 +26,12 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Authorized with matching entity type, domain, operation and entity ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "entity1",
 			},
 			entityType:       auth.GroupsType,
-			optionalDomainID: "domain1",
+			domainID: "domain1",
 			operation:        auth.GroupCreateOp,
 			entityID:         "entity1",
 			expected:         true,
@@ -40,12 +40,12 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Authorized with wildcard entity ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "*",
 			},
 			entityType:       auth.GroupsType,
-			optionalDomainID: "domain1",
+			domainID: "domain1",
 			operation:        auth.GroupCreateOp,
 			entityID:         "any-entity",
 			expected:         true,
@@ -54,12 +54,12 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Authorized without domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.ClientsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.ClientViewOp,
 				EntityID:         "client1",
 			},
 			entityType:       auth.ClientsType,
-			optionalDomainID: "domain1",
+			domainID: "domain1",
 			operation:        auth.ClientViewOp,
 			entityID:         "client1",
 			expected:         true,
@@ -68,12 +68,12 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Not authorized with different entity type",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "entity1",
 			},
 			entityType:       auth.ChannelsType,
-			optionalDomainID: "domain1",
+			domainID: "domain1",
 			operation:        auth.GroupCreateOp,
 			entityID:         "entity1",
 			expected:         false,
@@ -82,12 +82,12 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Not authorized with different domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "entity1",
 			},
 			entityType:       auth.GroupsType,
-			optionalDomainID: "domain2",
+			domainID: "domain2",
 			operation:        auth.GroupCreateOp,
 			entityID:         "entity1",
 			expected:         false,
@@ -96,12 +96,12 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Not authorized with different operation",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "entity1",
 			},
 			entityType:       auth.GroupsType,
-			optionalDomainID: "domain1",
+			domainID: "domain1",
 			operation:        auth.GroupDeleteOp,
 			entityID:         "entity1",
 			expected:         false,
@@ -110,12 +110,12 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Not authorized with different entity ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "entity1",
 			},
 			entityType:       auth.GroupsType,
-			optionalDomainID: "domain1",
+			domainID: "domain1",
 			operation:        auth.GroupCreateOp,
 			entityID:         "entity2",
 			expected:         false,
@@ -124,7 +124,7 @@ func TestScopeAuthorized(t *testing.T) {
 			desc:             "Not authorized with nil scope",
 			scope:            nil,
 			entityType:       auth.GroupsType,
-			optionalDomainID: "domain1",
+			domainID: "domain1",
 			operation:        auth.GroupCreateOp,
 			entityID:         "entity1",
 			expected:         false,
@@ -133,7 +133,7 @@ func TestScopeAuthorized(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			result := tc.scope.Authorized(tc.entityType, tc.optionalDomainID, tc.operation, tc.entityID)
+			result := tc.scope.Authorized(tc.entityType, tc.domainID, tc.operation, tc.entityID)
 			assert.Equal(t, tc.expected, result, "Authorized() = %v, expected %v", result, tc.expected)
 		})
 	}
@@ -149,7 +149,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Valid scope for groups with domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "entity1",
 			},
@@ -159,7 +159,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Valid scope for channels with domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.ChannelsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.ChannelViewOp,
 				EntityID:         "channel1",
 			},
@@ -169,7 +169,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Valid scope for clients with domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.ClientsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.ClientUpdateOp,
 				EntityID:         "client1",
 			},
@@ -179,7 +179,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Valid scope for messages with domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.MessagesType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.MessagePublishOp,
 				EntityID:         "message1",
 			},
@@ -189,7 +189,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Valid scope for dashboard with domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.DashboardType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.DashboardShareOp,
 				EntityID:         "dashboard1",
 			},
@@ -199,7 +199,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Valid scope with wildcard entity ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "*",
 			},
@@ -214,7 +214,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Invalid scope without entity ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "domain1",
+				DomainID: "domain1",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "",
 			},
@@ -224,7 +224,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Invalid scope for groups without domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.GroupsType,
-				OptionalDomainID: "",
+				DomainID: "",
 				Operation:        auth.GroupCreateOp,
 				EntityID:         "entity1",
 			},
@@ -234,7 +234,7 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Invalid scope for channels without domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.ChannelsType,
-				OptionalDomainID: "",
+				DomainID: "",
 				Operation:        auth.ChannelCreateOp,
 				EntityID:         "channel1",
 			},
@@ -244,9 +244,29 @@ func TestScopeValidate(t *testing.T) {
 			desc: "Invalid scope for clients without domain ID",
 			scope: &auth.Scope{
 				EntityType:       auth.ClientsType,
-				OptionalDomainID: "",
+				DomainID: "",
 				Operation:        auth.ClientCreateOp,
 				EntityID:         "client1",
+			},
+			err: apiutil.ErrMissingDomainID,
+		},
+		{
+			desc: "Invalid scope for dashboard without domain ID",
+			scope: &auth.Scope{
+				EntityType:       auth.DashboardType,
+				DomainID: "",
+				Operation:        auth.DashboardShareOp,
+				EntityID:         "dashboard1",
+			},
+			err: apiutil.ErrMissingDomainID,
+		},
+		{
+			desc: "Invalid scope for messages without domain ID",
+			scope: &auth.Scope{
+				EntityType:       auth.MessagesType,
+				DomainID: "",
+				Operation:        auth.MessagePublishOp,
+				EntityID:         "message1",
 			},
 			err: apiutil.ErrMissingDomainID,
 		},

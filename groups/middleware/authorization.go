@@ -385,7 +385,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	pr.TokenType = session.Type
 	pr.UserID = session.UserID
 	pr.PatID = session.PatID
-	pr.OptionalDomainID = session.DomainID
+	pr.DomainID = session.DomainID
 
 	perm, err := am.entitiesOps.GetPermission(entityType, op)
 	if err != nil {

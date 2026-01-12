@@ -58,8 +58,8 @@ type Policy struct {
 	PatID string `json:"pat_id,omitempty"`
 	// EntityType contains the entity type for PAT authorization.
 	EntityType uint32 `json:"entity_type,omitempty"`
-	// OptionalDomainID contains the optional domain ID for PAT scope checking.
-	OptionalDomainID string `json:"optional_domain_id,omitempty"`
+	// DomainID contains the domain ID for PAT scope checking.
+	DomainID string `json:"domain_id,omitempty"`
 	// Operation contains the operation type for PAT authorization.
 	Operation uint32 `json:"operation,omitempty"`
 	// EntityID contains the entity ID for PAT authorization.

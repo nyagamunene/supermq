@@ -28,7 +28,7 @@ type dbPat struct {
 type dbScope struct {
 	ID               string `db:"id,omitempty"`
 	PatID            string `db:"pat_id,omitempty"`
-	OptionalDomainID string `db:"optional_domain_id,omitempty"`
+	DomainID string `db:"domain_id,omitempty"`
 	EntityType       string `db:"entity_type,omitempty"`
 	EntityID         string `db:"entity_id,omitempty"`
 	Operation        string `db:"operation,omitempty"`
@@ -99,7 +99,7 @@ func toAuthScope(dsc []dbScope) ([]auth.Scope, error) {
 		scope = append(scope, auth.Scope{
 			ID:               s.ID,
 			PatID:            s.PatID,
-			OptionalDomainID: s.OptionalDomainID,
+			DomainID: s.DomainID,
 			EntityType:       entityType,
 			EntityID:         s.EntityID,
 			Operation:        operation,
@@ -154,7 +154,7 @@ func toDBScope(sc []auth.Scope) []dbScope {
 		scopes = append(scopes, dbScope{
 			ID:               s.ID,
 			PatID:            s.PatID,
-			OptionalDomainID: s.OptionalDomainID,
+			DomainID: s.DomainID,
 			EntityType:       s.EntityType.String(),
 			EntityID:         s.EntityID,
 			Operation:        s.Operation.String(),

@@ -93,11 +93,11 @@ func Migration() *migrate.MemoryMigrationSource {
 					`CREATE TABLE IF NOT EXISTS pat_scopes (
 						id              	VARCHAR(36) PRIMARY KEY,
 						pat_id          	VARCHAR(36) REFERENCES pats(id) ON DELETE CASCADE,
-						optional_domain_id	VARCHAR(36),
+						domain_id	VARCHAR(36),
 						entity_type     	VARCHAR(50) NOT NULL,
 						operation 			VARCHAR(50) NOT NULL,
 						entity_id			VARCHAR(50) NOT NULL,
-						UNIQUE (pat_id, optional_domain_id, entity_type, operation, entity_id)
+						UNIQUE (pat_id, domain_id, entity_type, operation, entity_id)
 					);`,
 				},
 				Down: []string{

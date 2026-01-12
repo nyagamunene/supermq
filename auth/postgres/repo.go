@@ -374,8 +374,8 @@ func (pr *patRepo) RemoveAllPAT(ctx context.Context, userID string) error {
 
 func (pr *patRepo) AddScope(ctx context.Context, userID string, scopes []auth.Scope) error {
 	q := `
-		INSERT INTO pat_scopes (id, pat_id, entity_type, optional_domain_id, operation, entity_id)
-		VALUES (:id, :pat_id, :entity_type, :optional_domain_id, :operation, :entity_id)`
+		INSERT INTO pat_scopes (id, pat_id, entity_type, domain_id, operation, entity_id)
+		VALUES (:id, :pat_id, :entity_type, :domain_id, :operation, :entity_id)`
 
 	var newScopes []auth.Scope
 
@@ -410,14 +410,14 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 		FROM pat_scopes 
 		WHERE pat_id = :pat_id 
 		  AND entity_type = :entity_type
-		  AND optional_domain_id = :optional_domain_id
+		  AND domain_id = :domain_id
 		  AND operation = :operation
 		  AND entity_id = :entity_id
 		LIMIT 1`
 
 	params := dbScope{
 		PatID:            sc.PatID,
-		OptionalDomainID: sc.OptionalDomainID,
+		DomainID: sc.DomainID,
 		EntityType:       sc.EntityType.String(),
 		Operation:        sc.Operation.String(),
 		EntityID:         auth.AnyIDs,
@@ -443,7 +443,7 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 	if sc.EntityID == auth.AnyIDs {
 		newParams := dbScope{
 			PatID:            sc.PatID,
-			OptionalDomainID: sc.OptionalDomainID,
+			DomainID: sc.DomainID,
 			EntityType:       sc.EntityType.String(),
 			Operation:        sc.Operation.String(),
 		}
@@ -453,7 +453,7 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 			FROM pat_scopes 
 			WHERE pat_id = :pat_id 
 			AND entity_type = :entity_type
-			AND optional_domain_id = :optional_domain_id
+			AND domain_id = :domain_id
 			AND operation = :operation
 			LIMIT 1`
 
@@ -476,7 +476,7 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 			SET entity_id = :entity_id 
 			WHERE pat_id = :pat_id 
 			AND entity_type = :entity_type
-			AND optional_domain_id = :optional_domain_id
+			AND domain_id = :domain_id
 			AND operation = :operation`
 
 			rows, err = pr.db.NamedQueryContext(ctx, updateWithWildcardQuery, params)
@@ -511,18 +511,18 @@ func (pr *patRepo) RemoveScope(ctx context.Context, userID string, scopesIDs ...
 	return nil
 }
 
-func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityType auth.EntityType, optionalDomainID string, operation auth.Operation, entityID string) error {
+func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error {
 	q := `
-        SELECT id, pat_id, entity_type, optional_domain_id, operation, entity_id
+        SELECT id, pat_id, entity_type, domain_id, operation, entity_id
         FROM pat_scopes 
         WHERE pat_id = :pat_id 
           AND entity_type = :entity_type
-          AND optional_domain_id = :optional_domain_id
+          AND domain_id = :domain_id
           AND operation = :operation
           AND (entity_id = :entity_id OR entity_id = '*')
         LIMIT 1`
 
-	authorized := pr.cache.CheckScope(ctx, userID, patID, optionalDomainID, entityType, operation, entityID)
+	authorized := pr.cache.CheckScope(ctx, userID, patID, domainID, entityType, operation, entityID)
 	if authorized {
 		return nil
 	}
@@ -530,7 +530,7 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 	scope := dbScope{
 		PatID:            patID,
 		EntityType:       entityType.String(),
-		OptionalDomainID: optionalDomainID,
+		DomainID: domainID,
 		Operation:        operation.String(),
 		EntityID:         entityID,
 	}
@@ -558,7 +558,7 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 		authScope := auth.Scope{
 			ID:               sc.ID,
 			PatID:            sc.PatID,
-			OptionalDomainID: sc.OptionalDomainID,
+			DomainID: sc.DomainID,
 			EntityType:       entityType,
 			EntityID:         sc.EntityID,
 			Operation:        operation,
@@ -568,7 +568,7 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 			return err
 		}
 
-		if authScope.Authorized(entityType, optionalDomainID, operation, entityID) {
+		if authScope.Authorized(entityType, domainID, operation, entityID) {
 			return nil
 		}
 	}
@@ -625,7 +625,7 @@ func (pr *patRepo) RetrieveScope(ctx context.Context, pm auth.ScopesPageMeta) (a
 
 func (pr *patRepo) retrieveScopeFromDB(ctx context.Context, pm dbPagemeta) ([]auth.Scope, error) {
 	q := `
-		SELECT id, pat_id, entity_type, optional_domain_id, operation, entity_id
+		SELECT id, pat_id, entity_type, domain_id, operation, entity_id
 		FROM pat_scopes WHERE pat_id = :pat_id OFFSET :offset LIMIT :limit`
 	scopeRows, err := pr.db.NamedQueryContext(ctx, q, pm)
 	if err != nil {

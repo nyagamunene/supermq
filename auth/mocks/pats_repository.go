@@ -107,8 +107,8 @@ func (_c *PATSRepository_AddScope_Call) RunAndReturn(run func(ctx context.Contex
 }
 
 // CheckScope provides a mock function for the type PATSRepository
-func (_mock *PATSRepository) CheckScope(ctx context.Context, userID string, patID string, entityType auth.EntityType, optionalDomainID string, operation auth.Operation, entityID string) error {
-	ret := _mock.Called(ctx, userID, patID, entityType, optionalDomainID, operation, entityID)
+func (_mock *PATSRepository) CheckScope(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error {
+	ret := _mock.Called(ctx, userID, patID, entityType, domainID, operation, entityID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckScope")
@@ -116,7 +116,7 @@ func (_mock *PATSRepository) CheckScope(ctx context.Context, userID string, patI
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, auth.EntityType, string, auth.Operation, string) error); ok {
-		r0 = returnFunc(ctx, userID, patID, entityType, optionalDomainID, operation, entityID)
+		r0 = returnFunc(ctx, userID, patID, entityType, domainID, operation, entityID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -133,14 +133,14 @@ type PATSRepository_CheckScope_Call struct {
 //   - userID string
 //   - patID string
 //   - entityType auth.EntityType
-//   - optionalDomainID string
+//   - domainID string
 //   - operation auth.Operation
 //   - entityID string
-func (_e *PATSRepository_Expecter) CheckScope(ctx interface{}, userID interface{}, patID interface{}, entityType interface{}, optionalDomainID interface{}, operation interface{}, entityID interface{}) *PATSRepository_CheckScope_Call {
-	return &PATSRepository_CheckScope_Call{Call: _e.mock.On("CheckScope", ctx, userID, patID, entityType, optionalDomainID, operation, entityID)}
+func (_e *PATSRepository_Expecter) CheckScope(ctx interface{}, userID interface{}, patID interface{}, entityType interface{}, domainID interface{}, operation interface{}, entityID interface{}) *PATSRepository_CheckScope_Call {
+	return &PATSRepository_CheckScope_Call{Call: _e.mock.On("CheckScope", ctx, userID, patID, entityType, domainID, operation, entityID)}
 }
 
-func (_c *PATSRepository_CheckScope_Call) Run(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, optionalDomainID string, operation auth.Operation, entityID string)) *PATSRepository_CheckScope_Call {
+func (_c *PATSRepository_CheckScope_Call) Run(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string)) *PATSRepository_CheckScope_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -188,7 +188,7 @@ func (_c *PATSRepository_CheckScope_Call) Return(err error) *PATSRepository_Chec
 	return _c
 }
 
-func (_c *PATSRepository_CheckScope_Call) RunAndReturn(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, optionalDomainID string, operation auth.Operation, entityID string) error) *PATSRepository_CheckScope_Call {
+func (_c *PATSRepository_CheckScope_Call) RunAndReturn(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error) *PATSRepository_CheckScope_Call {
 	_c.Call.Return(run)
 	return _c
 }

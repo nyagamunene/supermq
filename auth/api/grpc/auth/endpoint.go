@@ -53,7 +53,7 @@ func authorizeEndpoint(svc auth.Service) endpoint.Endpoint {
 			UserID:           req.UserID,
 			PatID:            req.PatID,
 			EntityType:       uint32(req.EntityType),
-			OptionalDomainID: req.OptionalDomainID,
+			DomainID: req.DomainID,
 			Operation:        uint32(req.Operation),
 			EntityID:         req.EntityID,
 		})
