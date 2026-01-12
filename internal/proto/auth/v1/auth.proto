@@ -19,40 +19,40 @@ message AuthNReq {
 }
 
 message AuthNRes {
-  string id    = 1;       // token id
-  string user_id = 2;     // user id
-  uint32 user_role = 3;   // user role
-  bool verified = 4;      // verified user
-  uint32 token_type = 5;  // token type
+  string id = 1;
+  string user_id = 2;
+  uint32 user_role = 3;
+  bool verified = 4;
+  uint32 token_type = 5;
 }
 
 message PolicyReq {
-  uint32 token_type = 1;          // Token type
-  string domain = 2;              // Domain
-  string subject_type = 3;        // Client or User
-  string subject_kind = 4;        // ID or Token
-  string subject_relation = 5;    // Subject relation
-  string subject = 6;             // Subject value
-  string relation = 7;            // Relation to filter
-  string permission = 8;          // Action
-  string object = 9;              // Object ID
-  string object_type = 10;        // Client, User, Group
+  uint32 token_type = 1;
+  string domain = 2;
+  string subject_type = 3;
+  string subject_kind = 4;
+  string subject_relation = 5;
+  string subject = 6;
+  string relation = 7;
+  string permission = 8;
+  string object = 9;
+  string object_type = 10;
 }
 
 message PATReq {
-  uint32 token_type = 1;          // Token type
-  string user_id = 2;             // User id
-  string pat_id = 3;              // Pat id
-  uint32 entity_type = 4;         // Entity type
-  string optional_domain_id = 5;  // Optional domain id
-  uint32 operation = 6;           // Operation
-  string entity_id = 7;           // EntityID
+  uint32 token_type = 1;
+  string user_id = 2;
+  string pat_id = 3;
+  uint32 entity_type = 4;
+  string domain_id = 5;
+  uint32 operation = 6;
+  string entity_id = 7;
 }
 
 message AuthZReq {
   oneof auth_type {
-    PolicyReq policy = 1;         // Policy-based authorization
-    PATReq pat = 2;               // PAT authorization
+    PolicyReq policy = 1;
+    PATReq pat = 2;
   }
 }
 

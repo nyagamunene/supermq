@@ -296,7 +296,7 @@ func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, ses
 	pr.TokenType = session.Type
 	pr.UserID = session.UserID
 	pr.PatID = session.PatID
-	pr.OptionalDomainID = session.DomainID
+	pr.DomainID = session.DomainID
 
 	perm, err := ram.ops.GetPermission(op)
 	if err != nil {

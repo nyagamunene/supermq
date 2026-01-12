@@ -94,7 +94,7 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Auth
 			UserID:           pat.GetUserId(),
 			PatID:            pat.GetPatId(),
 			EntityType:       auth.EntityType(pat.GetEntityType()),
-			OptionalDomainID: pat.GetOptionalDomainId(),
+			DomainID: pat.GetDomainId(),
 			Operation:        auth.Operation(pat.GetOperation()),
 			EntityID:         pat.GetEntityId(),
 		}
@@ -125,7 +125,7 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 					UserId:           req.UserID,
 					PatId:            req.PatID,
 					EntityType:       uint32(req.EntityType),
-					OptionalDomainId: req.OptionalDomainID,
+					DomainId: req.DomainID,
 					Operation:        uint32(req.Operation),
 					EntityId:         req.EntityID,
 				},

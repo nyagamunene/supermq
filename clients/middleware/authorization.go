@@ -259,7 +259,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	req.TokenType = session.Type
 	req.UserID = session.UserID
 	req.PatID = session.PatID
-	req.OptionalDomainID = session.DomainID
+	req.DomainID = session.DomainID
 
 	perm, err := am.entitiesOps.GetPermission(entityType, op)
 	if err != nil {

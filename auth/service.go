@@ -215,7 +215,7 @@ func (svc service) Authorize(ctx context.Context, pr policies.Policy) error {
 	// then continue with normal authorization to ensure the user still has permissions.
 	// This handles cases where the user has been deleted or permissions revoked.
 	if pr.PatID != "" && pr.TokenType == PersonalAccessTokenType {
-		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, EntityType(pr.EntityType), pr.OptionalDomainID, Operation(pr.Operation), pr.EntityID); err != nil {
+		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, EntityType(pr.EntityType), pr.DomainID, Operation(pr.Operation), pr.EntityID); err != nil {
 			return err
 		}
 		return nil
@@ -738,8 +738,8 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 	return pat, nil
 }
 
-func (svc service) AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, optionalDomainID string, operation Operation, entityID string) error {
-	if err := svc.pats.CheckScope(ctx, userID, patID, entityType, optionalDomainID, operation, entityID); err != nil {
+func (svc service) AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) error {
+	if err := svc.pats.CheckScope(ctx, userID, patID, entityType, domainID, operation, entityID); err != nil {
 		return errors.Wrap(svcerr.ErrAuthorization, err)
 	}
 

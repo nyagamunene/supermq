@@ -171,8 +171,8 @@ func (_c *Service_Authorize_Call) RunAndReturn(run func(ctx context.Context, pr 
 }
 
 // AuthorizePAT provides a mock function for the type Service
-func (_mock *Service) AuthorizePAT(ctx context.Context, userID string, patID string, entityType auth.EntityType, optionalDomainID string, operation auth.Operation, entityID string) error {
-	ret := _mock.Called(ctx, userID, patID, entityType, optionalDomainID, operation, entityID)
+func (_mock *Service) AuthorizePAT(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error {
+	ret := _mock.Called(ctx, userID, patID, entityType, domainID, operation, entityID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AuthorizePAT")
@@ -180,7 +180,7 @@ func (_mock *Service) AuthorizePAT(ctx context.Context, userID string, patID str
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, auth.EntityType, string, auth.Operation, string) error); ok {
-		r0 = returnFunc(ctx, userID, patID, entityType, optionalDomainID, operation, entityID)
+		r0 = returnFunc(ctx, userID, patID, entityType, domainID, operation, entityID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -197,14 +197,14 @@ type Service_AuthorizePAT_Call struct {
 //   - userID string
 //   - patID string
 //   - entityType auth.EntityType
-//   - optionalDomainID string
+//   - domainID string
 //   - operation auth.Operation
 //   - entityID string
-func (_e *Service_Expecter) AuthorizePAT(ctx interface{}, userID interface{}, patID interface{}, entityType interface{}, optionalDomainID interface{}, operation interface{}, entityID interface{}) *Service_AuthorizePAT_Call {
-	return &Service_AuthorizePAT_Call{Call: _e.mock.On("AuthorizePAT", ctx, userID, patID, entityType, optionalDomainID, operation, entityID)}
+func (_e *Service_Expecter) AuthorizePAT(ctx interface{}, userID interface{}, patID interface{}, entityType interface{}, domainID interface{}, operation interface{}, entityID interface{}) *Service_AuthorizePAT_Call {
+	return &Service_AuthorizePAT_Call{Call: _e.mock.On("AuthorizePAT", ctx, userID, patID, entityType, domainID, operation, entityID)}
 }
 
-func (_c *Service_AuthorizePAT_Call) Run(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, optionalDomainID string, operation auth.Operation, entityID string)) *Service_AuthorizePAT_Call {
+func (_c *Service_AuthorizePAT_Call) Run(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string)) *Service_AuthorizePAT_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -252,7 +252,7 @@ func (_c *Service_AuthorizePAT_Call) Return(err error) *Service_AuthorizePAT_Cal
 	return _c
 }
 
-func (_c *Service_AuthorizePAT_Call) RunAndReturn(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, optionalDomainID string, operation auth.Operation, entityID string) error) *Service_AuthorizePAT_Call {
+func (_c *Service_AuthorizePAT_Call) RunAndReturn(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error) *Service_AuthorizePAT_Call {
 	_c.Call.Return(run)
 	return _c
 }

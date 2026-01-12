@@ -69,7 +69,7 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 					UserId:           pr.UserID,
 					PatId:            pr.PatID,
 					EntityType:       uint32(pr.EntityType),
-					OptionalDomainId: pr.OptionalDomainID,
+					DomainId: pr.DomainID,
 					Operation:        uint32(pr.Operation),
 					EntityId:         pr.EntityID,
 				},

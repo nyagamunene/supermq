@@ -436,19 +436,19 @@ func IsValidOperationForEntity(entityType EntityType, operation Operation) bool 
 //
 // [
 //     {
-//         "optional_domain_id": "domain_1",
+//         "domain_id": "domain_1",
 //         "entity_type": "groups",
 //         "operation": "group_create",
 //         "entity_id": "*"
 //     },
 //     {
-//         "optional_domain_id": "domain_1",
+//         "domain_id": "domain_1",
 //         "entity_type": "channels",
 //         "operation": "channel_delete",
 //         "entity_id": "channel1"
 //     },
 //     {
-//         "optional_domain_id": "domain_1",
+//         "domain_id": "domain_1",
 //         "entity_type": "clients",
 //         "operation": "client_update",
 //         "entity_id": "*"
@@ -458,13 +458,13 @@ func IsValidOperationForEntity(entityType EntityType, operation Operation) bool 
 type Scope struct {
 	ID               string     `json:"id"`
 	PatID            string     `json:"pat_id"`
-	OptionalDomainID string     `json:"optional_domain_id"`
+	DomainID         string     `json:"domain_id"`
 	EntityType       EntityType `json:"entity_type"`
 	EntityID         string     `json:"entity_id"`
 	Operation        Operation  `json:"operation"`
 }
 
-func (s *Scope) Authorized(entityType EntityType, optionalDomainID string, operation Operation, entityID string) bool {
+func (s *Scope) Authorized(entityType EntityType, domainID string, operation Operation, entityID string) bool {
 	if s == nil {
 		return false
 	}
@@ -473,7 +473,7 @@ func (s *Scope) Authorized(entityType EntityType, optionalDomainID string, opera
 		return false
 	}
 
-	if optionalDomainID != "" && s.OptionalDomainID != optionalDomainID {
+	if domainID != "" && s.DomainID != domainID {
 		return false
 	}
 
@@ -499,11 +499,8 @@ func (s *Scope) Validate() error {
 		return apiutil.ErrMissingEntityID
 	}
 
-	switch s.EntityType {
-	case ChannelsType, GroupsType, ClientsType:
-		if s.OptionalDomainID == "" {
-			return apiutil.ErrMissingDomainID
-		}
+	if s.DomainID == "" {
+		return apiutil.ErrMissingDomainID
 	}
 
 	if !IsValidOperationForEntity(s.EntityType, s.Operation) {
@@ -633,7 +630,7 @@ type PATS interface {
 	IdentifyPAT(ctx context.Context, paToken string) (PAT, error)
 
 	// AuthorizePAT function will valid the secret and check the given scope exists.
-	AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, optionalDomainID string, operation Operation, entityID string) error
+	AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) error
 }
 
 // PATSRepository specifies PATS persistence API.
@@ -678,7 +675,7 @@ type PATSRepository interface {
 
 	RemoveScope(ctx context.Context, userID string, scopesIDs ...string) error
 
-	CheckScope(ctx context.Context, userID, patID string, entityType EntityType, optionalDomainID string, operation Operation, entityID string) error
+	CheckScope(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) error
 
 	RemoveAllScope(ctx context.Context, patID string) error
 }
@@ -686,7 +683,7 @@ type PATSRepository interface {
 type Cache interface {
 	Save(ctx context.Context, userID string, scopes []Scope) error
 
-	CheckScope(ctx context.Context, userID, patID, optionalDomainID string, entityType EntityType, operation Operation, entityID string) bool
+	CheckScope(ctx context.Context, userID, patID, domainID string, entityType EntityType, operation Operation, entityID string) bool
 
 	Remove(ctx context.Context, userID string, scopesID []string) error
 
