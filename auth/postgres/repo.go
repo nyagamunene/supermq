@@ -416,11 +416,11 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 		LIMIT 1`
 
 	params := dbScope{
-		PatID:            sc.PatID,
-		DomainID: sc.DomainID,
-		EntityType:       sc.EntityType.String(),
-		Operation:        sc.Operation.String(),
-		EntityID:         auth.AnyIDs,
+		PatID:      sc.PatID,
+		DomainID:   sc.DomainID,
+		EntityType: sc.EntityType.String(),
+		Operation:  sc.Operation.String(),
+		EntityID:   auth.AnyIDs,
 	}
 
 	rows, err := pr.db.NamedQueryContext(ctx, q, params)
@@ -442,10 +442,10 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 
 	if sc.EntityID == auth.AnyIDs {
 		newParams := dbScope{
-			PatID:            sc.PatID,
-			DomainID: sc.DomainID,
-			EntityType:       sc.EntityType.String(),
-			Operation:        sc.Operation.String(),
+			PatID:      sc.PatID,
+			DomainID:   sc.DomainID,
+			EntityType: sc.EntityType.String(),
+			Operation:  sc.Operation.String(),
 		}
 
 		checkEntityQuery := `
@@ -528,11 +528,11 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 	}
 
 	scope := dbScope{
-		PatID:            patID,
-		EntityType:       entityType.String(),
-		DomainID: domainID,
-		Operation:        operation.String(),
-		EntityID:         entityID,
+		PatID:      patID,
+		EntityType: entityType.String(),
+		DomainID:   domainID,
+		Operation:  operation.String(),
+		EntityID:   entityID,
 	}
 
 	rows, err := pr.db.NamedQueryContext(ctx, q, scope)
@@ -556,12 +556,12 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 			return errors.Wrap(repoerr.ErrViewEntity, err)
 		}
 		authScope := auth.Scope{
-			ID:               sc.ID,
-			PatID:            sc.PatID,
-			DomainID: sc.DomainID,
-			EntityType:       entityType,
-			EntityID:         sc.EntityID,
-			Operation:        operation,
+			ID:         sc.ID,
+			PatID:      sc.PatID,
+			DomainID:   sc.DomainID,
+			EntityType: entityType,
+			EntityID:   sc.EntityID,
+			Operation:  operation,
 		}
 
 		if err := pr.cache.Save(ctx, userID, []auth.Scope{authScope}); err != nil {

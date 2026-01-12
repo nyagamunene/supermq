@@ -36,12 +36,12 @@ type authReq struct {
 	Object      string
 
 	// PAT authorization fields
-	UserID           string
-	PatID            string
-	EntityType       auth.EntityType
-	DomainID string
-	Operation        auth.Operation
-	EntityID         string
+	UserID     string
+	PatID      string
+	EntityType auth.EntityType
+	DomainID   string
+	Operation  auth.Operation
+	EntityID   string
 }
 
 func (req authReq) validate() error {

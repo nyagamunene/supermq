@@ -65,13 +65,13 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 		patReq := grpcAuthV1.AuthZReq{
 			AuthType: &grpcAuthV1.AuthZReq_Pat{
 				Pat: &grpcAuthV1.PATReq{
-					TokenType:        uint32(pr.TokenType),
-					UserId:           pr.UserID,
-					PatId:            pr.PatID,
-					EntityType:       uint32(pr.EntityType),
-					DomainId: pr.DomainID,
-					Operation:        uint32(pr.Operation),
-					EntityId:         pr.EntityID,
+					TokenType:  uint32(pr.TokenType),
+					UserId:     pr.UserID,
+					PatId:      pr.PatID,
+					EntityType: uint32(pr.EntityType),
+					DomainId:   pr.DomainID,
+					Operation:  uint32(pr.Operation),
+					EntityId:   pr.EntityID,
 				},
 			},
 		}
