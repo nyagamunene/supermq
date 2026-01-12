@@ -456,12 +456,12 @@ func IsValidOperationForEntity(entityType EntityType, operation Operation) bool 
 // ]
 
 type Scope struct {
-	ID               string     `json:"id"`
-	PatID            string     `json:"pat_id"`
-	DomainID         string     `json:"domain_id"`
-	EntityType       EntityType `json:"entity_type"`
-	EntityID         string     `json:"entity_id"`
-	Operation        Operation  `json:"operation"`
+	ID         string     `json:"id"`
+	PatID      string     `json:"pat_id"`
+	DomainID   string     `json:"domain_id"`
+	EntityType EntityType `json:"entity_type"`
+	EntityID   string     `json:"entity_id"`
+	Operation  Operation  `json:"operation"`
 }
 
 func (s *Scope) Authorized(entityType EntityType, domainID string, operation Operation, entityID string) bool {

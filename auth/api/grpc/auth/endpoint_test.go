@@ -264,12 +264,12 @@ func TestAuthorize(t *testing.T) {
 			authRequest: &grpcAuthV1.AuthZReq{
 				AuthType: &grpcAuthV1.AuthZReq_Pat{
 					Pat: &grpcAuthV1.PATReq{
-						UserId:           id,
-						PatId:            id,
-						EntityType:       uint32(auth.ClientsType),
-						DomainId: domainID,
-						Operation:        uint32(auth.ClientCreateOp),
-						EntityId:         clientID,
+						UserId:     id,
+						PatId:      id,
+						EntityType: uint32(auth.ClientsType),
+						DomainId:   domainID,
+						Operation:  uint32(auth.ClientCreateOp),
+						EntityId:   clientID,
 					},
 				},
 			},
@@ -282,12 +282,12 @@ func TestAuthorize(t *testing.T) {
 			authRequest: &grpcAuthV1.AuthZReq{
 				AuthType: &grpcAuthV1.AuthZReq_Pat{
 					Pat: &grpcAuthV1.PATReq{
-						UserId:           id,
-						PatId:            id,
-						EntityType:       uint32(auth.ClientsType),
-						DomainId: domainID,
-						Operation:        uint32(auth.ClientCreateOp),
-						EntityId:         clientID,
+						UserId:     id,
+						PatId:      id,
+						EntityType: uint32(auth.ClientsType),
+						DomainId:   domainID,
+						Operation:  uint32(auth.ClientCreateOp),
+						EntityId:   clientID,
 					},
 				},
 			},
@@ -300,11 +300,11 @@ func TestAuthorize(t *testing.T) {
 			authRequest: &grpcAuthV1.AuthZReq{
 				AuthType: &grpcAuthV1.AuthZReq_Pat{
 					Pat: &grpcAuthV1.PATReq{
-						PatId:            id,
-						EntityType:       uint32(auth.ClientsType),
-						DomainId: domainID,
-						Operation:        uint32(auth.ClientCreateOp),
-						EntityId:         clientID,
+						PatId:      id,
+						EntityType: uint32(auth.ClientsType),
+						DomainId:   domainID,
+						Operation:  uint32(auth.ClientCreateOp),
+						EntityId:   clientID,
 					},
 				},
 			},
@@ -317,11 +317,11 @@ func TestAuthorize(t *testing.T) {
 			authRequest: &grpcAuthV1.AuthZReq{
 				AuthType: &grpcAuthV1.AuthZReq_Pat{
 					Pat: &grpcAuthV1.PATReq{
-						UserId:           id,
-						PatId:            id,
-						EntityType:       uint32(auth.ClientsType),
-						DomainId: domainID,
-						Operation:        uint32(auth.ClientCreateOp),
+						UserId:     id,
+						PatId:      id,
+						EntityType: uint32(auth.ClientsType),
+						DomainId:   domainID,
+						Operation:  uint32(auth.ClientCreateOp),
 					},
 				},
 			},
