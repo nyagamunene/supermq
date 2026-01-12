@@ -16,6 +16,8 @@ import (
 
 const AnyIDs = "*"
 
+var errInvalidEntityOp = errors.NewRequestError("operation not valid for entity type")
+
 type Operation uint32
 
 // Clients operations.
@@ -505,7 +507,7 @@ func (s *Scope) Validate() error {
 	}
 
 	if !IsValidOperationForEntity(s.EntityType, s.Operation) {
-		return errors.Wrap(apiutil.ErrInvalidQueryParams, errors.New("operation not valid for entity type"))
+		return errors.Wrap(apiutil.ErrInvalidQueryParams, errInvalidEntityOp)
 	}
 
 	return nil
