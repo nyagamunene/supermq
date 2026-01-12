@@ -17,54 +17,54 @@ func TestOperationString(t *testing.T) {
 		expected string
 	}{
 		{
-			desc:     "Create operation",
-			op:       auth.CreateOp,
-			expected: "create",
+			desc:     "Client create operation",
+			op:       auth.ClientCreateOp,
+			expected: auth.ClientCreateOp.String(),
 		},
 		{
-			desc:     "Read operation",
-			op:       auth.ReadOp,
-			expected: "read",
+			desc:     "Client view operation",
+			op:       auth.ClientViewOp,
+			expected: auth.ClientViewOp.String(),
 		},
 		{
-			desc:     "List operation",
-			op:       auth.ListOp,
-			expected: "list",
+			desc:     "Client list operation",
+			op:       auth.ClientListOp,
+			expected: auth.ClientListOp.String(),
 		},
 		{
-			desc:     "Update operation",
-			op:       auth.UpdateOp,
-			expected: "update",
+			desc:     "Client update operation",
+			op:       auth.ClientUpdateOp,
+			expected: auth.ClientUpdateOp.String(),
 		},
 		{
-			desc:     "Delete operation",
-			op:       auth.DeleteOp,
-			expected: "delete",
+			desc:     "Client delete operation",
+			op:       auth.ClientDeleteOp,
+			expected: auth.ClientDeleteOp.String(),
 		},
 		{
-			desc:     "Share operation",
-			op:       auth.ShareOp,
-			expected: "share",
+			desc:     "Dashboard share operation",
+			op:       auth.DashboardShareOp,
+			expected: auth.DashboardShareOp.String(),
 		},
 		{
-			desc:     "Unshare operation",
-			op:       auth.UnshareOp,
-			expected: "unshare",
+			desc:     "Dashboard unshare operation",
+			op:       auth.DashboardUnshareOp,
+			expected: auth.DashboardUnshareOp.String(),
 		},
 		{
-			desc:     "Publish operation",
-			op:       auth.PublishOp,
-			expected: "publish",
+			desc:     "Message publish operation",
+			op:       auth.MessagePublishOp,
+			expected: auth.MessagePublishOp.String(),
 		},
 		{
-			desc:     "Subscribe operation",
-			op:       auth.SubscribeOp,
-			expected: "subscribe",
+			desc:     "Message subscribe operation",
+			op:       auth.MessageSubscribeOp,
+			expected: auth.MessageSubscribeOp.String(),
 		},
 		{
 			desc:     "Unknown operation",
-			op:       auth.Operation(100),
-			expected: "unknown operation type 100",
+			op:       auth.Operation(9999),
+			expected: "unknown operation type 9999",
 		},
 	}
 
@@ -84,20 +84,20 @@ func TestOperationValidString(t *testing.T) {
 		err      bool
 	}{
 		{
-			desc:     "Valid create operation",
-			op:       auth.CreateOp,
-			expected: "create",
+			desc:     "Valid client create operation",
+			op:       auth.ClientCreateOp,
+			expected: auth.ClientCreateOp.String(),
 			err:      false,
 		},
 		{
-			desc:     "Valid read operation",
-			op:       auth.ReadOp,
-			expected: "read",
+			desc:     "Valid client view operation",
+			op:       auth.ClientViewOp,
+			expected: auth.ClientViewOp.String(),
 			err:      false,
 		},
 		{
 			desc:     "Invalid operation",
-			op:       auth.Operation(100),
+			op:       auth.Operation(9999),
 			expected: "",
 			err:      true,
 		},
@@ -124,57 +124,57 @@ func TestParseOperation(t *testing.T) {
 		err      bool
 	}{
 		{
-			desc:     "Parse create",
-			op:       "create",
-			expected: auth.CreateOp,
+			desc:     "Parse client_create",
+			op:       auth.ClientCreateOp.String(),
+			expected: auth.ClientCreateOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse read",
-			op:       "read",
-			expected: auth.ReadOp,
+			desc:     "Parse client_view",
+			op:       auth.ClientViewOp.String(),
+			expected: auth.ClientViewOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse list",
-			op:       "list",
-			expected: auth.ListOp,
+			desc:     "Parse client_list",
+			op:       auth.ClientListOp.String(),
+			expected: auth.ClientListOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse update",
-			op:       "update",
-			expected: auth.UpdateOp,
+			desc:     "Parse client_update",
+			op:       auth.ClientUpdateOp.String(),
+			expected: auth.ClientUpdateOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse delete",
-			op:       "delete",
-			expected: auth.DeleteOp,
+			desc:     "Parse client_delete",
+			op:       auth.ClientDeleteOp.String(),
+			expected: auth.ClientDeleteOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse share",
-			op:       "share",
-			expected: auth.ShareOp,
+			desc:     "Parse dashboard_share",
+			op:       auth.DashboardShareOp.String(),
+			expected: auth.DashboardShareOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse unshare",
-			op:       "unshare",
-			expected: auth.UnshareOp,
+			desc:     "Parse dashboard_unshare",
+			op:       auth.DashboardUnshareOp.String(),
+			expected: auth.DashboardUnshareOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse publish",
-			op:       "publish",
-			expected: auth.PublishOp,
+			desc:     "Parse message_publish",
+			op:       auth.MessagePublishOp.String(),
+			expected: auth.MessagePublishOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse subscribe",
-			op:       "subscribe",
-			expected: auth.SubscribeOp,
+			desc:     "Parse message_subscribe",
+			op:       auth.MessageSubscribeOp.String(),
+			expected: auth.MessageSubscribeOp,
 			err:      false,
 		},
 		{
@@ -206,21 +206,21 @@ func TestOperationMarshalJSON(t *testing.T) {
 		err      error
 	}{
 		{
-			desc:     "Marshal create",
-			op:       auth.CreateOp,
-			expected: []byte(`"create"`),
+			desc:     "Marshal client_create",
+			op:       auth.ClientCreateOp,
+			expected: []byte(`"` + auth.ClientCreateOp.String() + `"`),
 			err:      nil,
 		},
 		{
-			desc:     "Marshal read",
-			op:       auth.ReadOp,
-			expected: []byte(`"read"`),
+			desc:     "Marshal client_view",
+			op:       auth.ClientViewOp,
+			expected: []byte(`"` + auth.ClientViewOp.String() + `"`),
 			err:      nil,
 		},
 		{
-			desc:     "Marshal delete",
-			op:       auth.DeleteOp,
-			expected: []byte(`"delete"`),
+			desc:     "Marshal client_delete",
+			op:       auth.ClientDeleteOp,
+			expected: []byte(`"` + auth.ClientDeleteOp.String() + `"`),
 			err:      nil,
 		},
 	}
@@ -242,15 +242,15 @@ func TestOperationUnmarshalJSON(t *testing.T) {
 		err      bool
 	}{
 		{
-			desc:     "Unmarshal create",
-			data:     []byte(`"create"`),
-			expected: auth.CreateOp,
+			desc:     "Unmarshal client_create",
+			data:     []byte(`"` + auth.ClientCreateOp.String() + `"`),
+			expected: auth.ClientCreateOp,
 			err:      false,
 		},
 		{
-			desc:     "Unmarshal read",
-			data:     []byte(`"read"`),
-			expected: auth.ReadOp,
+			desc:     "Unmarshal client_view",
+			data:     []byte(`"` + auth.ClientViewOp.String() + `"`),
+			expected: auth.ClientViewOp,
 			err:      false,
 		},
 		{
@@ -283,15 +283,15 @@ func TestOperationMarshalText(t *testing.T) {
 		err      error
 	}{
 		{
-			desc:     "Marshal create as text",
-			op:       auth.CreateOp,
-			expected: []byte("create"),
+			desc:     "Marshal client_create as text",
+			op:       auth.ClientCreateOp,
+			expected: []byte(auth.ClientCreateOp.String()),
 			err:      nil,
 		},
 		{
-			desc:     "Marshal read as text",
-			op:       auth.ReadOp,
-			expected: []byte("read"),
+			desc:     "Marshal client_view as text",
+			op:       auth.ClientViewOp,
+			expected: []byte(auth.ClientViewOp.String()),
 			err:      nil,
 		},
 	}
@@ -313,15 +313,15 @@ func TestOperationUnmarshalText(t *testing.T) {
 		err      bool
 	}{
 		{
-			desc:     "Unmarshal create from text",
-			data:     []byte("create"),
-			expected: auth.CreateOp,
+			desc:     "Unmarshal client_create from text",
+			data:     []byte(auth.ClientCreateOp.String()),
+			expected: auth.ClientCreateOp,
 			err:      false,
 		},
 		{
-			desc:     "Unmarshal read from text",
-			data:     []byte("read"),
-			expected: auth.ReadOp,
+			desc:     "Unmarshal client_view from text",
+			data:     []byte(auth.ClientViewOp.String()),
+			expected: auth.ClientViewOp,
 			err:      false,
 		},
 		{
@@ -366,16 +366,6 @@ func TestEntityTypeString(t *testing.T) {
 			desc:     "Clients entity type",
 			et:       auth.ClientsType,
 			expected: "clients",
-		},
-		{
-			desc:     "Domains entity type",
-			et:       auth.DomainsType,
-			expected: "domains",
-		},
-		{
-			desc:     "Users entity type",
-			et:       auth.UsersType,
-			expected: "users",
 		},
 		{
 			desc:     "Dashboard entity type",
@@ -425,18 +415,6 @@ func TestParseEntityType(t *testing.T) {
 			desc:     "Parse clients",
 			et:       "clients",
 			expected: auth.ClientsType,
-			err:      false,
-		},
-		{
-			desc:     "Parse domains",
-			et:       "domains",
-			expected: auth.DomainsType,
-			err:      false,
-		},
-		{
-			desc:     "Parse users",
-			et:       "users",
-			expected: auth.UsersType,
 			err:      false,
 		},
 		{

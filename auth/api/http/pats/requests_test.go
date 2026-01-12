@@ -511,14 +511,14 @@ func TestAddScopeReqValidate(t *testing.T) {
 		OptionalDomainID: "domain1",
 		EntityType:       auth.GroupsType,
 		EntityID:         "entity1",
-		Operation:        auth.CreateOp,
+		Operation:        auth.GroupCreateOp,
 	}
 
 	invalidScope := auth.Scope{
 		OptionalDomainID: "",
 		EntityType:       auth.GroupsType,
 		EntityID:         "",
-		Operation:        auth.CreateOp,
+		Operation:        auth.GroupCreateOp,
 	}
 
 	cases := []struct {
