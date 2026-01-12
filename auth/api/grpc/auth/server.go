@@ -80,13 +80,13 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	}
 	if pat := req.GetPat(); pat != nil {
 		return authReq{
-			TokenType:        pat.GetTokenType(),
-			UserID:           pat.GetUserId(),
-			PatID:            pat.GetPatId(),
-			EntityType:       auth.EntityType(pat.GetEntityType()),
-			DomainID: pat.GetDomainId(),
-			Operation:        auth.Operation(pat.GetOperation()),
-			EntityID:         pat.GetEntityId(),
+			TokenType:  pat.GetTokenType(),
+			UserID:     pat.GetUserId(),
+			PatID:      pat.GetPatId(),
+			EntityType: auth.EntityType(pat.GetEntityType()),
+			DomainID:   pat.GetDomainId(),
+			Operation:  auth.Operation(pat.GetOperation()),
+			EntityID:   pat.GetEntityId(),
 		}, nil
 	}
 
