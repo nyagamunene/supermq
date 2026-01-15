@@ -78,7 +78,7 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Auth
 
 	if policy := req.GetPolicy(); policy != nil {
 		authReqData = authReq{
-			TokenType:   policy.GetTokenType(),
+			TokenType:   req.GetTokenType(),
 			Domain:      policy.GetDomain(),
 			SubjectType: policy.GetSubjectType(),
 			Subject:     policy.GetSubject(),
@@ -90,7 +90,7 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Auth
 		}
 	} else if pat := req.GetPat(); pat != nil {
 		authReqData = authReq{
-			TokenType:  pat.GetTokenType(),
+			TokenType:  req.GetTokenType(),
 			UserID:     pat.GetUserId(),
 			PatID:      pat.GetPatId(),
 			EntityType: auth.EntityType(pat.GetEntityType()),
@@ -119,9 +119,9 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 
 	if req.PatID != "" {
 		return &grpcAuthV1.AuthZReq{
+			TokenType: req.TokenType,
 			AuthType: &grpcAuthV1.AuthZReq_Pat{
 				Pat: &grpcAuthV1.PATReq{
-					TokenType:  req.TokenType,
 					UserId:     req.UserID,
 					PatId:      req.PatID,
 					EntityType: uint32(req.EntityType),
@@ -134,9 +134,9 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	}
 
 	return &grpcAuthV1.AuthZReq{
+		TokenType: req.TokenType,
 		AuthType: &grpcAuthV1.AuthZReq_Policy{
 			Policy: &grpcAuthV1.PolicyReq{
-				TokenType:   req.TokenType,
 				Domain:      req.Domain,
 				SubjectType: req.SubjectType,
 				Subject:     req.Subject,

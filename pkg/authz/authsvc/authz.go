@@ -63,9 +63,9 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 
 	if pr.PatID != "" && pr.TokenType == authn.PersonalAccessToken {
 		patReq := grpcAuthV1.AuthZReq{
+			TokenType: uint32(pr.TokenType),
 			AuthType: &grpcAuthV1.AuthZReq_Pat{
 				Pat: &grpcAuthV1.PATReq{
-					TokenType:  uint32(pr.TokenType),
 					UserId:     pr.UserID,
 					PatId:      pr.PatID,
 					EntityType: uint32(pr.EntityType),
@@ -85,9 +85,9 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 	}
 
 	req := grpcAuthV1.AuthZReq{
+		TokenType: uint32(pr.TokenType),
 		AuthType: &grpcAuthV1.AuthZReq_Policy{
 			Policy: &grpcAuthV1.PolicyReq{
-				TokenType:       uint32(pr.TokenType),
 				Domain:          pr.Domain,
 				SubjectType:     pr.SubjectType,
 				SubjectKind:     pr.SubjectKind,

@@ -27,32 +27,31 @@ message AuthNRes {
 }
 
 message PolicyReq {
-  uint32 token_type = 1;
-  string domain = 2;
-  string subject_type = 3;
-  string subject_kind = 4;
-  string subject_relation = 5;
-  string subject = 6;
-  string relation = 7;
-  string permission = 8;
-  string object = 9;
-  string object_type = 10;
+  string domain = 1;
+  string subject_type = 2;
+  string subject_kind = 3;
+  string subject_relation = 4;
+  string subject = 5;
+  string relation = 6;
+  string permission = 7;
+  string object = 8;
+  string object_type = 9;
 }
 
 message PATReq {
-  uint32 token_type = 1;
-  string user_id = 2;
-  string pat_id = 3;
-  uint32 entity_type = 4;
-  string domain_id = 5;
-  uint32 operation = 6;
-  string entity_id = 7;
+  string user_id = 1;
+  string pat_id = 2;
+  uint32 entity_type = 3;
+  string domain_id = 4;
+  uint32 operation = 5;
+  string entity_id = 6;
 }
 
 message AuthZReq {
+  uint32 token_type = 1;
   oneof auth_type {
-    PolicyReq policy = 1;
-    PATReq pat = 2;
+    PolicyReq policy = 2;
+    PATReq pat = 3;
   }
 }
 
