@@ -59,7 +59,7 @@ func NewAuthorization(
 	if err := entitiesOps.Validate(); err != nil {
 		return nil, err
 	}
-	ram, err := rolemgr.NewAuthorization(policies.ClientType, svc, authz, roleOps)
+	ram, err := rolemgr.NewAuthorization(policies.ClientType, svc, authz, roleOps, authOps)
 	if err != nil {
 		return nil, err
 	}

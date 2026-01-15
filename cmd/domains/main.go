@@ -317,6 +317,18 @@ func newDomainService(ctx context.Context, domainsRepo domainsSvc.Repository, ca
 		return nil, fmt.Errorf("failed to get domain permissions: %w", err)
 	}
 
+	_, domainRoleAuthOps, err := permConfig.GetAuthOperations("domains")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get domain auth operations: %w", err)
+	}
+
+	authOps := make(map[string]auth.Operation)
+	for opName, authOpStr := range domainRoleAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{policies.DomainType: domainOps},
 		permissions.EntitiesOperationDetails[permissions.Operation]{policies.DomainType: domains.OperationDetails()},
@@ -330,7 +342,7 @@ func newDomainService(ctx context.Context, domainsRepo domainsSvc.Repository, ca
 		return nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
 
-	svc, err = dmw.NewAuthorization(policies.DomainType, svc, authz, entitiesOps, roleOps)
+	svc, err = dmw.NewAuthorization(policies.DomainType, svc, authz, entitiesOps, authOps, roleOps)
 	if err != nil {
 		return nil, err
 	}

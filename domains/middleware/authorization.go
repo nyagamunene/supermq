@@ -29,16 +29,17 @@ type authorizationMiddleware struct {
 	authz       smqauthz.Authorization
 	entitiesOps permissions.EntitiesOperations[permissions.Operation]
 	rOps        permissions.Operations[permissions.RoleOperation]
+	authOps     map[string]auth.Operation
 	rolemgr.RoleManagerAuthorizationMiddleware
 }
 
 // NewAuthorization adds authorization to the domains service.
-func NewAuthorization(entityType string, svc domains.Service, authz smqauthz.Authorization, entitiesOps permissions.EntitiesOperations[permissions.Operation], domainRoleOps permissions.Operations[permissions.RoleOperation]) (domains.Service, error) {
+func NewAuthorization(entityType string, svc domains.Service, authz smqauthz.Authorization, entitiesOps permissions.EntitiesOperations[permissions.Operation], authOps map[string]auth.Operation, domainRoleOps permissions.Operations[permissions.RoleOperation]) (domains.Service, error) {
 	if err := entitiesOps.Validate(); err != nil {
 		return &authorizationMiddleware{}, err
 	}
 
-	ram, err := rolemgr.NewAuthorization(entityType, svc, authz, domainRoleOps)
+	ram, err := rolemgr.NewAuthorization(entityType, svc, authz, domainRoleOps, authOps)
 	if err != nil {
 		return &authorizationMiddleware{}, err
 	}
@@ -47,6 +48,7 @@ func NewAuthorization(entityType string, svc domains.Service, authz smqauthz.Aut
 		authz:                              authz,
 		entitiesOps:                        entitiesOps,
 		rOps:                               domainRoleOps,
+		authOps:                            authOps,
 		RoleManagerAuthorizationMiddleware: ram,
 	}, nil
 }
