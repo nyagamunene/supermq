@@ -54,7 +54,7 @@ func TestScopeAuthorized(t *testing.T) {
 			desc: "Authorized without domain ID",
 			scope: &auth.Scope{
 				EntityType: auth.ClientsType,
-				DomainID:   "domain1",
+				DomainID:   "",
 				Operation:  auth.ClientViewOp,
 				EntityID:   "client1",
 			},

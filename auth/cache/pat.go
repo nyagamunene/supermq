@@ -37,9 +37,9 @@ func (pc *patCache) Save(ctx context.Context, userID string, scopes []auth.Scope
 	return nil
 }
 
-func (pc *patCache) CheckScope(ctx context.Context, userID, patID, domainID string, entityType auth.EntityType, operation auth.Operation, entityID string) bool {
+func (pc *patCache) CheckScope(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) bool {
 	exactKey := fmt.Sprintf("pat:%s:%s:%s:%s:%s:%s", userID, patID, entityType, domainID, operation, entityID)
-	wildcardKey := fmt.Sprintf("pat:%s:%s:%s:%s:%s:*", userID, patID, entityType, operation, operation)
+	wildcardKey := fmt.Sprintf("pat:%s:%s:%s:%s:%s:*", userID, patID, entityType, domainID, operation)
 
 	res, err := pc.client.Exists(ctx, exactKey, wildcardKey).Result()
 	if err != nil {

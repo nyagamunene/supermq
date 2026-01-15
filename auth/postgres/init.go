@@ -93,11 +93,11 @@ func Migration() *migrate.MemoryMigrationSource {
 					`CREATE TABLE IF NOT EXISTS pat_scopes (
 						id              	VARCHAR(36) PRIMARY KEY,
 						pat_id          	VARCHAR(36) REFERENCES pats(id) ON DELETE CASCADE,
-						domain_id	VARCHAR(36),
+						optional_domain_id	VARCHAR(36),
 						entity_type     	VARCHAR(50) NOT NULL,
 						operation 			VARCHAR(50) NOT NULL,
 						entity_id			VARCHAR(50) NOT NULL,
-						UNIQUE (pat_id, domain_id, entity_type, operation, entity_id)
+						UNIQUE (pat_id, optional_domain_id, entity_type, operation, entity_id)
 					);`,
 				},
 				Down: []string{
@@ -123,6 +123,15 @@ func Migration() *migrate.MemoryMigrationSource {
 					`ALTER TABLE pats ALTER COLUMN updated_at TYPE TIMESTAMP;`,
 					`ALTER TABLE pats ALTER COLUMN revoked_at TYPE TIMESTAMP;`,
 					`ALTER TABLE pats ALTER COLUMN last_used_at TYPE TIMESTAMP;`,
+				},
+			},
+			{
+				Id: "auth_7",
+				Up: []string{
+					`ALTER TABLE pat_scopes RENAME COLUMN optional_domain_id TO domain_id;`,
+				},
+				Down: []string{
+					`ALTER TABLE pat_scopes RENAME COLUMN domain_id TO optional_domain_id;`,
 				},
 			},
 		},
