@@ -436,7 +436,42 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, auth
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
 
-	csvc, err = middleware.NewAuthorization(policies.ClientType, csvc, authz, repo, entitiesOps, roleOps)
+	clientAuthOps, clientRoleAuthOps, err := permConfig.GetAuthOperations("clients")
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get client auth operations: %w", err)
+	}
+	domainAuthOps, _, err := permConfig.GetAuthOperations("domains")
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get domain auth operations: %w", err)
+	}
+	groupAuthOps, _, err := permConfig.GetAuthOperations("groups")
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get group auth operations: %w", err)
+	}
+
+	authOps := make(map[string]auth.Operation)
+	for opName, authOpStr := range clientAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+	for opName, authOpStr := range clientRoleAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+	for opName, authOpStr := range domainAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+	for opName, authOpStr := range groupAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+
+	csvc, err = middleware.NewAuthorization(policies.ClientType, csvc, authz, repo, entitiesOps, authOps, roleOps)
 	if err != nil {
 		return nil, nil, err
 	}

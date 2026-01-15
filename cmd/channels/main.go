@@ -443,7 +443,33 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, cach
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
 
-	svc, err = middleware.NewAuthorization(policies.ChannelType, svc, authz, repo, entitiesOps, roleOps)
+	channelAuthOps, channelRoleAuthOps, err := permConfig.GetAuthOperations("channels")
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get channel auth operations: %w", err)
+	}
+	domainAuthOps, _, err := permConfig.GetAuthOperations("domains")
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get domain auth operations: %w", err)
+	}
+
+	authOps := make(map[string]auth.Operation)
+	for opName, authOpStr := range channelAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+	for opName, authOpStr := range channelRoleAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+	for opName, authOpStr := range domainAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+
+	svc, err = middleware.NewAuthorization(policies.ChannelType, svc, authz, repo, entitiesOps, authOps, roleOps)
 	if err != nil {
 		return nil, nil, err
 	}
