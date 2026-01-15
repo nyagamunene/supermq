@@ -22,10 +22,11 @@ type RoleManagerAuthorizationMiddleware struct {
 	svc        roles.RoleManager
 	authz      smqauthz.Authorization
 	ops        permissions.Operations[permissions.RoleOperation]
+	authOps    map[string]auth.Operation
 }
 
 // NewAuthorization adds authorization for role related methods to the core service.
-func NewAuthorization(entityType string, svc roles.RoleManager, authz smqauthz.Authorization, roleOps permissions.Operations[permissions.RoleOperation]) (RoleManagerAuthorizationMiddleware, error) {
+func NewAuthorization(entityType string, svc roles.RoleManager, authz smqauthz.Authorization, roleOps permissions.Operations[permissions.RoleOperation], authOps map[string]auth.Operation) (RoleManagerAuthorizationMiddleware, error) {
 	if err := roleOps.Validate(); err != nil {
 		return RoleManagerAuthorizationMiddleware{}, err
 	}
@@ -35,6 +36,7 @@ func NewAuthorization(entityType string, svc roles.RoleManager, authz smqauthz.A
 		svc:        svc,
 		authz:      authz,
 		ops:        roleOps,
+		authOps:    authOps,
 	}
 
 	return ram, nil
@@ -317,37 +319,9 @@ func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, ses
 			pr.EntityType = auth.GroupsType
 		}
 
-		switch op {
-		case roles.OpAddRole:
-			pr.Operation = auth.RoleAddOp
-		case roles.OpRemoveRole:
-			pr.Operation = auth.RoleRemoveOp
-		case roles.OpUpdateRoleName:
-			pr.Operation = auth.RoleUpdateOp
-		case roles.OpRetrieveRole:
-			pr.Operation = auth.RoleRetrieveOp
-		case roles.OpRetrieveAllRoles:
-			pr.Operation = auth.RoleRetrieveAllOp
-		case roles.OpRoleAddActions:
-			pr.Operation = auth.RoleAddActionsOp
-		case roles.OpRoleListActions:
-			pr.Operation = auth.RoleListActionsOp
-		case roles.OpRoleCheckActionsExists:
-			pr.Operation = auth.RoleCheckActionsExistsOp
-		case roles.OpRoleRemoveActions:
-			pr.Operation = auth.RoleRemoveActionsOp
-		case roles.OpRoleRemoveAllActions:
-			pr.Operation = auth.RoleRemoveAllActionsOp
-		case roles.OpRoleAddMembers:
-			pr.Operation = auth.RoleAddMembersOp
-		case roles.OpRoleListMembers:
-			pr.Operation = auth.RoleListMembersOp
-		case roles.OpRoleCheckMembersExists:
-			pr.Operation = auth.RoleCheckMembersExistsOp
-		case roles.OpRoleRemoveMembers:
-			pr.Operation = auth.RoleRemoveMembersOp
-		case roles.OpRoleRemoveAllMembers:
-			pr.Operation = auth.RoleRemoveAllMembersOp
+		opName := ram.ops.OperationName(op)
+		if authOp, ok := ram.authOps[opName]; ok {
+			pr.Operation = authOp
 		}
 	}
 
