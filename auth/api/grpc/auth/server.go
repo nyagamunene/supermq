@@ -67,7 +67,7 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(*grpcAuthV1.AuthZReq)
 	if policy := req.GetPolicy(); policy != nil {
 		return authReq{
-			TokenType:   policy.GetTokenType(),
+			TokenType:   req.GetTokenType(),
 			Domain:      policy.GetDomain(),
 			SubjectType: policy.GetSubjectType(),
 			SubjectKind: policy.GetSubjectKind(),
@@ -80,7 +80,7 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	}
 	if pat := req.GetPat(); pat != nil {
 		return authReq{
-			TokenType:  pat.GetTokenType(),
+			TokenType:  req.GetTokenType(),
 			UserID:     pat.GetUserId(),
 			PatID:      pat.GetPatId(),
 			EntityType: auth.EntityType(pat.GetEntityType()),

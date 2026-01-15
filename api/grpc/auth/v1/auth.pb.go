@@ -146,16 +146,15 @@ func (x *AuthNRes) GetTokenType() uint32 {
 
 type PolicyReq struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	TokenType       uint32                 `protobuf:"varint,1,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
-	Domain          string                 `protobuf:"bytes,2,opt,name=domain,proto3" json:"domain,omitempty"`
-	SubjectType     string                 `protobuf:"bytes,3,opt,name=subject_type,json=subjectType,proto3" json:"subject_type,omitempty"`
-	SubjectKind     string                 `protobuf:"bytes,4,opt,name=subject_kind,json=subjectKind,proto3" json:"subject_kind,omitempty"`
-	SubjectRelation string                 `protobuf:"bytes,5,opt,name=subject_relation,json=subjectRelation,proto3" json:"subject_relation,omitempty"`
-	Subject         string                 `protobuf:"bytes,6,opt,name=subject,proto3" json:"subject,omitempty"`
-	Relation        string                 `protobuf:"bytes,7,opt,name=relation,proto3" json:"relation,omitempty"`
-	Permission      string                 `protobuf:"bytes,8,opt,name=permission,proto3" json:"permission,omitempty"`
-	Object          string                 `protobuf:"bytes,9,opt,name=object,proto3" json:"object,omitempty"`
-	ObjectType      string                 `protobuf:"bytes,10,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`
+	Domain          string                 `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
+	SubjectType     string                 `protobuf:"bytes,2,opt,name=subject_type,json=subjectType,proto3" json:"subject_type,omitempty"`
+	SubjectKind     string                 `protobuf:"bytes,3,opt,name=subject_kind,json=subjectKind,proto3" json:"subject_kind,omitempty"`
+	SubjectRelation string                 `protobuf:"bytes,4,opt,name=subject_relation,json=subjectRelation,proto3" json:"subject_relation,omitempty"`
+	Subject         string                 `protobuf:"bytes,5,opt,name=subject,proto3" json:"subject,omitempty"`
+	Relation        string                 `protobuf:"bytes,6,opt,name=relation,proto3" json:"relation,omitempty"`
+	Permission      string                 `protobuf:"bytes,7,opt,name=permission,proto3" json:"permission,omitempty"`
+	Object          string                 `protobuf:"bytes,8,opt,name=object,proto3" json:"object,omitempty"`
+	ObjectType      string                 `protobuf:"bytes,9,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -188,13 +187,6 @@ func (x *PolicyReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PolicyReq.ProtoReflect.Descriptor instead.
 func (*PolicyReq) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *PolicyReq) GetTokenType() uint32 {
-	if x != nil {
-		return x.TokenType
-	}
-	return 0
 }
 
 func (x *PolicyReq) GetDomain() string {
@@ -262,13 +254,12 @@ func (x *PolicyReq) GetObjectType() string {
 
 type PATReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TokenType     uint32                 `protobuf:"varint,1,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	PatId         string                 `protobuf:"bytes,3,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`
-	EntityType    uint32                 `protobuf:"varint,4,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`
-	DomainId      string                 `protobuf:"bytes,5,opt,name=domain_id,json=domainId,proto3" json:"domain_id,omitempty"`
-	Operation     uint32                 `protobuf:"varint,6,opt,name=operation,proto3" json:"operation,omitempty"`
-	EntityId      string                 `protobuf:"bytes,7,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	PatId         string                 `protobuf:"bytes,2,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`
+	EntityType    uint32                 `protobuf:"varint,3,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`
+	DomainId      string                 `protobuf:"bytes,4,opt,name=domain_id,json=domainId,proto3" json:"domain_id,omitempty"`
+	Operation     uint32                 `protobuf:"varint,5,opt,name=operation,proto3" json:"operation,omitempty"`
+	EntityId      string                 `protobuf:"bytes,6,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -301,13 +292,6 @@ func (x *PATReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PATReq.ProtoReflect.Descriptor instead.
 func (*PATReq) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *PATReq) GetTokenType() uint32 {
-	if x != nil {
-		return x.TokenType
-	}
-	return 0
 }
 
 func (x *PATReq) GetUserId() string {
@@ -353,7 +337,8 @@ func (x *PATReq) GetEntityId() string {
 }
 
 type AuthZReq struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	TokenType uint32                 `protobuf:"varint,1,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
 	// Types that are valid to be assigned to AuthType:
 	//
 	//	*AuthZReq_Policy
@@ -393,6 +378,13 @@ func (*AuthZReq) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{4}
 }
 
+func (x *AuthZReq) GetTokenType() uint32 {
+	if x != nil {
+		return x.TokenType
+	}
+	return 0
+}
+
 func (x *AuthZReq) GetAuthType() isAuthZReq_AuthType {
 	if x != nil {
 		return x.AuthType
@@ -423,11 +415,11 @@ type isAuthZReq_AuthType interface {
 }
 
 type AuthZReq_Policy struct {
-	Policy *PolicyReq `protobuf:"bytes,1,opt,name=policy,proto3,oneof"`
+	Policy *PolicyReq `protobuf:"bytes,2,opt,name=policy,proto3,oneof"`
 }
 
 type AuthZReq_Pat struct {
-	Pat *PATReq `protobuf:"bytes,2,opt,name=pat,proto3,oneof"`
+	Pat *PATReq `protobuf:"bytes,3,opt,name=pat,proto3,oneof"`
 }
 
 func (*AuthZReq_Policy) isAuthZReq_AuthType() {}
@@ -499,36 +491,33 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"\tuser_role\x18\x03 \x01(\rR\buserRole\x12\x1a\n" +
 	"\bverified\x18\x04 \x01(\bR\bverified\x12\x1d\n" +
 	"\n" +
-	"token_type\x18\x05 \x01(\rR\ttokenType\"\xc2\x02\n" +
-	"\tPolicyReq\x12\x1d\n" +
+	"token_type\x18\x05 \x01(\rR\ttokenType\"\xa3\x02\n" +
+	"\tPolicyReq\x12\x16\n" +
+	"\x06domain\x18\x01 \x01(\tR\x06domain\x12!\n" +
+	"\fsubject_type\x18\x02 \x01(\tR\vsubjectType\x12!\n" +
+	"\fsubject_kind\x18\x03 \x01(\tR\vsubjectKind\x12)\n" +
+	"\x10subject_relation\x18\x04 \x01(\tR\x0fsubjectRelation\x12\x18\n" +
+	"\asubject\x18\x05 \x01(\tR\asubject\x12\x1a\n" +
+	"\brelation\x18\x06 \x01(\tR\brelation\x12\x1e\n" +
 	"\n" +
-	"token_type\x18\x01 \x01(\rR\ttokenType\x12\x16\n" +
-	"\x06domain\x18\x02 \x01(\tR\x06domain\x12!\n" +
-	"\fsubject_type\x18\x03 \x01(\tR\vsubjectType\x12!\n" +
-	"\fsubject_kind\x18\x04 \x01(\tR\vsubjectKind\x12)\n" +
-	"\x10subject_relation\x18\x05 \x01(\tR\x0fsubjectRelation\x12\x18\n" +
-	"\asubject\x18\x06 \x01(\tR\asubject\x12\x1a\n" +
-	"\brelation\x18\a \x01(\tR\brelation\x12\x1e\n" +
-	"\n" +
-	"permission\x18\b \x01(\tR\n" +
+	"permission\x18\a \x01(\tR\n" +
 	"permission\x12\x16\n" +
-	"\x06object\x18\t \x01(\tR\x06object\x12\x1f\n" +
-	"\vobject_type\x18\n" +
-	" \x01(\tR\n" +
-	"objectType\"\xd0\x01\n" +
-	"\x06PATReq\x12\x1d\n" +
-	"\n" +
-	"token_type\x18\x01 \x01(\rR\ttokenType\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x15\n" +
-	"\x06pat_id\x18\x03 \x01(\tR\x05patId\x12\x1f\n" +
-	"\ventity_type\x18\x04 \x01(\rR\n" +
+	"\x06object\x18\b \x01(\tR\x06object\x12\x1f\n" +
+	"\vobject_type\x18\t \x01(\tR\n" +
+	"objectType\"\xb1\x01\n" +
+	"\x06PATReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x15\n" +
+	"\x06pat_id\x18\x02 \x01(\tR\x05patId\x12\x1f\n" +
+	"\ventity_type\x18\x03 \x01(\rR\n" +
 	"entityType\x12\x1b\n" +
-	"\tdomain_id\x18\x05 \x01(\tR\bdomainId\x12\x1c\n" +
-	"\toperation\x18\x06 \x01(\rR\toperation\x12\x1b\n" +
-	"\tentity_id\x18\a \x01(\tR\bentityId\"j\n" +
-	"\bAuthZReq\x12,\n" +
-	"\x06policy\x18\x01 \x01(\v2\x12.auth.v1.PolicyReqH\x00R\x06policy\x12#\n" +
-	"\x03pat\x18\x02 \x01(\v2\x0f.auth.v1.PATReqH\x00R\x03patB\v\n" +
+	"\tdomain_id\x18\x04 \x01(\tR\bdomainId\x12\x1c\n" +
+	"\toperation\x18\x05 \x01(\rR\toperation\x12\x1b\n" +
+	"\tentity_id\x18\x06 \x01(\tR\bentityId\"\x89\x01\n" +
+	"\bAuthZReq\x12\x1d\n" +
+	"\n" +
+	"token_type\x18\x01 \x01(\rR\ttokenType\x12,\n" +
+	"\x06policy\x18\x02 \x01(\v2\x12.auth.v1.PolicyReqH\x00R\x06policy\x12#\n" +
+	"\x03pat\x18\x03 \x01(\v2\x0f.auth.v1.PATReqH\x00R\x03patB\v\n" +
 	"\tauth_type\":\n" +
 	"\bAuthZRes\x12\x1e\n" +
 	"\n" +
