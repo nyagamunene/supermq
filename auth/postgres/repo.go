@@ -522,7 +522,7 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
           AND (entity_id = :entity_id OR entity_id = '*')
         LIMIT 1`
 
-	authorized := pr.cache.CheckScope(ctx, userID, patID, domainID, entityType, operation, entityID)
+	authorized := pr.cache.CheckScope(ctx, userID, patID, entityType, domainID, operation, entityID)
 	if authorized {
 		return nil
 	}

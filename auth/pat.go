@@ -473,7 +473,7 @@ func (s *Scope) Authorized(entityType EntityType, domainID string, operation Ope
 		return false
 	}
 
-	if domainID != "" && s.DomainID != domainID {
+	if s.DomainID != "" && s.DomainID != domainID {
 		return false
 	}
 
@@ -683,7 +683,7 @@ type PATSRepository interface {
 type Cache interface {
 	Save(ctx context.Context, userID string, scopes []Scope) error
 
-	CheckScope(ctx context.Context, userID, patID, domainID string, entityType EntityType, operation Operation, entityID string) bool
+	CheckScope(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) bool
 
 	Remove(ctx context.Context, userID string, scopesID []string) error
 
