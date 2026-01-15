@@ -49,6 +49,7 @@ type authorizationMiddleware struct {
 	repo        channels.Repository
 	authz       smqauthz.Authorization
 	entitiesOps permissions.EntitiesOperations[permissions.Operation]
+	authOps     map[string]auth.Operation
 	rolemgr.RoleManagerAuthorizationMiddleware
 }
 
@@ -59,6 +60,7 @@ func NewAuthorization(
 	authz smqauthz.Authorization,
 	repo channels.Repository,
 	entitiesOps permissions.EntitiesOperations[permissions.Operation],
+	authOps map[string]auth.Operation,
 	roleOps permissions.Operations[permissions.RoleOperation],
 ) (channels.Service, error) {
 	if err := entitiesOps.Validate(); err != nil {
@@ -74,6 +76,7 @@ func NewAuthorization(
 		authz:                              authz,
 		repo:                               repo,
 		entitiesOps:                        entitiesOps,
+		authOps:                            authOps,
 		RoleManagerAuthorizationMiddleware: ram,
 	}, nil
 }
@@ -341,36 +344,12 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 		req.EntityType = auth.ChannelsType
 		req.EntityID = req.Object
 
-		switch op {
-		case channels.OpViewChannel:
-			req.Operation = auth.ChannelViewOp
-		case channels.OpListUserChannels:
-			req.Operation = auth.ChannelListOp
-			req.EntityID = auth.AnyIDs
-		case channels.OpUpdateChannel:
-			req.Operation = auth.ChannelUpdateOp
-		case channels.OpUpdateChannelTags:
-			req.Operation = auth.ChannelUpdateTagsOp
-		case channels.OpEnableChannel:
-			req.Operation = auth.ChannelEnableOp
-		case channels.OpDisableChannel:
-			req.Operation = auth.ChannelDisableOp
-		case channels.OpSetParentGroup:
-			req.Operation = auth.ChannelSetParentGroupOp
-		case channels.OpDeleteChannel:
-			req.Operation = auth.ChannelDeleteOp
-		case channels.OpRemoveParentGroup:
-			req.Operation = auth.ChannelRemoveParentGroupOp
-		case channels.OpConnectClient:
-			req.Operation = auth.ChannelConnectToClientOp
-		case channels.OpDisconnectClient:
-			req.Operation = auth.ChannelDisconnectFromClientOp
-		case domains.OpCreateDomainChannels:
-			req.Operation = auth.ChannelCreateOp
-			req.EntityID = auth.AnyIDs
-		case domains.OpListDomainChannels:
-			req.Operation = auth.ChannelListOp
-			req.EntityID = auth.AnyIDs
+		opName := am.entitiesOps.OperationName(entityType, op)
+		if authOp, ok := am.authOps[opName]; ok {
+			req.Operation = authOp
+			if op == channels.OpListUserChannels || op == domains.OpCreateDomainChannels || op == domains.OpListDomainChannels {
+				req.EntityID = auth.AnyIDs
+			}
 		}
 	}
 

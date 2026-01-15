@@ -15,8 +15,8 @@ type PermissionConfig struct {
 }
 
 type EntityPermissions struct {
-	Operations      []map[string]string `yaml:"operations"`
-	RolesOperations []map[string]string `yaml:"roles_operations"`
+	Operations      []map[string]interface{} `yaml:"operations"`
+	RolesOperations []map[string]interface{} `yaml:"roles_operations"`
 }
 
 func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {
@@ -41,17 +41,73 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 
 	operations := make(map[string]Permission)
 	for _, op := range entityPerms.Operations {
-		for name, perm := range op {
-			operations[name] = Permission(perm)
+		for name, value := range op {
+			perm := extractPermission(value)
+			if perm != "" {
+				operations[name] = Permission(perm)
+			}
 		}
 	}
 
 	rolesOperations := make(map[string]Permission)
 	for _, op := range entityPerms.RolesOperations {
-		for name, perm := range op {
-			rolesOperations[name] = Permission(perm)
+		for name, value := range op {
+			perm := extractPermission(value)
+			if perm != "" {
+				rolesOperations[name] = Permission(perm)
+			}
 		}
 	}
 
 	return operations, rolesOperations, nil
+}
+
+func (pc *PermissionConfig) GetAuthOperations(entityType string) (map[string]string, map[string]string, error) {
+	entityPerms, ok := pc.Entities[entityType]
+	if !ok {
+		return nil, nil, fmt.Errorf("entity type %s not found in permissions file", entityType)
+	}
+
+	operations := make(map[string]string)
+	for _, op := range entityPerms.Operations {
+		for name, value := range op {
+			authOp := extractAuthOperation(value)
+			if authOp != "" {
+				operations[name] = authOp
+			}
+		}
+	}
+
+	rolesOperations := make(map[string]string)
+	for _, op := range entityPerms.RolesOperations {
+		for name, value := range op {
+			authOp := extractAuthOperation(value)
+			if authOp != "" {
+				rolesOperations[name] = authOp
+			}
+		}
+	}
+
+	return operations, rolesOperations, nil
+}
+
+func extractPermission(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		return v
+	case map[string]interface{}:
+		if perm, ok := v["permission"].(string); ok {
+			return perm
+		}
+	}
+	return ""
+}
+
+func extractAuthOperation(value interface{}) string {
+	if m, ok := value.(map[string]interface{}); ok {
+		if authOp, ok := m["auth_operation"].(string); ok {
+			return authOp
+		}
+	}
+	return ""
 }

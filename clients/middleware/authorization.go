@@ -42,6 +42,7 @@ type authorizationMiddleware struct {
 	repo        clients.Repository
 	authz       smqauthz.Authorization
 	entitiesOps permissions.EntitiesOperations[permissions.Operation]
+	authOps     map[string]auth.Operation
 	rolemgr.RoleManagerAuthorizationMiddleware
 }
 
@@ -52,6 +53,7 @@ func NewAuthorization(
 	authz smqauthz.Authorization,
 	repo clients.Repository,
 	entitiesOps permissions.EntitiesOperations[permissions.Operation],
+	authOps map[string]auth.Operation,
 	roleOps permissions.Operations[permissions.RoleOperation],
 ) (clients.Service, error) {
 	if err := entitiesOps.Validate(); err != nil {
@@ -67,6 +69,7 @@ func NewAuthorization(
 		authz:                              authz,
 		repo:                               repo,
 		entitiesOps:                        entitiesOps,
+		authOps:                            authOps,
 		RoleManagerAuthorizationMiddleware: ram,
 	}, nil
 }
@@ -270,54 +273,13 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 
 	if req.PatID != "" && req.TokenType == authn.PersonalAccessToken {
 		req.EntityID = req.Object
+		req.EntityType = auth.ClientsType
 
-		switch entityType {
-		case policies.ClientType:
-			req.EntityType = auth.ClientsType
-			switch op {
-			case clients.OpViewClient:
-				req.Operation = auth.ClientViewOp
-			case clients.OpListUserClients:
-				req.Operation = auth.ClientListOp
+		opName := am.entitiesOps.OperationName(entityType, op)
+		if authOp, ok := am.authOps[opName]; ok {
+			req.Operation = authOp
+			if op == clients.OpListUserClients || op == domains.OpCreateDomainClients || op == domains.OpListDomainClients {
 				req.EntityID = auth.AnyIDs
-			case clients.OpUpdateClient:
-				req.Operation = auth.ClientUpdateOp
-			case clients.OpUpdateClientTags:
-				req.Operation = auth.ClientUpdateTagsOp
-			case clients.OpUpdateClientSecret:
-				req.Operation = auth.ClientUpdateSecretOp
-			case clients.OpEnableClient:
-				req.Operation = auth.ClientEnableOp
-			case clients.OpDisableClient:
-				req.Operation = auth.ClientDisableOp
-			case clients.OpSetParentGroup:
-				req.Operation = auth.ClientSetParentGroupOp
-			case clients.OpDeleteClient:
-				req.Operation = auth.ClientDeleteOp
-			case clients.OpRemoveParentGroup:
-				req.Operation = auth.ClientRemoveParentGroupOp
-			case clients.OpConnectToChannel:
-				req.Operation = auth.ClientConnectToChannelOp
-			case clients.OpDisconnectFromChannel:
-				req.Operation = auth.ClientDisconnectFromChannelOp
-			}
-		case policies.DomainType:
-			req.EntityType = auth.ClientsType
-			switch op {
-			case domains.OpCreateDomainClients:
-				req.Operation = auth.ClientCreateOp
-				req.EntityID = auth.AnyIDs
-			case domains.OpListDomainClients:
-				req.Operation = auth.ClientListOp
-				req.EntityID = auth.AnyIDs
-			}
-		case policies.GroupType:
-			req.EntityType = auth.ClientsType
-			switch op {
-			case groups.OpGroupSetChildClient:
-				req.Operation = auth.ClientSetParentGroupOp
-			case groups.OpGroupRemoveChildClient:
-				req.Operation = auth.ClientRemoveParentGroupOp
 			}
 		}
 	}

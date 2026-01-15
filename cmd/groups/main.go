@@ -372,6 +372,33 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to get domain permissions: %w", err)
 	}
 
+	groupAuthOps, groupRoleAuthOps, err := permConfig.GetAuthOperations("groups")
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get group auth operations: %w", err)
+	}
+
+	domainAuthOps, _, err := permConfig.GetAuthOperations("domains")
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get domain auth operations: %w", err)
+	}
+
+	authOps := make(map[string]auth.Operation)
+	for opName, authOpStr := range groupAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+	for opName, authOpStr := range groupRoleAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+	for opName, authOpStr := range domainAuthOps {
+		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
+			authOps[opName] = authOp
+		}
+	}
+
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{
 			policies.GroupType:  groupOps,
@@ -391,7 +418,7 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
 
-	svc, err = middleware.NewAuthorization(policies.GroupType, svc, authz, repo, entitiesOps, roleOps)
+	svc, err = middleware.NewAuthorization(policies.GroupType, svc, authz, repo, entitiesOps, authOps, roleOps)
 	if err != nil {
 		return nil, nil, err
 	}
