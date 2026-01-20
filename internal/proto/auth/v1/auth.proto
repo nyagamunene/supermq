@@ -36,11 +36,8 @@ message PolicyReq {
   string permission = 7;
   string object = 8;
   string object_type = 9;
-  string user_id = 10;
-  string pat_id = 11;
-  uint32 entity_type = 12;
-  uint32 operation = 13;
-  string entity_id = 14;
+  string pat_id = 10;
+  uint32 operation = 11;
 }
 
 message AuthZReq {

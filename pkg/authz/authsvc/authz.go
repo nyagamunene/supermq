@@ -65,12 +65,12 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 		patReq := grpcAuthV1.AuthZReq{
 			TokenType: uint32(pr.TokenType),
 			Policy: &grpcAuthV1.PolicyReq{
-				UserId:     pr.UserID,
+				Subject:    pr.UserID,
 				PatId:      pr.PatID,
-				EntityType: uint32(pr.EntityType),
+				ObjectType: pr.EntityType.String(),
 				Domain:     pr.DomainID,
 				Operation:  uint32(pr.Operation),
-				EntityId:   pr.EntityID,
+				Object:     pr.EntityID,
 			},
 		}
 		patRes, err := a.authSvcClient.Authorize(ctx, &patReq)
