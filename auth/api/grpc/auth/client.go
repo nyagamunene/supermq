@@ -79,14 +79,18 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Auth
 	policy := req.GetPolicy()
 	if policy != nil {
 		if policy.GetPatId() != "" {
+			entityType, err := auth.ParseEntityType(policy.GetObjectType())
+			if err != nil {
+				return &grpcAuthV1.AuthZRes{}, err
+			}
 			authReqData = authReq{
 				TokenType:  req.GetTokenType(),
-				UserID:     policy.GetUserId(),
+				UserID:     policy.GetSubject(),
 				PatID:      policy.GetPatId(),
-				EntityType: auth.EntityType(policy.GetEntityType()),
+				EntityType: entityType,
 				DomainID:   policy.GetDomain(),
 				Operation:  auth.Operation(policy.GetOperation()),
-				EntityID:   policy.GetEntityId(),
+				EntityID:   policy.GetObject(),
 			}
 		} else {
 			authReqData = authReq{
@@ -124,12 +128,12 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 		return &grpcAuthV1.AuthZReq{
 			TokenType: req.TokenType,
 			Policy: &grpcAuthV1.PolicyReq{
-				UserId:     req.UserID,
+				Subject:    req.UserID,
 				PatId:      req.PatID,
-				EntityType: uint32(req.EntityType),
+				ObjectType: req.EntityType.String(),
 				Domain:     req.DomainID,
 				Operation:  uint32(req.Operation),
-				EntityId:   req.EntityID,
+				Object:     req.EntityID,
 			},
 		}, nil
 	}
