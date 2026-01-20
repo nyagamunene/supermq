@@ -76,27 +76,30 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Auth
 
 	var authReqData authReq
 
-	if policy := req.GetPolicy(); policy != nil {
-		authReqData = authReq{
-			TokenType:   req.GetTokenType(),
-			Domain:      policy.GetDomain(),
-			SubjectType: policy.GetSubjectType(),
-			Subject:     policy.GetSubject(),
-			SubjectKind: policy.GetSubjectKind(),
-			Relation:    policy.GetRelation(),
-			Permission:  policy.GetPermission(),
-			ObjectType:  policy.GetObjectType(),
-			Object:      policy.GetObject(),
-		}
-	} else if pat := req.GetPat(); pat != nil {
-		authReqData = authReq{
-			TokenType:  req.GetTokenType(),
-			UserID:     pat.GetUserId(),
-			PatID:      pat.GetPatId(),
-			EntityType: auth.EntityType(pat.GetEntityType()),
-			DomainID:   pat.GetDomainId(),
-			Operation:  auth.Operation(pat.GetOperation()),
-			EntityID:   pat.GetEntityId(),
+	policy := req.GetPolicy()
+	if policy != nil {
+		if policy.GetPatId() != "" {
+			authReqData = authReq{
+				TokenType:  req.GetTokenType(),
+				UserID:     policy.GetUserId(),
+				PatID:      policy.GetPatId(),
+				EntityType: auth.EntityType(policy.GetEntityType()),
+				DomainID:   policy.GetDomain(),
+				Operation:  auth.Operation(policy.GetOperation()),
+				EntityID:   policy.GetEntityId(),
+			}
+		} else {
+			authReqData = authReq{
+				TokenType:   req.GetTokenType(),
+				Domain:      policy.GetDomain(),
+				SubjectType: policy.GetSubjectType(),
+				Subject:     policy.GetSubject(),
+				SubjectKind: policy.GetSubjectKind(),
+				Relation:    policy.GetRelation(),
+				Permission:  policy.GetPermission(),
+				ObjectType:  policy.GetObjectType(),
+				Object:      policy.GetObject(),
+			}
 		}
 	}
 
@@ -120,32 +123,28 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	if req.PatID != "" {
 		return &grpcAuthV1.AuthZReq{
 			TokenType: req.TokenType,
-			AuthType: &grpcAuthV1.AuthZReq_Pat{
-				Pat: &grpcAuthV1.PATReq{
-					UserId:     req.UserID,
-					PatId:      req.PatID,
-					EntityType: uint32(req.EntityType),
-					DomainId:   req.DomainID,
-					Operation:  uint32(req.Operation),
-					EntityId:   req.EntityID,
-				},
+			Policy: &grpcAuthV1.PolicyReq{
+				UserId:     req.UserID,
+				PatId:      req.PatID,
+				EntityType: uint32(req.EntityType),
+				Domain:     req.DomainID,
+				Operation:  uint32(req.Operation),
+				EntityId:   req.EntityID,
 			},
 		}, nil
 	}
 
 	return &grpcAuthV1.AuthZReq{
 		TokenType: req.TokenType,
-		AuthType: &grpcAuthV1.AuthZReq_Policy{
-			Policy: &grpcAuthV1.PolicyReq{
-				Domain:      req.Domain,
-				SubjectType: req.SubjectType,
-				Subject:     req.Subject,
-				SubjectKind: req.SubjectKind,
-				Relation:    req.Relation,
-				Permission:  req.Permission,
-				ObjectType:  req.ObjectType,
-				Object:      req.Object,
-			},
+		Policy: &grpcAuthV1.PolicyReq{
+			Domain:      req.Domain,
+			SubjectType: req.SubjectType,
+			Subject:     req.Subject,
+			SubjectKind: req.SubjectKind,
+			Relation:    req.Relation,
+			Permission:  req.Permission,
+			ObjectType:  req.ObjectType,
+			Object:      req.Object,
 		},
 	}, nil
 }

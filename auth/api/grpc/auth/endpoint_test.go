@@ -138,15 +138,13 @@ func TestAuthorize(t *testing.T) {
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.AccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
-					Policy: &grpcAuthV1.PolicyReq{
-						Subject:     id,
-						SubjectType: usersType,
-						Object:      authoritiesObj,
-						ObjectType:  usersType,
-						Relation:    memberRelation,
-						Permission:  adminPermission,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					Subject:     id,
+					SubjectType: usersType,
+					Object:      authoritiesObj,
+					ObjectType:  usersType,
+					Relation:    memberRelation,
+					Permission:  adminPermission,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: true},
@@ -157,15 +155,13 @@ func TestAuthorize(t *testing.T) {
 			token: inValidToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.AccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
-					Policy: &grpcAuthV1.PolicyReq{
-						Subject:     id,
-						SubjectType: usersType,
-						Object:      authoritiesObj,
-						ObjectType:  usersType,
-						Relation:    memberRelation,
-						Permission:  adminPermission,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					Subject:     id,
+					SubjectType: usersType,
+					Object:      authoritiesObj,
+					ObjectType:  usersType,
+					Relation:    memberRelation,
+					Permission:  adminPermission,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -176,15 +172,13 @@ func TestAuthorize(t *testing.T) {
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.AccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
-					Policy: &grpcAuthV1.PolicyReq{
-						Subject:     "",
-						SubjectType: usersType,
-						Object:      authoritiesObj,
-						ObjectType:  usersType,
-						Relation:    memberRelation,
-						Permission:  adminPermission,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					Subject:     "",
+					SubjectType: usersType,
+					Object:      authoritiesObj,
+					ObjectType:  usersType,
+					Relation:    memberRelation,
+					Permission:  adminPermission,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -195,15 +189,13 @@ func TestAuthorize(t *testing.T) {
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.AccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
-					Policy: &grpcAuthV1.PolicyReq{
-						Subject:     id,
-						SubjectType: "",
-						Object:      authoritiesObj,
-						ObjectType:  usersType,
-						Relation:    memberRelation,
-						Permission:  adminPermission,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					Subject:     id,
+					SubjectType: "",
+					Object:      authoritiesObj,
+					ObjectType:  usersType,
+					Relation:    memberRelation,
+					Permission:  adminPermission,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -214,15 +206,13 @@ func TestAuthorize(t *testing.T) {
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.AccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
-					Policy: &grpcAuthV1.PolicyReq{
-						Subject:     id,
-						SubjectType: usersType,
-						Object:      "",
-						ObjectType:  usersType,
-						Relation:    memberRelation,
-						Permission:  adminPermission,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					Subject:     id,
+					SubjectType: usersType,
+					Object:      "",
+					ObjectType:  usersType,
+					Relation:    memberRelation,
+					Permission:  adminPermission,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -233,15 +223,13 @@ func TestAuthorize(t *testing.T) {
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.AccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
-					Policy: &grpcAuthV1.PolicyReq{
-						Subject:     id,
-						SubjectType: usersType,
-						Object:      authoritiesObj,
-						ObjectType:  "",
-						Relation:    memberRelation,
-						Permission:  adminPermission,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					Subject:     id,
+					SubjectType: usersType,
+					Object:      authoritiesObj,
+					ObjectType:  "",
+					Relation:    memberRelation,
+					Permission:  adminPermission,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -252,15 +240,13 @@ func TestAuthorize(t *testing.T) {
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.AccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Policy{
-					Policy: &grpcAuthV1.PolicyReq{
-						Subject:     id,
-						SubjectType: usersType,
-						Object:      authoritiesObj,
-						ObjectType:  usersType,
-						Relation:    memberRelation,
-						Permission:  "",
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					Subject:     id,
+					SubjectType: usersType,
+					Object:      authoritiesObj,
+					ObjectType:  usersType,
+					Relation:    memberRelation,
+					Permission:  "",
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -271,15 +257,13 @@ func TestAuthorize(t *testing.T) {
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.PersonalAccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
-					Pat: &grpcAuthV1.PATReq{
-						UserId:     id,
-						PatId:      id,
-						EntityType: uint32(auth.ClientsType),
-						DomainId:   domainID,
-						Operation:  uint32(auth.ClientCreateOp),
-						EntityId:   clientID,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					UserId:     id,
+					PatId:      id,
+					EntityType: uint32(auth.ClientsType),
+					Domain:     domainID,
+					Operation:  uint32(auth.ClientCreateOp),
+					EntityId:   clientID,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: true},
@@ -290,15 +274,13 @@ func TestAuthorize(t *testing.T) {
 			token: inValidToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.PersonalAccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
-					Pat: &grpcAuthV1.PATReq{
-						UserId:     id,
-						PatId:      id,
-						EntityType: uint32(auth.ClientsType),
-						DomainId:   domainID,
-						Operation:  uint32(auth.ClientCreateOp),
-						EntityId:   clientID,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					UserId:     id,
+					PatId:      id,
+					EntityType: uint32(auth.ClientsType),
+					Domain:     domainID,
+					Operation:  uint32(auth.ClientCreateOp),
+					EntityId:   clientID,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -309,14 +291,12 @@ func TestAuthorize(t *testing.T) {
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.PersonalAccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
-					Pat: &grpcAuthV1.PATReq{
-						PatId:      id,
-						EntityType: uint32(auth.ClientsType),
-						DomainId:   domainID,
-						Operation:  uint32(auth.ClientCreateOp),
-						EntityId:   clientID,
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					PatId:      id,
+					EntityType: uint32(auth.ClientsType),
+					Domain:     domainID,
+					Operation:  uint32(auth.ClientCreateOp),
+					EntityId:   clientID,
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -327,14 +307,12 @@ func TestAuthorize(t *testing.T) {
 			token: validPATToken,
 			authRequest: &grpcAuthV1.AuthZReq{
 				TokenType: uint32(authn.PersonalAccessToken),
-				AuthType: &grpcAuthV1.AuthZReq_Pat{
-					Pat: &grpcAuthV1.PATReq{
-						UserId:     id,
-						PatId:      id,
-						EntityType: uint32(auth.ClientsType),
-						DomainId:   domainID,
-						Operation:  uint32(auth.ClientCreateOp),
-					},
+				Policy: &grpcAuthV1.PolicyReq{
+					UserId:     id,
+					PatId:      id,
+					EntityType: uint32(auth.ClientsType),
+					Domain:     domainID,
+					Operation:  uint32(auth.ClientCreateOp),
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
