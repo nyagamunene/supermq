@@ -78,7 +78,7 @@ endef
 define run_with_arch_detection
 	@echo "Detecting architecture..."
 	@if [ "$(DETECTED_ARCH)" = "arm64" ] || [ "$(DETECTED_ARCH)" = "aarch64" ]; then \
-		echo "ARM64 architecture detected. Building images locally..."; \
+		echo "ARM64 architecture detected."; \
 		git checkout $(1); \
 		echo "Building binaries..."; \
 		GOARCH=arm64 $(MAKE) $(SERVICES); \
@@ -87,7 +87,7 @@ define run_with_arch_detection
 		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(2)/' docker/.env && rm -f docker/.env.bak; \
 		docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args); \
 	else \
-		echo "x86_64 architecture detected. Using images from registry..."; \
+		echo "x86_64 architecture detected."; \
 		git checkout $(1); \
 		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(2)/' docker/.env && rm -f docker/.env.bak; \
 		docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args); \
