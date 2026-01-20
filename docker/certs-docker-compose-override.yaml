@@ -10,7 +10,7 @@ services:
       AM_CERTS_GRPC_HOST: ${AM_CERTS_GRPC_HOST}
       AM_CERTS_GRPC_PORT: ${AM_CERTS_GRPC_PORT}
       AM_CERTS_RELEASE_TAG: ${AM_CERTS_RELEASE_TAG}
-      AM_CERTS_SECRET: ${AM_CERTS_SECRET}
+      AM_CERTS_TOKEN: ${AM_CERTS_TOKEN}
       
       AM_CERTS_DB_HOST: ${AM_CERTS_DB_HOST}
       AM_CERTS_DB_PORT: ${AM_CERTS_DB_PORT}
@@ -58,13 +58,13 @@ services:
       AM_DOMAINS_GRPC_CLIENT_CERT: ${AM_DOMAINS_GRPC_CLIENT_CERT}
       AM_DOMAINS_GRPC_CLIENT_KEY: ${AM_DOMAINS_GRPC_CLIENT_KEY}
       AM_DOMAINS_GRPC_SERVER_CA_CERTS: ${AM_DOMAINS_GRPC_SERVER_CA_CERTS}
-    networks: !override
+    networks:
       - supermq-base-net
 
   certs-db:
-    networks: !override
+    networks:
       - supermq-base-net
 
   openbao:
-    networks: !override
+    networks:
       - supermq-base-net
