@@ -11,6 +11,7 @@ DOCKERS_DEV = $(addprefix docker_dev_,$(SERVICES))
 CGO_ENABLED ?= 0
 GOARCH ?= amd64
 GOOS ?= linux
+DETECTED_ARCH := $(shell uname -m)
 VERSION ?= $(shell git describe --abbrev=0 --tags 2>/dev/null || echo 'unknown')
 COMMIT ?= $(shell git rev-parse HEAD)
 TIME ?= $(shell date +%F_%T)
@@ -72,6 +73,25 @@ define make_docker_dev
 		--build-arg SVC=$(svc) \
 		--tag=$(SMQ_DOCKER_IMAGE_NAME_PREFIX)/$(svc) \
 		-f docker/Dockerfile.dev ./build
+endef
+
+define run_with_arch_detection
+	@echo "Detecting architecture..."
+	@if [ "$(DETECTED_ARCH)" = "arm64" ] || [ "$(DETECTED_ARCH)" = "aarch64" ]; then \
+		echo "ARM64 architecture detected. Building images locally..."; \
+		git checkout $(1); \
+		echo "Building binaries..."; \
+		GOARCH=arm64 $(MAKE) $(SERVICES); \
+		echo "Creating Docker images..."; \
+		$(MAKE) dockers_dev; \
+		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(2)/' docker/.env && rm -f docker/.env.bak; \
+		docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args); \
+	else \
+		echo "x86_64 architecture detected. Using images from registry..."; \
+		git checkout $(1); \
+		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(2)/' docker/.env && rm -f docker/.env.bak; \
+		docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args); \
+	fi
 endef
 
 ADDON_SERVICES = journal certs
@@ -269,15 +289,11 @@ fetch_certs:
 	@./scripts/certs.sh
 
 run_latest: check_certs
-	git checkout main
-	sed -i 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=latest/' docker/.env
-	docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args)
+	$(call run_with_arch_detection,main,latest)
 
 run_stable: check_certs
 	$(eval version = $(shell git describe --abbrev=0 --tags))
-	git checkout $(version)
-	sed -i 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(version)/' docker/.env
-	docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args)
+	$(call run_with_arch_detection,$(version),$(version))
 
 run_addons: check_certs
 	$(foreach SVC,$(RUN_ADDON_ARGS),$(if $(filter $(SVC),$(ADDON_SERVICES) $(EXTERNAL_SERVICES)),,$(error Invalid Service $(SVC))))
