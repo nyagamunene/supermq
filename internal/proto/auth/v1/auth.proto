@@ -36,23 +36,16 @@ message PolicyReq {
   string permission = 7;
   string object = 8;
   string object_type = 9;
-}
-
-message PATReq {
-  string user_id = 1;
-  string pat_id = 2;
-  uint32 entity_type = 3;
-  string domain_id = 4;
-  uint32 operation = 5;
-  string entity_id = 6;
+  string user_id = 10;
+  string pat_id = 11;
+  uint32 entity_type = 12;
+  uint32 operation = 13;
+  string entity_id = 14;
 }
 
 message AuthZReq {
   uint32 token_type = 1;
-  oneof auth_type {
-    PolicyReq policy = 2;
-    PATReq pat = 3;
-  }
+  PolicyReq policy = 2;
 }
 
 message AuthZRes {

@@ -65,32 +65,34 @@ func encodeAuthenticateResponse(_ context.Context, grpcRes any) (any, error) {
 
 func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(*grpcAuthV1.AuthZReq)
-	if policy := req.GetPolicy(); policy != nil {
-		return authReq{
-			TokenType:   req.GetTokenType(),
-			Domain:      policy.GetDomain(),
-			SubjectType: policy.GetSubjectType(),
-			SubjectKind: policy.GetSubjectKind(),
-			Subject:     policy.GetSubject(),
-			Relation:    policy.GetRelation(),
-			Permission:  policy.GetPermission(),
-			ObjectType:  policy.GetObjectType(),
-			Object:      policy.GetObject(),
-		}, nil
+	policy := req.GetPolicy()
+	if policy == nil {
+		return authReq{}, nil
 	}
-	if pat := req.GetPat(); pat != nil {
+
+	if policy.GetPatId() != "" {
 		return authReq{
 			TokenType:  req.GetTokenType(),
-			UserID:     pat.GetUserId(),
-			PatID:      pat.GetPatId(),
-			EntityType: auth.EntityType(pat.GetEntityType()),
-			DomainID:   pat.GetDomainId(),
-			Operation:  auth.Operation(pat.GetOperation()),
-			EntityID:   pat.GetEntityId(),
+			UserID:     policy.GetUserId(),
+			PatID:      policy.GetPatId(),
+			EntityType: auth.EntityType(policy.GetEntityType()),
+			DomainID:   policy.GetDomain(),
+			Operation:  auth.Operation(policy.GetOperation()),
+			EntityID:   policy.GetEntityId(),
 		}, nil
 	}
 
-	return authReq{}, nil
+	return authReq{
+		TokenType:   req.GetTokenType(),
+		Domain:      policy.GetDomain(),
+		SubjectType: policy.GetSubjectType(),
+		SubjectKind: policy.GetSubjectKind(),
+		Subject:     policy.GetSubject(),
+		Relation:    policy.GetRelation(),
+		Permission:  policy.GetPermission(),
+		ObjectType:  policy.GetObjectType(),
+		Object:      policy.GetObject(),
+	}, nil
 }
 
 func encodeAuthorizeResponse(_ context.Context, grpcRes any) (any, error) {
