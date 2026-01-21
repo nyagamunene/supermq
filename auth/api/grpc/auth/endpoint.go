@@ -36,7 +36,6 @@ func authorizeEndpoint(svc auth.Service) endpoint.Endpoint {
 		}
 
 		err := svc.Authorize(ctx, policies.Policy{
-
 			Domain:      req.Domain,
 			SubjectType: req.SubjectType,
 			SubjectKind: req.SubjectKind,
