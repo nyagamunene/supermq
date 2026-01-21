@@ -70,37 +70,36 @@ func decodeIdentifyResponse(_ context.Context, grpcRes any) (any, error) {
 	return authenticateRes{id: res.GetId(), userID: res.GetUserId(), userRole: auth.Role(res.UserRole), verified: res.GetVerified()}, nil
 }
 
-func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.AuthZReq, _ ...grpc.CallOption) (r *grpcAuthV1.AuthZRes, err error) {
+func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.PolicyReq, _ ...grpc.CallOption) (r *grpcAuthV1.AuthZRes, err error) {
 	ctx, cancel := context.WithTimeout(ctx, client.timeout)
 	defer cancel()
 
 	var authReqData authReq
 
-	policy := req.GetPolicy()
-	if policy != nil {
-		if policy.GetPatId() != "" {
-			entityType, err := auth.ParseEntityType(policy.GetObjectType())
+	if req != nil {
+		if req.GetPatId() != "" {
+			entityType, err := auth.ParseEntityType(req.GetObjectType())
 			if err != nil {
 				return &grpcAuthV1.AuthZRes{}, err
 			}
 			authReqData = authReq{
-				UserID:     policy.GetSubject(),
-				PatID:      policy.GetPatId(),
+				UserID:     req.GetSubject(),
+				PatID:      req.GetPatId(),
 				EntityType: entityType,
-				DomainID:   policy.GetDomain(),
-				Operation:  auth.Operation(policy.GetOperation()),
-				EntityID:   policy.GetObject(),
+				DomainID:   req.GetDomain(),
+				Operation:  auth.Operation(req.GetOperation()),
+				EntityID:   req.GetObject(),
 			}
 		} else {
 			authReqData = authReq{
-				Domain:      policy.GetDomain(),
-				SubjectType: policy.GetSubjectType(),
-				Subject:     policy.GetSubject(),
-				SubjectKind: policy.GetSubjectKind(),
-				Relation:    policy.GetRelation(),
-				Permission:  policy.GetPermission(),
-				ObjectType:  policy.GetObjectType(),
-				Object:      policy.GetObject(),
+				Domain:      req.GetDomain(),
+				SubjectType: req.GetSubjectType(),
+				Subject:     req.GetSubject(),
+				SubjectKind: req.GetSubjectKind(),
+				Relation:    req.GetRelation(),
+				Permission:  req.GetPermission(),
+				ObjectType:  req.GetObjectType(),
+				Object:      req.GetObject(),
 			}
 		}
 	}
@@ -123,28 +122,24 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(authReq)
 
 	if req.PatID != "" {
-		return &grpcAuthV1.AuthZReq{
-			Policy: &grpcAuthV1.PolicyReq{
-				Subject:    req.UserID,
-				PatId:      req.PatID,
-				ObjectType: req.EntityType.String(),
-				Domain:     req.DomainID,
-				Operation:  uint32(req.Operation),
-				Object:     req.EntityID,
-			},
+		return &grpcAuthV1.PolicyReq{
+			Subject:    req.UserID,
+			PatId:      req.PatID,
+			ObjectType: req.EntityType.String(),
+			Domain:     req.DomainID,
+			Operation:  uint32(req.Operation),
+			Object:     req.EntityID,
 		}, nil
 	}
 
-	return &grpcAuthV1.AuthZReq{
-		Policy: &grpcAuthV1.PolicyReq{
-			Domain:      req.Domain,
-			SubjectType: req.SubjectType,
-			Subject:     req.Subject,
-			SubjectKind: req.SubjectKind,
-			Relation:    req.Relation,
-			Permission:  req.Permission,
-			ObjectType:  req.ObjectType,
-			Object:      req.Object,
-		},
+	return &grpcAuthV1.PolicyReq{
+		Domain:      req.Domain,
+		SubjectType: req.SubjectType,
+		Subject:     req.Subject,
+		SubjectKind: req.SubjectKind,
+		Relation:    req.Relation,
+		Permission:  req.Permission,
+		ObjectType:  req.ObjectType,
+		Object:      req.Object,
 	}, nil
 }
