@@ -136,7 +136,6 @@ func TestAuthorize(t *testing.T) {
 			desc:  "authorize user with authorized token",
 			token: validToken,
 			authRequest: &grpcAuthV1.AuthZReq{
-
 				Policy: &grpcAuthV1.PolicyReq{
 					Subject:     id,
 					SubjectType: usersType,
