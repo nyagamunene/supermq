@@ -328,7 +328,6 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 }
 
 func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, entityType string, op permissions.Operation, req smqauthz.PolicyReq) error {
-	req.TokenType = session.Type
 	req.UserID = session.UserID
 	req.PatID = session.PatID
 	req.DomainID = session.DomainID
@@ -340,7 +339,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 
 	req.Permission = perm.String()
 
-	if req.PatID != "" && req.TokenType == authn.PersonalAccessToken {
+	if req.PatID != "" {
 		req.EntityType = auth.ChannelsType
 		req.EntityID = req.Object
 

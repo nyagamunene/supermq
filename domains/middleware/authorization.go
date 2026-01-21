@@ -64,7 +64,6 @@ func (am *authorizationMiddleware) RetrieveDomain(ctx context.Context, session a
 	}
 
 	if err := am.authorize(ctx, policies.DomainType, domains.OpRetrieveDomain, authz.PolicyReq{
-		TokenType:   session.Type,
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -79,7 +78,6 @@ func (am *authorizationMiddleware) RetrieveDomain(ctx context.Context, session a
 
 func (am *authorizationMiddleware) UpdateDomain(ctx context.Context, session authn.Session, id string, d domains.DomainReq) (domains.Domain, error) {
 	if err := am.authorize(ctx, policies.DomainType, domains.OpUpdateDomain, authz.PolicyReq{
-		TokenType:   session.Type,
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -94,7 +92,6 @@ func (am *authorizationMiddleware) UpdateDomain(ctx context.Context, session aut
 
 func (am *authorizationMiddleware) EnableDomain(ctx context.Context, session authn.Session, id string) (domains.Domain, error) {
 	if err := am.authorize(ctx, policies.DomainType, domains.OpEnableDomain, authz.PolicyReq{
-		TokenType:   session.Type,
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -109,7 +106,6 @@ func (am *authorizationMiddleware) EnableDomain(ctx context.Context, session aut
 
 func (am *authorizationMiddleware) DisableDomain(ctx context.Context, session authn.Session, id string) (domains.Domain, error) {
 	if err := am.authorize(ctx, policies.DomainType, domains.OpDisableDomain, authz.PolicyReq{
-		TokenType:   session.Type,
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -125,7 +121,6 @@ func (am *authorizationMiddleware) DisableDomain(ctx context.Context, session au
 func (am *authorizationMiddleware) FreezeDomain(ctx context.Context, session authn.Session, id string) (domains.Domain, error) {
 	// Only SuperAdmin can freeze the domain
 	if err := am.authz.Authorize(ctx, authz.PolicyReq{
-		TokenType:   session.Type,
 		Subject:     session.UserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -150,7 +145,6 @@ func (am *authorizationMiddleware) ListDomains(ctx context.Context, session auth
 func (am *authorizationMiddleware) SendInvitation(ctx context.Context, session authn.Session, invitation domains.Invitation) (domains.Invitation, error) {
 	domainUserId := auth.EncodeDomainUserID(invitation.DomainID, invitation.InviteeUserID)
 	req := authz.PolicyReq{
-		TokenType:   session.Type,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
 		Subject:     domainUserId,
@@ -176,7 +170,6 @@ func (am *authorizationMiddleware) ListInvitations(ctx context.Context, session 
 
 func (am *authorizationMiddleware) ListDomainInvitations(ctx context.Context, session authn.Session, page domains.InvitationPageMeta) (invs domains.InvitationPage, err error) {
 	if err := am.authorize(ctx, policies.DomainType, domains.OpListDomainInvitations, authz.PolicyReq{
-		TokenType:   session.Type,
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -224,7 +217,6 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, entityType str
 // checkAdmin checks if the given user is a domain or platform administrator.
 func (am *authorizationMiddleware) checkAdmin(ctx context.Context, session authn.Session) error {
 	req := smqauthz.PolicyReq{
-		TokenType:   session.Type,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
 		Subject:     session.DomainUserID,
@@ -237,7 +229,6 @@ func (am *authorizationMiddleware) checkAdmin(ctx context.Context, session authn
 	}
 
 	req = smqauthz.PolicyReq{
-		TokenType:   session.Type,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
 		Subject:     session.UserID,
@@ -258,7 +249,6 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, session 
 		return svcerr.ErrSuperAdminAction
 	}
 	if err := am.authz.Authorize(ctx, smqauthz.PolicyReq{
-		TokenType:   session.Type,
 		SubjectType: policies.UserType,
 		Subject:     session.UserID,
 		Permission:  policies.AdminPermission,

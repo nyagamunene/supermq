@@ -23,12 +23,7 @@ func authenticateEndpoint(svc auth.Service) endpoint.Endpoint {
 			return authenticateRes{}, err
 		}
 
-		tokenType := auth.AccessTokenType
-		if key.Type == auth.PersonalAccessToken {
-			tokenType = auth.PersonalAccessTokenType
-		}
-
-		return authenticateRes{id: key.ID, userID: key.Subject, userRole: key.Role, verified: key.Verified, tokenType: tokenType}, nil
+		return authenticateRes{id: key.ID, userID: key.Subject, userRole: key.Role, verified: key.Verified}, nil
 	}
 }
 
@@ -41,7 +36,7 @@ func authorizeEndpoint(svc auth.Service) endpoint.Endpoint {
 		}
 
 		err := svc.Authorize(ctx, policies.Policy{
-			TokenType:   req.TokenType,
+
 			Domain:      req.Domain,
 			SubjectType: req.SubjectType,
 			SubjectKind: req.SubjectKind,

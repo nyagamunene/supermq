@@ -5,7 +5,6 @@ package authsvc
 
 import (
 	"context"
-	"strings"
 
 	grpcAuthV1 "github.com/absmach/supermq/api/grpc/auth/v1"
 	"github.com/absmach/supermq/auth/api/grpc/auth"
@@ -14,10 +13,6 @@ import (
 	"github.com/absmach/supermq/pkg/grpcclient"
 	grpchealth "google.golang.org/grpc/health/grpc_health_v1"
 )
-
-const patPrefix = "pat_"
-
-var errTokenTypeMismatch = errors.NewAuthNError("token type mismatch: token format does not match the service-returned token type")
 
 type authentication struct {
 	authSvcClient grpcAuthV1.AuthServiceClient
@@ -48,20 +43,9 @@ func (a authentication) Authenticate(ctx context.Context, token string) (authn.S
 		return authn.Session{}, errors.Wrap(errors.ErrAuthentication, err)
 	}
 
-	isPAT := strings.HasPrefix(token, patPrefix)
-	tokenType := authn.TokenType(res.GetTokenType())
-
-	if isPAT && tokenType != authn.PersonalAccessToken {
-		return authn.Session{}, errTokenTypeMismatch
-	}
-	if !isPAT && tokenType == authn.PersonalAccessToken {
-		return authn.Session{}, errTokenTypeMismatch
-	}
-
-	switch tokenType {
-	case authn.PersonalAccessToken:
+	if res.GetId() != "" {
 		return authn.Session{Type: authn.PersonalAccessToken, PatID: res.GetId(), UserID: res.GetUserId(), Role: authn.Role(res.GetUserRole())}, nil
-	default:
-		return authn.Session{Type: authn.AccessToken, UserID: res.GetUserId(), Role: authn.Role(res.GetUserRole()), Verified: res.GetVerified()}, nil
 	}
+
+	return authn.Session{Type: authn.AccessToken, UserID: res.GetUserId(), Role: authn.Role(res.GetUserRole()), Verified: res.GetVerified()}, nil
 }

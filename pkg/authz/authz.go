@@ -7,13 +7,9 @@ import (
 	"context"
 
 	"github.com/absmach/supermq/auth"
-	"github.com/absmach/supermq/pkg/authn"
 )
 
 type PolicyReq struct {
-	// TokenType contains the token type. Used to differentiate between PAT and regular user tokens.
-	TokenType authn.TokenType `json:"token_type,omitempty"`
-
 	// Domain contains the domain ID.
 	Domain string `json:"domain,omitempty"`
 

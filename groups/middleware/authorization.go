@@ -385,7 +385,6 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, session 
 }
 
 func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, entityType string, op permissions.Operation, pr smqauthz.PolicyReq) error {
-	pr.TokenType = session.Type
 	pr.UserID = session.UserID
 	pr.PatID = session.PatID
 	pr.DomainID = session.DomainID
@@ -396,7 +395,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	}
 	pr.Permission = perm.String()
 
-	if pr.PatID != "" && pr.TokenType == authn.PersonalAccessToken {
+	if pr.PatID != "" {
 		pr.EntityType = auth.GroupsType
 		pr.EntityID = pr.Object
 

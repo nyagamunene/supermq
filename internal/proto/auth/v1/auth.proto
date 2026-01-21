@@ -23,7 +23,6 @@ message AuthNRes {
   string user_id = 2;
   uint32 user_role = 3;
   bool verified = 4;
-  uint32 token_type = 5;
 }
 
 message PolicyReq {
@@ -41,8 +40,7 @@ message PolicyReq {
 }
 
 message AuthZReq {
-  uint32 token_type = 1;
-  PolicyReq policy = 2;
+  PolicyReq policy = 1;
 }
 
 message AuthZRes {

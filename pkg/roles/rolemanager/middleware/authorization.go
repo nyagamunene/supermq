@@ -295,7 +295,6 @@ func (ram RoleManagerAuthorizationMiddleware) RoleRemoveMembers(ctx context.Cont
 }
 
 func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, session authn.Session, op permissions.RoleOperation, pr smqauthz.PolicyReq) error {
-	pr.TokenType = session.Type
 	pr.UserID = session.UserID
 	pr.PatID = session.PatID
 	pr.DomainID = session.DomainID
@@ -307,7 +306,7 @@ func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, ses
 
 	pr.Permission = perm.String()
 
-	if pr.PatID != "" && pr.TokenType == authn.PersonalAccessToken {
+	if pr.PatID != "" {
 		pr.EntityID = pr.Object
 
 		switch ram.entityType {

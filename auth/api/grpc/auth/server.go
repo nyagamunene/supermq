@@ -60,7 +60,7 @@ func decodeAuthenticateRequest(_ context.Context, grpcReq any) (any, error) {
 
 func encodeAuthenticateResponse(_ context.Context, grpcRes any) (any, error) {
 	res := grpcRes.(authenticateRes)
-	return &grpcAuthV1.AuthNRes{Id: res.id, UserId: res.userID, UserRole: uint32(res.userRole), Verified: res.verified, TokenType: res.tokenType}, nil
+	return &grpcAuthV1.AuthNRes{Id: res.id, UserId: res.userID, UserRole: uint32(res.userRole), Verified: res.verified}, nil
 }
 
 func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
@@ -76,7 +76,6 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 			return authReq{}, err
 		}
 		return authReq{
-			TokenType:  req.GetTokenType(),
 			UserID:     policy.GetSubject(),
 			PatID:      policy.GetPatId(),
 			EntityType: entityType,
@@ -87,7 +86,6 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	}
 
 	return authReq{
-		TokenType:   req.GetTokenType(),
 		Domain:      policy.GetDomain(),
 		SubjectType: policy.GetSubjectType(),
 		SubjectKind: policy.GetSubjectKind(),

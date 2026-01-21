@@ -74,7 +74,6 @@ type AuthNRes struct {
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	UserRole      uint32                 `protobuf:"varint,3,opt,name=user_role,json=userRole,proto3" json:"user_role,omitempty"`
 	Verified      bool                   `protobuf:"varint,4,opt,name=verified,proto3" json:"verified,omitempty"`
-	TokenType     uint32                 `protobuf:"varint,5,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -135,13 +134,6 @@ func (x *AuthNRes) GetVerified() bool {
 		return x.Verified
 	}
 	return false
-}
-
-func (x *AuthNRes) GetTokenType() uint32 {
-	if x != nil {
-		return x.TokenType
-	}
-	return 0
 }
 
 type PolicyReq struct {
@@ -270,8 +262,7 @@ func (x *PolicyReq) GetOperation() uint32 {
 
 type AuthZReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TokenType     uint32                 `protobuf:"varint,1,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`
-	Policy        *PolicyReq             `protobuf:"bytes,2,opt,name=policy,proto3" json:"policy,omitempty"`
+	Policy        *PolicyReq             `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -304,13 +295,6 @@ func (x *AuthZReq) ProtoReflect() protoreflect.Message {
 // Deprecated: Use AuthZReq.ProtoReflect.Descriptor instead.
 func (*AuthZReq) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *AuthZReq) GetTokenType() uint32 {
-	if x != nil {
-		return x.TokenType
-	}
-	return 0
 }
 
 func (x *AuthZReq) GetPolicy() *PolicyReq {
@@ -378,14 +362,12 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"\n" +
 	"\x12auth/v1/auth.proto\x12\aauth.v1\" \n" +
 	"\bAuthNReq\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"\x8b\x01\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"l\n" +
 	"\bAuthNRes\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tuser_role\x18\x03 \x01(\rR\buserRole\x12\x1a\n" +
-	"\bverified\x18\x04 \x01(\bR\bverified\x12\x1d\n" +
-	"\n" +
-	"token_type\x18\x05 \x01(\rR\ttokenType\"\xd8\x02\n" +
+	"\bverified\x18\x04 \x01(\bR\bverified\"\xd8\x02\n" +
 	"\tPolicyReq\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\tR\x06domain\x12!\n" +
 	"\fsubject_type\x18\x02 \x01(\tR\vsubjectType\x12!\n" +
@@ -401,11 +383,9 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"objectType\x12\x15\n" +
 	"\x06pat_id\x18\n" +
 	" \x01(\tR\x05patId\x12\x1c\n" +
-	"\toperation\x18\v \x01(\rR\toperation\"U\n" +
-	"\bAuthZReq\x12\x1d\n" +
-	"\n" +
-	"token_type\x18\x01 \x01(\rR\ttokenType\x12*\n" +
-	"\x06policy\x18\x02 \x01(\v2\x12.auth.v1.PolicyReqR\x06policy\":\n" +
+	"\toperation\x18\v \x01(\rR\toperation\"6\n" +
+	"\bAuthZReq\x12*\n" +
+	"\x06policy\x18\x01 \x01(\v2\x12.auth.v1.PolicyReqR\x06policy\":\n" +
 	"\bAuthZRes\x12\x1e\n" +
 	"\n" +
 	"authorized\x18\x01 \x01(\bR\n" +
