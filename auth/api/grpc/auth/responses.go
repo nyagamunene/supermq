@@ -6,11 +6,10 @@ package auth
 import smqauth "github.com/absmach/supermq/auth"
 
 type authenticateRes struct {
-	id        string
-	userID    string
-	userRole  smqauth.Role
-	verified  bool
-	tokenType uint32
+	id       string
+	userID   string
+	userRole smqauth.Role
+	verified bool
 }
 
 type authorizeRes struct {

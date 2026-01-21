@@ -9,7 +9,6 @@ import (
 	grpcAuthV1 "github.com/absmach/supermq/api/grpc/auth/v1"
 	"github.com/absmach/supermq/auth/api/grpc/auth"
 	"github.com/absmach/supermq/domains"
-	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/authz"
 	pkgDomians "github.com/absmach/supermq/pkg/domains"
 	"github.com/absmach/supermq/pkg/errors"
@@ -61,9 +60,8 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 		}
 	}
 
-	if pr.PatID != "" && pr.TokenType == authn.PersonalAccessToken {
+	if pr.PatID != "" {
 		patReq := grpcAuthV1.AuthZReq{
-			TokenType: uint32(pr.TokenType),
 			Policy: &grpcAuthV1.PolicyReq{
 				Subject:    pr.UserID,
 				PatId:      pr.PatID,
@@ -83,7 +81,6 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 	}
 
 	req := grpcAuthV1.AuthZReq{
-		TokenType: uint32(pr.TokenType),
 		Policy: &grpcAuthV1.PolicyReq{
 			Domain:          pr.Domain,
 			SubjectType:     pr.SubjectType,

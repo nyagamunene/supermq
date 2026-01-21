@@ -25,11 +25,6 @@ const (
 	patSecretSeparator = "_"
 )
 
-const (
-	AccessTokenType uint32 = iota
-	PersonalAccessTokenType
-)
-
 var (
 	// ErrExpiry indicates that the token is expired.
 	ErrExpiry = errors.New("token is expired")
@@ -211,7 +206,7 @@ func (svc service) RetrieveJWKS() []PublicKeyInfo {
 }
 
 func (svc service) Authorize(ctx context.Context, pr policies.Policy) error {
-	if pr.PatID != "" && pr.TokenType == PersonalAccessTokenType {
+	if pr.PatID != "" {
 		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, EntityType(pr.EntityType), pr.DomainID, Operation(pr.Operation), pr.EntityID); err != nil {
 			return err
 		}
