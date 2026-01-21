@@ -45,7 +45,7 @@ func (s *authGrpcServer) Authenticate(ctx context.Context, req *grpcAuthV1.AuthN
 	return res.(*grpcAuthV1.AuthNRes), nil
 }
 
-func (s *authGrpcServer) Authorize(ctx context.Context, req *grpcAuthV1.AuthZReq) (*grpcAuthV1.AuthZRes, error) {
+func (s *authGrpcServer) Authorize(ctx context.Context, req *grpcAuthV1.PolicyReq) (*grpcAuthV1.AuthZRes, error) {
 	_, res, err := s.authorize.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, grpcapi.EncodeError(err)
@@ -64,36 +64,35 @@ func encodeAuthenticateResponse(_ context.Context, grpcRes any) (any, error) {
 }
 
 func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
-	req := grpcReq.(*grpcAuthV1.AuthZReq)
-	policy := req.GetPolicy()
-	if policy == nil {
+	req := grpcReq.(*grpcAuthV1.PolicyReq)
+	if req == nil {
 		return authReq{}, nil
 	}
 
-	if policy.GetPatId() != "" {
-		entityType, err := auth.ParseEntityType(policy.GetObjectType())
+	if req.GetPatId() != "" {
+		entityType, err := auth.ParseEntityType(req.GetObjectType())
 		if err != nil {
 			return authReq{}, err
 		}
 		return authReq{
-			UserID:     policy.GetSubject(),
-			PatID:      policy.GetPatId(),
+			UserID:     req.GetSubject(),
+			PatID:      req.GetPatId(),
 			EntityType: entityType,
-			DomainID:   policy.GetDomain(),
-			Operation:  auth.Operation(policy.GetOperation()),
-			EntityID:   policy.GetObject(),
+			DomainID:   req.GetDomain(),
+			Operation:  auth.Operation(req.GetOperation()),
+			EntityID:   req.GetObject(),
 		}, nil
 	}
 
 	return authReq{
-		Domain:      policy.GetDomain(),
-		SubjectType: policy.GetSubjectType(),
-		SubjectKind: policy.GetSubjectKind(),
-		Subject:     policy.GetSubject(),
-		Relation:    policy.GetRelation(),
-		Permission:  policy.GetPermission(),
-		ObjectType:  policy.GetObjectType(),
-		Object:      policy.GetObject(),
+		Domain:      req.GetDomain(),
+		SubjectType: req.GetSubjectType(),
+		SubjectKind: req.GetSubjectKind(),
+		Subject:     req.GetSubject(),
+		Relation:    req.GetRelation(),
+		Permission:  req.GetPermission(),
+		ObjectType:  req.GetObjectType(),
+		Object:      req.GetObject(),
 	}, nil
 }
 
