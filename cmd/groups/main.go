@@ -372,37 +372,48 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to get domain permissions: %w", err)
 	}
 
-	groupAuthOps, groupRoleAuthOps, err := permConfig.GetAuthOperations("groups")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get group auth operations: %w", err)
-	}
-
-	domainAuthOps, _, err := permConfig.GetAuthOperations("domains")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get domain auth operations: %w", err)
-	}
-
 	authOps := make(map[string]auth.Operation)
-	for opName, authOpStr := range groupAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range groupOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
-	for opName, authOpStr := range groupRoleAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range groupRoleOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
-	for opName, authOpStr := range domainAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range domainOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
+	}
+
+	groupPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range groupOps {
+		groupPerms[opName] = opInfo.Permission
+	}
+
+	domainPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range domainOps {
+		domainPerms[opName] = opInfo.Permission
+	}
+
+	groupRolePerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range groupRoleOps {
+		groupRolePerms[opName] = opInfo.Permission
 	}
 
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{
-			policies.GroupType:  groupOps,
-			policies.DomainType: domainOps,
+			policies.GroupType:  groupPerms,
+			policies.DomainType: domainPerms,
 		},
 		permissions.EntitiesOperationDetails[permissions.Operation]{
 			policies.GroupType:  groups.OperationDetails(),
@@ -413,7 +424,7 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), groupRoleOps)
+	roleOps, err := permissions.NewOperations(roles.Operations(), groupRolePerms)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}

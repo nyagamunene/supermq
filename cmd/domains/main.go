@@ -317,27 +317,34 @@ func newDomainService(ctx context.Context, domainsRepo domainsSvc.Repository, ca
 		return nil, fmt.Errorf("failed to get domain permissions: %w", err)
 	}
 
-	_, domainRoleAuthOps, err := permConfig.GetAuthOperations("domains")
-	if err != nil {
-		return nil, fmt.Errorf("failed to get domain auth operations: %w", err)
-	}
-
 	authOps := make(map[string]auth.Operation)
-	for opName, authOpStr := range domainRoleAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range domainRoleOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
 
+	domainPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range domainOps {
+		domainPerms[opName] = opInfo.Permission
+	}
+
+	domainRolePerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range domainRoleOps {
+		domainRolePerms[opName] = opInfo.Permission
+	}
+
 	entitiesOps, err := permissions.NewEntitiesOperations(
-		permissions.EntitiesPermission{policies.DomainType: domainOps},
+		permissions.EntitiesPermission{policies.DomainType: domainPerms},
 		permissions.EntitiesOperationDetails[permissions.Operation]{policies.DomainType: domains.OperationDetails()},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), domainRoleOps)
+	roleOps, err := permissions.NewOperations(roles.Operations(), domainRolePerms)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create role operations: %w", err)
 	}

@@ -415,11 +415,31 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, auth
 		return nil, nil, fmt.Errorf("failed to get group permissions: %w", err)
 	}
 
+	clientPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range clientOps {
+		clientPerms[opName] = opInfo.Permission
+	}
+
+	domainPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range domainOps {
+		domainPerms[opName] = opInfo.Permission
+	}
+
+	groupPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range groupOps {
+		groupPerms[opName] = opInfo.Permission
+	}
+
+	clientRolePerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range clientRoleOps {
+		clientRolePerms[opName] = opInfo.Permission
+	}
+
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{
-			policies.ClientType: clientOps,
-			policies.DomainType: domainOps,
-			policies.GroupType:  groupOps,
+			policies.ClientType: clientPerms,
+			policies.DomainType: domainPerms,
+			policies.GroupType:  groupPerms,
 		},
 		permissions.EntitiesOperationDetails[permissions.Operation]{
 			policies.ClientType: clients.OperationDetails(),
@@ -431,43 +451,38 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, auth
 		return nil, nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), clientRoleOps)
+	roleOps, err := permissions.NewOperations(roles.Operations(), clientRolePerms)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
 
-	clientAuthOps, clientRoleAuthOps, err := permConfig.GetAuthOperations("clients")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get client auth operations: %w", err)
-	}
-	domainAuthOps, _, err := permConfig.GetAuthOperations("domains")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get domain auth operations: %w", err)
-	}
-	groupAuthOps, _, err := permConfig.GetAuthOperations("groups")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get group auth operations: %w", err)
-	}
-
 	authOps := make(map[string]auth.Operation)
-	for opName, authOpStr := range clientAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range clientOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
-	for opName, authOpStr := range clientRoleAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range clientRoleOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
-	for opName, authOpStr := range domainAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range domainOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
-	for opName, authOpStr := range groupAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range groupOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
 
