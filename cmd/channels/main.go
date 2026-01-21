@@ -420,12 +420,37 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, cach
 		return nil, nil, fmt.Errorf("failed to get client permissions: %w", err)
 	}
 
+	channelPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range channelOps {
+		channelPerms[opName] = opInfo.Permission
+	}
+
+	domainPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range domainOps {
+		domainPerms[opName] = opInfo.Permission
+	}
+
+	groupPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range groupOps {
+		groupPerms[opName] = opInfo.Permission
+	}
+
+	clientPerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range clientOps {
+		clientPerms[opName] = opInfo.Permission
+	}
+
+	channelRolePerms := make(map[string]permissions.Permission)
+	for opName, opInfo := range channelRoleOps {
+		channelRolePerms[opName] = opInfo.Permission
+	}
+
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{
-			policies.ChannelType: channelOps,
-			policies.DomainType:  domainOps,
-			policies.GroupType:   groupOps,
-			policies.ClientType:  clientOps,
+			policies.ChannelType: channelPerms,
+			policies.DomainType:  domainPerms,
+			policies.GroupType:   groupPerms,
+			policies.ClientType:  clientPerms,
 		},
 		permissions.EntitiesOperationDetails[permissions.Operation]{
 			policies.ChannelType: channels.OperationDetails(),
@@ -438,34 +463,31 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, cach
 		return nil, nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), channelRoleOps)
+	roleOps, err := permissions.NewOperations(roles.Operations(), channelRolePerms)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
 
-	channelAuthOps, channelRoleAuthOps, err := permConfig.GetAuthOperations("channels")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get channel auth operations: %w", err)
-	}
-	domainAuthOps, _, err := permConfig.GetAuthOperations("domains")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get domain auth operations: %w", err)
-	}
-
 	authOps := make(map[string]auth.Operation)
-	for opName, authOpStr := range channelAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range channelOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
-	for opName, authOpStr := range channelRoleAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range channelRoleOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
-	for opName, authOpStr := range domainAuthOps {
-		if authOp, err := auth.ParseOperation(authOpStr); err == nil {
-			authOps[opName] = authOp
+	for opName, opInfo := range domainOps {
+		if opInfo.AuthOperation != "" {
+			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
+				authOps[opName] = authOp
+			}
 		}
 	}
 

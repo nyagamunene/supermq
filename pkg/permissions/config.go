@@ -19,6 +19,11 @@ type EntityPermissions struct {
 	RolesOperations []map[string]interface{} `yaml:"roles_operations"`
 }
 
+type OperationInfo struct {
+	Permission    Permission
+	AuthOperation string
+}
+
 func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -33,57 +38,36 @@ func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {
 	return &config, nil
 }
 
-func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]Permission, map[string]Permission, error) {
+func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]OperationInfo, map[string]OperationInfo, error) {
 	entityPerms, ok := pc.Entities[entityType]
 	if !ok {
 		return nil, nil, fmt.Errorf("entity type %s not found in permissions file", entityType)
 	}
 
-	operations := make(map[string]Permission)
+	operations := make(map[string]OperationInfo)
 	for _, op := range entityPerms.Operations {
 		for name, value := range op {
 			perm := extractPermission(value)
-			if perm != "" {
-				operations[name] = Permission(perm)
+			authOp := extractAuthOperation(value)
+			if perm != "" || authOp != "" {
+				operations[name] = OperationInfo{
+					Permission:    Permission(perm),
+					AuthOperation: authOp,
+				}
 			}
 		}
 	}
 
-	rolesOperations := make(map[string]Permission)
+	rolesOperations := make(map[string]OperationInfo)
 	for _, op := range entityPerms.RolesOperations {
 		for name, value := range op {
 			perm := extractPermission(value)
-			if perm != "" {
-				rolesOperations[name] = Permission(perm)
-			}
-		}
-	}
-
-	return operations, rolesOperations, nil
-}
-
-func (pc *PermissionConfig) GetAuthOperations(entityType string) (map[string]string, map[string]string, error) {
-	entityPerms, ok := pc.Entities[entityType]
-	if !ok {
-		return nil, nil, fmt.Errorf("entity type %s not found in permissions file", entityType)
-	}
-
-	operations := make(map[string]string)
-	for _, op := range entityPerms.Operations {
-		for name, value := range op {
 			authOp := extractAuthOperation(value)
-			if authOp != "" {
-				operations[name] = authOp
-			}
-		}
-	}
-
-	rolesOperations := make(map[string]string)
-	for _, op := range entityPerms.RolesOperations {
-		for name, value := range op {
-			authOp := extractAuthOperation(value)
-			if authOp != "" {
-				rolesOperations[name] = authOp
+			if perm != "" || authOp != "" {
+				rolesOperations[name] = OperationInfo{
+					Permission:    Permission(perm),
+					AuthOperation: authOp,
+				}
 			}
 		}
 	}
