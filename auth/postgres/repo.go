@@ -419,7 +419,7 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 		PatID:      sc.PatID,
 		DomainID:   sc.DomainID,
 		EntityType: sc.EntityType.String(),
-		Operation:  sc.Operation.String(),
+		Operation:  sc.Operation,
 		EntityID:   auth.AnyIDs,
 	}
 
@@ -445,7 +445,7 @@ func (pr *patRepo) processScope(ctx context.Context, sc auth.Scope) (auth.Scope,
 			PatID:      sc.PatID,
 			DomainID:   sc.DomainID,
 			EntityType: sc.EntityType.String(),
-			Operation:  sc.Operation.String(),
+			Operation:  sc.Operation,
 		}
 
 		checkEntityQuery := `
@@ -511,7 +511,7 @@ func (pr *patRepo) RemoveScope(ctx context.Context, userID string, scopesIDs ...
 	return nil
 }
 
-func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error {
+func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation string, entityID string) error {
 	q := `
         SELECT id, pat_id, entity_type, domain_id, operation, entity_id
         FROM pat_scopes 
@@ -522,7 +522,7 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
           AND (entity_id = :entity_id OR entity_id = '*')
         LIMIT 1`
 
-	authorized := pr.cache.CheckScope(ctx, userID, patID, entityType, domainID, operation, entityID)
+	authorized := pr.cache.CheckScope(ctx, userID, patID, domainID, entityType, operation, entityID)
 	if authorized {
 		return nil
 	}
@@ -531,7 +531,7 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 		PatID:      patID,
 		EntityType: entityType.String(),
 		DomainID:   domainID,
-		Operation:  operation.String(),
+		Operation:  operation,
 		EntityID:   entityID,
 	}
 
@@ -551,17 +551,13 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 		if err != nil {
 			return errors.Wrap(repoerr.ErrViewEntity, err)
 		}
-		operation, err := auth.ParseOperation(sc.Operation)
-		if err != nil {
-			return errors.Wrap(repoerr.ErrViewEntity, err)
-		}
 		authScope := auth.Scope{
 			ID:         sc.ID,
 			PatID:      sc.PatID,
 			DomainID:   sc.DomainID,
 			EntityType: entityType,
 			EntityID:   sc.EntityID,
-			Operation:  operation,
+			Operation:  sc.Operation,
 		}
 
 		if err := pr.cache.Save(ctx, userID, []auth.Scope{authScope}); err != nil {

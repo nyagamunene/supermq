@@ -170,7 +170,7 @@ func (tm *tracingMiddleware) AddScope(ctx context.Context, token, patID string, 
 	for _, s := range scopes {
 		attributes = append(attributes, attribute.String("entity_type", s.EntityType.String()))
 		attributes = append(attributes, attribute.String("domain_id", s.DomainID))
-		attributes = append(attributes, attribute.String("operation", s.Operation.String()))
+		attributes = append(attributes, attribute.String("operation", s.Operation))
 		attributes = append(attributes, attribute.String("entity_id", s.EntityID))
 	}
 
@@ -208,12 +208,12 @@ func (tm *tracingMiddleware) IdentifyPAT(ctx context.Context, paToken string) (a
 	return tm.svc.IdentifyPAT(ctx, paToken)
 }
 
-func (tm *tracingMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error {
+func (tm *tracingMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation string, entityID string) error {
 	ctx, span := tm.tracer.Start(ctx, "authorize_pat", trace.WithAttributes(
 		attribute.String("pat_id", patID),
 		attribute.String("entity_type", entityType.String()),
 		attribute.String("domain_id", domainID),
-		attribute.String("operation", operation.String()),
+		attribute.String("operation", operation),
 		attribute.String("entities", entityID),
 	))
 	defer span.End()

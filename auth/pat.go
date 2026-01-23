@@ -11,70 +11,23 @@ import (
 	"time"
 
 	apiutil "github.com/absmach/supermq/api/http/util"
+	channelsOps "github.com/absmach/supermq/channels/operations"
+	clientsOps "github.com/absmach/supermq/clients/operations"
+	domainsOps "github.com/absmach/supermq/domains/operations"
+	groupsOps "github.com/absmach/supermq/groups/operations"
 	"github.com/absmach/supermq/pkg/errors"
+	"github.com/absmach/supermq/pkg/permissions"
+	"github.com/absmach/supermq/pkg/roles"
 )
 
-const AnyIDs = "*"
+const (
+	AnyIDs              = "*"
+	RoleOperationPrefix = "role_"
+)
 
 var errInvalidEntityOp = errors.NewRequestError("operation not valid for entity type")
 
-type Operation uint32
-
-// Clients operations.
-const (
-	ClientCreateOp Operation = iota + 100
-	ClientListOp
-	ClientViewOp
-	ClientUpdateOp
-	ClientUpdateTagsOp
-	ClientUpdateSecretOp
-	ClientEnableOp
-	ClientDisableOp
-	ClientDeleteOp
-	ClientSetParentGroupOp
-	ClientRemoveParentGroupOp
-	ClientConnectToChannelOp
-	ClientDisconnectFromChannelOp
-)
-
-// Channels operations.
-const (
-	ChannelCreateOp Operation = iota + 200
-	ChannelListOp
-	ChannelViewOp
-	ChannelUpdateOp
-	ChannelUpdateTagsOp
-	ChannelEnableOp
-	ChannelDisableOp
-	ChannelDeleteOp
-	ChannelSetParentGroupOp
-	ChannelRemoveParentGroupOp
-	ChannelConnectToClientOp
-	ChannelDisconnectFromClientOp
-)
-
-// Groups operations.
-const (
-	GroupCreateOp Operation = iota + 300
-	GroupListOp
-	GroupViewOp
-	GroupUpdateOp
-	GroupUpdateTagsOp
-	GroupEnableOp
-	GroupDisableOp
-	GroupDeleteOp
-	GroupRetrieveHierarchyOp
-	GroupAddParentGroupOp
-	GroupRemoveParentGroupOp
-	GroupAddChildrenGroupsOp
-	GroupRemoveChildrenGroupsOp
-	GroupRemoveAllChildrenGroupsOp
-	GroupListChildrenGroupsOp
-	GroupSetChildClientOp
-	GroupRemoveChildClientOp
-	GroupSetChildChannelOp
-	GroupRemoveChildChannelOp
-)
+type Operation = permissions.Operation
 
 // Dashboard operations.
 const (
@@ -88,147 +41,186 @@ const (
 	MessageSubscribeOp
 )
 
-// Role operations - common for clients, channels, and groups.
-const (
-	RoleAddOp Operation = iota + 600
-	RoleRemoveOp
-	RoleUpdateOp
-	RoleRetrieveOp
-	RoleRetrieveAllOp
-	RoleAddActionsOp
-	RoleListActionsOp
-	RoleCheckActionsExistsOp
-	RoleRemoveActionsOp
-	RoleRemoveAllActionsOp
-	RoleAddMembersOp
-	RoleListMembersOp
-	RoleCheckMembersExistsOp
-	RoleRemoveMembersOp
-	RoleRemoveAllMembersOp
-)
-
-// operationToString maps Operation values to their string representation.
-var operationToString = map[Operation]string{
-	// Client operations
-	ClientCreateOp:                "client_create",
-	ClientListOp:                  "client_list",
-	ClientViewOp:                  "client_view",
-	ClientUpdateOp:                "client_update",
-	ClientUpdateTagsOp:            "client_update_tags",
-	ClientUpdateSecretOp:          "client_update_secret",
-	ClientEnableOp:                "client_enable",
-	ClientDisableOp:               "client_disable",
-	ClientDeleteOp:                "client_delete",
-	ClientSetParentGroupOp:        "client_set_parent_group",
-	ClientRemoveParentGroupOp:     "client_remove_parent_group",
-	ClientConnectToChannelOp:      "client_connect_to_channel",
-	ClientDisconnectFromChannelOp: "client_disconnect_from_channel",
-	// Channel operations
-	ChannelCreateOp:               "channel_create",
-	ChannelListOp:                 "channel_list",
-	ChannelViewOp:                 "channel_view",
-	ChannelUpdateOp:               "channel_update",
-	ChannelUpdateTagsOp:           "channel_update_tags",
-	ChannelEnableOp:               "channel_enable",
-	ChannelDisableOp:              "channel_disable",
-	ChannelDeleteOp:               "channel_delete",
-	ChannelSetParentGroupOp:       "channel_set_parent_group",
-	ChannelRemoveParentGroupOp:    "channel_remove_parent_group",
-	ChannelConnectToClientOp:      "channel_connect_to_client",
-	ChannelDisconnectFromClientOp: "channel_disconnect_from_client",
-	// Group operations
-	GroupCreateOp:                  "group_create",
-	GroupListOp:                    "group_list",
-	GroupViewOp:                    "group_view",
-	GroupUpdateOp:                  "group_update",
-	GroupUpdateTagsOp:              "group_update_tags",
-	GroupEnableOp:                  "group_enable",
-	GroupDisableOp:                 "group_disable",
-	GroupDeleteOp:                  "group_delete",
-	GroupRetrieveHierarchyOp:       "group_retrieve_hierarchy",
-	GroupAddParentGroupOp:          "group_add_parent_group",
-	GroupRemoveParentGroupOp:       "group_remove_parent_group",
-	GroupAddChildrenGroupsOp:       "group_add_children_groups",
-	GroupRemoveChildrenGroupsOp:    "group_remove_children_groups",
-	GroupRemoveAllChildrenGroupsOp: "group_remove_all_children_groups",
-	GroupListChildrenGroupsOp:      "group_list_children_groups",
-	GroupSetChildClientOp:          "group_set_child_client",
-	GroupRemoveChildClientOp:       "group_remove_child_client",
-	GroupSetChildChannelOp:         "group_set_child_channel",
-	GroupRemoveChildChannelOp:      "group_remove_child_channel",
-	// Dashboard operations
-	DashboardShareOp:   "dashboard_share",
-	DashboardUnshareOp: "dashboard_unshare",
-	// Message operations
-	MessagePublishOp:   "message_publish",
-	MessageSubscribeOp: "message_subscribe",
-	// Role operations - common for clients, channels, and groups
-	RoleAddOp:                "role_add",
-	RoleRemoveOp:             "role_remove",
-	RoleUpdateOp:             "role_update",
-	RoleRetrieveOp:           "role_retrieve",
-	RoleRetrieveAllOp:        "role_retrieve_all",
-	RoleAddActionsOp:         "role_add_actions",
-	RoleListActionsOp:        "role_list_actions",
-	RoleCheckActionsExistsOp: "role_check_actions_exists",
-	RoleRemoveActionsOp:      "role_remove_actions",
-	RoleRemoveAllActionsOp:   "role_remove_all_actions",
-	RoleAddMembersOp:         "role_add_members",
-	RoleListMembersOp:        "role_list_members",
-	RoleCheckMembersExistsOp: "role_check_members_exists",
-	RoleRemoveMembersOp:      "role_remove_members",
-	RoleRemoveAllMembersOp:   "role_remove_all_members",
-}
-
-// stringToOperation is the reverse map, built from operationToString.
-var stringToOperation = func() map[string]Operation {
-	m := make(map[string]Operation)
-	for op, str := range operationToString {
-		m[str] = op
+func OperationString(op Operation) string {
+	switch op {
+	case DashboardShareOp:
+		return "share"
+	case DashboardUnshareOp:
+		return "unshare"
+	case MessagePublishOp:
+		return "publish"
+	case MessageSubscribeOp:
+		return "subscribe"
+	default:
+		if name, found := lookupRoleOperationName(op); found {
+			return RoleOperationPrefix + name
+		}
+		if name, found := lookupServiceOperationName(op); found {
+			return name
+		}
+		return ""
 	}
-	return m
-}()
+}
 
-func (op Operation) String() string {
-	if str, ok := operationToString[op]; ok {
-		return str
+func lookupRoleOperationName(op Operation) (string, bool) {
+	for opKey, detail := range roles.Operations() {
+		if Operation(opKey) == op {
+			return detail.Name, true
+		}
 	}
-	return fmt.Sprintf("unknown operation type %d", op)
+	return "", false
 }
 
-func (op Operation) ValidString() (string, error) {
-	if str, ok := operationToString[op]; ok {
-		return str, nil
+func OperationStringForEntity(entityType EntityType, op Operation) string {
+	switch entityType {
+	case DashboardType:
+		if op == DashboardShareOp {
+			return "dashboard_share"
+		}
+		if op == DashboardUnshareOp {
+			return "dashboard_unshare"
+		}
+	case MessagesType:
+		if op == MessagePublishOp {
+			return "message_publish"
+		}
+		if op == MessageSubscribeOp {
+			return "message_subscribe"
+		}
+	case ClientsType:
+		for opKey, detail := range clientsOps.OperationDetails() {
+			if Operation(opKey) == op {
+				return detail.Name
+			}
+		}
+		for opKey, detail := range domainsOps.OperationDetails() {
+			if Operation(opKey) == op {
+				return detail.Name
+			}
+		}
+	case ChannelsType:
+		for opKey, detail := range channelsOps.OperationDetails() {
+			if Operation(opKey) == op {
+				return detail.Name
+			}
+		}
+		for opKey, detail := range domainsOps.OperationDetails() {
+			if Operation(opKey) == op {
+				return detail.Name
+			}
+		}
+	case GroupsType:
+		for opKey, detail := range groupsOps.OperationDetails() {
+			if Operation(opKey) == op {
+				return detail.Name
+			}
+		}
+		for opKey, detail := range domainsOps.OperationDetails() {
+			if Operation(opKey) == op {
+				return detail.Name
+			}
+		}
+	case DomainsType:
+		for opKey, detail := range domainsOps.OperationDetails() {
+			if Operation(opKey) == op {
+				return detail.Name
+			}
+		}
 	}
-	return "", fmt.Errorf("unknown operation type %d", op)
-}
 
-func ParseOperation(op string) (Operation, error) {
-	if operation, ok := stringToOperation[op]; ok {
-		return operation, nil
+	if name, found := lookupRoleOperationName(op); found {
+		return "role_" + name
 	}
-	return 0, fmt.Errorf("unknown operation type %s", op)
+
+	return ""
 }
 
-func (op Operation) MarshalJSON() ([]byte, error) {
-	return json.Marshal(op.String())
+func lookupServiceOperationName(op Operation) (string, bool) {
+	for opKey, detail := range clientsOps.OperationDetails() {
+		if Operation(opKey) == op {
+			return detail.Name, true
+		}
+	}
+	for opKey, detail := range channelsOps.OperationDetails() {
+		if Operation(opKey) == op {
+			return detail.Name, true
+		}
+	}
+	for opKey, detail := range groupsOps.OperationDetails() {
+		if Operation(opKey) == op {
+			return detail.Name, true
+		}
+	}
+	for opKey, detail := range domainsOps.OperationDetails() {
+		if Operation(opKey) == op {
+			return detail.Name, true
+		}
+	}
+	return "", false
 }
 
-func (op *Operation) UnmarshalJSON(data []byte) error {
-	str := strings.Trim(string(data), "\"")
-	val, err := ParseOperation(str)
-	*op = val
-	return err
+func ParseOperation(s string) (Operation, error) {
+	switch s {
+	case "share":
+		return DashboardShareOp, nil
+	case "unshare":
+		return DashboardUnshareOp, nil
+	case "publish":
+		return MessagePublishOp, nil
+	case "subscribe":
+		return MessageSubscribeOp, nil
+	default:
+		if op, found := lookupRoleOperation(s); found {
+			return op, nil
+		}
+		if op, found := lookupServiceOperation(s); found {
+			return op, nil
+		}
+		var op Operation
+		_, err := fmt.Sscanf(s, "%d", &op)
+		if err != nil {
+			return 0, fmt.Errorf("invalid operation: %s", s)
+		}
+		return op, nil
+	}
 }
 
-func (op Operation) MarshalText() (text []byte, err error) {
-	return []byte(op.String()), nil
+func lookupServiceOperation(name string) (Operation, bool) {
+	for op, detail := range clientsOps.OperationDetails() {
+		if detail.Name == name {
+			return Operation(op), true
+		}
+	}
+	for op, detail := range channelsOps.OperationDetails() {
+		if detail.Name == name {
+			return Operation(op), true
+		}
+	}
+	for op, detail := range groupsOps.OperationDetails() {
+		if detail.Name == name {
+			return Operation(op), true
+		}
+	}
+	for op, detail := range domainsOps.OperationDetails() {
+		if detail.Name == name {
+			return Operation(op), true
+		}
+	}
+	return 0, false
 }
 
-func (op *Operation) UnmarshalText(data []byte) (err error) {
-	str := strings.Trim(string(data), "\"")
-	*op, err = ParseOperation(str)
-	return err
+func lookupRoleOperation(name string) (Operation, bool) {
+	roleOpName := name
+	if strings.HasPrefix(name, "role_") {
+		roleOpName = strings.TrimPrefix(name, "role_")
+	}
+
+	for op, detail := range roles.Operations() {
+		if detail.Name == roleOpName {
+			return Operation(op), true
+		}
+	}
+	return 0, false
 }
 
 type EntityType uint32
@@ -239,6 +231,7 @@ const (
 	ClientsType
 	DashboardType
 	MessagesType
+	DomainsType
 )
 
 const (
@@ -247,6 +240,7 @@ const (
 	ClientsScopeStr  = "clients"
 	DashboardsStr    = "dashboards"
 	MessagesStr      = "messages"
+	DomainsStr       = "domains"
 )
 
 func (et EntityType) String() string {
@@ -261,6 +255,8 @@ func (et EntityType) String() string {
 		return DashboardsStr
 	case MessagesType:
 		return MessagesStr
+	case DomainsType:
+		return DomainsStr
 	default:
 		return fmt.Sprintf("unknown domain entity type %d", et)
 	}
@@ -286,6 +282,8 @@ func ParseEntityType(et string) (EntityType, error) {
 		return DashboardType, nil
 	case MessagesStr:
 		return MessagesType, nil
+	case DomainsStr:
+		return DomainsType, nil
 	default:
 		return 0, fmt.Errorf("unknown domain entity type %s", et)
 	}
@@ -312,124 +310,17 @@ func (et *EntityType) UnmarshalText(data []byte) (err error) {
 	return err
 }
 
-var ValidOperationsForEntity = map[EntityType][]Operation{
-	ClientsType: {
-		ClientCreateOp,
-		ClientListOp,
-		ClientViewOp,
-		ClientUpdateOp,
-		ClientUpdateTagsOp,
-		ClientUpdateSecretOp,
-		ClientEnableOp,
-		ClientDisableOp,
-		ClientDeleteOp,
-		ClientSetParentGroupOp,
-		ClientRemoveParentGroupOp,
-		ClientConnectToChannelOp,
-		ClientDisconnectFromChannelOp,
-		RoleAddOp,
-		RoleRemoveOp,
-		RoleUpdateOp,
-		RoleRetrieveOp,
-		RoleRetrieveAllOp,
-		RoleAddActionsOp,
-		RoleListActionsOp,
-		RoleCheckActionsExistsOp,
-		RoleRemoveActionsOp,
-		RoleRemoveAllActionsOp,
-		RoleAddMembersOp,
-		RoleListMembersOp,
-		RoleCheckMembersExistsOp,
-		RoleRemoveMembersOp,
-		RoleRemoveAllMembersOp,
-	},
-	ChannelsType: {
-		ChannelCreateOp,
-		ChannelListOp,
-		ChannelViewOp,
-		ChannelUpdateOp,
-		ChannelUpdateTagsOp,
-		ChannelEnableOp,
-		ChannelDisableOp,
-		ChannelDeleteOp,
-		ChannelSetParentGroupOp,
-		ChannelRemoveParentGroupOp,
-		ChannelConnectToClientOp,
-		ChannelDisconnectFromClientOp,
-		RoleAddOp,
-		RoleRemoveOp,
-		RoleUpdateOp,
-		RoleRetrieveOp,
-		RoleRetrieveAllOp,
-		RoleAddActionsOp,
-		RoleListActionsOp,
-		RoleCheckActionsExistsOp,
-		RoleRemoveActionsOp,
-		RoleRemoveAllActionsOp,
-		RoleAddMembersOp,
-		RoleListMembersOp,
-		RoleCheckMembersExistsOp,
-		RoleRemoveMembersOp,
-		RoleRemoveAllMembersOp,
-	},
-	GroupsType: {
-		GroupCreateOp,
-		GroupListOp,
-		GroupViewOp,
-		GroupUpdateOp,
-		GroupUpdateTagsOp,
-		GroupEnableOp,
-		GroupDisableOp,
-		GroupDeleteOp,
-		GroupRetrieveHierarchyOp,
-		GroupAddParentGroupOp,
-		GroupRemoveParentGroupOp,
-		GroupAddChildrenGroupsOp,
-		GroupRemoveChildrenGroupsOp,
-		GroupRemoveAllChildrenGroupsOp,
-		GroupListChildrenGroupsOp,
-		GroupSetChildClientOp,
-		GroupRemoveChildClientOp,
-		GroupSetChildChannelOp,
-		GroupRemoveChildChannelOp,
-		RoleAddOp,
-		RoleRemoveOp,
-		RoleUpdateOp,
-		RoleRetrieveOp,
-		RoleRetrieveAllOp,
-		RoleAddActionsOp,
-		RoleListActionsOp,
-		RoleCheckActionsExistsOp,
-		RoleRemoveActionsOp,
-		RoleRemoveAllActionsOp,
-		RoleAddMembersOp,
-		RoleListMembersOp,
-		RoleCheckMembersExistsOp,
-		RoleRemoveMembersOp,
-		RoleRemoveAllMembersOp,
-	},
-	DashboardType: {
-		DashboardShareOp,
-		DashboardUnshareOp,
-	},
-	MessagesType: {
-		MessagePublishOp,
-		MessageSubscribeOp,
-	},
-}
-
-// IsValidOperationForEntity checks if the given operation is valid for the entity type.
-func IsValidOperationForEntity(entityType EntityType, operation Operation) bool {
-	validOps, exists := ValidOperationsForEntity[entityType]
-	if !exists {
+func IsValidOperationForEntity(entityType EntityType, operation string) bool {
+	switch entityType {
+	case ClientsType, ChannelsType, GroupsType, DomainsType:
+		return true
+	case DashboardType:
+		return operation == "dashboard_share" || operation == "dashboard_unshare"
+	case MessagesType:
+		return operation == "message_publish" || operation == "message_subscribe"
+	default:
 		return false
 	}
-	for _, op := range validOps {
-		if op == operation {
-			return true
-		}
-	}
-	return false
 }
 
 // Example Scope as JSON
@@ -438,19 +329,19 @@ func IsValidOperationForEntity(entityType EntityType, operation Operation) bool 
 //     {
 //         "domain_id": "domain_1",
 //         "entity_type": "groups",
-//         "operation": "group_create",
+//         "operation": "view",
 //         "entity_id": "*"
 //     },
 //     {
 //         "domain_id": "domain_1",
 //         "entity_type": "channels",
-//         "operation": "channel_delete",
+//         "operation": "delete",
 //         "entity_id": "channel1"
 //     },
 //     {
 //         "domain_id": "domain_1",
 //         "entity_type": "clients",
-//         "operation": "client_update",
+//         "operation": "update",
 //         "entity_id": "*"
 //     }
 // ]
@@ -461,10 +352,46 @@ type Scope struct {
 	DomainID   string     `json:"domain_id"`
 	EntityType EntityType `json:"entity_type"`
 	EntityID   string     `json:"entity_id"`
-	Operation  Operation  `json:"operation"`
+	Operation  string     `json:"operation"`
 }
 
-func (s *Scope) Authorized(entityType EntityType, domainID string, operation Operation, entityID string) bool {
+func (s *Scope) UnmarshalJSON(data []byte) error {
+	type Alias Scope
+	aux := (*Alias)(s)
+
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+
+	if s.EntityType == ClientsType || s.EntityType == ChannelsType || s.EntityType == GroupsType {
+		if s.Operation == "create" || s.Operation == "list" {
+			switch s.EntityType {
+			case ClientsType:
+				if s.Operation == "create" {
+					s.Operation = "create_clients"
+				} else {
+					s.Operation = "list_clients"
+				}
+			case ChannelsType:
+				if s.Operation == "create" {
+					s.Operation = "create_channels"
+				} else {
+					s.Operation = "list_channels"
+				}
+			case GroupsType:
+				if s.Operation == "create" {
+					s.Operation = "create_groups"
+				} else {
+					s.Operation = "list_groups"
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s *Scope) Authorized(entityType EntityType, domainID string, operation string, entityID string) bool {
 	if s == nil {
 		return false
 	}
@@ -488,6 +415,7 @@ func (s *Scope) Authorized(entityType EntityType, domainID string, operation Ope
 	if s.EntityID == entityID {
 		return true
 	}
+
 	return false
 }
 
@@ -630,7 +558,7 @@ type PATS interface {
 	IdentifyPAT(ctx context.Context, paToken string) (PAT, error)
 
 	// AuthorizePAT function will valid the secret and check the given scope exists.
-	AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) error
+	AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation string, entityID string) error
 }
 
 // PATSRepository specifies PATS persistence API.
@@ -675,7 +603,7 @@ type PATSRepository interface {
 
 	RemoveScope(ctx context.Context, userID string, scopesIDs ...string) error
 
-	CheckScope(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) error
+	CheckScope(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation string, entityID string) error
 
 	RemoveAllScope(ctx context.Context, patID string) error
 }
@@ -683,7 +611,7 @@ type PATSRepository interface {
 type Cache interface {
 	Save(ctx context.Context, userID string, scopes []Scope) error
 
-	CheckScope(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) bool
+	CheckScope(ctx context.Context, userID, patID, optionalDomainID string, entityType EntityType, operation string, entityID string) bool
 
 	Remove(ctx context.Context, userID string, scopesID []string) error
 

@@ -92,17 +92,13 @@ func toAuthScope(dsc []dbScope) ([]auth.Scope, error) {
 		if err != nil {
 			return []auth.Scope{}, err
 		}
-		operation, err := auth.ParseOperation(s.Operation)
-		if err != nil {
-			return []auth.Scope{}, err
-		}
 		scope = append(scope, auth.Scope{
 			ID:         s.ID,
 			PatID:      s.PatID,
 			DomainID:   s.DomainID,
 			EntityType: entityType,
 			EntityID:   s.EntityID,
-			Operation:  operation,
+			Operation:  s.Operation,
 		})
 	}
 
@@ -157,7 +153,7 @@ func toDBScope(sc []auth.Scope) []dbScope {
 			DomainID:   s.DomainID,
 			EntityType: s.EntityType.String(),
 			EntityID:   s.EntityID,
-			Operation:  s.Operation.String(),
+			Operation:  s.Operation,
 		})
 	}
 	return scopes

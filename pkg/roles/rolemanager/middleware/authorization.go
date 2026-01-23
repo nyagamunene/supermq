@@ -5,6 +5,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/pkg/authn"
@@ -22,11 +23,10 @@ type RoleManagerAuthorizationMiddleware struct {
 	svc        roles.RoleManager
 	authz      smqauthz.Authorization
 	ops        permissions.Operations[permissions.RoleOperation]
-	authOps    map[string]auth.Operation
 }
 
 // NewAuthorization adds authorization for role related methods to the core service.
-func NewAuthorization(entityType string, svc roles.RoleManager, authz smqauthz.Authorization, roleOps permissions.Operations[permissions.RoleOperation], authOps map[string]auth.Operation) (RoleManagerAuthorizationMiddleware, error) {
+func NewAuthorization(entityType string, svc roles.RoleManager, authz smqauthz.Authorization, roleOps permissions.Operations[permissions.RoleOperation]) (RoleManagerAuthorizationMiddleware, error) {
 	if err := roleOps.Validate(); err != nil {
 		return RoleManagerAuthorizationMiddleware{}, err
 	}
@@ -36,7 +36,6 @@ func NewAuthorization(entityType string, svc roles.RoleManager, authz smqauthz.A
 		svc:        svc,
 		authz:      authz,
 		ops:        roleOps,
-		authOps:    authOps,
 	}
 
 	return ram, nil
@@ -308,20 +307,20 @@ func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, ses
 
 	if pr.PatID != "" {
 		pr.EntityID = pr.Object
-
-		switch ram.entityType {
-		case policies.ClientType:
-			pr.EntityType = auth.ClientsType
-		case policies.ChannelType:
-			pr.EntityType = auth.ChannelsType
-		case policies.GroupType:
-			pr.EntityType = auth.GroupsType
-		}
-
 		opName := ram.ops.OperationName(op)
-		if authOp, ok := ram.authOps[opName]; ok {
-			pr.Operation = authOp
+		var patEntityType string
+		switch pr.ObjectType {
+		case policies.GroupType:
+			patEntityType = auth.GroupsScopeStr
+		case policies.ClientType:
+			patEntityType = auth.ClientsScopeStr
+		case policies.ChannelType:
+			patEntityType = auth.ChannelsScopeStr
+		default:
+			return errors.Wrap(errors.ErrAuthorization, fmt.Errorf("unsupported entity type for PAT: %s", pr.ObjectType))
 		}
+		pr.EntityType = patEntityType
+		pr.Operation = auth.RoleOperationPrefix + opName
 	}
 
 	if err := ram.authz.Authorize(ctx, pr); err != nil {

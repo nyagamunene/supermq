@@ -64,9 +64,9 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 		patReq := grpcAuthV1.PolicyReq{
 			Subject:    pr.UserID,
 			PatId:      pr.PatID,
-			ObjectType: pr.EntityType.String(),
+			ObjectType: pr.EntityType,
 			Domain:     pr.DomainID,
-			Operation:  uint32(pr.Operation),
+			Operation:  pr.Operation,
 			Object:     pr.EntityID,
 		}
 		patRes, err := a.authSvcClient.Authorize(ctx, &patReq)

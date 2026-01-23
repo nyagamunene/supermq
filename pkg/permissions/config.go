@@ -48,11 +48,10 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 	for _, op := range entityPerms.Operations {
 		for name, value := range op {
 			perm := extractPermission(value)
-			authOp := extractAuthOperation(value)
-			if perm != "" || authOp != "" {
+			if perm != "" {
 				operations[name] = OperationInfo{
 					Permission:    Permission(perm),
-					AuthOperation: authOp,
+					AuthOperation: name,
 				}
 			}
 		}
@@ -62,11 +61,10 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 	for _, op := range entityPerms.RolesOperations {
 		for name, value := range op {
 			perm := extractPermission(value)
-			authOp := extractAuthOperation(value)
-			if perm != "" || authOp != "" {
+			if perm != "" {
 				rolesOperations[name] = OperationInfo{
 					Permission:    Permission(perm),
-					AuthOperation: authOp,
+					AuthOperation: name,
 				}
 			}
 		}
@@ -76,22 +74,8 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 }
 
 func extractPermission(value interface{}) string {
-	switch v := value.(type) {
-	case string:
+	if v, ok := value.(string); ok {
 		return v
-	case map[string]interface{}:
-		if perm, ok := v["permission"].(string); ok {
-			return perm
-		}
-	}
-	return ""
-}
-
-func extractAuthOperation(value interface{}) string {
-	if m, ok := value.(map[string]interface{}); ok {
-		if authOp, ok := m["auth_operation"].(string); ok {
-			return authOp
-		}
 	}
 	return ""
 }

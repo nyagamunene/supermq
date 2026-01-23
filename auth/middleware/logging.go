@@ -308,7 +308,7 @@ func (lm *loggingMiddleware) AddScope(ctx context.Context, token, patID string, 
 		for _, s := range scopes {
 			groupArgs = append(groupArgs, slog.String("entity_type", s.EntityType.String()))
 			groupArgs = append(groupArgs, slog.String("domain_id", s.DomainID))
-			groupArgs = append(groupArgs, slog.String("operation", s.Operation.String()))
+			groupArgs = append(groupArgs, slog.String("operation", s.Operation))
 			groupArgs = append(groupArgs, slog.String("entity_id", s.EntityID))
 		}
 
@@ -379,13 +379,13 @@ func (lm *loggingMiddleware) IdentifyPAT(ctx context.Context, paToken string) (p
 	return lm.svc.IdentifyPAT(ctx, paToken)
 }
 
-func (lm *loggingMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) (err error) {
+func (lm *loggingMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation string, entityID string) (err error) {
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
 			slog.String("entity_type", entityType.String()),
 			slog.String("domain_id", domainID),
-			slog.String("operation", operation.String()),
+			slog.String("operation", operation),
 			slog.String("entities", entityID),
 		}
 		if err != nil {

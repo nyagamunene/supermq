@@ -70,16 +70,16 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	}
 
 	if req.GetPatId() != "" {
-		entityType, err := auth.ParseEntityType(req.GetObjectType())
-		if err != nil {
-			return authReq{}, err
-		}
 		return authReq{
+			Domain:     req.GetDomain(),
+			Subject:    req.GetSubject(),
+			ObjectType: req.GetObjectType(),
+			Object:     req.GetObject(),
 			UserID:     req.GetSubject(),
 			PatID:      req.GetPatId(),
-			EntityType: entityType,
+			EntityType: req.GetObjectType(),
 			DomainID:   req.GetDomain(),
-			Operation:  auth.Operation(req.GetOperation()),
+			Operation:  req.GetOperation(),
 			EntityID:   req.GetObject(),
 		}, nil
 	}
