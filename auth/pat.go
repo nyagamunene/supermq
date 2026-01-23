@@ -25,6 +25,30 @@ const (
 	RoleOperationPrefix = "role_"
 )
 
+const (
+	OpCreate = "create"
+	OpList   = "list"
+
+	OpCreateClients  = "create_clients"
+	OpListClients    = "list_clients"
+	OpCreateChannels = "create_channels"
+	OpListChannels   = "list_channels"
+	OpCreateGroups   = "create_groups"
+	OpListGroups     = "list_groups"
+
+	OpShare   = "share"
+	OpUnshare = "unshare"
+
+	OpDashboardShare   = "dashboard_share"
+	OpDashboardUnshare = "dashboard_unshare"
+
+	OpPublish   = "publish"
+	OpSubscribe = "subscribe"
+
+	OpMessagePublish   = "message_publish"
+	OpMessageSubscribe = "message_subscribe"
+)
+
 var errInvalidEntityOp = errors.NewRequestError("operation not valid for entity type")
 
 type Operation = permissions.Operation
@@ -44,13 +68,13 @@ const (
 func OperationString(op Operation) string {
 	switch op {
 	case DashboardShareOp:
-		return "share"
+		return OpShare
 	case DashboardUnshareOp:
-		return "unshare"
+		return OpUnshare
 	case MessagePublishOp:
-		return "publish"
+		return OpPublish
 	case MessageSubscribeOp:
-		return "subscribe"
+		return OpSubscribe
 	default:
 		if name, found := lookupRoleOperationName(op); found {
 			return RoleOperationPrefix + name
@@ -75,17 +99,17 @@ func OperationStringForEntity(entityType EntityType, op Operation) string {
 	switch entityType {
 	case DashboardType:
 		if op == DashboardShareOp {
-			return "dashboard_share"
+			return OpDashboardShare
 		}
 		if op == DashboardUnshareOp {
-			return "dashboard_unshare"
+			return OpDashboardUnshare
 		}
 	case MessagesType:
 		if op == MessagePublishOp {
-			return "message_publish"
+			return OpMessagePublish
 		}
 		if op == MessageSubscribeOp {
-			return "message_subscribe"
+			return OpMessageSubscribe
 		}
 	case ClientsType:
 		for opKey, detail := range clientsOps.OperationDetails() {
@@ -129,7 +153,7 @@ func OperationStringForEntity(entityType EntityType, op Operation) string {
 	}
 
 	if name, found := lookupRoleOperationName(op); found {
-		return "role_" + name
+		return RoleOperationPrefix + name
 	}
 
 	return ""
@@ -161,13 +185,13 @@ func lookupServiceOperationName(op Operation) (string, bool) {
 
 func ParseOperation(s string) (Operation, error) {
 	switch s {
-	case "share":
+	case OpShare:
 		return DashboardShareOp, nil
-	case "unshare":
+	case OpUnshare:
 		return DashboardUnshareOp, nil
-	case "publish":
+	case OpPublish:
 		return MessagePublishOp, nil
-	case "subscribe":
+	case OpSubscribe:
 		return MessageSubscribeOp, nil
 	default:
 		if op, found := lookupRoleOperation(s); found {
@@ -211,8 +235,8 @@ func lookupServiceOperation(name string) (Operation, bool) {
 
 func lookupRoleOperation(name string) (Operation, bool) {
 	roleOpName := name
-	if strings.HasPrefix(name, "role_") {
-		roleOpName = strings.TrimPrefix(name, "role_")
+	if strings.HasPrefix(name, RoleOperationPrefix) {
+		roleOpName = strings.TrimPrefix(name, RoleOperationPrefix)
 	}
 
 	for op, detail := range roles.Operations() {
@@ -315,9 +339,9 @@ func IsValidOperationForEntity(entityType EntityType, operation string) bool {
 	case ClientsType, ChannelsType, GroupsType, DomainsType:
 		return true
 	case DashboardType:
-		return operation == "dashboard_share" || operation == "dashboard_unshare"
+		return operation == OpDashboardShare || operation == OpDashboardUnshare
 	case MessagesType:
-		return operation == "message_publish" || operation == "message_subscribe"
+		return operation == OpMessagePublish || operation == OpMessageSubscribe
 	default:
 		return false
 	}
@@ -363,28 +387,41 @@ func (s *Scope) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	if s.EntityType == ClientsType || s.EntityType == ChannelsType || s.EntityType == GroupsType {
-		if s.Operation == "create" || s.Operation == "list" {
-			switch s.EntityType {
-			case ClientsType:
-				if s.Operation == "create" {
-					s.Operation = "create_clients"
-				} else {
-					s.Operation = "list_clients"
-				}
-			case ChannelsType:
-				if s.Operation == "create" {
-					s.Operation = "create_channels"
-				} else {
-					s.Operation = "list_channels"
-				}
-			case GroupsType:
-				if s.Operation == "create" {
-					s.Operation = "create_groups"
-				} else {
-					s.Operation = "list_groups"
-				}
-			}
+	switch s.EntityType {
+	case ClientsType:
+		switch s.Operation {
+		case OpCreate:
+			s.Operation = OpCreateClients
+		case OpList:
+			s.Operation = OpListClients
+		}
+	case ChannelsType:
+		switch s.Operation {
+		case OpCreate:
+			s.Operation = OpCreateChannels
+		case OpList:
+			s.Operation = OpListChannels
+		}
+	case GroupsType:
+		switch s.Operation {
+		case OpCreate:
+			s.Operation = OpCreateGroups
+		case OpList:
+			s.Operation = OpListGroups
+		}
+	case DashboardType:
+		switch s.Operation {
+		case OpShare:
+			s.Operation = OpDashboardShare
+		case OpUnshare:
+			s.Operation = OpDashboardUnshare
+		}
+	case MessagesType:
+		switch s.Operation {
+		case OpPublish:
+			s.Operation = OpMessagePublish
+		case OpSubscribe:
+			s.Operation = OpMessageSubscribe
 		}
 	}
 
