@@ -195,7 +195,7 @@ func (ms *metricsMiddleware) IdentifyPAT(ctx context.Context, paToken string) (a
 	return ms.svc.IdentifyPAT(ctx, paToken)
 }
 
-func (ms *metricsMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) error {
+func (ms *metricsMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation string, entityID string) error {
 	defer func(begin time.Time) {
 		ms.counter.With("method", "authorize_pat").Add(1)
 		ms.latency.With("method", "authorize_pat").Observe(time.Since(begin).Seconds())

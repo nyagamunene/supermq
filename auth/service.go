@@ -207,7 +207,11 @@ func (svc service) RetrieveJWKS() []PublicKeyInfo {
 
 func (svc service) Authorize(ctx context.Context, pr policies.Policy) error {
 	if pr.PatID != "" {
-		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, EntityType(pr.EntityType), pr.DomainID, Operation(pr.Operation), pr.EntityID); err != nil {
+		entityType, err := ParseEntityType(pr.EntityType)
+		if err != nil {
+			return err
+		}
+		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, entityType, pr.DomainID, pr.Operation, pr.EntityID); err != nil {
 			return err
 		}
 		return nil
@@ -730,7 +734,7 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 	return pat, nil
 }
 
-func (svc service) AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation Operation, entityID string) error {
+func (svc service) AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation string, entityID string) error {
 	if err := svc.pats.CheckScope(ctx, userID, patID, entityType, domainID, operation, entityID); err != nil {
 		return errors.Wrap(svcerr.ErrAuthorization, err)
 	}

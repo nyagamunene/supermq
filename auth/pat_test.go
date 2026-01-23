@@ -17,101 +17,36 @@ func TestOperationString(t *testing.T) {
 		expected string
 	}{
 		{
-			desc:     "Client create operation",
-			op:       auth.ClientCreateOp,
-			expected: auth.ClientCreateOp.String(),
-		},
-		{
-			desc:     "Client view operation",
-			op:       auth.ClientViewOp,
-			expected: auth.ClientViewOp.String(),
-		},
-		{
-			desc:     "Client list operation",
-			op:       auth.ClientListOp,
-			expected: auth.ClientListOp.String(),
-		},
-		{
-			desc:     "Client update operation",
-			op:       auth.ClientUpdateOp,
-			expected: auth.ClientUpdateOp.String(),
-		},
-		{
-			desc:     "Client delete operation",
-			op:       auth.ClientDeleteOp,
-			expected: auth.ClientDeleteOp.String(),
-		},
-		{
 			desc:     "Dashboard share operation",
 			op:       auth.DashboardShareOp,
-			expected: auth.DashboardShareOp.String(),
+			expected: "dashboard_share",
 		},
 		{
 			desc:     "Dashboard unshare operation",
 			op:       auth.DashboardUnshareOp,
-			expected: auth.DashboardUnshareOp.String(),
+			expected: "dashboard_unshare",
 		},
 		{
 			desc:     "Message publish operation",
 			op:       auth.MessagePublishOp,
-			expected: auth.MessagePublishOp.String(),
+			expected: "message_publish",
 		},
 		{
 			desc:     "Message subscribe operation",
 			op:       auth.MessageSubscribeOp,
-			expected: auth.MessageSubscribeOp.String(),
+			expected: "message_subscribe",
 		},
 		{
 			desc:     "Unknown operation",
 			op:       auth.Operation(9999),
-			expected: "unknown operation type 9999",
+			expected: "9999",
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			got := tc.op.String()
-			assert.Equal(t, tc.expected, got, "String() = %v, expected %v", got, tc.expected)
-		})
-	}
-}
-
-func TestOperationValidString(t *testing.T) {
-	cases := []struct {
-		desc     string
-		op       auth.Operation
-		expected string
-		err      bool
-	}{
-		{
-			desc:     "Valid client create operation",
-			op:       auth.ClientCreateOp,
-			expected: auth.ClientCreateOp.String(),
-			err:      false,
-		},
-		{
-			desc:     "Valid client view operation",
-			op:       auth.ClientViewOp,
-			expected: auth.ClientViewOp.String(),
-			err:      false,
-		},
-		{
-			desc:     "Invalid operation",
-			op:       auth.Operation(9999),
-			expected: "",
-			err:      true,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got, err := tc.op.ValidString()
-			if tc.err {
-				assert.Error(t, err, "ValidString() should return error")
-			} else {
-				assert.NoError(t, err, "ValidString() should not return error")
-				assert.Equal(t, tc.expected, got, "ValidString() = %v, expected %v", got, tc.expected)
-			}
+			got := auth.OperationString(tc.op)
+			assert.Equal(t, tc.expected, got, "OperationString() = %v, expected %v", got, tc.expected)
 		})
 	}
 }
@@ -124,57 +59,33 @@ func TestParseOperation(t *testing.T) {
 		err      bool
 	}{
 		{
-			desc:     "Parse client_create",
-			op:       auth.ClientCreateOp.String(),
-			expected: auth.ClientCreateOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse client_view",
-			op:       auth.ClientViewOp.String(),
-			expected: auth.ClientViewOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse client_list",
-			op:       auth.ClientListOp.String(),
-			expected: auth.ClientListOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse client_update",
-			op:       auth.ClientUpdateOp.String(),
-			expected: auth.ClientUpdateOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse client_delete",
-			op:       auth.ClientDeleteOp.String(),
-			expected: auth.ClientDeleteOp,
-			err:      false,
-		},
-		{
 			desc:     "Parse dashboard_share",
-			op:       auth.DashboardShareOp.String(),
+			op:       "dashboard_share",
 			expected: auth.DashboardShareOp,
 			err:      false,
 		},
 		{
 			desc:     "Parse dashboard_unshare",
-			op:       auth.DashboardUnshareOp.String(),
+			op:       "dashboard_unshare",
 			expected: auth.DashboardUnshareOp,
 			err:      false,
 		},
 		{
 			desc:     "Parse message_publish",
-			op:       auth.MessagePublishOp.String(),
+			op:       "message_publish",
 			expected: auth.MessagePublishOp,
 			err:      false,
 		},
 		{
 			desc:     "Parse message_subscribe",
-			op:       auth.MessageSubscribeOp.String(),
+			op:       "message_subscribe",
 			expected: auth.MessageSubscribeOp,
+			err:      false,
+		},
+		{
+			desc:     "Parse numeric operation string",
+			op:       "123",
+			expected: auth.Operation(123),
 			err:      false,
 		},
 		{
@@ -193,154 +104,6 @@ func TestParseOperation(t *testing.T) {
 			} else {
 				assert.NoError(t, err, "ParseOperation() should not return error")
 				assert.Equal(t, tc.expected, got, "ParseOperation() = %v, expected %v", got, tc.expected)
-			}
-		})
-	}
-}
-
-func TestOperationMarshalJSON(t *testing.T) {
-	cases := []struct {
-		desc     string
-		op       auth.Operation
-		expected []byte
-		err      error
-	}{
-		{
-			desc:     "Marshal client_create",
-			op:       auth.ClientCreateOp,
-			expected: []byte(`"` + auth.ClientCreateOp.String() + `"`),
-			err:      nil,
-		},
-		{
-			desc:     "Marshal client_view",
-			op:       auth.ClientViewOp,
-			expected: []byte(`"` + auth.ClientViewOp.String() + `"`),
-			err:      nil,
-		},
-		{
-			desc:     "Marshal client_delete",
-			op:       auth.ClientDeleteOp,
-			expected: []byte(`"` + auth.ClientDeleteOp.String() + `"`),
-			err:      nil,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got, err := tc.op.MarshalJSON()
-			assert.Equal(t, tc.err, err, "MarshalJSON() error = %v, expected %v", err, tc.err)
-			assert.Equal(t, tc.expected, got, "MarshalJSON() = %v, expected %v", got, tc.expected)
-		})
-	}
-}
-
-func TestOperationUnmarshalJSON(t *testing.T) {
-	cases := []struct {
-		desc     string
-		data     []byte
-		expected auth.Operation
-		err      bool
-	}{
-		{
-			desc:     "Unmarshal client_create",
-			data:     []byte(`"` + auth.ClientCreateOp.String() + `"`),
-			expected: auth.ClientCreateOp,
-			err:      false,
-		},
-		{
-			desc:     "Unmarshal client_view",
-			data:     []byte(`"` + auth.ClientViewOp.String() + `"`),
-			expected: auth.ClientViewOp,
-			err:      false,
-		},
-		{
-			desc:     "Unmarshal unknown",
-			data:     []byte(`"unknown"`),
-			expected: auth.Operation(0),
-			err:      true,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			var op auth.Operation
-			err := op.UnmarshalJSON(tc.data)
-			if tc.err {
-				assert.Error(t, err, "UnmarshalJSON() should return error")
-			} else {
-				assert.NoError(t, err, "UnmarshalJSON() should not return error")
-				assert.Equal(t, tc.expected, op, "UnmarshalJSON() = %v, expected %v", op, tc.expected)
-			}
-		})
-	}
-}
-
-func TestOperationMarshalText(t *testing.T) {
-	cases := []struct {
-		desc     string
-		op       auth.Operation
-		expected []byte
-		err      error
-	}{
-		{
-			desc:     "Marshal client_create as text",
-			op:       auth.ClientCreateOp,
-			expected: []byte(auth.ClientCreateOp.String()),
-			err:      nil,
-		},
-		{
-			desc:     "Marshal client_view as text",
-			op:       auth.ClientViewOp,
-			expected: []byte(auth.ClientViewOp.String()),
-			err:      nil,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got, err := tc.op.MarshalText()
-			assert.Equal(t, tc.err, err, "MarshalText() error = %v, expected %v", err, tc.err)
-			assert.Equal(t, tc.expected, got, "MarshalText() = %v, expected %v", got, tc.expected)
-		})
-	}
-}
-
-func TestOperationUnmarshalText(t *testing.T) {
-	cases := []struct {
-		desc     string
-		data     []byte
-		expected auth.Operation
-		err      bool
-	}{
-		{
-			desc:     "Unmarshal client_create from text",
-			data:     []byte(auth.ClientCreateOp.String()),
-			expected: auth.ClientCreateOp,
-			err:      false,
-		},
-		{
-			desc:     "Unmarshal client_view from text",
-			data:     []byte(auth.ClientViewOp.String()),
-			expected: auth.ClientViewOp,
-			err:      false,
-		},
-		{
-			desc:     "Unmarshal unknown from text",
-			data:     []byte("unknown"),
-			expected: auth.Operation(0),
-			err:      true,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			var op auth.Operation
-			err := op.UnmarshalText(tc.data)
-			if tc.err {
-				assert.Error(t, err, "UnmarshalText() should return error")
-			} else {
-				assert.NoError(t, err, "UnmarshalText() should not return error")
-				assert.Equal(t, tc.expected, op, "UnmarshalText() = %v, expected %v", op, tc.expected)
 			}
 		})
 	}

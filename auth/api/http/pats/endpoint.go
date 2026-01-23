@@ -160,6 +160,7 @@ func clearAllPATEndpoint(svc auth.Service) endpoint.Endpoint {
 
 func addScopeEndpoint(svc auth.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request any) (any, error) {
+
 		req := request.(addScopeReq)
 		if err := req.validate(); err != nil {
 			return nil, err

@@ -18,7 +18,7 @@ import (
 	grpcClientsV1 "github.com/absmach/supermq/api/grpc/clients/v1"
 	grpcGroupsV1 "github.com/absmach/supermq/api/grpc/groups/v1"
 	"github.com/absmach/supermq/auth"
-	"github.com/absmach/supermq/domains"
+	doperations "github.com/absmach/supermq/domains/operations"
 	dpostgres "github.com/absmach/supermq/domains/postgres"
 	"github.com/absmach/supermq/groups"
 	gpsvc "github.com/absmach/supermq/groups"
@@ -26,6 +26,7 @@ import (
 	httpapi "github.com/absmach/supermq/groups/api/http"
 	"github.com/absmach/supermq/groups/events"
 	"github.com/absmach/supermq/groups/middleware"
+	goperations "github.com/absmach/supermq/groups/operations"
 	"github.com/absmach/supermq/groups/postgres"
 	pgroups "github.com/absmach/supermq/groups/private"
 	smqlog "github.com/absmach/supermq/logger"
@@ -372,29 +373,6 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to get domain permissions: %w", err)
 	}
 
-	authOps := make(map[string]auth.Operation)
-	for opName, opInfo := range groupOps {
-		if opInfo.AuthOperation != "" {
-			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
-				authOps[opName] = authOp
-			}
-		}
-	}
-	for opName, opInfo := range groupRoleOps {
-		if opInfo.AuthOperation != "" {
-			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
-				authOps[opName] = authOp
-			}
-		}
-	}
-	for opName, opInfo := range domainOps {
-		if opInfo.AuthOperation != "" {
-			if authOp, err := auth.ParseOperation(opInfo.AuthOperation); err == nil {
-				authOps[opName] = authOp
-			}
-		}
-	}
-
 	groupPerms := make(map[string]permissions.Permission)
 	for opName, opInfo := range groupOps {
 		groupPerms[opName] = opInfo.Permission
@@ -416,8 +394,8 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 			policies.DomainType: domainPerms,
 		},
 		permissions.EntitiesOperationDetails[permissions.Operation]{
-			policies.GroupType:  groups.OperationDetails(),
-			policies.DomainType: domains.OperationDetails(),
+			policies.GroupType:  goperations.OperationDetails(),
+			policies.DomainType: doperations.OperationDetails(),
 		},
 	)
 	if err != nil {
@@ -429,7 +407,7 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
 
-	svc, err = middleware.NewAuthorization(policies.GroupType, svc, authz, repo, entitiesOps, authOps, roleOps)
+	svc, err = middleware.NewAuthorization(policies.GroupType, svc, authz, repo, entitiesOps, roleOps)
 	if err != nil {
 		return nil, nil, err
 	}

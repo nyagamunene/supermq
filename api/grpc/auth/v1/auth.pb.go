@@ -148,7 +148,7 @@ type PolicyReq struct {
 	Object          string                 `protobuf:"bytes,8,opt,name=object,proto3" json:"object,omitempty"`
 	ObjectType      string                 `protobuf:"bytes,9,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`
 	PatId           string                 `protobuf:"bytes,10,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`
-	Operation       uint32                 `protobuf:"varint,11,opt,name=operation,proto3" json:"operation,omitempty"`
+	Operation       string                 `protobuf:"bytes,11,opt,name=operation,proto3" json:"operation,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -253,11 +253,11 @@ func (x *PolicyReq) GetPatId() string {
 	return ""
 }
 
-func (x *PolicyReq) GetOperation() uint32 {
+func (x *PolicyReq) GetOperation() string {
 	if x != nil {
 		return x.Operation
 	}
-	return 0
+	return ""
 }
 
 type AuthZRes struct {
@@ -339,7 +339,7 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"objectType\x12\x15\n" +
 	"\x06pat_id\x18\n" +
 	" \x01(\tR\x05patId\x12\x1c\n" +
-	"\toperation\x18\v \x01(\rR\toperation\":\n" +
+	"\toperation\x18\v \x01(\tR\toperation\":\n" +
 	"\bAuthZRes\x12\x1e\n" +
 	"\n" +
 	"authorized\x18\x01 \x01(\bR\n" +

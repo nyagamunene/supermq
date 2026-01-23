@@ -5,7 +5,6 @@ package auth
 
 import (
 	apiutil "github.com/absmach/supermq/api/http/util"
-	"github.com/absmach/supermq/auth"
 )
 
 type authenticateReq struct {
@@ -37,18 +36,18 @@ type authReq struct {
 	// PAT authorization fields
 	UserID     string
 	PatID      string
-	EntityType auth.EntityType
+	EntityType string
 	DomainID   string
-	Operation  auth.Operation
+	Operation  string
 	EntityID   string
 }
 
 func (req authReq) validate() error {
 	if req.PatID != "" {
-		if req.UserID == "" {
+		if req.Subject == "" {
 			return apiutil.ErrMissingUserID
 		}
-		if req.EntityID == "" {
+		if req.Object == "" {
 			return apiutil.ErrMissingID
 		}
 		return nil

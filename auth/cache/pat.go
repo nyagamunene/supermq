@@ -37,7 +37,7 @@ func (pc *patCache) Save(ctx context.Context, userID string, scopes []auth.Scope
 	return nil
 }
 
-func (pc *patCache) CheckScope(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) bool {
+func (pc *patCache) CheckScope(ctx context.Context, userID, patID, domainID string, entityType auth.EntityType, operation string, entityID string) bool {
 	exactKey := fmt.Sprintf("pat:%s:%s:%s:%s:%s:%s", userID, patID, entityType, domainID, operation, entityID)
 	wildcardKey := fmt.Sprintf("pat:%s:%s:%s:%s:%s:*", userID, patID, entityType, domainID, operation)
 
@@ -115,6 +115,6 @@ func (pc *patCache) RemoveAllScope(ctx context.Context, userID, patID string) er
 	return nil
 }
 
-func generateKey(userID, patID, domainId string, entityType auth.EntityType, operation auth.Operation, entityID string) string {
+func generateKey(userID, patID, domainId string, entityType auth.EntityType, operation string, entityID string) string {
 	return fmt.Sprintf("pat:%s:%s:%s:%s:%s:%s", userID, patID, entityType, domainId, operation, entityID)
 }

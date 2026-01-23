@@ -3,264 +3,98 @@
 
 clients:
   operations:
-    - view: 
-        permission: read_permission
-        auth_operation: client_view
-    - update: 
-        permission: update_permission
-        auth_operation: client_update
-    - update_tags: 
-        permission: update_permission
-        auth_operation: client_update_tags
-    - update_secret: 
-        permission: update_permission
-        auth_operation: client_update_secret
-    - enable: 
-        permission: update_permission
-        auth_operation: client_enable
-    - disable: 
-        permission: update_permission
-        auth_operation: client_disable
-    - delete: 
-        permission: delete_permission
-        auth_operation: client_delete
-    - set_parent_group: 
-        permission: set_parent_group_permission
-        auth_operation: client_set_parent_group
-    - remove_parent_group: 
-        permission: set_parent_group_permission
-        auth_operation: client_remove_parent_group
-    - connect_to_channel: 
-        permission: connect_to_channel_permission
-        auth_operation: client_connect_to_channel
-    - disconnect_from_channel: 
-        permission: connect_to_channel_permission
-        auth_operation: client_disconnect_from_channel
+    - view: read_permission
+    - update: update_permission
+    - update_tags: update_permission
+    - update_secret: update_permission
+    - enable: update_permission
+    - disable: update_permission
+    - delete: delete_permission
+    - set_parent_group: set_parent_group_permission
+    - remove_parent_group: set_parent_group_permission
+    - connect_to_channel: connect_to_channel_permission
+    - disconnect_from_channel: connect_to_channel_permission
   roles_operations:
-    - add: 
-        permission: manage_role_permission
-        auth_operation: role_add
-    - remove: 
-        permission: manage_role_permission
-        auth_operation: role_remove
-    - update: 
-        permission: manage_role_permission
-        auth_operation: role_update
-    - retrieve: 
-        permission: view_role_users_permission
-        auth_operation: role_retrieve
-    - retrieve_all: 
-        permission: view_role_users_permission
-        auth_operation: role_retrieve_all
-    - add_actions: 
-        permission: manage_role_permission
-        auth_operation: role_add_actions
-    - list_actions: 
-        permission: view_role_users_permission
-        auth_operation: role_list_actions
-    - check_actions_exists: 
-        permission: view_role_users_permission
-        auth_operation: role_check_actions_exists
-    - remove_actions: 
-        permission: manage_role_permission
-        auth_operation: role_remove_actions
-    - remove_all_actions: 
-        permission: manage_role_permission
-        auth_operation: role_remove_all_actions
-    - add_members: 
-        permission: add_role_users_permission
-        auth_operation: role_add_members
-    - list_members: 
-        permission: view_role_users_permission
-        auth_operation: role_list_members
-    - check_members_exists: 
-        permission: view_role_users_permission
-        auth_operation: role_check_members_exists
-    - remove_members: 
-        permission: remove_role_users_permission
-        auth_operation: role_remove_members
-    - remove_all_members: 
-        permission: remove_role_users_permission
-        auth_operation: role_remove_all_members
+    - add: manage_role_permission
+    - remove: manage_role_permission
+    - update: manage_role_permission
+    - retrieve: view_role_users_permission
+    - retrieve_all: view_role_users_permission
+    - add_actions: manage_role_permission
+    - list_actions: view_role_users_permission
+    - check_actions_exists: view_role_users_permission
+    - remove_actions: manage_role_permission
+    - remove_all_actions: manage_role_permission
+    - add_members: add_role_users_permission
+    - list_members: view_role_users_permission
+    - check_members_exists: view_role_users_permission
+    - remove_members: remove_role_users_permission
+    - remove_all_members: remove_role_users_permission
 
 channels:
   operations:
-    - view: 
-        permission: read_permission
-        auth_operation: channel_view
-    - update: 
-        permission: update_permission
-        auth_operation: channel_update
-    - update_tags: 
-        permission: update_permission
-        auth_operation: channel_update_tags
-    - enable: 
-        permission: update_permission
-        auth_operation: channel_enable
-    - disable: 
-        permission: update_permission
-        auth_operation: channel_disable
-    - delete: 
-        permission: delete_permission
-        auth_operation: channel_delete
-    - set_parent_group: 
-        permission: set_parent_group_permission
-        auth_operation: channel_set_parent_group
-    - remove_parent_group: 
-        permission: set_parent_group_permission
-        auth_operation: channel_remove_parent_group
-    - connect_client: 
-        permission: connect_to_client_permission
-        auth_operation: channel_connect_to_client
-    - disconnect_client: 
-        permission: connect_to_client_permission
-        auth_operation: channel_disconnect_from_client
+    - view: read_permission
+    - update: update_permission
+    - update_tags: update_permission
+    - enable: update_permission
+    - disable: update_permission
+    - delete: delete_permission
+    - set_parent_group: set_parent_group_permission
+    - remove_parent_group: set_parent_group_permission
+    - connect_client: connect_to_client_permission
+    - disconnect_client: connect_to_client_permission
   roles_operations:
-    - add: 
-        permission: manage_role_permission
-        auth_operation: role_add
-    - remove: 
-        permission: manage_role_permission
-        auth_operation: role_remove
-    - update: 
-        permission: manage_role_permission
-        auth_operation: role_update
-    - retrieve: 
-        permission: view_role_users_permission
-        auth_operation: role_retrieve
-    - retrieve_all: 
-        permission: view_role_users_permission
-        auth_operation: role_retrieve_all
-    - add_actions: 
-        permission: manage_role_permission
-        auth_operation: role_add_actions
-    - list_actions: 
-        permission: view_role_users_permission
-        auth_operation: role_list_actions
-    - check_actions_exists: 
-        permission: view_role_users_permission
-        auth_operation: role_check_actions_exists
-    - remove_actions: 
-        permission: manage_role_permission
-        auth_operation: role_remove_actions
-    - remove_all_actions: 
-        permission: manage_role_permission
-        auth_operation: role_remove_all_actions
-    - add_members: 
-        permission: add_role_users_permission
-        auth_operation: role_add_members
-    - list_members: 
-        permission: view_role_users_permission
-        auth_operation: role_list_members
-    - check_members_exists: 
-        permission: view_role_users_permission
-        auth_operation: role_check_members_exists
-    - remove_members: 
-        permission: remove_role_users_permission
-        auth_operation: role_remove_members
-    - remove_all_members: 
-        permission: remove_role_users_permission
-        auth_operation: role_remove_all_members
+    - add: manage_role_permission
+    - remove: manage_role_permission
+    - update: manage_role_permission
+    - retrieve: view_role_users_permission
+    - retrieve_all: view_role_users_permission
+    - add_actions: manage_role_permission
+    - list_actions: view_role_users_permission
+    - check_actions_exists: view_role_users_permission
+    - remove_actions: manage_role_permission
+    - remove_all_actions: manage_role_permission
+    - add_members: add_role_users_permission
+    - list_members: view_role_users_permission
+    - check_members_exists: view_role_users_permission
+    - remove_members: remove_role_users_permission
+    - remove_all_members: remove_role_users_permission
 
 groups:
   operations:
-    - view: 
-        permission: read_permission
-        auth_operation: group_view
-    - update: 
-        permission: update_permission
-        auth_operation: group_update
-    - update_tags: 
-        permission: update_permission
-        auth_operation: group_update_tags
-    - enable: 
-        permission: update_permission
-        auth_operation: group_enable
-    - disable: 
-        permission: update_permission
-        auth_operation: group_disable
-    - delete: 
-        permission: delete_permission
-        auth_operation: group_delete
-    - retrieve_group_hierarchy: 
-        permission: read_permission
-        auth_operation: group_retrieve_hierarchy
-    - add_parent_group: 
-        permission: set_parent_permission
-        auth_operation: group_add_parent_group
-    - remove_parent_group: 
-        permission: set_parent_permission
-        auth_operation: group_remove_parent_group
-    - add_children_groups: 
-        permission: set_child_permission
-        auth_operation: group_add_children_groups
-    - remove_children_groups: 
-        permission: set_child_permission
-        auth_operation: group_remove_children_groups
-    - remove_all_children_groups: 
-        permission: set_child_permission
-        auth_operation: group_remove_all_children_groups
-    - list_children_groups: 
-        permission: read_permission
-        auth_operation: group_list_children_groups
-    - set_child_client: 
-        permission: set_child_permission
-        auth_operation: group_set_child_client
-    - remove_child_client: 
-        permission: set_child_permission
-        auth_operation: group_remove_child_client
-    - set_child_channel: 
-        permission: set_child_permission
-        auth_operation: group_set_child_channel
-    - remove_child_channel: 
-        permission: set_child_permission
-        auth_operation: group_remove_child_channel
+    - view: read_permission
+    - update: update_permission
+    - update_tags: update_permission
+    - enable: update_permission
+    - disable: update_permission
+    - delete: delete_permission
+    - retrieve_group_hierarchy: read_permission
+    - add_parent_group: set_parent_permission
+    - remove_parent_group: set_parent_permission
+    - add_children_groups: set_child_permission
+    - remove_children_groups: set_child_permission
+    - remove_all_children_groups: set_child_permission
+    - list_children_groups: read_permission
+    - set_child_client: set_child_permission
+    - remove_child_client: set_child_permission
+    - set_child_channel: set_child_permission
+    - remove_child_channel: set_child_permission
   roles_operations:
-    - add: 
-        permission: manage_role_permission
-        auth_operation: role_add
-    - remove: 
-        permission: manage_role_permission
-        auth_operation: role_remove
-    - update: 
-        permission: manage_role_permission
-        auth_operation: role_update
-    - retrieve: 
-        permission: view_role_users_permission
-        auth_operation: role_retrieve
-    - retrieve_all: 
-        permission: view_role_users_permission
-        auth_operation: role_retrieve_all
-    - add_actions: 
-        permission: manage_role_permission
-        auth_operation: role_add_actions
-    - list_actions: 
-        permission: view_role_users_permission
-        auth_operation: role_list_actions
-    - check_actions_exists: 
-        permission: view_role_users_permission
-        auth_operation: role_check_actions_exists
-    - remove_actions: 
-        permission: manage_role_permission
-        auth_operation: role_remove_actions
-    - remove_all_actions: 
-        permission: manage_role_permission
-        auth_operation: role_remove_all_actions
-    - add_members: 
-        permission: add_role_users_permission
-        auth_operation: role_add_members
-    - list_members: 
-        permission: view_role_users_permission
-        auth_operation: role_list_members
-    - check_members_exists: 
-        permission: view_role_users_permission
-        auth_operation: role_check_members_exists
-    - remove_members: 
-        permission: remove_role_users_permission
-        auth_operation: role_remove_members
-    - remove_all_members: 
-        permission: remove_role_users_permission
-        auth_operation: role_remove_all_members
+    - add: manage_role_permission
+    - remove: manage_role_permission
+    - update: manage_role_permission
+    - retrieve: view_role_users_permission
+    - retrieve_all: view_role_users_permission
+    - add_actions: manage_role_permission
+    - list_actions: view_role_users_permission
+    - check_actions_exists: view_role_users_permission
+    - remove_actions: manage_role_permission
+    - remove_all_actions: manage_role_permission
+    - add_members: add_role_users_permission
+    - list_members: view_role_users_permission
+    - check_members_exists: view_role_users_permission
+    - remove_members: remove_role_users_permission
+    - remove_all_members: remove_role_users_permission
 
 domains:
   operations:
@@ -274,24 +108,12 @@ domains:
     - list_invitation: membership_permission
     - list_domain_invitation: manage_role_permission
     - delete_invitation: manage_role_permission
-    - create_clients:
-        permission: client_create_permission
-        auth_operation: client_create
-    - list_clients:
-        permission: client_read_permission
-        auth_operation: client_list
-    - create_channels:
-        permission: channel_create_permission
-        auth_operation: channel_create
-    - list_channels:
-        permission: channel_read_permission
-        auth_operation: channel_list
-    - create_groups:
-        permission: group_create_permission
-        auth_operation: group_create
-    - list_groups:
-        permission: group_read_permission
-        auth_operation: group_list
+    - create_clients: client_create_permission
+    - list_clients: client_read_permission
+    - create_channels: channel_create_permission
+    - list_channels: channel_read_permission
+    - create_groups: group_create_permission
+    - list_groups: group_read_permission
   roles_operations:
     - add: manage_role_permission
     - remove: manage_role_permission

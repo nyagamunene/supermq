@@ -8,6 +8,7 @@ import (
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/domains"
+	"github.com/absmach/supermq/domains/operations"
 	"github.com/absmach/supermq/pkg/authn"
 	"github.com/absmach/supermq/pkg/authz"
 	smqauthz "github.com/absmach/supermq/pkg/authz"
@@ -29,17 +30,16 @@ type authorizationMiddleware struct {
 	authz       smqauthz.Authorization
 	entitiesOps permissions.EntitiesOperations[permissions.Operation]
 	rOps        permissions.Operations[permissions.RoleOperation]
-	authOps     map[string]auth.Operation
 	rolemgr.RoleManagerAuthorizationMiddleware
 }
 
 // NewAuthorization adds authorization to the domains service.
-func NewAuthorization(entityType string, svc domains.Service, authz smqauthz.Authorization, entitiesOps permissions.EntitiesOperations[permissions.Operation], authOps map[string]auth.Operation, domainRoleOps permissions.Operations[permissions.RoleOperation]) (domains.Service, error) {
+func NewAuthorization(entityType string, svc domains.Service, authz smqauthz.Authorization, entitiesOps permissions.EntitiesOperations[permissions.Operation], domainRoleOps permissions.Operations[permissions.RoleOperation]) (domains.Service, error) {
 	if err := entitiesOps.Validate(); err != nil {
 		return &authorizationMiddleware{}, err
 	}
 
-	ram, err := rolemgr.NewAuthorization(entityType, svc, authz, domainRoleOps, authOps)
+	ram, err := rolemgr.NewAuthorization(entityType, svc, authz, domainRoleOps)
 	if err != nil {
 		return &authorizationMiddleware{}, err
 	}
@@ -48,7 +48,6 @@ func NewAuthorization(entityType string, svc domains.Service, authz smqauthz.Aut
 		authz:                              authz,
 		entitiesOps:                        entitiesOps,
 		rOps:                               domainRoleOps,
-		authOps:                            authOps,
 		RoleManagerAuthorizationMiddleware: ram,
 	}, nil
 }
@@ -63,7 +62,7 @@ func (am *authorizationMiddleware) RetrieveDomain(ctx context.Context, session a
 		return am.svc.RetrieveDomain(ctx, session, id, withRoles)
 	}
 
-	if err := am.authorize(ctx, policies.DomainType, domains.OpRetrieveDomain, authz.PolicyReq{
+	if err := am.authorize(ctx, policies.DomainType, operations.OpRetrieveDomain, authz.PolicyReq{
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -77,7 +76,7 @@ func (am *authorizationMiddleware) RetrieveDomain(ctx context.Context, session a
 }
 
 func (am *authorizationMiddleware) UpdateDomain(ctx context.Context, session authn.Session, id string, d domains.DomainReq) (domains.Domain, error) {
-	if err := am.authorize(ctx, policies.DomainType, domains.OpUpdateDomain, authz.PolicyReq{
+	if err := am.authorize(ctx, policies.DomainType, operations.OpUpdateDomain, authz.PolicyReq{
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -91,7 +90,7 @@ func (am *authorizationMiddleware) UpdateDomain(ctx context.Context, session aut
 }
 
 func (am *authorizationMiddleware) EnableDomain(ctx context.Context, session authn.Session, id string) (domains.Domain, error) {
-	if err := am.authorize(ctx, policies.DomainType, domains.OpEnableDomain, authz.PolicyReq{
+	if err := am.authorize(ctx, policies.DomainType, operations.OpEnableDomain, authz.PolicyReq{
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -105,7 +104,7 @@ func (am *authorizationMiddleware) EnableDomain(ctx context.Context, session aut
 }
 
 func (am *authorizationMiddleware) DisableDomain(ctx context.Context, session authn.Session, id string) (domains.Domain, error) {
-	if err := am.authorize(ctx, policies.DomainType, domains.OpDisableDomain, authz.PolicyReq{
+	if err := am.authorize(ctx, policies.DomainType, operations.OpDisableDomain, authz.PolicyReq{
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,
@@ -169,7 +168,7 @@ func (am *authorizationMiddleware) ListInvitations(ctx context.Context, session 
 }
 
 func (am *authorizationMiddleware) ListDomainInvitations(ctx context.Context, session authn.Session, page domains.InvitationPageMeta) (invs domains.InvitationPage, err error) {
-	if err := am.authorize(ctx, policies.DomainType, domains.OpListDomainInvitations, authz.PolicyReq{
+	if err := am.authorize(ctx, policies.DomainType, operations.OpListDomainInvitations, authz.PolicyReq{
 		Subject:     session.DomainUserID,
 		SubjectType: policies.UserType,
 		SubjectKind: policies.UsersKind,

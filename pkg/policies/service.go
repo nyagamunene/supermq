@@ -52,16 +52,16 @@ type Policy struct {
 
 	// PAT authorization fields
 
-	// UserID contains the user ID who owns the PAT.
-	UserID string `json:"user_id,omitempty"`
 	// PatID contains the personal access token ID.
 	PatID string `json:"pat_id,omitempty"`
-	// EntityType contains the entity type for PAT authorization.
-	EntityType uint32 `json:"entity_type,omitempty"`
-	// DomainID contains the domain ID for PAT scope checking.
-	DomainID string `json:"domain_id,omitempty"`
 	// Operation contains the operation type for PAT authorization.
-	Operation uint32 `json:"operation,omitempty"`
+	Operation string `json:"operation,omitempty"`
+	// UserID contains the user ID for PAT authorization.
+	UserID string `json:"user_id,omitempty"`
+	// EntityType contains the entity type for PAT authorization.
+	EntityType string `json:"entity_type,omitempty"`
+	// DomainID contains the domain ID for PAT authorization.
+	DomainID string `json:"domain_id,omitempty"`
 	// EntityID contains the entity ID for PAT authorization.
 	EntityID string `json:"entity_id,omitempty"`
 }

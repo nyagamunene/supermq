@@ -43,16 +43,16 @@ func (_m *Cache) EXPECT() *Cache_Expecter {
 }
 
 // CheckScope provides a mock function for the type Cache
-func (_mock *Cache) CheckScope(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) bool {
-	ret := _mock.Called(ctx, userID, patID, entityType, domainID, operation, entityID)
+func (_mock *Cache) CheckScope(ctx context.Context, userID string, patID string, optionalDomainID string, entityType auth.EntityType, operation string, entityID string) bool {
+	ret := _mock.Called(ctx, userID, patID, optionalDomainID, entityType, operation, entityID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckScope")
 	}
 
 	var r0 bool
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, auth.EntityType, string, auth.Operation, string) bool); ok {
-		r0 = returnFunc(ctx, userID, patID, entityType, domainID, operation, entityID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string, auth.EntityType, string, string) bool); ok {
+		r0 = returnFunc(ctx, userID, patID, optionalDomainID, entityType, operation, entityID)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
@@ -68,15 +68,15 @@ type Cache_CheckScope_Call struct {
 //   - ctx context.Context
 //   - userID string
 //   - patID string
+//   - optionalDomainID string
 //   - entityType auth.EntityType
-//   - domainID string
-//   - operation auth.Operation
+//   - operation string
 //   - entityID string
-func (_e *Cache_Expecter) CheckScope(ctx interface{}, userID interface{}, patID interface{}, entityType interface{}, domainID interface{}, operation interface{}, entityID interface{}) *Cache_CheckScope_Call {
-	return &Cache_CheckScope_Call{Call: _e.mock.On("CheckScope", ctx, userID, patID, entityType, domainID, operation, entityID)}
+func (_e *Cache_Expecter) CheckScope(ctx interface{}, userID interface{}, patID interface{}, optionalDomainID interface{}, entityType interface{}, operation interface{}, entityID interface{}) *Cache_CheckScope_Call {
+	return &Cache_CheckScope_Call{Call: _e.mock.On("CheckScope", ctx, userID, patID, optionalDomainID, entityType, operation, entityID)}
 }
 
-func (_c *Cache_CheckScope_Call) Run(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string)) *Cache_CheckScope_Call {
+func (_c *Cache_CheckScope_Call) Run(run func(ctx context.Context, userID string, patID string, optionalDomainID string, entityType auth.EntityType, operation string, entityID string)) *Cache_CheckScope_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -90,17 +90,17 @@ func (_c *Cache_CheckScope_Call) Run(run func(ctx context.Context, userID string
 		if args[2] != nil {
 			arg2 = args[2].(string)
 		}
-		var arg3 auth.EntityType
+		var arg3 string
 		if args[3] != nil {
-			arg3 = args[3].(auth.EntityType)
+			arg3 = args[3].(string)
 		}
-		var arg4 string
+		var arg4 auth.EntityType
 		if args[4] != nil {
-			arg4 = args[4].(string)
+			arg4 = args[4].(auth.EntityType)
 		}
-		var arg5 auth.Operation
+		var arg5 string
 		if args[5] != nil {
-			arg5 = args[5].(auth.Operation)
+			arg5 = args[5].(string)
 		}
 		var arg6 string
 		if args[6] != nil {
@@ -124,7 +124,7 @@ func (_c *Cache_CheckScope_Call) Return(b bool) *Cache_CheckScope_Call {
 	return _c
 }
 
-func (_c *Cache_CheckScope_Call) RunAndReturn(run func(ctx context.Context, userID string, patID string, entityType auth.EntityType, domainID string, operation auth.Operation, entityID string) bool) *Cache_CheckScope_Call {
+func (_c *Cache_CheckScope_Call) RunAndReturn(run func(ctx context.Context, userID string, patID string, optionalDomainID string, entityType auth.EntityType, operation string, entityID string) bool) *Cache_CheckScope_Call {
 	_c.Call.Return(run)
 	return _c
 }

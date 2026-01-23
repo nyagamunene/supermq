@@ -36,7 +36,7 @@ message PolicyReq {
   string object = 8;
   string object_type = 9;
   string pat_id = 10;
-  uint32 operation = 11;
+  string operation = 11;
 }
 
 message AuthZRes {

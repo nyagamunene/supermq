@@ -5,8 +5,6 @@ package authz
 
 import (
 	"context"
-
-	"github.com/absmach/supermq/auth"
 )
 
 type PolicyReq struct {
@@ -46,12 +44,12 @@ type PolicyReq struct {
 	Permission string `json:"permission,omitempty"`
 
 	// PAT authorization fields
-	UserID     string          `json:"user_id,omitempty"`     // UserID who owns the PAT
-	PatID      string          `json:"pat_id,omitempty"`      // PAT ID
-	EntityType auth.EntityType `json:"entity_type,omitempty"` // Entity type
-	DomainID   string          `json:"domain_id,omitempty"`   // Domain ID for PAT scope checking
-	Operation  auth.Operation  `json:"operation,omitempty"`   // Operation type
-	EntityID   string          `json:"entity_id,omitempty"`   // Entity ID
+	UserID     string `json:"user_id,omitempty"`
+	PatID      string `json:"pat_id,omitempty"`
+	EntityType string `json:"entity_type,omitempty"`
+	DomainID   string `json:"domain_id,omitempty"`
+	Operation  string `json:"operation,omitempty"`
+	EntityID   string `json:"entity_id,omitempty"`
 }
 
 // Authz is supermq authorization library.
