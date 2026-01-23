@@ -82,6 +82,9 @@ define run_with_arch_detection
 		git checkout $(1); \
 		echo "Building Docker images for ARM64..."; \
 		GOARCH=arm64 $(MAKE) dockers; \
+		for svc in $(SERVICES); do \
+			docker tag supermq/$$svc supermq/$$svc:$(2); \
+		done; \
 		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(2)/' docker/.env && rm -f docker/.env.bak; \
 		docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args); \
 	else \
