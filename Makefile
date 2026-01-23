@@ -80,10 +80,8 @@ define run_with_arch_detection
 	@if [ "$(DETECTED_ARCH)" = "arm64" ] || [ "$(DETECTED_ARCH)" = "aarch64" ]; then \
 		echo "ARM64 architecture detected."; \
 		git checkout $(1); \
-		echo "Building binaries..."; \
-		GOARCH=arm64 $(MAKE) $(SERVICES); \
-		echo "Creating Docker images..."; \
-		$(MAKE) dockers_dev; \
+		echo "Building Docker images for ARM64..."; \
+		GOARCH=arm64 $(MAKE) dockers; \
 		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(2)/' docker/.env && rm -f docker/.env.bak; \
 		docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args); \
 	else \
