@@ -79,16 +79,16 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Poli
 	if req != nil {
 		if req.GetPatId() != "" {
 			authReqData = authReq{
-				Domain:      req.GetDomain(),
-				Subject:     req.GetSubject(),
-				ObjectType:  req.GetObjectType(),
-				Object:      req.GetObject(),
-				UserID:      req.GetSubject(),
-				PatID:       req.GetPatId(),
-				EntityType:  req.GetObjectType(),
-				DomainID:    req.GetDomain(),
-				Operation:   req.GetOperation(),
-				EntityID:    req.GetObject(),
+				Domain:     req.GetDomain(),
+				Subject:    req.GetSubject(),
+				ObjectType: req.GetObjectType(),
+				Object:     req.GetObject(),
+				UserID:     req.GetSubject(),
+				PatID:      req.GetPatId(),
+				EntityType: req.GetObjectType(),
+				DomainID:   req.GetDomain(),
+				Operation:  req.GetOperation(),
+				EntityID:   req.GetObject(),
 			}
 		} else {
 			authReqData = authReq{
