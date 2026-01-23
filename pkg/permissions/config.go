@@ -15,8 +15,8 @@ type PermissionConfig struct {
 }
 
 type EntityPermissions struct {
-	Operations      []map[string]interface{} `yaml:"operations"`
-	RolesOperations []map[string]interface{} `yaml:"roles_operations"`
+	Operations      []map[string]string `yaml:"operations"`
+	RolesOperations []map[string]string `yaml:"roles_operations"`
 }
 
 func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {
@@ -41,8 +41,7 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 
 	operations := make(map[string]Permission)
 	for _, op := range entityPerms.Operations {
-		for name, value := range op {
-			perm := extractPermission(value)
+		for name, perm := range op {
 			if perm != "" {
 				operations[name] = Permission(perm)
 			}
@@ -51,8 +50,7 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 
 	rolesOperations := make(map[string]Permission)
 	for _, op := range entityPerms.RolesOperations {
-		for name, value := range op {
-			perm := extractPermission(value)
+		for name, perm := range op {
 			if perm != "" {
 				rolesOperations[name] = Permission(perm)
 			}
@@ -60,11 +58,4 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 	}
 
 	return operations, rolesOperations, nil
-}
-
-func extractPermission(value interface{}) string {
-	if v, ok := value.(string); ok {
-		return v
-	}
-	return ""
 }
