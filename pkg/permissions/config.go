@@ -19,10 +19,6 @@ type EntityPermissions struct {
 	RolesOperations []map[string]interface{} `yaml:"roles_operations"`
 }
 
-type OperationInfo struct {
-	Permission Permission
-}
-
 func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -37,32 +33,28 @@ func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {
 	return &config, nil
 }
 
-func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]OperationInfo, map[string]OperationInfo, error) {
+func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]Permission, map[string]Permission, error) {
 	entityPerms, ok := pc.Entities[entityType]
 	if !ok {
 		return nil, nil, fmt.Errorf("entity type %s not found in permissions file", entityType)
 	}
 
-	operations := make(map[string]OperationInfo)
+	operations := make(map[string]Permission)
 	for _, op := range entityPerms.Operations {
 		for name, value := range op {
 			perm := extractPermission(value)
 			if perm != "" {
-				operations[name] = OperationInfo{
-					Permission: Permission(perm),
-				}
+				operations[name] = Permission(perm)
 			}
 		}
 	}
 
-	rolesOperations := make(map[string]OperationInfo)
+	rolesOperations := make(map[string]Permission)
 	for _, op := range entityPerms.RolesOperations {
 		for name, value := range op {
 			perm := extractPermission(value)
 			if perm != "" {
-				rolesOperations[name] = OperationInfo{
-					Permission: Permission(perm),
-				}
+				rolesOperations[name] = Permission(perm)
 			}
 		}
 	}

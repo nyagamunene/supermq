@@ -373,25 +373,10 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to get domain permissions: %w", err)
 	}
 
-	groupPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range groupOps {
-		groupPerms[opName] = opInfo.Permission
-	}
-
-	domainPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range domainOps {
-		domainPerms[opName] = opInfo.Permission
-	}
-
-	groupRolePerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range groupRoleOps {
-		groupRolePerms[opName] = opInfo.Permission
-	}
-
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{
-			policies.GroupType:  groupPerms,
-			policies.DomainType: domainPerms,
+			policies.GroupType:  groupOps,
+			policies.DomainType: domainOps,
 		},
 		permissions.EntitiesOperationDetails[permissions.Operation]{
 			policies.GroupType:  goperations.OperationDetails(),
@@ -402,7 +387,7 @@ func newService(ctx context.Context, authz smqauthz.Authorization, policy polici
 		return nil, nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), groupRolePerms)
+	roleOps, err := permissions.NewOperations(roles.Operations(), groupRoleOps)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
