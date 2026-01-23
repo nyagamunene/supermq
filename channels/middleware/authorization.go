@@ -339,7 +339,6 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	if req.PatID != "" {
 		req.EntityID = req.Object
 
-
 		req.EntityType = auth.ChannelsScopeStr
 		req.Operation = auth.OperationStringForEntity(auth.ChannelsType, op)
 		if op == operations.OpListUserChannels || op == dOperations.OpCreateDomainChannels || op == dOperations.OpListDomainChannels {
