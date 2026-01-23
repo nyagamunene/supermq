@@ -35,7 +35,6 @@ type OperationName[K OperationKey] map[K]string
 type OperationDetails struct {
 	Name               string
 	PermissionRequired bool
-	AuthOperation      string
 }
 
 type operations[K OperationKey] struct {

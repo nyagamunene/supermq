@@ -20,8 +20,7 @@ type EntityPermissions struct {
 }
 
 type OperationInfo struct {
-	Permission    Permission
-	AuthOperation string
+	Permission Permission
 }
 
 func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {
@@ -50,8 +49,7 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 			perm := extractPermission(value)
 			if perm != "" {
 				operations[name] = OperationInfo{
-					Permission:    Permission(perm),
-					AuthOperation: name,
+					Permission: Permission(perm),
 				}
 			}
 		}
@@ -63,8 +61,7 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 			perm := extractPermission(value)
 			if perm != "" {
 				rolesOperations[name] = OperationInfo{
-					Permission:    Permission(perm),
-					AuthOperation: name,
+					Permission: Permission(perm),
 				}
 			}
 		}
