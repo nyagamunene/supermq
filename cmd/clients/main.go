@@ -416,31 +416,11 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, auth
 		return nil, nil, fmt.Errorf("failed to get group permissions: %w", err)
 	}
 
-	clientPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range clientOps {
-		clientPerms[opName] = opInfo.Permission
-	}
-
-	domainPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range domainOps {
-		domainPerms[opName] = opInfo.Permission
-	}
-
-	groupPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range groupOps {
-		groupPerms[opName] = opInfo.Permission
-	}
-
-	clientRolePerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range clientRoleOps {
-		clientRolePerms[opName] = opInfo.Permission
-	}
-
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{
-			policies.ClientType: clientPerms,
-			policies.DomainType: domainPerms,
-			policies.GroupType:  groupPerms,
+			policies.ClientType: clientOps,
+			policies.DomainType: domainOps,
+			policies.GroupType:  groupOps,
 		},
 		permissions.EntitiesOperationDetails[permissions.Operation]{
 			policies.ClientType: clientsOps.OperationDetails(),
@@ -452,7 +432,7 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, auth
 		return nil, nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), clientRolePerms)
+	roleOps, err := permissions.NewOperations(roles.Operations(), clientRoleOps)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}

@@ -318,25 +318,15 @@ func newDomainService(ctx context.Context, domainsRepo domainsSvc.Repository, ca
 		return nil, fmt.Errorf("failed to get domain permissions: %w", err)
 	}
 
-	domainPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range domainOps {
-		domainPerms[opName] = opInfo.Permission
-	}
-
-	domainRolePerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range domainRoleOps {
-		domainRolePerms[opName] = opInfo.Permission
-	}
-
 	entitiesOps, err := permissions.NewEntitiesOperations(
-		permissions.EntitiesPermission{policies.DomainType: domainPerms},
+		permissions.EntitiesPermission{policies.DomainType: domainOps},
 		permissions.EntitiesOperationDetails[permissions.Operation]{policies.DomainType: doperations.OperationDetails()},
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), domainRolePerms)
+	roleOps, err := permissions.NewOperations(roles.Operations(), domainRoleOps)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create role operations: %w", err)
 	}

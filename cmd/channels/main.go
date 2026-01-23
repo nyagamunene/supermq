@@ -421,37 +421,12 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, cach
 		return nil, nil, fmt.Errorf("failed to get client permissions: %w", err)
 	}
 
-	channelPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range channelOps {
-		channelPerms[opName] = opInfo.Permission
-	}
-
-	domainPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range domainOps {
-		domainPerms[opName] = opInfo.Permission
-	}
-
-	groupPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range groupOps {
-		groupPerms[opName] = opInfo.Permission
-	}
-
-	clientPerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range clientOps {
-		clientPerms[opName] = opInfo.Permission
-	}
-
-	channelRolePerms := make(map[string]permissions.Permission)
-	for opName, opInfo := range channelRoleOps {
-		channelRolePerms[opName] = opInfo.Permission
-	}
-
 	entitiesOps, err := permissions.NewEntitiesOperations(
 		permissions.EntitiesPermission{
-			policies.ChannelType: channelPerms,
-			policies.DomainType:  domainPerms,
-			policies.GroupType:   groupPerms,
-			policies.ClientType:  clientPerms,
+			policies.ChannelType: channelOps,
+			policies.DomainType:  domainOps,
+			policies.GroupType:   groupOps,
+			policies.ClientType:  clientOps,
 		},
 		permissions.EntitiesOperationDetails[permissions.Operation]{
 			policies.ChannelType: channelsOps.OperationDetails(),
@@ -464,7 +439,7 @@ func newService(ctx context.Context, db *sqlx.DB, dbConfig pgclient.Config, cach
 		return nil, nil, fmt.Errorf("failed to create entities operations: %w", err)
 	}
 
-	roleOps, err := permissions.NewOperations(roles.Operations(), channelRolePerms)
+	roleOps, err := permissions.NewOperations(roles.Operations(), channelRoleOps)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create role operations: %w", err)
 	}
