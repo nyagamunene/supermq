@@ -19,27 +19,27 @@ func TestOperationString(t *testing.T) {
 		{
 			desc:     "Dashboard share operation",
 			op:       auth.DashboardShareOp,
-			expected: "dashboard_share",
+			expected: "share",
 		},
 		{
 			desc:     "Dashboard unshare operation",
 			op:       auth.DashboardUnshareOp,
-			expected: "dashboard_unshare",
+			expected: "unshare",
 		},
 		{
 			desc:     "Message publish operation",
 			op:       auth.MessagePublishOp,
-			expected: "message_publish",
+			expected: "publish",
 		},
 		{
 			desc:     "Message subscribe operation",
 			op:       auth.MessageSubscribeOp,
-			expected: "message_subscribe",
+			expected: "subscribe",
 		},
 		{
 			desc:     "Unknown operation",
 			op:       auth.Operation(9999),
-			expected: "9999",
+			expected: "",
 		},
 	}
 
@@ -59,26 +59,26 @@ func TestParseOperation(t *testing.T) {
 		err      bool
 	}{
 		{
-			desc:     "Parse dashboard_share",
-			op:       "dashboard_share",
+			desc:     "Parse share",
+			op:       "share",
 			expected: auth.DashboardShareOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse dashboard_unshare",
-			op:       "dashboard_unshare",
+			desc:     "Parse unshare",
+			op:       "unshare",
 			expected: auth.DashboardUnshareOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse message_publish",
-			op:       "message_publish",
+			desc:     "Parse publish",
+			op:       "publish",
 			expected: auth.MessagePublishOp,
 			err:      false,
 		},
 		{
-			desc:     "Parse message_subscribe",
-			op:       "message_subscribe",
+			desc:     "Parse subscribe",
+			op:       "subscribe",
 			expected: auth.MessageSubscribeOp,
 			err:      false,
 		},
