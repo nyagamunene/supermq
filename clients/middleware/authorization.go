@@ -271,7 +271,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	if req.PatID != "" {
 		req.EntityID = req.Object
 		req.EntityType = auth.ClientsScopeStr
-		req.Operation = auth.OperationStringForEntity(auth.ClientsType, permissions.Operation(op))
+		req.Operation = am.entitiesOps.OperationName(entityType, op)
 		if op == operations.OpListUserClients || op == dOperations.OpCreateDomainClients || op == dOperations.OpListDomainClients {
 			req.EntityID = auth.AnyIDs
 		}

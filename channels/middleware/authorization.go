@@ -340,7 +340,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 		req.EntityID = req.Object
 
 		req.EntityType = auth.ChannelsScopeStr
-		req.Operation = auth.OperationStringForEntity(auth.ChannelsType, op)
+		req.Operation = am.entitiesOps.OperationName(entityType, op)
 		if op == operations.OpListUserChannels || op == dOperations.OpCreateDomainChannels || op == dOperations.OpListDomainChannels {
 			req.EntityID = auth.AnyIDs
 		}
