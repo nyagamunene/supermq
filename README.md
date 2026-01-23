@@ -78,7 +78,7 @@ The `make run_stable` command will:
 git checkout main
 ```
 
-### Running on Apple Silicon (M1/M2/M3) Macs 🍎
+### Running on Apple Silicon (M1/M2/M3) Macs
 
 When running SuperMQ on Apple Silicon Macs, the Makefile will automatically detect your ARM64 architecture and build Docker images locally. 
 
