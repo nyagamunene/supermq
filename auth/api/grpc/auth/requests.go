@@ -37,12 +37,11 @@ type authReq struct {
 	UserID     string
 	PatID      string
 	EntityType string
-	DomainID   string
 	Operation  string
 	EntityID   string
 }
 
-func (req authReq) validate() error { 
+func (req authReq) validate() error {
 	if req.PatID != "" {
 		if req.UserID == "" {
 			return apiutil.ErrMissingUserID

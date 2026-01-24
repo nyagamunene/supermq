@@ -211,7 +211,7 @@ func (svc service) Authorize(ctx context.Context, pr policies.Policy) error {
 		if err != nil {
 			return err
 		}
-		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, entityType, pr.DomainID, pr.Operation, pr.EntityID); err != nil {
+		if err := svc.AuthorizePAT(ctx, pr.UserID, pr.PatID, entityType, pr.Domain, pr.Operation, pr.EntityID); err != nil {
 			return err
 		}
 	}

@@ -259,7 +259,7 @@ func (am *authorizationMiddleware) RemoveParentGroup(ctx context.Context, sessio
 func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, entityType string, op permissions.Operation, req smqauthz.PolicyReq) error {
 	req.UserID = session.UserID
 	req.PatID = session.PatID
-	req.DomainID = session.DomainID
+	req.Domain = session.DomainID
 
 	perm, err := am.entitiesOps.GetPermission(entityType, op)
 	if err != nil {
