@@ -18,6 +18,8 @@ import (
 
 var _ auth.PATSRepository = (*patRepo)(nil)
 
+var errInsufficientPATScope = errors.NewRequestError("PAT does not have the required scope permissions")
+
 type patRepo struct {
 	db    postgres.Database
 	cache auth.Cache
@@ -569,7 +571,7 @@ func (pr *patRepo) CheckScope(ctx context.Context, userID, patID string, entityT
 		}
 	}
 
-	return repoerr.ErrNotFound
+	return errInsufficientPATScope
 }
 
 func (pr *patRepo) RemoveAllScope(ctx context.Context, patID string) error {
