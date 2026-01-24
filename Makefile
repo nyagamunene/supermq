@@ -80,12 +80,12 @@ define run_with_arch_detection
 	@if [ "$(DETECTED_ARCH)" = "arm64" ] || [ "$(DETECTED_ARCH)" = "aarch64" ]; then \
 		echo "ARM64 architecture detected."; \
 		git checkout $(1); \
-		echo "Building Docker images for ARM64..."; \
 		GOARCH=arm64 $(MAKE) dockers; \
 		for svc in $(SERVICES); do \
-			docker tag supermq/$$svc supermq/$$svc:$(2); \
+			docker tag supermq/$$svc supermq/$$svc:latest; \
+			docker tag supermq/$$svc docker.io/supermq/$$svc:latest; \
 		done; \
-		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(2)/' docker/.env && rm -f docker/.env.bak; \
+		sed -i.bak 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=latest/' docker/.env && rm -f docker/.env.bak; \
 		docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args); \
 	else \
 		echo "x86_64 architecture detected."; \
@@ -293,7 +293,7 @@ run_latest: check_certs
 	$(call run_with_arch_detection,main,latest)
 
 run_stable: check_certs
-	$(eval version = $(shell git describe --abbrev=0 --tags))
+	$(eval version = $(shell git describe --abbrev=0 --tags 2>/dev/null || echo "main"))
 	$(call run_with_arch_detection,$(version),$(version))
 
 run_addons: check_certs
