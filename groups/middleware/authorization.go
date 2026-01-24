@@ -393,13 +393,11 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	}
 	pr.Permission = perm.String()
 
-	if pr.PatID != "" {
-		pr.EntityID = pr.Object
-		pr.EntityType = auth.GroupsScopeStr
-		pr.Operation = am.entitiesOps.OperationName(entityType, op)
-		if op == dOperations.OpListDomainGroups || op == dOperations.OpCreateDomainGroups {
-			pr.EntityID = auth.AnyIDs
-		}
+	pr.EntityID = pr.Object
+	pr.EntityType = auth.GroupsType.String()
+	pr.Operation = am.entitiesOps.OperationName(entityType, op)
+	if op == dOperations.OpListDomainGroups || op == dOperations.OpCreateDomainGroups {
+		pr.EntityID = auth.AnyIDs
 	}
 
 	if err := am.authz.Authorize(ctx, pr); err != nil {

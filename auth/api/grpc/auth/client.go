@@ -77,30 +77,21 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Poli
 	var authReqData authReq
 
 	if req != nil {
-		if req.GetPatId() != "" {
-			authReqData = authReq{
-				Domain:     req.GetDomain(),
-				Subject:    req.GetSubject(),
-				ObjectType: req.GetObjectType(),
-				Object:     req.GetObject(),
-				UserID:     req.GetSubject(),
-				PatID:      req.GetPatId(),
-				EntityType: req.GetObjectType(),
-				DomainID:   req.GetDomain(),
-				Operation:  req.GetOperation(),
-				EntityID:   req.GetObject(),
-			}
-		} else {
-			authReqData = authReq{
-				Domain:      req.GetDomain(),
-				SubjectType: req.GetSubjectType(),
-				Subject:     req.GetSubject(),
-				SubjectKind: req.GetSubjectKind(),
-				Relation:    req.GetRelation(),
-				Permission:  req.GetPermission(),
-				ObjectType:  req.GetObjectType(),
-				Object:      req.GetObject(),
-			}
+		authReqData = authReq{
+			Domain:      req.GetDomain(),
+			SubjectType: req.GetSubjectType(),
+			Subject:     req.GetSubject(),
+			SubjectKind: req.GetSubjectKind(),
+			Relation:    req.GetRelation(),
+			Permission:  req.GetPermission(),
+			ObjectType:  req.GetObjectType(),
+			Object:      req.GetObject(),
+			UserID:      req.GetUserId(),
+			PatID:       req.GetPatId(),
+			EntityType:  req.GetEntityType(),
+			DomainID:    req.GetDomain(),
+			Operation:   req.GetOperation(),
+			EntityID:    req.GetEntityId(),
 		}
 	}
 
@@ -121,17 +112,6 @@ func decodeAuthorizeResponse(_ context.Context, grpcRes any) (any, error) {
 func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 	req := grpcReq.(authReq)
 
-	if req.PatID != "" {
-		return &grpcAuthV1.PolicyReq{
-			Domain:     req.Domain,
-			Subject:    req.Subject,
-			ObjectType: req.ObjectType,
-			Object:     req.Object,
-			PatId:      req.PatID,
-			Operation:  req.Operation,
-		}, nil
-	}
-
 	return &grpcAuthV1.PolicyReq{
 		Domain:      req.Domain,
 		SubjectType: req.SubjectType,
@@ -141,5 +121,10 @@ func encodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 		Permission:  req.Permission,
 		ObjectType:  req.ObjectType,
 		Object:      req.Object,
+		UserId:      req.UserID,
+		PatId:       req.PatID,
+		EntityType:  req.EntityType,
+		Operation:   req.Operation,
+		EntityId:    req.EntityID,
 	}, nil
 }

@@ -69,21 +69,6 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 		return authReq{}, nil
 	}
 
-	if req.GetPatId() != "" {
-		return authReq{
-			Domain:     req.GetDomain(),
-			Subject:    req.GetSubject(),
-			ObjectType: req.GetObjectType(),
-			Object:     req.GetObject(),
-			UserID:     req.GetSubject(),
-			PatID:      req.GetPatId(),
-			EntityType: req.GetObjectType(),
-			DomainID:   req.GetDomain(),
-			Operation:  req.GetOperation(),
-			EntityID:   req.GetObject(),
-		}, nil
-	}
-
 	return authReq{
 		Domain:      req.GetDomain(),
 		SubjectType: req.GetSubjectType(),
@@ -93,6 +78,12 @@ func decodeAuthorizeRequest(_ context.Context, grpcReq any) (any, error) {
 		Permission:  req.GetPermission(),
 		ObjectType:  req.GetObjectType(),
 		Object:      req.GetObject(),
+		UserID:      req.GetUserId(),
+		PatID:       req.GetPatId(),
+		EntityType:  req.GetEntityType(),
+		DomainID:    req.GetDomain(),
+		Operation:   req.GetOperation(),
+		EntityID:    req.GetEntityId(),
 	}, nil
 }
 

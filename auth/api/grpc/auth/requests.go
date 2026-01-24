@@ -42,15 +42,17 @@ type authReq struct {
 	EntityID   string
 }
 
-func (req authReq) validate() error {
+func (req authReq) validate() error { 
 	if req.PatID != "" {
-		if req.Subject == "" {
+		if req.UserID == "" {
 			return apiutil.ErrMissingUserID
 		}
-		if req.Object == "" {
+		if req.EntityID == "" {
 			return apiutil.ErrMissingID
 		}
-		return nil
+		if req.EntityType == "" {
+			return apiutil.ErrMissingPolicyObj
+		}
 	}
 
 	if req.Subject == "" || req.SubjectType == "" {

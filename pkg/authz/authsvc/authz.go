@@ -60,24 +60,6 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 		}
 	}
 
-	if pr.PatID != "" {
-		patReq := grpcAuthV1.PolicyReq{
-			Subject:    pr.UserID,
-			PatId:      pr.PatID,
-			ObjectType: pr.EntityType,
-			Domain:     pr.DomainID,
-			Operation:  pr.Operation,
-			Object:     pr.EntityID,
-		}
-		patRes, err := a.authSvcClient.Authorize(ctx, &patReq)
-		if err != nil {
-			return errors.Wrap(errors.ErrAuthorization, err)
-		}
-		if !patRes.GetAuthorized() {
-			return errors.ErrAuthorization
-		}
-	}
-
 	req := grpcAuthV1.PolicyReq{
 		Domain:          pr.Domain,
 		SubjectType:     pr.SubjectType,
@@ -88,7 +70,13 @@ func (a authorization) Authorize(ctx context.Context, pr authz.PolicyReq) error 
 		Permission:      pr.Permission,
 		Object:          pr.Object,
 		ObjectType:      pr.ObjectType,
+		PatId:           pr.PatID,
+		Operation:       pr.Operation,
+		UserId:          pr.UserID,
+		EntityId:        pr.EntityID,
+		EntityType:      pr.EntityType,
 	}
+
 	res, err := a.authSvcClient.Authorize(ctx, &req)
 	if err != nil {
 		return errors.Wrap(errors.ErrAuthorization, err)

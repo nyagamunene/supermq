@@ -336,14 +336,11 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 
 	req.Permission = perm.String()
 
-	if req.PatID != "" {
-		req.EntityID = req.Object
-
-		req.EntityType = auth.ChannelsScopeStr
-		req.Operation = am.entitiesOps.OperationName(entityType, op)
-		if op == operations.OpListUserChannels || op == dOperations.OpCreateDomainChannels || op == dOperations.OpListDomainChannels {
-			req.EntityID = auth.AnyIDs
-		}
+	req.EntityID = req.Object
+	req.EntityType = auth.ChannelsType.String()
+	req.Operation = am.entitiesOps.OperationName(entityType, op)
+	if op == operations.OpListUserChannels || op == dOperations.OpCreateDomainChannels || op == dOperations.OpListDomainChannels {
+		req.EntityID = auth.AnyIDs
 	}
 
 	if err := am.authz.Authorize(ctx, req); err != nil {
