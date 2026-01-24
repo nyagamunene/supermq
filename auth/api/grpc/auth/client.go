@@ -89,7 +89,6 @@ func (client authGrpcClient) Authorize(ctx context.Context, req *grpcAuthV1.Poli
 			UserID:      req.GetUserId(),
 			PatID:       req.GetPatId(),
 			EntityType:  req.GetEntityType(),
-			DomainID:    req.GetDomain(),
 			Operation:   req.GetOperation(),
 			EntityID:    req.GetEntityId(),
 		}

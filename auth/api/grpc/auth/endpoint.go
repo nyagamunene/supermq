@@ -48,7 +48,6 @@ func authorizeEndpoint(svc auth.Service) endpoint.Endpoint {
 			Operation:   req.Operation,
 			UserID:      req.UserID,
 			EntityType:  req.EntityType,
-			DomainID:    req.DomainID,
 			EntityID:    req.EntityID,
 		})
 		if err != nil {

@@ -60,8 +60,6 @@ type Policy struct {
 	UserID string `json:"user_id,omitempty"`
 	// EntityType contains the entity type for PAT authorization.
 	EntityType string `json:"entity_type,omitempty"`
-	// DomainID contains the domain ID for PAT authorization.
-	DomainID string `json:"domain_id,omitempty"`
 	// EntityID contains the entity ID for PAT authorization.
 	EntityID string `json:"entity_id,omitempty"`
 }

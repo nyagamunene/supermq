@@ -385,7 +385,7 @@ func (am *authorizationMiddleware) checkSuperAdmin(ctx context.Context, session 
 func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.Session, entityType string, op permissions.Operation, pr smqauthz.PolicyReq) error {
 	pr.UserID = session.UserID
 	pr.PatID = session.PatID
-	pr.DomainID = session.DomainID
+	pr.Domain = session.DomainID
 
 	perm, err := am.entitiesOps.GetPermission(entityType, op)
 	if err != nil {

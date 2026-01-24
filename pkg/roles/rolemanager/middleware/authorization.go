@@ -296,7 +296,7 @@ func (ram RoleManagerAuthorizationMiddleware) RoleRemoveMembers(ctx context.Cont
 func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, session authn.Session, op permissions.RoleOperation, pr smqauthz.PolicyReq) error {
 	pr.UserID = session.UserID
 	pr.PatID = session.PatID
-	pr.DomainID = session.DomainID
+	pr.Domain = session.DomainID
 
 	perm, err := ram.ops.GetPermission(op)
 	if err != nil {
