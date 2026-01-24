@@ -37,6 +37,9 @@ message PolicyReq {
   string object_type = 9;
   string pat_id = 10;
   string operation = 11;
+  string user_id = 12;
+  string entity_id = 13;
+  string entity_type = 14;
 }
 
 message AuthZRes {

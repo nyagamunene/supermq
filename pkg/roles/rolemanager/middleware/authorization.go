@@ -305,23 +305,21 @@ func (ram RoleManagerAuthorizationMiddleware) authorize(ctx context.Context, ses
 
 	pr.Permission = perm.String()
 
-	if pr.PatID != "" {
-		pr.EntityID = pr.Object
-		opName := ram.ops.OperationName(op)
-		var patEntityType string
-		switch pr.ObjectType {
-		case policies.GroupType:
-			patEntityType = auth.GroupsScopeStr
-		case policies.ClientType:
-			patEntityType = auth.ClientsScopeStr
-		case policies.ChannelType:
-			patEntityType = auth.ChannelsScopeStr
-		default:
-			return errors.Wrap(errors.ErrAuthorization, fmt.Errorf("unsupported entity type for PAT: %s", pr.ObjectType))
-		}
-		pr.EntityType = patEntityType
-		pr.Operation = auth.RoleOperationPrefix + opName
+	pr.EntityID = pr.Object
+	opName := ram.ops.OperationName(op)
+	var patEntityType string
+	switch pr.ObjectType {
+	case policies.GroupType:
+		patEntityType = auth.GroupsType.String()
+	case policies.ClientType:
+		patEntityType = auth.ClientsType.String()
+	case policies.ChannelType:
+		patEntityType = auth.ChannelsType.String()
+	default:
+		return errors.Wrap(errors.ErrAuthorization, fmt.Errorf("unsupported entity type for PAT: %s", pr.ObjectType))
 	}
+	pr.EntityType = patEntityType
+	pr.Operation = auth.RoleOperationPrefix + opName
 
 	if err := ram.authz.Authorize(ctx, pr); err != nil {
 		return errors.Wrap(errors.ErrAuthorization, err)

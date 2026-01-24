@@ -149,6 +149,9 @@ type PolicyReq struct {
 	ObjectType      string                 `protobuf:"bytes,9,opt,name=object_type,json=objectType,proto3" json:"object_type,omitempty"`
 	PatId           string                 `protobuf:"bytes,10,opt,name=pat_id,json=patId,proto3" json:"pat_id,omitempty"`
 	Operation       string                 `protobuf:"bytes,11,opt,name=operation,proto3" json:"operation,omitempty"`
+	UserId          string                 `protobuf:"bytes,12,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	EntityId        string                 `protobuf:"bytes,13,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	EntityType      string                 `protobuf:"bytes,14,opt,name=entity_type,json=entityType,proto3" json:"entity_type,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -260,6 +263,27 @@ func (x *PolicyReq) GetOperation() string {
 	return ""
 }
 
+func (x *PolicyReq) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *PolicyReq) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *PolicyReq) GetEntityType() string {
+	if x != nil {
+		return x.EntityType
+	}
+	return ""
+}
+
 type AuthZRes struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Authorized    bool                   `protobuf:"varint,1,opt,name=authorized,proto3" json:"authorized,omitempty"`
@@ -323,7 +347,7 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1b\n" +
 	"\tuser_role\x18\x03 \x01(\rR\buserRole\x12\x1a\n" +
-	"\bverified\x18\x04 \x01(\bR\bverified\"\xd8\x02\n" +
+	"\bverified\x18\x04 \x01(\bR\bverified\"\xaf\x03\n" +
 	"\tPolicyReq\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\tR\x06domain\x12!\n" +
 	"\fsubject_type\x18\x02 \x01(\tR\vsubjectType\x12!\n" +
@@ -339,7 +363,11 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"objectType\x12\x15\n" +
 	"\x06pat_id\x18\n" +
 	" \x01(\tR\x05patId\x12\x1c\n" +
-	"\toperation\x18\v \x01(\tR\toperation\":\n" +
+	"\toperation\x18\v \x01(\tR\toperation\x12\x17\n" +
+	"\auser_id\x18\f \x01(\tR\x06userId\x12\x1b\n" +
+	"\tentity_id\x18\r \x01(\tR\bentityId\x12\x1f\n" +
+	"\ventity_type\x18\x0e \x01(\tR\n" +
+	"entityType\":\n" +
 	"\bAuthZRes\x12\x1e\n" +
 	"\n" +
 	"authorized\x18\x01 \x01(\bR\n" +
