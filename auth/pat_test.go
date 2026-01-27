@@ -10,47 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOperationString(t *testing.T) {
-	cases := []struct {
-		desc     string
-		op       auth.Operation
-		expected string
-	}{
-		{
-			desc:     "Dashboard share operation",
-			op:       auth.DashboardShareOp,
-			expected: "share",
-		},
-		{
-			desc:     "Dashboard unshare operation",
-			op:       auth.DashboardUnshareOp,
-			expected: "unshare",
-		},
-		{
-			desc:     "Message publish operation",
-			op:       auth.MessagePublishOp,
-			expected: "publish",
-		},
-		{
-			desc:     "Message subscribe operation",
-			op:       auth.MessageSubscribeOp,
-			expected: "subscribe",
-		},
-		{
-			desc:     "Unknown operation",
-			op:       auth.Operation(9999),
-			expected: "",
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got := auth.OperationString(tc.op)
-			assert.Equal(t, tc.expected, got, "OperationString() = %v, expected %v", got, tc.expected)
-		})
-	}
-}
-
 func TestParseOperation(t *testing.T) {
 	cases := []struct {
 		desc     string

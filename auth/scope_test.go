@@ -218,7 +218,7 @@ func TestScopeValidate(t *testing.T) {
 			scope: &auth.Scope{
 				EntityType: auth.GroupsType,
 				DomainID:   "domain1",
-				Operation:  auth.OperationString(groupsOps.OpViewGroup),
+				Operation:  groupsOps.OperationDetails()[groupsOps.OpViewGroup].Name,
 				EntityID:   "",
 			},
 			err: apiutil.ErrMissingEntityID,
@@ -228,7 +228,7 @@ func TestScopeValidate(t *testing.T) {
 			scope: &auth.Scope{
 				EntityType: auth.GroupsType,
 				DomainID:   "",
-				Operation:  auth.OperationString(groupsOps.OpViewGroup),
+				Operation:  groupsOps.OperationDetails()[groupsOps.OpViewGroup].Name,
 				EntityID:   "entity1",
 			},
 			err: apiutil.ErrMissingDomainID,
@@ -238,7 +238,7 @@ func TestScopeValidate(t *testing.T) {
 			scope: &auth.Scope{
 				EntityType: auth.ChannelsType,
 				DomainID:   "",
-				Operation:  auth.OperationString(channelsOps.OpViewChannel),
+				Operation:  channelsOps.OperationDetails()[channelsOps.OpViewChannel].Name,
 				EntityID:   "channel1",
 			},
 			err: apiutil.ErrMissingDomainID,
@@ -248,7 +248,7 @@ func TestScopeValidate(t *testing.T) {
 			scope: &auth.Scope{
 				EntityType: auth.ClientsType,
 				DomainID:   "",
-				Operation:  auth.OperationString(clientsOps.OpViewClient),
+				Operation:  clientsOps.OperationDetails()[clientsOps.OpViewClient].Name,
 				EntityID:   "client1",
 			},
 			err: apiutil.ErrMissingDomainID,
@@ -258,7 +258,7 @@ func TestScopeValidate(t *testing.T) {
 			scope: &auth.Scope{
 				EntityType: auth.DashboardType,
 				DomainID:   "",
-				Operation:  auth.OperationString(auth.DashboardShareOp),
+				Operation:  auth.OpShare,
 				EntityID:   "dashboard1",
 			},
 			err: apiutil.ErrMissingDomainID,
@@ -268,7 +268,7 @@ func TestScopeValidate(t *testing.T) {
 			scope: &auth.Scope{
 				EntityType: auth.MessagesType,
 				DomainID:   "",
-				Operation:  auth.OperationString(auth.MessagePublishOp),
+				Operation:  auth.OpPublish,
 				EntityID:   "message1",
 			},
 			err: apiutil.ErrMissingDomainID,
