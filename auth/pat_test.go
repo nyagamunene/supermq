@@ -10,64 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseOperation(t *testing.T) {
-	cases := []struct {
-		desc     string
-		op       string
-		expected auth.Operation
-		err      bool
-	}{
-		{
-			desc:     "Parse share",
-			op:       "share",
-			expected: auth.DashboardShareOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse unshare",
-			op:       "unshare",
-			expected: auth.DashboardUnshareOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse publish",
-			op:       "publish",
-			expected: auth.MessagePublishOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse subscribe",
-			op:       "subscribe",
-			expected: auth.MessageSubscribeOp,
-			err:      false,
-		},
-		{
-			desc:     "Parse numeric operation string",
-			op:       "123",
-			expected: auth.Operation(123),
-			err:      false,
-		},
-		{
-			desc:     "Parse unknown operation",
-			op:       "unknown",
-			expected: auth.Operation(0),
-			err:      true,
-		},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.desc, func(t *testing.T) {
-			got, err := auth.ParseOperation(tc.op)
-			if tc.err {
-				assert.Error(t, err, "ParseOperation() should return error")
-			} else {
-				assert.NoError(t, err, "ParseOperation() should not return error")
-				assert.Equal(t, tc.expected, got, "ParseOperation() = %v, expected %v", got, tc.expected)
-			}
-		})
-	}
-}
-
 func TestEntityTypeString(t *testing.T) {
 	cases := []struct {
 		desc     string

@@ -11,13 +11,8 @@ import (
 	"time"
 
 	apiutil "github.com/absmach/supermq/api/http/util"
-	channelsOps "github.com/absmach/supermq/channels/operations"
-	clientsOps "github.com/absmach/supermq/clients/operations"
-	domainsOps "github.com/absmach/supermq/domains/operations"
-	groupsOps "github.com/absmach/supermq/groups/operations"
 	"github.com/absmach/supermq/pkg/errors"
 	"github.com/absmach/supermq/pkg/permissions"
-	"github.com/absmach/supermq/pkg/roles"
 )
 
 const (
@@ -64,70 +59,6 @@ const (
 	MessagePublishOp Operation = iota + 500
 	MessageSubscribeOp
 )
-
-func ParseOperation(s string) (Operation, error) {
-	switch s {
-	case OpShare:
-		return DashboardShareOp, nil
-	case OpUnshare:
-		return DashboardUnshareOp, nil
-	case OpPublish:
-		return MessagePublishOp, nil
-	case OpSubscribe:
-		return MessageSubscribeOp, nil
-	default:
-		if op, found := lookupRoleOperation(s); found {
-			return op, nil
-		}
-		if op, found := lookupServiceOperation(s); found {
-			return op, nil
-		}
-		var op Operation
-		_, err := fmt.Sscanf(s, "%d", &op)
-		if err != nil {
-			return 0, fmt.Errorf("invalid operation: %s", s)
-		}
-		return op, nil
-	}
-}
-
-func lookupServiceOperation(name string) (Operation, bool) {
-	for op, detail := range clientsOps.OperationDetails() {
-		if detail.Name == name {
-			return Operation(op), true
-		}
-	}
-	for op, detail := range channelsOps.OperationDetails() {
-		if detail.Name == name {
-			return Operation(op), true
-		}
-	}
-	for op, detail := range groupsOps.OperationDetails() {
-		if detail.Name == name {
-			return Operation(op), true
-		}
-	}
-	for op, detail := range domainsOps.OperationDetails() {
-		if detail.Name == name {
-			return Operation(op), true
-		}
-	}
-	return 0, false
-}
-
-func lookupRoleOperation(name string) (Operation, bool) {
-	roleOpName := name
-	if strings.HasPrefix(name, RoleOperationPrefix) {
-		roleOpName = strings.TrimPrefix(name, RoleOperationPrefix)
-	}
-
-	for op, detail := range roles.Operations() {
-		if detail.Name == roleOpName {
-			return Operation(op), true
-		}
-	}
-	return 0, false
-}
 
 type EntityType uint32
 
