@@ -374,19 +374,3 @@ func TestPATMarshalUnmarshalBinary(t *testing.T) {
 	assert.Equal(t, pat.Secret, newPAT.Secret, "Secret mismatch")
 	assert.Equal(t, pat.Status, newPAT.Status, "Status mismatch")
 }
-
-func TestPATString(t *testing.T) {
-	pat := &auth.PAT{
-		ID:          "pat-id",
-		User:        "user-id",
-		Name:        "test-pat",
-		Description: "test description",
-		Status:      auth.ActiveStatus,
-	}
-
-	str := pat.String()
-	assert.NotEmpty(t, str, "String() should return non-empty string")
-	assert.Contains(t, str, "pat-id", "String() should contain ID")
-	assert.Contains(t, str, "user-id", "String() should contain User")
-	assert.Contains(t, str, "test-pat", "String() should contain Name")
-}

@@ -99,14 +99,6 @@ func (et EntityType) String() string {
 	}
 }
 
-func (et EntityType) ValidString() (string, error) {
-	str := et.String()
-	if str == fmt.Sprintf("unknown operation type %d", et) {
-		return "", errors.New(str)
-	}
-	return str, nil
-}
-
 func ParseEntityType(et string) (EntityType, error) {
 	switch et {
 	case GroupsScopeStr:
@@ -353,14 +345,6 @@ func (pat *PAT) Validate() error {
 		return errors.New("PAT user cannot be empty")
 	}
 	return nil
-}
-
-func (pat *PAT) String() string {
-	str, err := json.MarshalIndent(pat, "", "  ")
-	if err != nil {
-		return fmt.Sprintf("failed to convert PAT to string: json marshal error :%s", err.Error())
-	}
-	return string(str)
 }
 
 // PATS specifies function which are required for Personal access Token implementation.
