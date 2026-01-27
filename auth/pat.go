@@ -65,60 +65,6 @@ const (
 	MessageSubscribeOp
 )
 
-func OperationString(op Operation) string {
-	switch op {
-	case DashboardShareOp:
-		return OpShare
-	case DashboardUnshareOp:
-		return OpUnshare
-	case MessagePublishOp:
-		return OpPublish
-	case MessageSubscribeOp:
-		return OpSubscribe
-	default:
-		if name, found := lookupRoleOperationName(op); found {
-			return RoleOperationPrefix + name
-		}
-		if name, found := lookupServiceOperationName(op); found {
-			return name
-		}
-		return ""
-	}
-}
-
-func lookupRoleOperationName(op Operation) (string, bool) {
-	for opKey, detail := range roles.Operations() {
-		if Operation(opKey) == op {
-			return detail.Name, true
-		}
-	}
-	return "", false
-}
-
-func lookupServiceOperationName(op Operation) (string, bool) {
-	for opKey, detail := range clientsOps.OperationDetails() {
-		if Operation(opKey) == op {
-			return detail.Name, true
-		}
-	}
-	for opKey, detail := range channelsOps.OperationDetails() {
-		if Operation(opKey) == op {
-			return detail.Name, true
-		}
-	}
-	for opKey, detail := range groupsOps.OperationDetails() {
-		if Operation(opKey) == op {
-			return detail.Name, true
-		}
-	}
-	for opKey, detail := range domainsOps.OperationDetails() {
-		if Operation(opKey) == op {
-			return detail.Name, true
-		}
-	}
-	return "", false
-}
-
 func ParseOperation(s string) (Operation, error) {
 	switch s {
 	case OpShare:
