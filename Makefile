@@ -99,6 +99,26 @@ ADDON_SERVICES = journal certs
 
 EXTERNAL_SERVICES = prometheus
 
+# Detect OS and architecture for cross-platform compatibility
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+# macOS BSD sed vs GNU sed compatibility
+ifeq ($(UNAME_S),Darwin)
+	SED_INPLACE := sed -i ''
+else
+	SED_INPLACE := sed -i
+endif
+
+# Apple Silicon (arm64) Docker platform compatibility
+# Pre-built images are amd64 only, so we need to use emulation on Apple Silicon
+ifeq ($(UNAME_S),Darwin)
+ifeq ($(UNAME_M),arm64)
+	DOCKER_PLATFORM := DOCKER_DEFAULT_PLATFORM=linux/amd64
+endif
+endif
+DOCKER_PLATFORM ?=
+
 ifneq ($(filter run%,$(firstword $(MAKECMDGOALS))),)
   temp_args := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   DOCKER_COMPOSE_COMMAND := $(if $(filter $(DOCKER_COMPOSE_COMMANDS_SUPPORTED),$(temp_args)), $(filter $(DOCKER_COMPOSE_COMMANDS_SUPPORTED),$(temp_args)), $(DEFAULT_DOCKER_COMPOSE_COMMAND))
@@ -290,22 +310,26 @@ fetch_certs:
 	@./scripts/certs.sh
 
 run_latest: check_certs
-	$(call run_with_arch_detection,main,latest)
+	git checkout main
+	$(SED_INPLACE) 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=latest/' docker/.env
+	$(DOCKER_PLATFORM) docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args)
 
 run_stable: check_certs
-	$(eval version = $(shell git describe --abbrev=0 --tags 2>/dev/null || echo "main"))
-	$(call run_with_arch_detection,$(version),$(version))
+	$(eval version = $(shell git describe --abbrev=0 --tags))
+	git checkout $(version)
+	$(SED_INPLACE) 's/^SMQ_RELEASE_TAG=.*/SMQ_RELEASE_TAG=$(version)/' docker/.env
+	$(DOCKER_PLATFORM) docker compose -f docker/docker-compose.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args)
 
 run_addons: check_certs
 	$(foreach SVC,$(RUN_ADDON_ARGS),$(if $(filter $(SVC),$(ADDON_SERVICES) $(EXTERNAL_SERVICES)),,$(error Invalid Service $(SVC))))
-	@docker compose -f docker/docker-compose.yaml --env-file ./docker/.env -p $(DOCKER_PROJECT) up -d auth domains jaeger
+	@$(DOCKER_PLATFORM) docker compose -f docker/docker-compose.yaml --env-file ./docker/.env -p $(DOCKER_PROJECT) up -d auth domains jaeger
 	@for SVC in $(RUN_ADDON_ARGS); do \
 		if [ "$$SVC" = "certs" ]; then \
-			docker compose -f docker/addons/$$SVC/docker-compose.yaml -f docker/certs-docker-compose-override.yaml --env-file ./docker/.env --env-file ./docker/addons/$$SVC/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args) & \
+			$(DOCKER_PLATFORM) docker compose -f docker/addons/$$SVC/docker-compose.yaml -f docker/certs-docker-compose-override.yaml --env-file ./docker/.env --env-file ./docker/addons/$$SVC/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args) & \
 		else \
-			SMQ_ADDONS_CERTS_PATH_PREFIX="../."  docker compose -f docker/addons/$$SVC/docker-compose.yaml -p $(DOCKER_PROJECT) --env-file ./docker/.env $(DOCKER_COMPOSE_COMMAND) $(args) & \
+			SMQ_ADDONS_CERTS_PATH_PREFIX="../." $(DOCKER_PLATFORM) docker compose -f docker/addons/$$SVC/docker-compose.yaml -p $(DOCKER_PROJECT) --env-file ./docker/.env $(DOCKER_COMPOSE_COMMAND) $(args) & \
 		fi; \
 	done
 
 run_live: check_certs
-	GOPATH=$(go env GOPATH) docker compose  -f docker/docker-compose.yaml -f docker/docker-compose-live.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args)
+	GOPATH=$(go env GOPATH) $(DOCKER_PLATFORM) docker compose -f docker/docker-compose.yaml -f docker/docker-compose-live.yaml --env-file docker/.env -p $(DOCKER_PROJECT) $(DOCKER_COMPOSE_COMMAND) $(args)
