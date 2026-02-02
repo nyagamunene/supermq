@@ -42,6 +42,38 @@ const (
 
 	OpMessagePublish   = "message_publish"
 	OpMessageSubscribe = "message_subscribe"
+
+	// Alarms operations
+	OpAlarmCreate = "create"
+	OpAlarmView   = "view"
+	OpAlarmUpdate = "update"
+	OpAlarmDelete = "delete"
+	OpAlarmList   = "list"
+
+	// Reports operations
+	OpReportAdd              = "add"
+	OpReportView             = "view"
+	OpReportUpdate           = "update"
+	OpReportRemove           = "remove"
+	OpReportList             = "list"
+	OpReportEnable           = "enable"
+	OpReportDisable          = "disable"
+	OpReportGenerate         = "generate"
+	OpReportUpdateSchedule   = "update_schedule"
+	OpReportUpdateTemplate   = "update_template"
+	OpReportViewTemplate     = "view_template"
+	OpReportDeleteTemplate   = "delete_template"
+
+	// Rules operations
+	OpRuleAdd            = "add"
+	OpRuleView           = "view"
+	OpRuleUpdate         = "update"
+	OpRuleUpdateTags     = "update_tags"
+	OpRuleRemove         = "remove"
+	OpRuleList           = "list"
+	OpRuleEnable         = "enable"
+	OpRuleDisable        = "disable"
+	OpRuleUpdateSchedule = "update_schedule"
 )
 
 var errInvalidEntityOp = errors.NewRequestError("operation not valid for entity type")
@@ -69,6 +101,9 @@ const (
 	DashboardType
 	MessagesType
 	DomainsType
+	AlarmsType
+	ReportsType
+	RulesType
 )
 
 const (
@@ -78,6 +113,9 @@ const (
 	DashboardsStr    = "dashboards"
 	MessagesStr      = "messages"
 	DomainsStr       = "domains"
+	AlarmsStr        = "alarms"
+	ReportsStr       = "reports"
+	RulesStr         = "rules"
 )
 
 func (et EntityType) String() string {
@@ -94,6 +132,12 @@ func (et EntityType) String() string {
 		return MessagesStr
 	case DomainsType:
 		return DomainsStr
+	case AlarmsType:
+		return AlarmsStr
+	case ReportsType:
+		return ReportsStr
+	case RulesType:
+		return RulesStr
 	default:
 		return fmt.Sprintf("unknown domain entity type %d", et)
 	}
@@ -113,6 +157,12 @@ func ParseEntityType(et string) (EntityType, error) {
 		return MessagesType, nil
 	case DomainsStr:
 		return DomainsType, nil
+	case AlarmsStr:
+		return AlarmsType, nil
+	case ReportsStr:
+		return ReportsType, nil
+	case RulesStr:
+		return RulesType, nil
 	default:
 		return 0, fmt.Errorf("unknown domain entity type %s", et)
 	}
@@ -141,7 +191,7 @@ func (et *EntityType) UnmarshalText(data []byte) (err error) {
 
 func IsValidOperationForEntity(entityType EntityType, operation string) bool {
 	switch entityType {
-	case ClientsType, ChannelsType, GroupsType, DomainsType:
+	case ClientsType, ChannelsType, GroupsType, DomainsType, AlarmsType, ReportsType, RulesType:
 		return true
 	case DashboardType:
 		return operation == OpDashboardShare || operation == OpDashboardUnshare
