@@ -269,16 +269,25 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	var pat *smqauthz.PATReq
 	if session.PatID != "" {
 		entityID := req.Object
-		opName := am.entitiesOps.OperationName(entityType, op)
-		if op == operations.OpListUserClients || op == dOperations.OpCreateDomainClients || op == dOperations.OpListDomainClients {
+		patOp := am.entitiesOps.OperationName(policies.ClientType, op)
+		
+		switch op {
+		case operations.OpListUserClients:
 			entityID = auth.AnyIDs
+		case dOperations.OpCreateDomainClients:
+			entityID = auth.AnyIDs
+			patOp = operations.OpCreate
+		case dOperations.OpListDomainClients:
+			entityID = auth.AnyIDs
+			patOp = operations.OpList
 		}
+		
 		pat = &smqauthz.PATReq{
 			UserID:     session.UserID,
 			PatID:      session.PatID,
 			EntityID:   entityID,
-			EntityType: auth.ClientsType.String(),
-			Operation:  opName,
+			EntityType: string(operations.ClientsType),
+			Operation:  patOp,
 			Domain:     session.DomainID,
 		}
 	}

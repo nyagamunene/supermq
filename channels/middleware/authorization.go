@@ -339,14 +339,23 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	if session.PatID != "" {
 		entityID := req.Object
 		opName := am.entitiesOps.OperationName(entityType, op)
-		if op == operations.OpListUserChannels || op == dOperations.OpCreateDomainChannels || op == dOperations.OpListDomainChannels {
+		
+		switch op {
+		case operations.OpListUserChannels:
 			entityID = auth.AnyIDs
+		case dOperations.OpCreateDomainChannels:
+			entityID = auth.AnyIDs
+			opName = operations.OpCreate
+		case dOperations.OpListDomainChannels:
+			entityID = auth.AnyIDs
+			opName = operations.OpList
 		}
+		
 		pat = &smqauthz.PATReq{
 			UserID:     session.UserID,
 			PatID:      session.PatID,
 			EntityID:   entityID,
-			EntityType: auth.ChannelsType.String(),
+			EntityType: string(operations.ChannelsType),
 			Operation:  opName,
 			Domain:     session.DomainID,
 		}

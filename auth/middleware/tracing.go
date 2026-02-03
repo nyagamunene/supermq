@@ -80,7 +80,7 @@ func (tm *tracingMiddleware) Authorize(ctx context.Context, pr policies.Policy, 
 		attributes = append(attributes,
 			attribute.String("pat_id", patAuthz.PatID),
 			attribute.String("pat_user_id", patAuthz.UserID),
-			attribute.String("pat_entity_type", patAuthz.EntityType.String()),
+			attribute.String("pat_entity_type", string(patAuthz.EntityType)),
 			attribute.String("pat_entity_id", patAuthz.EntityID),
 			attribute.String("pat_operation", patAuthz.Operation),
 			attribute.String("pat_domain", patAuthz.Domain),
@@ -181,7 +181,7 @@ func (tm *tracingMiddleware) RemoveAllPAT(ctx context.Context, token string) err
 func (tm *tracingMiddleware) AddScope(ctx context.Context, token, patID string, scopes []auth.Scope) error {
 	var attributes []attribute.KeyValue
 	for _, s := range scopes {
-		attributes = append(attributes, attribute.String("entity_type", s.EntityType.String()))
+		attributes = append(attributes, attribute.String("entity_type", string(s.EntityType)))
 		attributes = append(attributes, attribute.String("domain_id", s.DomainID))
 		attributes = append(attributes, attribute.String("operation", s.Operation))
 		attributes = append(attributes, attribute.String("entity_id", s.EntityID))
@@ -224,7 +224,7 @@ func (tm *tracingMiddleware) IdentifyPAT(ctx context.Context, paToken string) (a
 func (tm *tracingMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation string, entityID string) error {
 	ctx, span := tm.tracer.Start(ctx, "authorize_pat", trace.WithAttributes(
 		attribute.String("pat_id", patID),
-		attribute.String("entity_type", entityType.String()),
+			attribute.String("entity_type", string(entityType)),
 		attribute.String("domain_id", domainID),
 		attribute.String("operation", operation),
 		attribute.String("entities", entityID),

@@ -130,7 +130,7 @@ func (lm *loggingMiddleware) Authorize(ctx context.Context, pr policies.Policy, 
 				slog.Group("pat",
 					slog.String("pat_id", patAuthz.PatID),
 					slog.String("user_id", patAuthz.UserID),
-					slog.String("entity_type", patAuthz.EntityType.String()),
+					slog.String("entity_type", string(patAuthz.EntityType)),
 					slog.String("entity_id", patAuthz.EntityID),
 					slog.String("operation", patAuthz.Operation),
 					slog.String("domain", patAuthz.Domain),
@@ -318,7 +318,7 @@ func (lm *loggingMiddleware) AddScope(ctx context.Context, token, patID string, 
 	defer func(begin time.Time) {
 		var groupArgs []any
 		for _, s := range scopes {
-			groupArgs = append(groupArgs, slog.String("entity_type", s.EntityType.String()))
+			groupArgs = append(groupArgs, slog.String("entity_type", string(s.EntityType)))
 			groupArgs = append(groupArgs, slog.String("domain_id", s.DomainID))
 			groupArgs = append(groupArgs, slog.String("operation", s.Operation))
 			groupArgs = append(groupArgs, slog.String("entity_id", s.EntityID))
@@ -395,7 +395,7 @@ func (lm *loggingMiddleware) AuthorizePAT(ctx context.Context, userID, patID str
 	defer func(begin time.Time) {
 		args := []any{
 			slog.String("duration", time.Since(begin).String()),
-			slog.String("entity_type", entityType.String()),
+			slog.String("entity_type", string(entityType)),
 			slog.String("domain_id", domainID),
 			slog.String("operation", operation),
 			slog.String("entities", entityID),

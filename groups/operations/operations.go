@@ -3,7 +3,18 @@
 
 package operations
 
-import "github.com/absmach/supermq/pkg/permissions"
+import (
+	"github.com/absmach/supermq/auth"
+	"github.com/absmach/supermq/pkg/permissions"
+)
+
+// GroupsType is the entity type string for groups
+const GroupsType auth.EntityType = "groups"
+
+const (
+	OpCreate = "create"
+	OpList   = "list"
+)
 
 // Group Operations.
 const (

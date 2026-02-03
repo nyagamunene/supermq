@@ -17,6 +17,7 @@ type PermissionConfig struct {
 type EntityPermissions struct {
 	Operations      []map[string]string `yaml:"operations"`
 	RolesOperations []map[string]string `yaml:"roles_operations"`
+	PATEnabled      *bool               `yaml:"pat_enabled,omitempty"`
 }
 
 func ParsePermissionsFile(filePath string) (*PermissionConfig, error) {

@@ -6,8 +6,6 @@ package auth
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 
 	apiutil "github.com/absmach/supermq/api/http/util"
@@ -20,186 +18,76 @@ const (
 	RoleOperationPrefix = "role_"
 )
 
-const (
-	OpCreate = "create"
-	OpList   = "list"
-
-	OpCreateClients  = "create_clients"
-	OpListClients    = "list_clients"
-	OpCreateChannels = "create_channels"
-	OpListChannels   = "list_channels"
-	OpCreateGroups   = "create_groups"
-	OpListGroups     = "list_groups"
-
-	OpShare   = "share"
-	OpUnshare = "unshare"
-
-	OpDashboardShare   = "dashboard_share"
-	OpDashboardUnshare = "dashboard_unshare"
-
-	OpPublish   = "publish"
-	OpSubscribe = "subscribe"
-
-	OpMessagePublish   = "message_publish"
-	OpMessageSubscribe = "message_subscribe"
-
-	// Alarms operations
-	OpAlarmCreate = "create"
-	OpAlarmView   = "view"
-	OpAlarmUpdate = "update"
-	OpAlarmDelete = "delete"
-	OpAlarmList   = "list"
-
-	// Reports operations
-	OpReportAdd              = "add"
-	OpReportView             = "view"
-	OpReportUpdate           = "update"
-	OpReportRemove           = "remove"
-	OpReportList             = "list"
-	OpReportEnable           = "enable"
-	OpReportDisable          = "disable"
-	OpReportGenerate         = "generate"
-	OpReportUpdateSchedule   = "update_schedule"
-	OpReportUpdateTemplate   = "update_template"
-	OpReportViewTemplate     = "view_template"
-	OpReportDeleteTemplate   = "delete_template"
-
-	// Rules operations
-	OpRuleAdd            = "add"
-	OpRuleView           = "view"
-	OpRuleUpdate         = "update"
-	OpRuleUpdateTags     = "update_tags"
-	OpRuleRemove         = "remove"
-	OpRuleList           = "list"
-	OpRuleEnable         = "enable"
-	OpRuleDisable        = "disable"
-	OpRuleUpdateSchedule = "update_schedule"
-)
-
 var errInvalidEntityOp = errors.NewRequestError("operation not valid for entity type")
 
 type Operation = permissions.Operation
 
-// Dashboard operations.
-const (
-	DashboardShareOp Operation = iota + 400
-	DashboardUnshareOp
-)
+type EntityType string
 
-// Messages operations.
-const (
-	MessagePublishOp Operation = iota + 500
-	MessageSubscribeOp
-)
+// PATEntities holds entity types and their allowed operations for PAT
+type PATEntities struct {
+	Operations map[EntityType][]string // entity type -> allowed operations
+}
 
-type EntityType uint32
-
-const (
-	GroupsType EntityType = iota
-	ChannelsType
-	ClientsType
-	DashboardType
-	MessagesType
-	DomainsType
-	AlarmsType
-	ReportsType
-	RulesType
-)
-
-const (
-	GroupsScopeStr   = "groups"
-	ChannelsScopeStr = "channels"
-	ClientsScopeStr  = "clients"
-	DashboardsStr    = "dashboards"
-	MessagesStr      = "messages"
-	DomainsStr       = "domains"
-	AlarmsStr        = "alarms"
-	ReportsStr       = "reports"
-	RulesStr         = "rules"
-)
-
-func (et EntityType) String() string {
-	switch et {
-	case GroupsType:
-		return GroupsScopeStr
-	case ChannelsType:
-		return ChannelsScopeStr
-	case ClientsType:
-		return ClientsScopeStr
-	case DashboardType:
-		return DashboardsStr
-	case MessagesType:
-		return MessagesStr
-	case DomainsType:
-		return DomainsStr
-	case AlarmsType:
-		return AlarmsStr
-	case ReportsType:
-		return ReportsStr
-	case RulesType:
-		return RulesStr
-	default:
-		return fmt.Sprintf("unknown domain entity type %d", et)
+// ValidateOperation checks if an operation is allowed for a given entity type
+func (pe *PATEntities) ValidateOperation(et EntityType, operation string) error {
+	if pe == nil {
+		return errInvalidEntityOp
 	}
-}
-
-func ParseEntityType(et string) (EntityType, error) {
-	switch et {
-	case GroupsScopeStr:
-		return GroupsType, nil
-	case ChannelsScopeStr:
-		return ChannelsType, nil
-	case ClientsScopeStr:
-		return ClientsType, nil
-	case DashboardsStr:
-		return DashboardType, nil
-	case MessagesStr:
-		return MessagesType, nil
-	case DomainsStr:
-		return DomainsType, nil
-	case AlarmsStr:
-		return AlarmsType, nil
-	case ReportsStr:
-		return ReportsType, nil
-	case RulesStr:
-		return RulesType, nil
-	default:
-		return 0, fmt.Errorf("unknown domain entity type %s", et)
+	ops, ok := pe.Operations[et]
+	if !ok {
+		return errInvalidEntityOp
 	}
+	for _, op := range ops {
+		if op == operation {
+			return nil
+		}
+	}
+	return errInvalidEntityOp
 }
 
-func (et EntityType) MarshalJSON() ([]byte, error) {
-	return json.Marshal(et.String())
-}
-
-func (et *EntityType) UnmarshalJSON(data []byte) error {
-	str := strings.Trim(string(data), "\"")
-	val, err := ParseEntityType(str)
-	*et = val
-	return err
-}
-
-func (et EntityType) MarshalText() ([]byte, error) {
-	return []byte(et.String()), nil
-}
-
-func (et *EntityType) UnmarshalText(data []byte) (err error) {
-	str := strings.Trim(string(data), "\"")
-	*et, err = ParseEntityType(str)
-	return err
-}
-
-func IsValidOperationForEntity(entityType EntityType, operation string) bool {
-	switch entityType {
-	case ClientsType, ChannelsType, GroupsType, DomainsType, AlarmsType, ReportsType, RulesType:
-		return true
-	case DashboardType:
-		return operation == OpDashboardShare || operation == OpDashboardUnshare
-	case MessagesType:
-		return operation == OpMessagePublish || operation == OpMessageSubscribe
-	default:
+// IsEnabled checks if an entity type is enabled for PAT
+func (pe *PATEntities) IsEnabled(et EntityType) bool {
+	if pe == nil {
 		return false
 	}
+	_, ok := pe.Operations[et]
+	return ok
+}
+
+// BuildPATEntitiesFromConfig builds PAT entities config from parsed permissions config
+func BuildPATEntitiesFromConfig(config *permissions.PermissionConfig) (*PATEntities, error) {
+	entities := &PATEntities{
+		Operations: make(map[EntityType][]string),
+	}
+
+	for entityName, entityPerms := range config.Entities {
+		if entityPerms.PATEnabled != nil && !*entityPerms.PATEnabled {
+			continue
+		}
+
+		entityType := EntityType(entityName)
+
+		operations := make([]string, 0)
+
+		for _, opMap := range entityPerms.Operations {
+			for opName := range opMap {
+				operations = append(operations, opName)
+			}
+		}
+
+		for _, roleOpMap := range entityPerms.RolesOperations {
+			for opName := range roleOpMap {
+				operations = append(operations, "role_"+opName)
+			}
+		}
+
+		if len(operations) > 0 {
+			entities.Operations[entityType] = operations
+		}
+	}
+
+	return entities, nil
 }
 
 // Example Scope as JSON
@@ -232,55 +120,6 @@ type Scope struct {
 	EntityType EntityType `json:"entity_type"`
 	EntityID   string     `json:"entity_id"`
 	Operation  string     `json:"operation"`
-}
-
-func (s *Scope) UnmarshalJSON(data []byte) error {
-	type Alias Scope
-	aux := (*Alias)(s)
-
-	if err := json.Unmarshal(data, aux); err != nil {
-		return err
-	}
-
-	switch s.EntityType {
-	case ClientsType:
-		switch s.Operation {
-		case OpCreate:
-			s.Operation = OpCreateClients
-		case OpList:
-			s.Operation = OpListClients
-		}
-	case ChannelsType:
-		switch s.Operation {
-		case OpCreate:
-			s.Operation = OpCreateChannels
-		case OpList:
-			s.Operation = OpListChannels
-		}
-	case GroupsType:
-		switch s.Operation {
-		case OpCreate:
-			s.Operation = OpCreateGroups
-		case OpList:
-			s.Operation = OpListGroups
-		}
-	case DashboardType:
-		switch s.Operation {
-		case OpShare:
-			s.Operation = OpDashboardShare
-		case OpUnshare:
-			s.Operation = OpDashboardUnshare
-		}
-	case MessagesType:
-		switch s.Operation {
-		case OpPublish:
-			s.Operation = OpMessagePublish
-		case OpSubscribe:
-			s.Operation = OpMessageSubscribe
-		}
-	}
-
-	return nil
 }
 
 func (s *Scope) Authorized(entityType EntityType, domainID string, operation string, entityID string) bool {
@@ -321,10 +160,6 @@ func (s *Scope) Validate() error {
 
 	if s.DomainID == "" {
 		return apiutil.ErrMissingDomainID
-	}
-
-	if !IsValidOperationForEntity(s.EntityType, s.Operation) {
-		return errors.Wrap(apiutil.ErrInvalidQueryParams, errInvalidEntityOp)
 	}
 
 	return nil
