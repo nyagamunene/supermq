@@ -82,7 +82,7 @@ type config struct {
 	CacheKeyDuration              time.Duration `env:"SMQ_AUTH_CACHE_KEY_DURATION"                envDefault:"10m"`
 	JWKSCacheMaxAge               int           `env:"SMQ_AUTH_JWKS_CACHE_MAX_AGE"                envDefault:"900"`
 	JWKSCacheStaleWhileRevalidate int           `env:"SMQ_AUTH_JWKS_CACHE_STALE_WHILE_REVALIDATE" envDefault:"60"`
-	PermissionsFile               string        `env:"SMQ_PERMISSIONS_FILE"                       envDefault:"./docker/permission.yaml"`
+	PermissionsFile               string        `env:"SMQ_PERMISSIONS_FILE"                       envDefault:"permission.yaml"`
 }
 
 func main() {
