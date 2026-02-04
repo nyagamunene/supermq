@@ -185,7 +185,6 @@ func main() {
 		}
 	}
 
-	// Parse permissions file and build PAT entities config
 	permConfig, err := permissions.ParsePermissionsFile(cfg.PermissionsFile)
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to parse permissions file: %s", err.Error()))

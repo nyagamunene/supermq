@@ -6,7 +6,6 @@ package pats
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -305,20 +304,8 @@ func decodeAddScopeRequest(_ context.Context, r *http.Request) (any, error) {
 		id:    chi.URLParam(r, "id"),
 	}
 
-	fmt.Printf("DEBUG: About to decode request body\n")
-	fmt.Printf("DEBUG: Content-Type: %s\n", r.Header.Get("Content-Type"))
-	
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		fmt.Printf("DEBUG: JSON decode error: %v\n", err)
-		fmt.Printf("DEBUG: Request struct before decode: %+v\n", req)
 		return nil, errors.Wrap(apiutil.ErrMalformedRequestBody, err)
-	}
-
-	fmt.Printf("DEBUG: Successfully decoded request: %+v\n", req)
-	fmt.Printf("DEBUG: Number of scopes: %d\n", len(req.Scopes))
-	for i, scope := range req.Scopes {
-		fmt.Printf("DEBUG: Scope %d - EntityType: %s, Operation: %s\\n", 
-			i, scope.EntityType, scope.Operation)
 	}
 
 	return req, nil

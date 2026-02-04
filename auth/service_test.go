@@ -13,6 +13,7 @@ import (
 
 	"github.com/absmach/supermq/auth"
 	"github.com/absmach/supermq/auth/mocks"
+	cOperations "github.com/absmach/supermq/clients/operations"
 	"github.com/absmach/supermq/internal/testsutil"
 	"github.com/absmach/supermq/pkg/errors"
 	repoerr "github.com/absmach/supermq/pkg/errors/repository"
@@ -76,7 +77,11 @@ func newService(t *testing.T) (auth.Service, string) {
 	token, _, err := signToken(t, issuerName, accessKey, false)
 	assert.Nil(t, err, fmt.Sprintf("Issuing access key expected to succeed: %s", err))
 
-	return auth.New(krepo, patsrepo, cache, hasher, idProvider, tokenizer, pEvaluator, pService, loginDuration, refreshDuration, invalidDuration), token
+	patEntities := &auth.PATEntities{
+		Operations: make(map[auth.EntityType][]string),
+	}
+
+	return auth.New(krepo, patsrepo, cache, hasher, idProvider, tokenizer, pEvaluator, pService, loginDuration, refreshDuration, invalidDuration, patEntities), token
 }
 
 func TestIssue(t *testing.T) {
@@ -908,9 +913,9 @@ func TestAuthorize(t *testing.T) {
 			patAuthz: &auth.PATAuthz{
 				PatID:      validID,
 				UserID:     userID,
-				EntityType: auth.ClientsType,
+				EntityType: auth.EntityType(cOperations.ClientsType),
 				EntityID:   validID,
-				Operation:  "read",
+				Operation:  "clients_read",
 				Domain:     domainID,
 			},
 			checkDomainPolicyReq: policies.Policy{
@@ -944,9 +949,9 @@ func TestAuthorize(t *testing.T) {
 			patAuthz: &auth.PATAuthz{
 				PatID:      validID,
 				UserID:     userID,
-				EntityType: auth.ClientsType,
+				EntityType: auth.EntityType(cOperations.ClientsType),
 				EntityID:   validID,
-				Operation:  "read",
+				Operation:  "clients_read",
 				Domain:     domainID,
 			},
 			checkPolicyReq:  policies.Policy{},
@@ -967,9 +972,9 @@ func TestAuthorize(t *testing.T) {
 			patAuthz: &auth.PATAuthz{
 				PatID:      validID,
 				UserID:     userID,
-				EntityType: auth.ClientsType,
+				EntityType: auth.EntityType(cOperations.ClientsType),
 				EntityID:   validID,
-				Operation:  "read",
+				Operation:  "clients_read",
 				Domain:     domainID,
 			},
 			checkDomainPolicyReq: policies.Policy{
@@ -1005,9 +1010,9 @@ func TestAuthorize(t *testing.T) {
 			patAuthz: &auth.PATAuthz{
 				PatID:      validID,
 				UserID:     userID,
-				EntityType: auth.ClientsType,
+				EntityType: auth.EntityType(cOperations.ClientsType),
 				EntityID:   validID,
-				Operation:  "write",
+				Operation:  "clients_write",
 				Domain:     domainID,
 			},
 			checkPolicyReq:  policies.Policy{},

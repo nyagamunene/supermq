@@ -8,10 +8,8 @@ import (
 	"github.com/absmach/supermq/pkg/permissions"
 )
 
-// ChannelsType is the entity type string for channels
 const ChannelsType auth.EntityType = "channels"
 
-// PAT operation names
 const (
 	OpCreate = "create"
 	OpList   = "list"

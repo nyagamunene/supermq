@@ -15,7 +15,7 @@ type PermissionConfig struct {
 }
 
 type EntityPermissions struct {
-	Operations      []map[string]string `yaml:"operations"`
+	Operations      []interface{}       `yaml:"operations"`
 	RolesOperations []map[string]string `yaml:"roles_operations"`
 	PATEnabled      *bool               `yaml:"pat_enabled,omitempty"`
 }
@@ -42,9 +42,12 @@ func (pc *PermissionConfig) GetEntityPermissions(entityType string) (map[string]
 
 	operations := make(map[string]Permission)
 	for _, op := range entityPerms.Operations {
-		for name, perm := range op {
-			if perm != "" {
-				operations[name] = Permission(perm)
+		switch v := op.(type) {
+		case map[string]interface{}:
+			for name, permVal := range v {
+				if perm, ok := permVal.(string); ok && perm != "" {
+					operations[name] = Permission(perm)
+				}
 			}
 		}
 	}

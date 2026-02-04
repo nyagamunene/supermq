@@ -14,6 +14,7 @@ import (
 	apiutil "github.com/absmach/supermq/api/http/util"
 	"github.com/absmach/supermq/auth"
 	grpcapi "github.com/absmach/supermq/auth/api/grpc/auth"
+	cOperations "github.com/absmach/supermq/clients/operations"
 	"github.com/absmach/supermq/internal/testsutil"
 	"github.com/absmach/supermq/pkg/errors"
 	svcerr "github.com/absmach/supermq/pkg/errors/service"
@@ -264,7 +265,7 @@ func TestAuthorize(t *testing.T) {
 					Operation:  "view",
 					UserId:     id,
 					EntityId:   clientID,
-					EntityType: auth.ClientsScopeStr,
+					EntityType: string(cOperations.ClientsType),
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: true},
@@ -289,7 +290,7 @@ func TestAuthorize(t *testing.T) {
 					Operation:  "view",
 					UserId:     id,
 					EntityId:   clientID,
-					EntityType: auth.ClientsScopeStr,
+					EntityType: string(cOperations.ClientsType),
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -313,7 +314,7 @@ func TestAuthorize(t *testing.T) {
 					Domain:     domainID,
 					Operation:  "view",
 					EntityId:   clientID,
-					EntityType: auth.ClientsScopeStr,
+					EntityType: string(cOperations.ClientsType),
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},
@@ -337,7 +338,7 @@ func TestAuthorize(t *testing.T) {
 					Domain:     domainID,
 					Operation:  "view",
 					UserId:     id,
-					EntityType: auth.ClientsScopeStr,
+					EntityType: string(cOperations.ClientsType),
 				},
 			},
 			authResponse: &grpcAuthV1.AuthZRes{Authorized: false},

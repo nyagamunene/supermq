@@ -6,6 +6,7 @@ package auth
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 
 	apiutil "github.com/absmach/supermq/api/http/util"
@@ -26,7 +27,7 @@ type EntityType string
 
 // PATEntities holds entity types and their allowed operations for PAT
 type PATEntities struct {
-	Operations map[EntityType][]string // entity type -> allowed operations
+	Operations map[EntityType][]string
 }
 
 // ValidateOperation checks if an operation is allowed for a given entity type
@@ -70,9 +71,14 @@ func BuildPATEntitiesFromConfig(config *permissions.PermissionConfig) (*PATEntit
 
 		operations := make([]string, 0)
 
-		for _, opMap := range entityPerms.Operations {
-			for opName := range opMap {
-				operations = append(operations, opName)
+		for _, op := range entityPerms.Operations {
+			switch v := op.(type) {
+			case map[string]interface{}:
+				for opName := range v {
+					operations = append(operations, opName)
+				}
+			case string:
+				operations = append(operations, v)
 			}
 		}
 
@@ -84,6 +90,27 @@ func BuildPATEntitiesFromConfig(config *permissions.PermissionConfig) (*PATEntit
 
 		if len(operations) > 0 {
 			entities.Operations[entityType] = operations
+		}
+	}
+
+	if domainPerms, ok := config.Entities["domains"]; ok {
+		for _, op := range domainPerms.Operations {
+			if opMap, ok := op.(map[string]interface{}); ok {
+				for opName := range opMap {
+					prefix, entityName, found := strings.Cut(opName, "_")
+					if !found || entityName == "" {
+						continue
+					}
+
+					switch prefix {
+					case "create", "list":
+						entityType := EntityType(entityName)
+						if ops, exists := entities.Operations[entityType]; exists {
+							entities.Operations[entityType] = append(ops, prefix)
+						}
+					}
+				}
+			}
 		}
 	}
 

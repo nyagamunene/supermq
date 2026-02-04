@@ -210,13 +210,9 @@ func (svc service) RetrieveJWKS() []PublicKeyInfo {
 
 func (svc service) Authorize(ctx context.Context, pr policies.Policy, patAuthz *PATAuthz) error {
 	if patAuthz != nil {
-		fmt.Printf("DEBUG: AuthorizePAT called - UserID: %s, PatID: %s, EntityType: %s, Domain: %s, Operation: %s, EntityID: %s\n",
-			patAuthz.UserID, patAuthz.PatID, patAuthz.EntityType, patAuthz.Domain, patAuthz.Operation, patAuthz.EntityID)
 		if err := svc.AuthorizePAT(ctx, patAuthz.UserID, patAuthz.PatID, patAuthz.EntityType, patAuthz.Domain, patAuthz.Operation, patAuthz.EntityID); err != nil {
-			fmt.Printf("DEBUG: AuthorizePAT failed - Error: %v\n", err)
 			return err
 		}
-		fmt.Printf("DEBUG: AuthorizePAT succeeded\n")
 	}
 
 	if err := svc.PolicyValidation(pr); err != nil {
@@ -657,18 +653,14 @@ func (svc service) AddScope(ctx context.Context, token, patID string, scopes []S
 	}
 
 	for i := range len(scopes) {
-		// Validate entity type is enabled for PAT
 		if !svc.patEntities.IsEnabled(scopes[i].EntityType) {
-			return errors.Wrap(errInvalidScope, fmt.Errorf("entity type %s not enabled for PAT", scopes[i].EntityType))
+			return errors.Wrap(svcerr.ErrMalformedEntity, fmt.Errorf("entity type %s not enabled for PAT", scopes[i].EntityType))
 		}
 
-		// Validate operation for this entity type
 		if err := svc.patEntities.ValidateOperation(scopes[i].EntityType, scopes[i].Operation); err != nil {
-			return errors.Wrap(errInvalidScope, fmt.Errorf("operation %s not allowed for entity type %s", scopes[i].Operation, scopes[i].EntityType))
+			return errors.Wrap(svcerr.ErrMalformedEntity, fmt.Errorf("operation %s not allowed for entity type %s", scopes[i].Operation, scopes[i].EntityType))
 		}
 
-		// Transform operation to include entity type prefix
-		// e.g., "delete" -> "clients_delete", "role_add" -> "clients_role_add"
 		if !strings.HasPrefix(scopes[i].Operation, string(scopes[i].EntityType)+"_") {
 			scopes[i].Operation = string(scopes[i].EntityType) + "_" + scopes[i].Operation
 		}
@@ -753,18 +745,13 @@ func (svc service) IdentifyPAT(ctx context.Context, secret string) (PAT, error) 
 }
 
 func (svc service) AuthorizePAT(ctx context.Context, userID, patID string, entityType EntityType, domainID string, operation string, entityID string) error {
-	// Transform operation to include entity type prefix (same as AddScope validation)
 	if !strings.HasPrefix(operation, string(entityType)+"_") {
 		operation = string(entityType) + "_" + operation
 	}
 
-	fmt.Printf("DEBUG: CheckScope - EntityType: %s, DomainID: %s, Operation: %s (transformed), EntityID: %s\n",
-		entityType, domainID, operation, entityID)
 	if err := svc.pats.CheckScope(ctx, userID, patID, entityType, domainID, operation, entityID); err != nil {
-		fmt.Printf("DEBUG: CheckScope failed - Error: %v\n", err)
 		return errors.Wrap(svcerr.ErrAuthorization, err)
 	}
-	fmt.Printf("DEBUG: CheckScope succeeded\n")
 
 	return nil
 }

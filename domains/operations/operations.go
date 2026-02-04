@@ -8,14 +8,7 @@ import (
 	"github.com/absmach/supermq/pkg/permissions"
 )
 
-// DomainsType is the entity type string for domains
 const DomainsType auth.EntityType = "domains"
-
-// PAT operation names
-const (
-	OpCreate = "create"
-	OpList   = "list"
-)
 
 const (
 	OpCreateDomain permissions.Operation = iota

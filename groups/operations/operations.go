@@ -8,7 +8,6 @@ import (
 	"github.com/absmach/supermq/pkg/permissions"
 )
 
-// GroupsType is the entity type string for groups
 const GroupsType auth.EntityType = "groups"
 
 const (

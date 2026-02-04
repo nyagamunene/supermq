@@ -134,11 +134,11 @@ domains:
 
 messages:
   operations:
-    - publish:
-    - subscribe:
+    - publish
+    - subscribe
 
 dashboards:
   operations:
-    - share:
-    - unshare:
+    - share
+    - unshare
   

@@ -270,7 +270,7 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	if session.PatID != "" {
 		entityID := req.Object
 		patOp := am.entitiesOps.OperationName(policies.ClientType, op)
-		
+
 		switch op {
 		case operations.OpListUserClients:
 			entityID = auth.AnyIDs
@@ -281,7 +281,6 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 			entityID = auth.AnyIDs
 			patOp = operations.OpList
 		}
-		
 		pat = &smqauthz.PATReq{
 			UserID:     session.UserID,
 			PatID:      session.PatID,
