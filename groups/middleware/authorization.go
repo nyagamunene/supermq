@@ -395,7 +395,6 @@ func (am *authorizationMiddleware) authorize(ctx context.Context, session authn.
 	if session.PatID != "" {
 		entityID := pr.Object
 		opName := am.entitiesOps.OperationName(entityType, op)
-		
 		switch op {
 		case dOperations.OpCreateDomainGroups:
 			entityID = auth.AnyIDs

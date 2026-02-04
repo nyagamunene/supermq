@@ -224,7 +224,7 @@ func (tm *tracingMiddleware) IdentifyPAT(ctx context.Context, paToken string) (a
 func (tm *tracingMiddleware) AuthorizePAT(ctx context.Context, userID, patID string, entityType auth.EntityType, domainID string, operation string, entityID string) error {
 	ctx, span := tm.tracer.Start(ctx, "authorize_pat", trace.WithAttributes(
 		attribute.String("pat_id", patID),
-			attribute.String("entity_type", string(entityType)),
+		attribute.String("entity_type", string(entityType)),
 		attribute.String("domain_id", domainID),
 		attribute.String("operation", operation),
 		attribute.String("entities", entityID),

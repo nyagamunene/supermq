@@ -25,12 +25,10 @@ type Operation = permissions.Operation
 
 type EntityType string
 
-// PATEntities holds entity types and their allowed operations for PAT
 type PATEntities struct {
 	Operations map[EntityType][]string
 }
 
-// ValidateOperation checks if an operation is allowed for a given entity type
 func (pe *PATEntities) ValidateOperation(et EntityType, operation string) error {
 	if pe == nil {
 		return errInvalidEntityOp
@@ -47,7 +45,6 @@ func (pe *PATEntities) ValidateOperation(et EntityType, operation string) error 
 	return errInvalidEntityOp
 }
 
-// IsEnabled checks if an entity type is enabled for PAT
 func (pe *PATEntities) IsEnabled(et EntityType) bool {
 	if pe == nil {
 		return false
@@ -56,7 +53,6 @@ func (pe *PATEntities) IsEnabled(et EntityType) bool {
 	return ok
 }
 
-// BuildPATEntitiesFromConfig builds PAT entities config from parsed permissions config
 func BuildPATEntitiesFromConfig(config *permissions.PermissionConfig) (*PATEntities, error) {
 	entities := &PATEntities{
 		Operations: make(map[EntityType][]string),
