@@ -84,6 +84,8 @@ paths:
         - $ref: "./schemas/roles.yaml#/components/parameters/RoleNameQuery"
         - $ref: "#/components/parameters/AccessType"
         - $ref: "#/components/parameters/OnlyTotal"
+        - $ref: "#/components/parameters/CreatedFrom"
+        - $ref: "#/components/parameters/CreatedTo"
       tags:
         - Domains
       security:
@@ -1182,7 +1184,7 @@ components:
         additionalProperties: {}
     Tags:
       name: tags
-      description: Domain tags. Multiple tags can be specified separated by comma for OR condition and hyphen for AND condition.
+      description: Domain tags. Multiple tags can be specified separated by comma for OR condition and plus for AND condition.
       in: query
       schema:
         type: string
@@ -1290,6 +1292,26 @@ components:
         type: boolean
         default: false
       required: false
+
+    CreatedFrom:
+      name: created_from
+      description: Filter domains created from this date (inclusive).
+      in: query
+      schema:
+        type: string
+        format: date-time
+      required: false
+      example: "2023-01-01T00:00:00Z"
+
+    CreatedTo:
+      name: created_to
+      description: Filter domains created up to this date (inclusive).
+      in: query
+      schema:
+        type: string
+        format: date-time
+      required: false
+      example: "2023-12-31T23:59:59Z"
 
   requestBodies:
     DomainCreateReq:
